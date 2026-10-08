@@ -13,6 +13,8 @@ CLI-обёртка для REST API портала Битрикс24. Первый
 
 Dockerfile взят из [bitrix24/b24phpsdk, ветка v3](https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/docker/php-cli/Dockerfile). Compose и Makefile адаптированы из того же коммита: добавлены имя образа проекта и передача UID/GID, оставлены команды окружения и Composer, добавлен запуск CLI. В Dockerfile исправлены комментарий о версии PHP и путь к лицензии.
 
+Удалённые PHP-расширения закреплены по commit SHA официальных исходников: excimer 1.2.6 и yaml 2.3.0. Их сборка не зависит от доступности PECL REST metadata; набор расширений сохранён.
+
 ## Быстрый старт
 
 ```sh

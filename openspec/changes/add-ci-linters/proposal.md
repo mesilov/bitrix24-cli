@@ -28,6 +28,8 @@
 
 ## Sources
 
+Для воспроизводимой сборки на CI также затронут `docker/php-cli/Dockerfile`: текущие версии удалённых расширений `excimer`/`yaml` закрепляются по SHA официальных GitHub-исходников вместо недоступных PECL REST metadata. Набор расширений сохраняется.
+
 Проверено 2026-10-08. Источник: `bitrix24/b24phpsdk`, ветка `v3`, commit `8ebd4c154d5557db949b0196825f347a3a6c5bf0`.
 
 - https://github.com/bitrix24/b24phpsdk/blob/v3/.github/workflows/license-check.yml
