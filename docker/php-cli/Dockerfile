@@ -7,39 +7,26 @@
 #  file that was distributed with this source code.
 #
 
-# Grab the PHP extension installer script from mlocati's image
-# https://github.com/mlocati/docker-php-extension-installer#readme
-FROM mlocati/php-extension-installer:2.4 AS php-extension-installer
-
 # Separate Composer stage to install PHP dependencies efficiently
 # https://hub.docker.com/_/composer
 FROM composer:2.8 AS composer
 
-# Using official PHP 8.4 CLI image based on Debian Bookworm for development purposes
-FROM php:8.4-cli-bookworm AS dev-php
+# Use the official PHP CLI base; only bcmath and intl are missing for our lock.
+FROM php:8.4-cli-alpine3.23 AS dev-php
 
 # Copy Composer binary from the official Composer image
 COPY --from=composer /usr/bin/composer /usr/bin/composer
-# Copy PHP extension installer script from mlocati's image
-COPY --from=php-extension-installer /usr/bin/install-php-extensions /usr/bin/install-php-extensions
 
 # Link to the source repository for this image (OCI standard label)
 LABEL "org.opencontainers.image.source"="https://github.com/mesilov/bitrix24-cli"
 
-# ── expensive layers first (always cached) ────────────────────────────────────
-RUN <<EOF
-  apt-get update
-  apt-get install --no-install-recommends --no-install-suggests -q -y \
-          unzip
-  apt-get clean
-  rm -rf /var/lib/apt/lists/*
-EOF
-
-# Pin upstream source commits for excimer 1.2.6 and yaml 2.3.0.
-# This avoids PECL download outages without changing the runtime extension set.
-RUN install-php-extensions bcmath intl pcntl opcache zip \
-    wikimedia/php-excimer@cc87c1e297cc39398ca786c41a486a3c1f17c8c3 \
-    php/pecl-file_formats-yaml@c1f0d8ba5ef3884846261bbdb91c2ab0b07db44c
+# unzip handles Composer dist archives; ICU is required by intl at runtime.
+# Build from the base's PHP sources without a PECL or external installer download.
+RUN set -eux; \
+    apk add --no-cache icu-libs unzip; \
+    apk add --no-cache --virtual .build-deps $PHPIZE_DEPS icu-dev; \
+    docker-php-ext-install -j"$(nproc)" bcmath intl; \
+    apk del --no-network .build-deps
 
 WORKDIR /var/www/html
 
@@ -49,8 +36,9 @@ ENV COMPOSER_CACHE_DIR=/tmp/composer/cache
 ARG UID=10001
 ARG GID=10001
 
-RUN groupmod --gid=${GID} www-data && usermod --uid=${UID} --gid=${GID} www-data
+RUN addgroup -g "${GID}" cli \
+    && adduser -D -u "${UID}" -G cli cli \
+    && chown cli:cli /var/www/html \
+    && chmod 755 /var/www/html
 
-RUN chown www-data:www-data /var/www/html
-
-USER www-data
+USER cli

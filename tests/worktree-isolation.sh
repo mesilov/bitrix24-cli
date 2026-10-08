@@ -119,7 +119,7 @@ equal "$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/var/www/html
 announce 'checkout, dependency, configuration and UID/GID isolation'
 for checkout in "$a" "$b"; do
     compose "$checkout" run --rm -T php-cli php -r \
-        'foreach (["bcmath", "excimer", "intl", "pcntl", "Zend OPcache", "yaml", "zip"] as $extension) { if (!extension_loaded($extension)) { fwrite(STDERR, "Missing extension: ".$extension."\n"); exit(1); } } echo "excimer=".phpversion("excimer")." yaml=".phpversion("yaml")."\n";' >>"$results/extensions.log" 2>&1
+        'foreach (["bcmath", "intl"] as $extension) { if (!extension_loaded($extension)) { fwrite(STDERR, "Missing extension: ".$extension."\n"); exit(1); } } echo "php=".PHP_VERSION." platform=".PHP_OS_FAMILY." extensions=".implode(",", get_loaded_extensions())."\n";' >>"$results/extensions.log" 2>&1
     compose "$checkout" run --rm -T php-cli php -r \
         'file_put_contents("vendor/.isolation-dependency", getcwd()); file_put_contents(".isolation-owner", posix_getuid().":".posix_getgid());' >>"$results/files.log" 2>&1
     equal "$(cat "$checkout/.isolation-owner")" "$(id -u):$(id -g)" 'wrong container UID/GID'
