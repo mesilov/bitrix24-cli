@@ -8,13 +8,13 @@ export DOCKER_CLIENT_TIMEOUT=120
 export LOCAL_UID ?= $(shell id -u)
 export LOCAL_GID ?= $(shell id -g)
 
-COMPOSE := docker compose
+COMPOSE := sh ./scripts/compose.sh
 RUN := $(COMPOSE) run --rm -T php-cli
 ARGS ?=
 
 .PHONY: help docker-init docker-build docker-up docker-down docker-restart \
         composer-install composer-update composer-dumpautoload composer \
-        composer-validate php-cli-bash cli lint check
+        composer-validate php-cli-bash cli lint check worktree-info test-worktree
 
 help:
 	@printf '%s\n' \
@@ -33,7 +33,15 @@ help:
 	  'php-cli-bash         Open a shell in the PHP container' \
 	  'cli ARGS="..."       Run bin/console (default: command list)' \
 	  'lint                 Check PHP syntax' \
-	  'check                Validate Composer, PHP syntax and CLI startup'
+	  'check                Validate Composer, PHP syntax and CLI startup' \
+	  'worktree-info        Show this checkout and its Compose project' \
+	  'test-worktree        Verify two concurrent worktrees from committed HEAD'
+
+worktree-info:
+	@$(COMPOSE) --info
+
+test-worktree:
+	bash ./tests/worktree-isolation.sh
 
 docker-init:
 	$(MAKE) docker-build

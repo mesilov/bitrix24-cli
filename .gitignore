@@ -2,3 +2,5 @@
 /vendor/
 /.env
 /.env.local
+/.worktree/
+/.worktree-test-results/
