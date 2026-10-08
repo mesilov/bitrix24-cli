@@ -1,0 +1,19 @@
+{
+    "name": "mesilov/bitrix24-cli",
+    "description": "CLI client for the Bitrix24 portal REST API",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": "8.4.* || 8.5.*",
+        "bitrix24/b24phpsdk": "^3.7",
+        "symfony/console": "^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Bitrix24\\CLI\\": "src/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
