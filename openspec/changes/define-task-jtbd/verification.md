@@ -7,13 +7,13 @@
 - В delta и основной spec task-workflows 17 требований и 19 JTBD-сценариев: PM-01..06, AM-01..06, EMP-01..07. Сохранены 16 прежних сценариев; 3 новых относятся к переписке.
 - У каждого JTBD сохранены ситуация, желаемое действие, рабочая цель и признак успеха. Общий chat contract включает всех участников в пределах прав, чтение истории и отправку сообщения в нужную задачу.
 - Основная спецификация содержит Purpose и Requirements без delta-заголовков; content соответствует delta. Product roles не предоставляют REST rights; клиентская и внутренняя приёмка различаются.
-- openspec validate --specs --strict: 3 passed, 0 failed. openspec validate define-task-jtbd --strict: valid.
+- openspec validate --specs --strict: 4 passed, 0 failed после добавления cli-experience. openspec validate define-task-jtbd --strict: valid.
 - MCP inventory построен по 27 файлам server/mcp/tools/tasks на commit 1f825befd6bfcb620324bd87858977062fabf9ec, актуальному HEAD при проверке. Все имена извлечены из defineMcpTool, REST имена — из исходников; Markdown/JSON сверены. b24_task_comment_add вызывает task.commentitem.add; в этом каталоге нет tool для чтения task chat или отправки через tasks.task.chat.message.send.
 - Изменения ограничены planning artifacts и новой основной spec; приложение, dependencies и чужие спецификации не изменялись. Issue #10 и PR #11 сохраняют трассировку обоих changes.
 
 ## Что остаётся открытым
 
-В tasks.md выполнены 5 из 8 задач фиксации/проектирования, 3 задачи закрытия условного покрытия остаются открытыми. Спецификация выражает согласованный продуктовый контракт, не успешное runtime acceptance. В bin/console нет прикладных task commands; реализация этих требований не подтверждена. Полную openspec-verify-change для implementation следует выполнить после реализации, не подменяя её validation схемы документов.
+В tasks.md выполнены 6 из 9 задач фиксации/проектирования, 3 задачи закрытия условного покрытия остаются открытыми. Спецификация выражает согласованный продуктовый контракт, не успешное runtime acceptance. В bin/console нет прикладных task commands; реализация этих требований не подтверждена. Полную openspec-verify-change для implementation следует выполнить после реализации, не подменяя её validation схемы документов.
 
 Не выполнялись live tools/list MCP, установка templates-mcp и операции на портале. Каталог не приписывается официальному hosted MCP.
 
@@ -24,3 +24,12 @@
 - jtbd-coverage.json/md содержит 19 уникальных ID, полностью совпадающих со scenario IDs основной spec. Все ссылки commands существуют в каталоге; каждая строка содержит условие/gap и будущий acceptance case. JSON/Markdown/source links и разделители таблиц проверены временным скриптом.
 - Количественные проверки: new card documented 7, conditional 12; strict REST3 documented 4, conditional 14, gap 1 (EMP-06 write/correct time). Documented означает основной маршрут, не выполненный end-to-end сценарий.
 - Подробные условия не превращаются в успешный coverage score: provider рабочих фактов, lifecycle semantics, IM exception, scan completeness и time policy не приняты или не проверены.
+
+## Дополнение: CLI Guidelines и пользовательский контракт
+
+- Первичный источник content/_index.md из cli-guidelines/cli-guidelines проверен на commit 697d6a29fc8c93d3981a755c0c7683507ad39c3e; ссылки, дата, авторы и лицензия указаны в каталоге, соответствие разделам и проектные решения — в design.md.
+- Добавлена cli-experience delta и основная spec: 11 требований, 29 проверяемых сценариев. Сверены полное совпадение после преобразования заголовков, уникальность имён, WHEN/THEN и предел длины нормативных описаний.
+- Все 55 command paths используют пробелы и прямой bitrix24 вызов; сложные связанные IDs переведены в named flags. Markdown/JSON синтаксис каждой записи совпадает, таблицы и локальные ссылки валидны. previous_proposal_name сохраняет историю, не runtime alias.
+- Проверены удобные update/create flags, файловый ввод PATH/-, --fields/--fields-file, форматы/потоки, help, exit codes, finite defaults, dry-run/delete confirmation и ограничения автоматизации. Shell examples проверены bash -n и token parsing без исполнения task commands.
+- Baseline comparison подтверждает неизменность всех methods, method_routes/API versions/SDK wrappers, sources, route/kind/effect и связей JTBD. Все 19 coverage references обновлены; conditions/acceptance отличаются только именами. Counts 7/12 и 4/14/1 сохранены. Принятая task-workflows spec и её delta не менялись.
+- Повторная openspec validate --specs --strict: 4 passed, 0 failed; validate define-task-jtbd --strict: valid. git diff --check проходит. Runtime/PHP, auth, packaging и portal acceptance не выполнялись; обновлён проект интерфейса.

@@ -12,12 +12,14 @@
 - Сохранить проверенный каталог tools официального templates-mcp и отметить gap по современному task chat.
 - Собрать потенциальный CLI для новой карточки: 42 кандидата и 13 расширений с прежним API; исключить legacy-комментарии, отделить REST3 task routes от IM companions и условных lifecycle mappings.
 - Проверить все 19 JTBD по cli-candidates.md/json и jtbd-coverage.md/json. Не выдавать наличие имён за полное покрытие; сохранить ограничения данных, strict-rest3 и оставшиеся решения.
+- Применить [Command Line Interface Guidelines](https://github.com/cli-guidelines/cli-guidelines), проверенные на commit `697d6a29fc8c93d3981a755c0c7683507ad39c3e`: создать контракт cli-experience и обновить 55 кандидатов на прямой вызов `bitrix24 tasks <action>`, удобные флаги полей, справку, файловый ввод, JSON/обычный вывод, ошибки и предсказуемую автоматизацию.
 
 ## Capabilities
 
 ### New Capabilities
 
 - `task-workflows`: пользовательские сценарии блока задач: координация проекта, клиентские договорённости, исполнение и переписка участников.
+- `cli-experience`: согласованные правила пользовательского интерфейса будущего CLI по CLI Guidelines; структура команд, входы, вывод и проверяемые условия автоматизации.
 
 ### Modified Capabilities
 

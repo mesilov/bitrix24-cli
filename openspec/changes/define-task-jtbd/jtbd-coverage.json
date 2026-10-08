@@ -7,9 +7,9 @@
     {
       "id": "PM-01",
       "commands": [
-        "tasks:create",
-        "tasks:subtask:create",
-        "tasks:get"
+        "tasks create",
+        "tasks subtask create",
+        "tasks show"
       ],
       "new_card_status": "documented",
       "strict_rest3_status": "documented",
@@ -19,10 +19,10 @@
     {
       "id": "PM-02",
       "commands": [
-        "tasks:list",
-        "tasks:plan",
-        "tasks:risks",
-        "tasks:dependency:list"
+        "tasks list",
+        "tasks plan",
+        "tasks risks",
+        "tasks dependency list"
       ],
       "new_card_status": "conditional",
       "strict_rest3_status": "conditional",
@@ -32,9 +32,9 @@
     {
       "id": "PM-03",
       "commands": [
-        "tasks:blocker:raise",
-        "tasks:blocker:resolve",
-        "tasks:chat:send"
+        "tasks blocker raise",
+        "tasks blocker resolve",
+        "tasks chat send"
       ],
       "new_card_status": "conditional",
       "strict_rest3_status": "conditional",
@@ -44,11 +44,11 @@
     {
       "id": "PM-04",
       "commands": [
-        "tasks:plan",
-        "tasks:assign",
-        "tasks:deadline:set",
-        "tasks:change:propose",
-        "tasks:change:accept"
+        "tasks plan",
+        "tasks assign",
+        "tasks deadline set",
+        "tasks change propose",
+        "tasks change accept"
       ],
       "new_card_status": "conditional",
       "strict_rest3_status": "conditional",
@@ -58,10 +58,10 @@
     {
       "id": "PM-05",
       "commands": [
-        "tasks:result:list",
-        "tasks:approve",
-        "tasks:disapprove",
-        "tasks:acceptance:record"
+        "tasks result list",
+        "tasks approve",
+        "tasks disapprove",
+        "tasks acceptance record"
       ],
       "new_card_status": "conditional",
       "strict_rest3_status": "conditional",
@@ -71,8 +71,8 @@
     {
       "id": "PM-06",
       "commands": [
-        "tasks:chat:list",
-        "tasks:chat:send"
+        "tasks chat list",
+        "tasks chat send"
       ],
       "new_card_status": "documented",
       "strict_rest3_status": "conditional",
@@ -82,8 +82,8 @@
     {
       "id": "AM-01",
       "commands": [
-        "tasks:create",
-        "tasks:get"
+        "tasks create",
+        "tasks show"
       ],
       "new_card_status": "documented",
       "strict_rest3_status": "documented",
@@ -93,9 +93,9 @@
     {
       "id": "AM-02",
       "commands": [
-        "tasks:risks",
-        "tasks:report",
-        "tasks:context:set"
+        "tasks risks",
+        "tasks report",
+        "tasks context set"
       ],
       "new_card_status": "conditional",
       "strict_rest3_status": "conditional",
@@ -105,8 +105,8 @@
     {
       "id": "AM-03",
       "commands": [
-        "tasks:report",
-        "tasks:brief"
+        "tasks report",
+        "tasks brief"
       ],
       "new_card_status": "conditional",
       "strict_rest3_status": "conditional",
@@ -116,9 +116,9 @@
     {
       "id": "AM-04",
       "commands": [
-        "tasks:change:propose",
-        "tasks:change:accept",
-        "tasks:update"
+        "tasks change propose",
+        "tasks change accept",
+        "tasks update"
       ],
       "new_card_status": "conditional",
       "strict_rest3_status": "conditional",
@@ -128,11 +128,11 @@
     {
       "id": "AM-05",
       "commands": [
-        "tasks:result:list",
-        "tasks:delivery:record",
-        "tasks:feedback:record",
-        "tasks:acceptance:record",
-        "tasks:report"
+        "tasks result list",
+        "tasks delivery record",
+        "tasks feedback record",
+        "tasks acceptance record",
+        "tasks report"
       ],
       "new_card_status": "conditional",
       "strict_rest3_status": "conditional",
@@ -142,8 +142,8 @@
     {
       "id": "AM-06",
       "commands": [
-        "tasks:chat:list",
-        "tasks:chat:send"
+        "tasks chat list",
+        "tasks chat send"
       ],
       "new_card_status": "documented",
       "strict_rest3_status": "conditional",
@@ -153,8 +153,8 @@
     {
       "id": "EMP-01",
       "commands": [
-        "tasks:my",
-        "tasks:list"
+        "tasks my",
+        "tasks list"
       ],
       "new_card_status": "documented",
       "strict_rest3_status": "documented",
@@ -164,8 +164,8 @@
     {
       "id": "EMP-02",
       "commands": [
-        "tasks:get",
-        "tasks:chat:send"
+        "tasks show",
+        "tasks chat send"
       ],
       "new_card_status": "documented",
       "strict_rest3_status": "documented",
@@ -175,8 +175,8 @@
     {
       "id": "EMP-03",
       "commands": [
-        "tasks:blocker:raise",
-        "tasks:chat:send"
+        "tasks blocker raise",
+        "tasks chat send"
       ],
       "new_card_status": "conditional",
       "strict_rest3_status": "conditional",
@@ -186,10 +186,10 @@
     {
       "id": "EMP-04",
       "commands": [
-        "tasks:brief",
-        "tasks:change:propose",
-        "tasks:change:accept",
-        "tasks:get"
+        "tasks brief",
+        "tasks change propose",
+        "tasks change accept",
+        "tasks show"
       ],
       "new_card_status": "conditional",
       "strict_rest3_status": "conditional",
@@ -199,10 +199,10 @@
     {
       "id": "EMP-05",
       "commands": [
-        "tasks:result:add",
-        "tasks:result:from-message",
-        "tasks:file:attach",
-        "tasks:complete"
+        "tasks result add",
+        "tasks result from-message",
+        "tasks file attach",
+        "tasks complete"
       ],
       "new_card_status": "conditional",
       "strict_rest3_status": "conditional",
@@ -212,10 +212,10 @@
     {
       "id": "EMP-06",
       "commands": [
-        "tasks:time:show",
-        "tasks:time:add",
-        "tasks:time:list",
-        "tasks:time:update"
+        "tasks time show",
+        "tasks time add",
+        "tasks time list",
+        "tasks time update"
       ],
       "new_card_status": "conditional",
       "strict_rest3_status": "gap",
@@ -225,8 +225,8 @@
     {
       "id": "EMP-07",
       "commands": [
-        "tasks:chat:list",
-        "tasks:chat:send"
+        "tasks chat list",
+        "tasks chat send"
       ],
       "new_card_status": "documented",
       "strict_rest3_status": "conditional",
@@ -245,5 +245,6 @@
       "conditional": 14,
       "gap": 1
     }
-  }
+  },
+  "cli_contract": "openspec/specs/cli-experience/spec.md"
 }

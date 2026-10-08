@@ -6,6 +6,7 @@
 - [x] 1.2 Синхронизировать task-workflows в актуальные specs; проверить совпадение Purpose/Requirements с delta и выполнить openspec validate --specs --strict.
 - [x] 1.3 Сохранить MCP inventory по 27 исходникам закреплённого commit; проверить уникальные зарегистрированные tool names, JSON/Markdown и legacy вызов comment.
 - [x] 1.4 Сохранить потенциальные CLI-команды и матрицу полноты для всех 19 JTBD; проверить 55 уникальных имён (42 кандидата + 13 расширений), ссылки команд/сценариев, API/SDK маршруты и source paths, JSON/Markdown и количественные результаты.
+- [x] 1.5 Закрепить первичный источник CLI Guidelines, сохранить cli-experience delta/main и согласовать 55 command paths/flags/19 coverage references; проверить strict validation, JSON/Markdown, неизменность API mappings и полноты, прямые shell examples. Только planning, не реализация CLI.
 
 ## 2. Проектирование дальнейшей реализации
 

@@ -2,6 +2,8 @@
 
 Дата: 2026-10-09. Основания: [основная spec](../../specs/task-workflows/spec.md), [каталог](cli-candidates.md), [JSON проверки](jtbd-coverage.json). Проверка статическая, на уровне проектирования; команд в приложении нет.
 
+Имена команд обновлены по [CLI Guidelines](https://github.com/cli-guidelines/cli-guidelines/tree/697d6a29fc8c93d3981a755c0c7683507ad39c3e): вызов `bitrix24` плюс указанный command path. [cli-experience](../../specs/cli-experience/spec.md) задаёт общий UX-контракт. Переименование и удобные flags не меняют API routes, условия покрытия или результаты acceptance.
+
 ## Итог
 
 Все **19/19 JTBD имеют кандидатные команды**, но это не 19/19 доказанных сценариев:
@@ -18,25 +20,25 @@
 
 | JTBD | Кандидатные команды | Новая карточка | Strict REST3 | Условие / gap |
 | --- | --- | --- | --- | --- |
-| PM-01 | `tasks:create`, `tasks:subtask:create`, `tasks:get` | documented | documented | Для каждого задания заданы title, creator/responsible, deadline и критерии в description. Зависимости/чек-листы — отдельные расширения, не обязательны для базовой декомпозиции. |
-| PM-02 | `tasks:list`, `tasks:plan`, `tasks:risks`, `tasks:dependency:list` | conditional | conditional | Просрочки вычисляются; полная выборка локально фильтруется. Для blockers/ожиданий нужен утверждённый источник; v3 gantt.list даёт только исходящие связи. |
-| PM-03 | `tasks:blocker:raise`, `tasks:blocker:resolve`, `tasks:chat:send` | conditional | conditional | Нужен контракт событий препятствия, owner/next-step и конфликтных изменений. Чатное уведомление не гарантирует прочтение. |
-| PM-04 | `tasks:plan`, `tasks:assign`, `tasks:deadline:set`, `tasks:change:propose`, `tasks:change:accept` | conditional | conditional | Само update v3 документировано; согласование и ресурсные ограничения требуют данных/протокола. Ответственный не равен процедуре delegate. |
-| PM-05 | `tasks:result:list`, `tasks:approve`, `tasks:disapprove`, `tasks:acceptance:record` | conditional | conditional | REST3 status writable в модели, но эквивалентность approve/disapprove требует acceptance. До него специальные команды disabled. |
-| PM-06 | `tasks:chat:list`, `tasks:chat:send` | documented | conditional | Отправка REST3, история через документированный IM companion route; только участник task chat с правами. |
-| AM-01 | `tasks:create`, `tasks:get` | documented | documented | Для базового сценария источник запроса, клиентский контекст и ожидание вводятся оператором в description. Автоматический импорт из CRM не требуется и не обещается. |
-| AM-02 | `tasks:risks`, `tasks:report`, `tasks:context:set` | conditional | conditional | Обещанный клиенту срок может отличаться от task.deadline. Нужны clientRef, promisedAt, связь обязательств с задачами и полнота выборки. |
-| AM-03 | `tasks:report`, `tasks:brief` | conditional | conditional | Следующий шаг и следующее обновление требуют явных данных, не вывода из status или произвольного текста чата. |
-| AM-04 | `tasks:change:propose`, `tasks:change:accept`, `tasks:update` | conditional | conditional | Нужен контракт исходных и новых требований, влияния на объём/сроки и решения согласующего. Запись решения отдельно от применения. |
-| AM-05 | `tasks:result:list`, `tasks:delivery:record`, `tasks:feedback:record`, `tasks:acceptance:record`, `tasks:report` | conditional | conditional | Публичная передача и отзыв подтверждаются оператором/источником. Хранилище и схема событий ещё не приняты; команды не отправляют клиенту сообщения. |
-| AM-06 | `tasks:chat:list`, `tasks:chat:send` | documented | conditional | Новая task-card переписка по маршрутам REST3 + IM; внешний клиент не получает права от роли аккаунт менеджера. |
-| EMP-01 | `tasks:my`, `tasks:list` | documented | documented | Фильтрация по responsible/status/deadline выполняется локально после полного обхода доступных задач. Нужен заданный user ID; при cap результат явно partial. |
-| EMP-02 | `tasks:get`, `tasks:chat:send` | documented | documented | Требования/материалы/критерии доступны в карточке и ссылках. Недостающие сведения запрашиваются через REST3 task chat. История обсуждения — дополнительный IM route. |
-| EMP-03 | `tasks:blocker:raise`, `tasks:chat:send` | conditional | conditional | Чат позволяет сообщить проблему, но для поиска/закрытия препятствий нужны reason, needs, owner, next-step и источник этих фактов. |
-| EMP-04 | `tasks:brief`, `tasks:change:propose`, `tasks:change:accept`, `tasks:get` | conditional | conditional | Чтобы отличить принятые ожидания от обсуждения, нужна явная модель согласования/истории. Нативная history пока только прежний маршрут. |
-| EMP-05 | `tasks:result:add`, `tasks:result:from-message`, `tasks:file:attach`, `tasks:complete` | conditional | conditional | Предъявить result через v3 можно; переход на контроль, requireResult и post-condition complete нуждаются в lifecycle acceptance. |
-| EMP-06 | `tasks:time:show`, `tasks:time:add`, `tasks:time:list`, `tasks:time:update` | conditional | gap | V3 даёт чтение elapsedTime, но не документирует запись/исправление elapsed entries. Нужны явные legacy time exceptions либо оставить сценарий вне strictly-v3 MVP. |
-| EMP-07 | `tasks:chat:list`, `tasks:chat:send` | documented | conditional | История IM и send v3 документированы для новой карточки. Действия выполняются от текущего подключения, не подставленного AUTHOR_ID. |
+| PM-01 | `tasks create`, `tasks subtask create`, `tasks show` | documented | documented | Для каждого задания заданы title, creator/responsible, deadline и критерии в description. Зависимости/чек-листы — отдельные расширения, не обязательны для базовой декомпозиции. |
+| PM-02 | `tasks list`, `tasks plan`, `tasks risks`, `tasks dependency list` | conditional | conditional | Просрочки вычисляются; полная выборка локально фильтруется. Для blockers/ожиданий нужен утверждённый источник; v3 gantt.list даёт только исходящие связи. |
+| PM-03 | `tasks blocker raise`, `tasks blocker resolve`, `tasks chat send` | conditional | conditional | Нужен контракт событий препятствия, owner/next-step и конфликтных изменений. Чатное уведомление не гарантирует прочтение. |
+| PM-04 | `tasks plan`, `tasks assign`, `tasks deadline set`, `tasks change propose`, `tasks change accept` | conditional | conditional | Само update v3 документировано; согласование и ресурсные ограничения требуют данных/протокола. Ответственный не равен процедуре delegate. |
+| PM-05 | `tasks result list`, `tasks approve`, `tasks disapprove`, `tasks acceptance record` | conditional | conditional | REST3 status writable в модели, но эквивалентность approve/disapprove требует acceptance. До него специальные команды disabled. |
+| PM-06 | `tasks chat list`, `tasks chat send` | documented | conditional | Отправка REST3, история через документированный IM companion route; только участник task chat с правами. |
+| AM-01 | `tasks create`, `tasks show` | documented | documented | Для базового сценария источник запроса, клиентский контекст и ожидание вводятся оператором в description. Автоматический импорт из CRM не требуется и не обещается. |
+| AM-02 | `tasks risks`, `tasks report`, `tasks context set` | conditional | conditional | Обещанный клиенту срок может отличаться от task.deadline. Нужны clientRef, promisedAt, связь обязательств с задачами и полнота выборки. |
+| AM-03 | `tasks report`, `tasks brief` | conditional | conditional | Следующий шаг и следующее обновление требуют явных данных, не вывода из status или произвольного текста чата. |
+| AM-04 | `tasks change propose`, `tasks change accept`, `tasks update` | conditional | conditional | Нужен контракт исходных и новых требований, влияния на объём/сроки и решения согласующего. Запись решения отдельно от применения. |
+| AM-05 | `tasks result list`, `tasks delivery record`, `tasks feedback record`, `tasks acceptance record`, `tasks report` | conditional | conditional | Публичная передача и отзыв подтверждаются оператором/источником. Хранилище и схема событий ещё не приняты; команды не отправляют клиенту сообщения. |
+| AM-06 | `tasks chat list`, `tasks chat send` | documented | conditional | Новая task-card переписка по маршрутам REST3 + IM; внешний клиент не получает права от роли аккаунт менеджера. |
+| EMP-01 | `tasks my`, `tasks list` | documented | documented | Фильтрация по responsible/status/deadline выполняется локально после полного обхода доступных задач. Нужен заданный user ID; при cap результат явно partial. |
+| EMP-02 | `tasks show`, `tasks chat send` | documented | documented | Требования/материалы/критерии доступны в карточке и ссылках. Недостающие сведения запрашиваются через REST3 task chat. История обсуждения — дополнительный IM route. |
+| EMP-03 | `tasks blocker raise`, `tasks chat send` | conditional | conditional | Чат позволяет сообщить проблему, но для поиска/закрытия препятствий нужны reason, needs, owner, next-step и источник этих фактов. |
+| EMP-04 | `tasks brief`, `tasks change propose`, `tasks change accept`, `tasks show` | conditional | conditional | Чтобы отличить принятые ожидания от обсуждения, нужна явная модель согласования/истории. Нативная history пока только прежний маршрут. |
+| EMP-05 | `tasks result add`, `tasks result from-message`, `tasks file attach`, `tasks complete` | conditional | conditional | Предъявить result через v3 можно; переход на контроль, requireResult и post-condition complete нуждаются в lifecycle acceptance. |
+| EMP-06 | `tasks time show`, `tasks time add`, `tasks time list`, `tasks time update` | conditional | gap | V3 даёт чтение elapsedTime, но не документирует запись/исправление elapsed entries. Нужны явные legacy time exceptions либо оставить сценарий вне strictly-v3 MVP. |
+| EMP-07 | `tasks chat list`, `tasks chat send` | documented | conditional | История IM и send v3 документированы для новой карточки. Действия выполняются от текущего подключения, не подставленного AUTHOR_ID. |
 
 ## Будущие acceptance проверки по JTBD
 

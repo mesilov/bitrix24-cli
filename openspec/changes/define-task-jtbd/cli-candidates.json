@@ -7,9 +7,9 @@
   "scope": "new task card; v3 task writes; IM companion routes explicit; no legacy comments",
   "commands": [
     {
-      "name": "tasks:create",
+      "name": "tasks create",
       "group": "Карточка и выборки",
-      "syntax": "--title TEXT --creator ID --responsible ID [--project ID --deadline ISO8601 --description-file PATH --fields @JSON]",
+      "syntax": "--title TEXT --creator ID --responsible ID [--project ID --deadline ISO8601 --description TEXT | --description-file PATH|-] [--fields JSON | --fields-file PATH|-]",
       "route": "rest3",
       "methods": [
         "tasks.task.add"
@@ -21,7 +21,7 @@
         "PM-01",
         "AM-01"
       ],
-      "note": "Требуются title, creatorId, responsibleId. Критерии приёмки/источник/клиентский контекст можно передать текстом описания; структурированная модель отдельно.",
+      "note": "Требуются title, creatorId, responsibleId. Критерии приёмки/источник/клиентский контекст можно передать текстом описания; структурированная модель отдельно. Обычные флаги разрешены вместе; advanced fields object задаёт дополнительные writable поля без повторного задания полей, уже заданных флагами. Title/creator/responsible обязательны и в итоговом advanced вводе.",
       "kind": "candidate",
       "effect": "write",
       "method_routes": [
@@ -37,12 +37,13 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:create"
     },
     {
-      "name": "tasks:get",
+      "name": "tasks show",
       "group": "Карточка и выборки",
-      "syntax": "TASK_ID [--select JSON]",
+      "syntax": "TASK_ID [--select FIELD ...]",
       "route": "rest3",
       "methods": [
         "tasks.task.get"
@@ -71,12 +72,13 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:get"
     },
     {
-      "name": "tasks:list",
+      "name": "tasks list",
       "group": "Карточка и выборки",
-      "syntax": "[--filter JSON] [--where @JSON] [--select JSON --order JSON --limit N --all --max-scan N]",
+      "syntax": "[--id ID ...] [--responsible ID --project ID --status STATUS --due-before ISO8601] [--where JSON | --where-file PATH|-] [--select FIELD ... --order FIELD:asc|desc ... --limit N | --all] [--max-scan N]",
       "route": "rest3-client-filter",
       "methods": [
         "tasks.task.list"
@@ -89,7 +91,7 @@
         "AM-02",
         "EMP-01"
       ],
-      "note": "REST filter только id. --where выполняется локально по явно выбранным полям; полнота требует обхода всех доступных задач. --limit ограничивает выход, --max-scan число просмотренных, это разные значения.",
+      "note": "REST filter только id. --where выполняется локально по явно выбранным полям; полнота требует обхода всех доступных задач. --limit ограничивает выход, --max-scan число просмотренных, это разные значения. --responsible/--project/--status/--due-before — локальные predicates; --id — единственный server filter. --where/--where-file — альтернативный advanced режим локального фильтра, без смешивания с удобными predicates. --limit и --all взаимоисключающие.",
       "kind": "candidate",
       "effect": "read",
       "method_routes": [
@@ -99,12 +101,13 @@
           "sdk": "core-gap",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:list"
     },
     {
-      "name": "tasks:update",
+      "name": "tasks update",
       "group": "Карточка и выборки",
-      "syntax": "TASK_ID --fields @JSON",
+      "syntax": "TASK_ID [--title TEXT] [--creator ID] [--responsible ID] [--project ID] [--deadline ISO8601] [--description TEXT | --description-file PATH|-] [--fields JSON | --fields-file PATH|-]",
       "route": "rest3",
       "methods": [
         "tasks.task.update"
@@ -118,7 +121,7 @@
         "AM-04",
         "EMP-04"
       ],
-      "note": "CamelCase, boolean true/false. accomplices/auditors/tags/userFields read-only. Не скрывать read-modify-write гонки.",
+      "note": "CamelCase, boolean true/false. accomplices/auditors/tags/userFields read-only. Не скрывать read-modify-write гонки. Обычные флаги можно комбинировать; требуется хотя бы одно изменение. Advanced --fields/--fields-file вместо флагов редактирования; дубли, read-only поля и gated status отклоняются до записи.",
       "kind": "candidate",
       "effect": "write",
       "method_routes": [
@@ -134,12 +137,13 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:update"
     },
     {
-      "name": "tasks:delete",
+      "name": "tasks delete",
       "group": "Карточка и выборки",
-      "syntax": "TASK_ID --yes",
+      "syntax": "TASK_ID [--force]",
       "route": "rest3",
       "methods": [
         "tasks.task.delete"
@@ -164,10 +168,11 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:delete"
     },
     {
-      "name": "tasks:fields",
+      "name": "tasks fields list",
       "group": "Карточка и выборки",
       "syntax": "[--name FIELD]",
       "route": "rest3",
@@ -208,10 +213,11 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:fields"
     },
     {
-      "name": "tasks:access",
+      "name": "tasks access show",
       "group": "Карточка и выборки",
       "syntax": "TASK_ID",
       "route": "rest3",
@@ -238,10 +244,11 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:access"
     },
     {
-      "name": "tasks:assign",
+      "name": "tasks assign",
       "group": "Карточка и выборки",
       "syntax": "TASK_ID --responsible ID",
       "route": "rest3",
@@ -271,10 +278,11 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:assign"
     },
     {
-      "name": "tasks:deadline:set",
+      "name": "tasks deadline set",
       "group": "Карточка и выборки",
       "syntax": "TASK_ID --at ISO8601",
       "route": "rest3",
@@ -305,12 +313,13 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:deadline:set"
     },
     {
-      "name": "tasks:subtask:create",
+      "name": "tasks subtask create",
       "group": "Карточка и выборки",
-      "syntax": "PARENT_ID --title TEXT --creator ID --responsible ID [--fields @JSON]",
+      "syntax": "PARENT_ID --title TEXT --creator ID --responsible ID [--description TEXT | --description-file PATH|-] [--fields JSON | --fields-file PATH|-]",
       "route": "rest3",
       "methods": [
         "tasks.task.add"
@@ -322,7 +331,7 @@
       "jtbd": [
         "PM-01"
       ],
-      "note": "fields.parentId; подзадачи не заменяют зависимости Ганта.",
+      "note": "fields.parentId; подзадачи не заменяют зависимости Ганта. Parent задаётся только PARENT_ID; advanced fields не переопределяет parentId и другие флаги. Действуют правила create.",
       "kind": "candidate",
       "effect": "write",
       "method_routes": [
@@ -338,10 +347,11 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:subtask:create"
     },
     {
-      "name": "tasks:dependency:list",
+      "name": "tasks dependency list",
       "group": "Карточка и выборки",
       "syntax": "TASK_ID [--limit N --offset N]",
       "route": "rest3",
@@ -364,10 +374,11 @@
           "sdk": "core-gap",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:dependency:list"
     },
     {
-      "name": "tasks:chat:list",
+      "name": "tasks chat list",
       "group": "Чат новой задачи",
       "syntax": "TASK_ID [--before MESSAGE_ID | --after MESSAGE_ID] [--limit N --all --max-messages N]",
       "route": "messenger",
@@ -406,12 +417,13 @@
           "sdk": "outside-task-inventory",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:chat:list"
     },
     {
-      "name": "tasks:chat:send",
+      "name": "tasks chat send",
       "group": "Чат новой задачи",
-      "syntax": "TASK_ID (--text TEXT | --text-file PATH)",
+      "syntax": "TASK_ID (--text TEXT | --text-file PATH|-)",
       "route": "rest3",
       "methods": [
         "tasks.task.chat.message.send"
@@ -441,12 +453,13 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:chat:send"
     },
     {
-      "name": "tasks:chat:update",
+      "name": "tasks chat update",
       "group": "Чат новой задачи",
-      "syntax": "TASK_ID MESSAGE_ID --text TEXT",
+      "syntax": "TASK_ID --message MESSAGE_ID (--text TEXT | --text-file PATH|-)",
       "route": "messenger",
       "methods": [
         "tasks.task.get",
@@ -457,7 +470,7 @@
         "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/chats/messages/im-message-update.md"
       ],
       "jtbd": [],
-      "note": "Проверить принадлежность сообщения выбранному task chat и авторство; пустой text запретить, поскольку API трактует как удаление.",
+      "note": "Проверить принадлежность сообщения выбранному task chat и авторство; пустой text запретить, поскольку API трактует как удаление. --message явно отличает сообщение от задачи; --text и --text-file взаимоисключающие.",
       "kind": "candidate",
       "effect": "write",
       "method_routes": [
@@ -479,12 +492,13 @@
           "sdk": "outside-task-inventory",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:chat:update"
     },
     {
-      "name": "tasks:chat:delete",
+      "name": "tasks chat delete",
       "group": "Чат новой задачи",
-      "syntax": "TASK_ID MESSAGE_ID --yes",
+      "syntax": "TASK_ID --message MESSAGE_ID [--force]",
       "route": "messenger",
       "methods": [
         "tasks.task.get",
@@ -517,12 +531,13 @@
           "sdk": "outside-task-inventory",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:chat:delete"
     },
     {
-      "name": "tasks:result:add",
+      "name": "tasks result add",
       "group": "Результат и материалы",
-      "syntax": "TASK_ID (--text TEXT | --text-file PATH)",
+      "syntax": "TASK_ID (--text TEXT | --text-file PATH|-)",
       "route": "rest3",
       "methods": [
         "tasks.task.result.add"
@@ -545,12 +560,13 @@
           "sdk": "core-gap",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:result:add"
     },
     {
-      "name": "tasks:result:list",
+      "name": "tasks result list",
       "group": "Результат и материалы",
-      "syntax": "TASK_ID [--params @JSON]",
+      "syntax": "TASK_ID [--params JSON | --params-file PATH|-]",
       "route": "rest3",
       "methods": [
         "tasks.task.result.list"
@@ -573,12 +589,13 @@
           "sdk": "core-gap",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:result:list"
     },
     {
-      "name": "tasks:result:update",
+      "name": "tasks result update",
       "group": "Результат и материалы",
-      "syntax": "RESULT_ID --text TEXT",
+      "syntax": "RESULT_ID (--text TEXT | --text-file PATH|-)",
       "route": "rest3",
       "methods": [
         "tasks.task.result.update"
@@ -599,12 +616,13 @@
           "sdk": "core-gap",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:result:update"
     },
     {
-      "name": "tasks:result:delete",
+      "name": "tasks result delete",
       "group": "Результат и материалы",
-      "syntax": "RESULT_ID --yes",
+      "syntax": "RESULT_ID [--force]",
       "route": "rest3",
       "methods": [
         "tasks.task.result.delete"
@@ -623,10 +641,11 @@
           "sdk": "core-gap",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:result:delete"
     },
     {
-      "name": "tasks:result:from-message",
+      "name": "tasks result from-message",
       "group": "Результат и материалы",
       "syntax": "MESSAGE_ID",
       "route": "rest3",
@@ -649,12 +668,13 @@
           "sdk": "core-gap",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:result:from-message"
     },
     {
-      "name": "tasks:file:attach",
+      "name": "tasks file attach",
       "group": "Результат и материалы",
-      "syntax": "TASK_ID --file-ids JSON",
+      "syntax": "TASK_ID --file-id ID ...",
       "route": "rest3",
       "methods": [
         "tasks.task.file.attach"
@@ -683,10 +703,11 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:file:attach"
     },
     {
-      "name": "tasks:time:show",
+      "name": "tasks time show",
       "group": "Результат и материалы",
       "syntax": "TASK_ID",
       "route": "rest3",
@@ -715,10 +736,11 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:time:show"
     },
     {
-      "name": "tasks:start",
+      "name": "tasks start",
       "group": "Жизненный цикл",
       "syntax": "TASK_ID",
       "route": "lifecycle-gate",
@@ -749,10 +771,11 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:start"
     },
     {
-      "name": "tasks:pause",
+      "name": "tasks pause",
       "group": "Жизненный цикл",
       "syntax": "TASK_ID",
       "route": "lifecycle-gate",
@@ -781,10 +804,11 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:pause"
     },
     {
-      "name": "tasks:defer",
+      "name": "tasks defer",
       "group": "Жизненный цикл",
       "syntax": "TASK_ID",
       "route": "lifecycle-gate",
@@ -813,10 +837,11 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:defer"
     },
     {
-      "name": "tasks:renew",
+      "name": "tasks renew",
       "group": "Жизненный цикл",
       "syntax": "TASK_ID",
       "route": "lifecycle-gate",
@@ -845,10 +870,11 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:renew"
     },
     {
-      "name": "tasks:complete",
+      "name": "tasks complete",
       "group": "Жизненный цикл",
       "syntax": "TASK_ID",
       "route": "lifecycle-gate",
@@ -879,10 +905,11 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:complete"
     },
     {
-      "name": "tasks:approve",
+      "name": "tasks approve",
       "group": "Жизненный цикл",
       "syntax": "TASK_ID",
       "route": "lifecycle-gate",
@@ -913,10 +940,11 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:approve"
     },
     {
-      "name": "tasks:disapprove",
+      "name": "tasks disapprove",
       "group": "Жизненный цикл",
       "syntax": "TASK_ID --reason TEXT",
       "route": "lifecycle-gate",
@@ -947,10 +975,11 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:disapprove"
     },
     {
-      "name": "tasks:brief",
+      "name": "tasks brief",
       "group": "Рабочие сценарии",
       "syntax": "TASK_ID [--audience internal|client]",
       "route": "workflow-data-gate",
@@ -1005,10 +1034,11 @@
           "sdk": "outside-task-inventory",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:brief"
     },
     {
-      "name": "tasks:my",
+      "name": "tasks my",
       "group": "Рабочие сценарии",
       "syntax": "--user ID [--open --due-before ISO8601 --max-scan N]",
       "route": "rest3-derived",
@@ -1046,10 +1076,11 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:my"
     },
     {
-      "name": "tasks:plan",
+      "name": "tasks plan",
       "group": "Рабочие сценарии",
       "syntax": "--project ID [--max-scan N]",
       "route": "rest3-derived",
@@ -1088,10 +1119,11 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:plan"
     },
     {
-      "name": "tasks:risks",
+      "name": "tasks risks",
       "group": "Рабочие сценарии",
       "syntax": "--project ID [--at ISO8601 --due-within DURATION --max-scan N]",
       "route": "workflow-data-gate",
@@ -1145,10 +1177,11 @@
           "sdk": "outside-task-inventory",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:risks"
     },
     {
-      "name": "tasks:report",
+      "name": "tasks report",
       "group": "Рабочие сценарии",
       "syntax": "--project ID [--client-ref REF --audience internal|client --as-of ISO8601 --max-scan N]",
       "route": "workflow-data-gate",
@@ -1203,12 +1236,13 @@
           "sdk": "outside-task-inventory",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:report"
     },
     {
-      "name": "tasks:context:set",
+      "name": "tasks context set",
       "group": "Рабочие сценарии",
-      "syntax": "TASK_ID --file CONTEXT.json",
+      "syntax": "TASK_ID --file PATH|-",
       "route": "workflow-data-gate",
       "methods": [
         "tasks.task.update",
@@ -1258,10 +1292,11 @@
           "sdk": "outside-task-inventory",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:context:set"
     },
     {
-      "name": "tasks:blocker:raise",
+      "name": "tasks blocker raise",
       "group": "Рабочие сценарии",
       "syntax": "TASK_ID --reason TEXT --needs TEXT --owner ID --next-step TEXT",
       "route": "workflow-data-gate",
@@ -1313,12 +1348,13 @@
           "sdk": "outside-task-inventory",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:blocker:raise"
     },
     {
-      "name": "tasks:blocker:resolve",
+      "name": "tasks blocker resolve",
       "group": "Рабочие сценарии",
-      "syntax": "TASK_ID BLOCKER_ID --resolution TEXT",
+      "syntax": "TASK_ID --blocker BLOCKER_ID --resolution TEXT",
       "route": "workflow-data-gate",
       "methods": [
         "tasks.task.update",
@@ -1367,12 +1403,13 @@
           "sdk": "outside-task-inventory",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:blocker:resolve"
     },
     {
-      "name": "tasks:change:propose",
+      "name": "tasks change propose",
       "group": "Рабочие сценарии",
-      "syntax": "TASK_ID --file CHANGE.json",
+      "syntax": "TASK_ID --file PATH|-",
       "route": "workflow-data-gate",
       "methods": [
         "tasks.task.update",
@@ -1423,12 +1460,13 @@
           "sdk": "outside-task-inventory",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:change:propose"
     },
     {
-      "name": "tasks:change:accept",
+      "name": "tasks change accept",
       "group": "Рабочие сценарии",
-      "syntax": "TASK_ID CHANGE_ID [--apply]",
+      "syntax": "TASK_ID --change CHANGE_ID [--apply]",
       "route": "workflow-data-gate",
       "methods": [
         "tasks.task.update",
@@ -1479,12 +1517,13 @@
           "sdk": "outside-task-inventory",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:change:accept"
     },
     {
-      "name": "tasks:delivery:record",
+      "name": "tasks delivery record",
       "group": "Рабочие сценарии",
-      "syntax": "TASK_ID --recipient-ref REF --evidence JSON --at ISO8601",
+      "syntax": "TASK_ID --recipient-ref REF (--evidence JSON | --evidence-file PATH|-) --at ISO8601",
       "route": "workflow-data-gate",
       "methods": [
         "tasks.task.update",
@@ -1533,10 +1572,11 @@
           "sdk": "outside-task-inventory",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:delivery:record"
     },
     {
-      "name": "tasks:feedback:record",
+      "name": "tasks feedback record",
       "group": "Рабочие сценарии",
       "syntax": "TASK_ID --text TEXT --source-ref REF",
       "route": "workflow-data-gate",
@@ -1587,10 +1627,11 @@
           "sdk": "outside-task-inventory",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:feedback:record"
     },
     {
-      "name": "tasks:acceptance:record",
+      "name": "tasks acceptance record",
       "group": "Рабочие сценарии",
       "syntax": "TASK_ID --kind internal|client --decision accepted|rework --reason TEXT",
       "route": "workflow-data-gate",
@@ -1642,10 +1683,11 @@
           "sdk": "outside-task-inventory",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:acceptance:record"
     },
     {
-      "name": "tasks:time:add",
+      "name": "tasks time add",
       "group": "Расширения вне REST 3.0",
       "syntax": "TASK_ID --seconds N [--text TEXT]",
       "route": "legacy-extension",
@@ -1674,12 +1716,13 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:time:add"
     },
     {
-      "name": "tasks:time:list",
+      "name": "tasks time list",
       "group": "Расширения вне REST 3.0",
-      "syntax": "TASK_ID [--params @JSON]",
+      "syntax": "TASK_ID [--params JSON | --params-file PATH|-]",
       "route": "legacy-extension",
       "methods": [
         "task.elapseditem.getlist"
@@ -1706,12 +1749,13 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:time:list"
     },
     {
-      "name": "tasks:time:update",
+      "name": "tasks time update",
       "group": "Расширения вне REST 3.0",
-      "syntax": "TASK_ID ENTRY_ID --seconds N [--text TEXT]",
+      "syntax": "TASK_ID --entry ENTRY_ID --seconds N [--text TEXT]",
       "route": "legacy-extension",
       "methods": [
         "task.elapseditem.update"
@@ -1738,12 +1782,13 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:time:update"
     },
     {
-      "name": "tasks:time:delete",
+      "name": "tasks time delete",
       "group": "Расширения вне REST 3.0",
-      "syntax": "TASK_ID ENTRY_ID --yes",
+      "syntax": "TASK_ID --entry ENTRY_ID [--force]",
       "route": "legacy-extension",
       "methods": [
         "task.elapseditem.delete"
@@ -1770,10 +1815,11 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:time:delete"
     },
     {
-      "name": "tasks:checklist:add",
+      "name": "tasks checklist add",
       "group": "Расширения вне REST 3.0",
       "syntax": "TASK_ID --title TEXT [--parent ITEM_ID]",
       "route": "legacy-extension",
@@ -1802,10 +1848,11 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:checklist:add"
     },
     {
-      "name": "tasks:checklist:list",
+      "name": "tasks checklist list",
       "group": "Расширения вне REST 3.0",
       "syntax": "TASK_ID",
       "route": "legacy-extension",
@@ -1834,12 +1881,13 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:checklist:list"
     },
     {
-      "name": "tasks:checklist:complete",
+      "name": "tasks checklist complete",
       "group": "Расширения вне REST 3.0",
-      "syntax": "TASK_ID ITEM_ID",
+      "syntax": "TASK_ID --item ITEM_ID",
       "route": "legacy-extension",
       "methods": [
         "task.checklistitem.complete"
@@ -1864,12 +1912,13 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:checklist:complete"
     },
     {
-      "name": "tasks:checklist:renew",
+      "name": "tasks checklist renew",
       "group": "Расширения вне REST 3.0",
-      "syntax": "TASK_ID ITEM_ID",
+      "syntax": "TASK_ID --item ITEM_ID",
       "route": "legacy-extension",
       "methods": [
         "task.checklistitem.renew"
@@ -1894,12 +1943,13 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:checklist:renew"
     },
     {
-      "name": "tasks:checklist:delete",
+      "name": "tasks checklist delete",
       "group": "Расширения вне REST 3.0",
-      "syntax": "TASK_ID ITEM_ID --yes",
+      "syntax": "TASK_ID --item ITEM_ID [--force]",
       "route": "legacy-extension",
       "methods": [
         "task.checklistitem.delete"
@@ -1924,12 +1974,13 @@
             }
           ]
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:checklist:delete"
     },
     {
-      "name": "tasks:dependency:add",
+      "name": "tasks dependency add",
       "group": "Расширения вне REST 3.0",
-      "syntax": "FROM_ID TO_ID --type TYPE",
+      "syntax": "FROM_ID --to TO_ID --type TYPE",
       "route": "legacy-extension",
       "methods": [
         "task.dependence.add"
@@ -1940,7 +1991,7 @@
       "jtbd": [
         "PM-01"
       ],
-      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях. FROM_ID и --to сохраняют направление документированного FROM/TO; CLI не переименовывает его в недоказанное depends-on.",
       "kind": "deferred",
       "effect": "write",
       "method_routes": [
@@ -1950,12 +2001,13 @@
           "sdk": "core-gap",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:dependency:add"
     },
     {
-      "name": "tasks:dependency:delete",
+      "name": "tasks dependency delete",
       "group": "Расширения вне REST 3.0",
-      "syntax": "FROM_ID TO_ID --yes",
+      "syntax": "FROM_ID --to TO_ID [--force]",
       "route": "legacy-extension",
       "methods": [
         "task.dependence.delete"
@@ -1974,12 +2026,13 @@
           "sdk": "core-gap",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:dependency:delete"
     },
     {
-      "name": "tasks:participants:set",
+      "name": "tasks participants set",
       "group": "Расширения вне REST 3.0",
-      "syntax": "TASK_ID [--accomplices JSON --auditors JSON]",
+      "syntax": "TASK_ID [--accomplice ID ... | --clear-accomplices] [--auditor ID ... | --clear-auditors]",
       "route": "legacy-extension",
       "methods": [
         "tasks.task.update"
@@ -1990,7 +2043,7 @@
       "jtbd": [
         "PM-04"
       ],
-      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях. Повторяемые флаги составляют полный набор соответствующей роли; --clear-accomplices/--clear-auditors явно очищают набор и исключают одновременный ввод его IDs.",
       "kind": "deferred",
       "effect": "write",
       "method_routes": [
@@ -2000,12 +2053,13 @@
           "sdk": "core-gap",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:participants:set"
     },
     {
-      "name": "tasks:history",
+      "name": "tasks history list",
       "group": "Расширения вне REST 3.0",
-      "syntax": "TASK_ID [--params @JSON]",
+      "syntax": "TASK_ID [--params JSON | --params-file PATH|-]",
       "route": "legacy-extension",
       "methods": [
         "tasks.task.history.list"
@@ -2026,12 +2080,65 @@
           "sdk": "core-gap",
           "wrappers": []
         }
-      ]
+      ],
+      "previous_proposal_name": "tasks:history"
     }
   ],
   "sdk": {
     "version": "3.7.0",
     "commit": "8ebd4c154d5557db949b0196825f347a3a6c5bf0",
     "inspection": "Literal Task service Core calls; wrapper is static presence, not runtime proof; IM services not inspected"
+  },
+  "cli_contract": {
+    "executable": "bitrix24",
+    "command_style": "noun action, space-separated groups",
+    "spec": "openspec/specs/cli-experience/spec.md",
+    "guidelines": {
+      "repository": "https://github.com/cli-guidelines/cli-guidelines",
+      "website": "https://clig.dev/",
+      "commit": "697d6a29fc8c93d3981a755c0c7683507ad39c3e",
+      "source_path": "content/_index.md",
+      "checked_on": "2026-10-09"
+    },
+    "options": [
+      "--help",
+      "--version",
+      "--profile",
+      "--config",
+      "--json",
+      "--plain",
+      "--quiet",
+      "--verbose",
+      "--no-input",
+      "--no-color",
+      "--timeout"
+    ],
+    "write_options": [
+      "--dry-run"
+    ],
+    "delete_options": [
+      "--force"
+    ],
+    "exit_codes": {
+      "0": "success",
+      "1": "execution-error",
+      "2": "usage-error",
+      "3": "partial",
+      "4": "unavailable-or-policy-gate",
+      "130": "interrupted"
+    },
+    "defaults": {
+      "list_limit": 50,
+      "max_scan": 10000,
+      "timeout_seconds": 30,
+      "output": "human",
+      "json_schema_version": 1
+    },
+    "input": {
+      "inline_json": "--fields",
+      "file_json": "--fields-file",
+      "stdin_path": "-",
+      "implicit_stdin": false
+    }
   }
 }

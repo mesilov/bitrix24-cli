@@ -1,0 +1,156 @@
+# Spec Delta
+
+## Purpose
+
+Определить удобный и предсказуемый интерфейс будущего bitrix24 CLI для работы человека в терминале и автоматизации. Референс — [Command Line Interface Guidelines](https://github.com/cli-guidelines/cli-guidelines/tree/697d6a29fc8c93d3981a755c0c7683507ad39c3e), проверенный 2026-10-09; конкретные имена, значения и коды ниже являются решениями проекта, а не дословными требованиями гайда. Эта спецификация не подтверждает наличие реализации.
+
+## ADDED Requirements
+
+### Requirement: Direct and consistent command structure
+CLI SHALL предоставлять прямой вызов `bitrix24 tasks <action>` и вложенные группы `bitrix24 tasks <resource> <action>`. Одна команда SHALL принимать не более одного позиционного идентификатора; остальные сущности задаются именованными флагами. Команды SHALL использовать полные имена без автоматического исполнения сокращений или исправления опечаток.
+
+#### Scenario: Task editing from the terminal
+- **WHEN** пользователь вызывает `bitrix24 tasks update 123 --title "Отчёт за октябрь"`
+- **THEN** интерфейс адресует задачу 123 и явное изменение заголовка без необходимости использовать Make или JSON
+
+#### Scenario: Two related entities
+- **WHEN** пользователь вызывает `bitrix24 tasks chat update 123 --message 456 --text "Уточнение"`
+- **THEN** идентификатор задачи и идентификатор сообщения различаются; проверка привязки сообщения к задаче обязательна
+
+#### Scenario: Mistyped write command
+- **WHEN** пользователь вводит неизвестное или сокращённое имя команды записи
+- **THEN** CLI завершает вызов с ошибкой использования и предлагает известное имя без выполнения записи
+
+### Requirement: Discoverable help without remote operations
+CLI SHALL поддерживать `-h`/`--help`, `bitrix24 help <command path>` и `--version`. Справка SHALL показывать краткое назначение, примеры обычных действий, обязательные флаги, значения по умолчанию, ограничения и ссылку на документацию. Справка и версия SHALL работать без авторизации и запросов на портал.
+
+#### Scenario: Root or group invocation
+- **WHEN** пользователь вызывает `bitrix24` или `bitrix24 tasks` без действия
+- **THEN** CLI показывает краткую справку и основные подкоманды, возвращает 0 и не выполняет удалённых операций
+
+#### Scenario: Command help
+- **WHEN** пользователь вызывает `bitrix24 tasks update --help` или `bitrix24 help tasks update`
+- **THEN** оба вызова показывают одну справку с примерами изменения заголовка, ответственного и описания, без требования TASK_ID
+
+### Requirement: Convenient and explicit task field updates
+CLI SHALL предоставлять `--title`, `--creator`, `--responsible`, `--project`, `--deadline`, `--description` и `--description-file` для создания и применимые флаги для изменения. `tasks update` SHALL принимать хотя бы одно явное изменение и отправлять только заданные поля. `tasks assign` SHALL изменять только responsibleId; остальные флаги SHALL отображаться на документированные writable REST3 поля.
+
+#### Scenario: Basic task creation
+- **WHEN** пользователь задаёт title, creator и responsible флагами команды create
+- **THEN** CLI формирует title, creatorId и responsibleId; отсутствующие обязательные значения приводят к ошибке до записи, без молчаливого выбора сотрудника
+
+#### Scenario: Several ordinary changes
+- **WHEN** пользователь вызывает `bitrix24 tasks update 123 --title "Отчёт" --responsible 84 --description "Добавить сравнение"`
+- **THEN** CLI изменяет три заданных поля одним update-запросом и не отправляет значения остальных полей
+
+#### Scenario: Empty and omitted description
+- **WHEN** пользователь явно передаёт `--description ""` либо не передаёт описание
+- **THEN** первый вызов задаёт пустое описание, а второй сохраняет существующее; пустой заголовок отклоняется
+
+### Requirement: Explicit file and structured input
+CLI SHALL различать литеральный текст, JSON в `--fields` и файл JSON в `--fields-file`; файловые флаги SHALL принимать PATH или `-` для stdin. `--fields` и `--fields-file` SHALL быть отдельным advanced режимом без смешивания с флагами редактирования полей. CLI SHALL проверять формат и доступность ввода до записи, не читать stdin неявно и не разрешать два потребителя stdin.
+
+#### Scenario: Description from a file or pipe
+- **WHEN** пользователь задаёт `--description-file brief.md` либо передаёт текст в pipe и задаёт `--description-file -`
+- **THEN** CLI использует содержимое выбранного источника как описание; одновременный `--description` отклоняется
+
+#### Scenario: Advanced update input
+- **WHEN** пользователь передаёт `--fields '{"title":"Отчёт"}'`, `--fields-file changes.json` либо `--fields-file -` с JSON в stdin
+- **THEN** CLI принимает один JSON object; неизвестные/read-only поля, конфликтующие источники и gated status changes отклоняются до записи
+
+#### Scenario: Terminal is not a file payload
+- **WHEN** файловый флаг содержит `-`, но stdin является терминалом, либо два файловых флага требуют stdin
+- **THEN** CLI немедленно завершает вызов с ошибкой использования и объясняет способ передать файл или pipe
+
+### Requirement: Human output and composable structured output
+CLI SHALL по умолчанию выводить компактные карточки или таблицы для человека. `--plain` SHALL давать стабильный текст без оформления, `--json` — один JSON object с data, meta и error; meta SHALL содержать schemaVersion. Результат SHALL идти в stdout, диагностика и progress — в stderr. `--json` и `--plain` SHALL исключать друг друга.
+
+#### Scenario: Successful ordinary edit
+- **WHEN** пользователь успешно изменяет задачу без флагов формата
+- **THEN** stdout кратко сообщает ID задачи и изменённые поля; API payload и debug trace не выводятся по умолчанию
+
+#### Scenario: JSON in a pipeline
+- **WHEN** пользователь вызывает команду с `--json` и передаёт stdout в jq
+- **THEN** stdout содержит только валидный JSON object, включая empty result; progress и пояснения не нарушают JSON
+
+#### Scenario: Plain list output
+- **WHEN** пользователь вызывает список с `--plain`
+- **THEN** вывод содержит стабильные TSV columns без заголовка и по одной строке на запись; tabs/newlines в значениях экранируются, порядок и поля описаны в справке
+
+### Requirement: Explicit filtering and completeness of lists
+Списки SHALL различать серверный фильтр id и локальные фильтры REST3; --limit ограничивает результат, --all снимает этот предел, --max-scan ограничивает просмотр. CLI SHALL сообщать scope доступных задач, scanned count и полноту. Достигнутый scan cap, ошибка страницы или недостающие данные SHALL означать partial; полнота видимых задач не SHALL выдаваться за полноту проекта.
+
+#### Scenario: Responsible or project filter
+- **WHEN** пользователь задаёт `tasks list --responsible 42 --project 7`
+- **THEN** CLI фильтрует соответствующие selected fields локально, проверяет все страницы в установленном scan budget и не отправляет неподдерживаемый v3 filter или скрытый legacy request
+
+#### Scenario: Scan cap reached
+- **WHEN** просмотр прекращён из-за --max-scan до исчерпания доступных страниц
+- **THEN** CLI возвращает partial с кодом 3, сохраняет полученные данные, указывает scanned count и причину в обычном, plain и JSON режимах
+
+#### Scenario: Empty complete result
+- **WHEN** полная разрешённая выборка не содержит совпадений
+- **THEN** CLI возвращает 0, пустые данные и complete=true; пустой результат не считается ошибкой
+
+### Requirement: Actionable errors and stable exit status
+CLI SHALL возвращать 0 при успехе, 1 при ошибке выполнения, 2 при неверном вводе, 3 при частичном результате, 4 при недоступном gated действии или запрещённой API политике, 130 при Ctrl-C. Ошибка SHALL объяснять действие, причину и возможное исправление без секретов. В JSON режиме error SHALL иметь стабильный code; новые коды не SHALL менять значение существующих.
+
+#### Scenario: Missing required flag
+- **WHEN** вызов create не содержит --responsible
+- **THEN** CLI возвращает 2, называет отсутствующий флаг и показывает корректный пример без создания задачи
+
+#### Scenario: Gated lifecycle action
+- **WHEN** действие complete не прошло проверку semantics либо выбранная API политика запрещает IM route
+- **THEN** CLI возвращает 4, объясняет ограничение и не выполняет fallback; --force не отменяет gate
+
+#### Scenario: Permission or transport failure
+- **WHEN** сервер отказывает в правах либо запрос завершается ошибкой
+- **THEN** CLI возвращает 1, указывает операцию и безопасный следующий шаг; webhook/token и stack trace не попадают в обычный вывод
+
+### Requirement: Controlled remote deletion and dry run
+Удаление удалённого объекта SHALL требовать явного подтверждения в TTY либо --force без диалога. --force SHALL отменять только подтверждение, сохраняя validation, права и API gates. Команды записи SHALL поддерживать --dry-run: показать цель, поля и шаги без mutating requests; неизбранный provider или недоказанный маршрут SHALL оставаться gated и в dry-run.
+
+#### Scenario: Deletion in automation
+- **WHEN** пользователь вызывает `tasks delete 123 --no-input` без --force
+- **THEN** CLI возвращает 2 до записи и предлагает --dry-run для проверки или --force для явно выбранного удаления
+
+#### Scenario: Ordinary edit
+- **WHEN** пользователь явно меняет title, responsible или description
+- **THEN** дополнительное подтверждение не требуется, если команда не удаляет объект и не добавляет неявных разрушительных действий
+
+#### Scenario: Preview of an update
+- **WHEN** пользователь задаёт `tasks update 123 --title "Отчёт" --dry-run`
+- **THEN** CLI показывает задачу, изменение и предполагаемый REST3 route; проверочные чтения допустимы и обозначены, запись не выполняется и server acceptance не заявляется
+
+### Requirement: Predictable noninteractive and terminal behavior
+CLI SHALL поддерживать --no-input без prompts, pager и иных интерактивных элементов. Диалоги допустимы только при интерактивном stdin; при отсутствии обязательного ввода CLI SHALL возвращать ошибку с нужным флагом. --no-color, непустой NO_COLOR, TERM=dumb и non-TTY SHALL отключать оформление соответствующего потока; JSON/plain SHALL всегда выводиться без ANSI и animations.
+
+#### Scenario: CI invocation
+- **WHEN** команда запущена с --no-input, redirected stdin/stdout и NO_COLOR=1
+- **THEN** CLI не ждёт диалога, не запускает pager и не печатает ANSI sequences; все необходимые данные передаются флагами
+
+#### Scenario: Quiet structured output
+- **WHEN** пользователь задаёт --quiet вместе с --json
+- **THEN** CLI подавляет необязательный progress и подсказки, сохраняя JSON result и существенные ошибки; quiet не превращает неудачу в успех
+
+### Requirement: Bounded requests and honest recovery
+CLI SHALL поддерживать --timeout с конечным документированным default, реагировать на Ctrl-C и прекращать новые шаги. При неизвестном результате записи CLI SHALL сообщать неопределённость и способ сверить состояние без автоматического повторения create/send/add. Для неатомарных сценариев CLI SHALL показывать выполненные и невыполненные шаги и возвращать partial при частичном выполнении.
+
+#### Scenario: Response lost after create
+- **WHEN** соединение оборвалось после отправки create и результат сервера неизвестен
+- **THEN** CLI возвращает ошибку с признаком outcomeUnknown и предлагает проверку состояния; повторное создание не выполняется автоматически
+
+#### Scenario: Cancellation between workflow steps
+- **WHEN** пользователь нажимает Ctrl-C после первого шага согласования, но до применения полей
+- **THEN** CLI прекращает новые запросы, возвращает 130 и сообщает подтверждённые шаги и неопределённые результаты без обещания отката
+
+### Requirement: Consistent global options and protected credentials
+Общие флаги SHALL иметь одинаковые имена и значение во всех подкомандах и поддерживаться до либо после command path. Нечувствительные invocation flags SHALL иметь приоритет над явным config, environment и defaults. Секреты подключения не SHALL передаваться непосредственно в аргументах или выводиться в диагностике; механизм auth/storage определяется отдельно.
+
+#### Scenario: Global option placement
+- **WHEN** пользователь задаёт `bitrix24 --json tasks show 123` либо `bitrix24 tasks show 123 --json`
+- **THEN** формат и поведение обоих вызовов совпадают
+
+#### Scenario: Safe diagnostic information
+- **WHEN** пользователь получает ошибку подключения или включает --verbose
+- **THEN** CLI маскирует credentials и секретные части URL; поддержка --verbose не разрешает их раскрытие
