@@ -45,4 +45,37 @@ All checks below succeeded on `linux/arm64` against the implementation Dockerfil
 - `php -m`: all required extensions present; `excimer`, `pcntl`, `yaml`, `zip` absent. Inherited OPcache remains; no extra build is performed.
 - `apk info`: runtime ICU and unzip present; `.build-deps`, `gcc`, `g++`, `icu-dev`, external extension installer and extracted PHP sources absent. No cached `.apk` files remain (the base's empty cache directory may exist).
 
-Local logs are ephemeral under `/private/tmp/bitrix24-cli-issue-6-*.log`; the results and reproducible comparison commands are retained here. GitHub Actions evidence is recorded below once checks complete.
+- `make docker-up`, `make docker-restart`, `make docker-down` succeeded with the isolated Compose override; the Alpine `sleep infinity` service starts and stops correctly.
+
+Local logs are ephemeral under `/private/tmp/bitrix24-cli-issue-6-*.log`; the results and reproducible comparison commands are retained here.
+
+## GitHub Actions
+
+Implementation commit: `aaceb2f43b5de1c4872c3293d45e37961d48a0a3`. MR: https://github.com/mesilov/bitrix24-cli/pull/9, target `dev`. All eight checks (four push and four pull_request) succeeded on 2026-10-08. Every run built the Alpine Dockerfile and installed locked dev-dependencies on the Ubuntu amd64 runner before running its tool.
+
+| Workflow | Successful pull_request run | Successful push run |
+| --- | --- | --- |
+| Allowed licenses | https://github.com/mesilov/bitrix24-cli/actions/runs/37752116953 | https://github.com/mesilov/bitrix24-cli/actions/runs/37752108758 |
+| PHP-CS-Fixer | https://github.com/mesilov/bitrix24-cli/actions/runs/37752116951 | https://github.com/mesilov/bitrix24-cli/actions/runs/37752108853 |
+| PHPStan | https://github.com/mesilov/bitrix24-cli/actions/runs/37752117018 | https://github.com/mesilov/bitrix24-cli/actions/runs/37752108569 |
+| Rector | https://github.com/mesilov/bitrix24-cli/actions/runs/37752116934 | https://github.com/mesilov/bitrix24-cli/actions/runs/37752108621 |
+
+Image-size comparison is local arm64 evidence. CI independently verifies amd64 build/install/lint behavior; no amd64 size reduction is claimed from those runs. The final documentation/archive commit must have all of its own checks passing before merge; its run links will be retained in the MR.
+
+## OpenSpec verification
+
+| Dimension | Result |
+| --- | --- |
+| Completeness | 9/9 tasks; all 4 ADDED requirements implemented |
+| Correctness | 4/4 requirements and all 5 scenarios verified |
+| Coherence | Official Alpine base, minimal additions, build cleanup, UID/GID and comparative measurement follow the design |
+
+Requirement/scenario mapping:
+
+- Compact Alpine image / Comparable size measurement → Dockerfile line 15; same-platform size table and base identities above.
+- Necessary dependencies only / Extension audit → Dockerfile lines 25–29, README component table; php -m, apk inspection and platform requirements check.
+- Compatible development workflow / Clean dependency installation → clean 70-package lock install, Make/CLI/lifecycle checks and all four local and CI tools.
+- Unprivileged writable execution / Host identity mapping → existing Compose user override; UID/GID `501:20` and file/cache write checks.
+- Unprivileged writable execution / Default container identity → Dockerfile lines 39–44; UID/GID `10001:10001` and working-directory/cache write checks.
+
+No critical issues, warnings or skipped applicable checks were found in the implementation review. Local and CI evidence above verifies the implemented image; the final-head CI gate is enforced before merge.
