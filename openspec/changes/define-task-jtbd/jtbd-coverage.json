@@ -1,0 +1,249 @@
+{
+  "checked_on": "2026-10-09",
+  "status": "static-planning-assessment-not-runtime",
+  "spec": "openspec/specs/task-workflows/spec.md",
+  "catalog": "cli-candidates.json",
+  "coverage": [
+    {
+      "id": "PM-01",
+      "commands": [
+        "tasks:create",
+        "tasks:subtask:create",
+        "tasks:get"
+      ],
+      "new_card_status": "documented",
+      "strict_rest3_status": "documented",
+      "condition": "Для каждого задания заданы title, creator/responsible, deadline и критерии в description. Зависимости/чек-листы — отдельные расширения, не обязательны для базовой декомпозиции.",
+      "acceptance": "Создание с критериями и сроком; отсутствие обязательного creator; отказ в правах."
+    },
+    {
+      "id": "PM-02",
+      "commands": [
+        "tasks:list",
+        "tasks:plan",
+        "tasks:risks",
+        "tasks:dependency:list"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "conditional",
+      "condition": "Просрочки вычисляются; полная выборка локально фильтруется. Для blockers/ожиданий нужен утверждённый источник; v3 gantt.list даёт только исходящие связи.",
+      "acceptance": "Недостающие blocker data => unknown; превышение scan cap => partial; входящие зависимости не заявлены полными."
+    },
+    {
+      "id": "PM-03",
+      "commands": [
+        "tasks:blocker:raise",
+        "tasks:blocker:resolve",
+        "tasks:chat:send"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "conditional",
+      "condition": "Нужен контракт событий препятствия, owner/next-step и конфликтных изменений. Чатное уведомление не гарантирует прочтение.",
+      "acceptance": "Связь raise/resolve по ID; два противоречащих решения; отправка в нужный чат от авторизованного лица."
+    },
+    {
+      "id": "PM-04",
+      "commands": [
+        "tasks:plan",
+        "tasks:assign",
+        "tasks:deadline:set",
+        "tasks:change:propose",
+        "tasks:change:accept"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "conditional",
+      "condition": "Само update v3 документировано; согласование и ресурсные ограничения требуют данных/протокола. Ответственный не равен процедуре delegate.",
+      "acceptance": "Предложение не изменяет fields; --apply применяет согласованные значения; частичный multi-step явно виден."
+    },
+    {
+      "id": "PM-05",
+      "commands": [
+        "tasks:result:list",
+        "tasks:approve",
+        "tasks:disapprove",
+        "tasks:acceptance:record"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "conditional",
+      "condition": "REST3 status writable в модели, но эквивалентность approve/disapprove требует acceptance. До него специальные команды disabled.",
+      "acceptance": "Контроль включён; проверяющий имеет approve rights; возврат содержит замечания; клиентская приёмка не подменяет внутреннюю."
+    },
+    {
+      "id": "PM-06",
+      "commands": [
+        "tasks:chat:list",
+        "tasks:chat:send"
+      ],
+      "new_card_status": "documented",
+      "strict_rest3_status": "conditional",
+      "condition": "Отправка REST3, история через документированный IM companion route; только участник task chat с правами.",
+      "acceptance": "Прочитать старые сообщения с LAST_ID; отправить и повторно прочитать MESSAGE_ID; отказ пользователю без доступа."
+    },
+    {
+      "id": "AM-01",
+      "commands": [
+        "tasks:create",
+        "tasks:get"
+      ],
+      "new_card_status": "documented",
+      "strict_rest3_status": "documented",
+      "condition": "Для базового сценария источник запроса, клиентский контекст и ожидание вводятся оператором в description. Автоматический импорт из CRM не требуется и не обещается.",
+      "acceptance": "Карточка сохраняет source ref, client context и outcome; числовые creator/responsible обязательны."
+    },
+    {
+      "id": "AM-02",
+      "commands": [
+        "tasks:risks",
+        "tasks:report",
+        "tasks:context:set"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "conditional",
+      "condition": "Обещанный клиенту срок может отличаться от task.deadline. Нужны clientRef, promisedAt, связь обязательств с задачами и полнота выборки.",
+      "acceptance": "Два разных срока не смешиваются; нет promisedAt => unknown; частичные данные не дают зелёный статус обязательства."
+    },
+    {
+      "id": "AM-03",
+      "commands": [
+        "tasks:report",
+        "tasks:brief"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "conditional",
+      "condition": "Следующий шаг и следующее обновление требуют явных данных, не вывода из status или произвольного текста чата.",
+      "acceptance": "Сводка содержит evidence IDs/as-of/partial; неизвестный срок обновления не выдумывается; client audience не раскрывает внутреннюю переписку автоматически."
+    },
+    {
+      "id": "AM-04",
+      "commands": [
+        "tasks:change:propose",
+        "tasks:change:accept",
+        "tasks:update"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "conditional",
+      "condition": "Нужен контракт исходных и новых требований, влияния на объём/сроки и решения согласующего. Запись решения отдельно от применения.",
+      "acceptance": "Предложение/согласование/применение различаются; конфликт текущих fields не затирается; виден согласующий и источник."
+    },
+    {
+      "id": "AM-05",
+      "commands": [
+        "tasks:result:list",
+        "tasks:delivery:record",
+        "tasks:feedback:record",
+        "tasks:acceptance:record",
+        "tasks:report"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "conditional",
+      "condition": "Публичная передача и отзыв подтверждаются оператором/источником. Хранилище и схема событий ещё не приняты; команды не отправляют клиенту сообщения.",
+      "acceptance": "Передача имеет evidence и дату; отзыв имеет source ref; внутреннее approve не делает client accepted автоматически."
+    },
+    {
+      "id": "AM-06",
+      "commands": [
+        "tasks:chat:list",
+        "tasks:chat:send"
+      ],
+      "new_card_status": "documented",
+      "strict_rest3_status": "conditional",
+      "condition": "Новая task-card переписка по маршрутам REST3 + IM; внешний клиент не получает права от роли аккаунт менеджера.",
+      "acceptance": "Уточнение и ответ читаются в task chat; верная принадлежность задачи/чата; отсутствует legacy comment route."
+    },
+    {
+      "id": "EMP-01",
+      "commands": [
+        "tasks:my",
+        "tasks:list"
+      ],
+      "new_card_status": "documented",
+      "strict_rest3_status": "documented",
+      "condition": "Фильтрация по responsible/status/deadline выполняется локально после полного обхода доступных задач. Нужен заданный user ID; при cap результат явно partial.",
+      "acceptance": "Пагинация более страницы; свои задачи отделены от чужих; лимит выхода не прекращает сканирование до определения полноты."
+    },
+    {
+      "id": "EMP-02",
+      "commands": [
+        "tasks:get",
+        "tasks:chat:send"
+      ],
+      "new_card_status": "documented",
+      "strict_rest3_status": "documented",
+      "condition": "Требования/материалы/критерии доступны в карточке и ссылках. Недостающие сведения запрашиваются через REST3 task chat. История обсуждения — дополнительный IM route.",
+      "acceptance": "Получить related fields через select; вопросы связаны с задачей; загрузка локального файла не выдается за attach existing file."
+    },
+    {
+      "id": "EMP-03",
+      "commands": [
+        "tasks:blocker:raise",
+        "tasks:chat:send"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "conditional",
+      "condition": "Чат позволяет сообщить проблему, но для поиска/закрытия препятствий нужны reason, needs, owner, next-step и источник этих фактов.",
+      "acceptance": "Нет нового status=blocked; просьба сохраняется в task chat; owner не назначается по догадке."
+    },
+    {
+      "id": "EMP-04",
+      "commands": [
+        "tasks:brief",
+        "tasks:change:propose",
+        "tasks:change:accept",
+        "tasks:get"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "conditional",
+      "condition": "Чтобы отличить принятые ожидания от обсуждения, нужна явная модель согласования/истории. Нативная history пока только прежний маршрут.",
+      "acceptance": "Показать текущую принятую версию и различия; не объявлять любое чатное предложение согласованным."
+    },
+    {
+      "id": "EMP-05",
+      "commands": [
+        "tasks:result:add",
+        "tasks:result:from-message",
+        "tasks:file:attach",
+        "tasks:complete"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "conditional",
+      "condition": "Предъявить result через v3 можно; переход на контроль, requireResult и post-condition complete нуждаются в lifecycle acceptance.",
+      "acceptance": "Нет result при requireResult => ошибка; needsControl => awaiting control; права и действительный статус проверены."
+    },
+    {
+      "id": "EMP-06",
+      "commands": [
+        "tasks:time:show",
+        "tasks:time:add",
+        "tasks:time:list",
+        "tasks:time:update"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "gap",
+      "condition": "V3 даёт чтение elapsedTime, но не документирует запись/исправление elapsed entries. Нужны явные legacy time exceptions либо оставить сценарий вне strictly-v3 MVP.",
+      "acceptance": "Собственная запись seconds/comment; исправление author/admin; не секундомер; проверка полного списка entries отдельно."
+    },
+    {
+      "id": "EMP-07",
+      "commands": [
+        "tasks:chat:list",
+        "tasks:chat:send"
+      ],
+      "new_card_status": "documented",
+      "strict_rest3_status": "conditional",
+      "condition": "История IM и send v3 документированы для новой карточки. Действия выполняются от текущего подключения, не подставленного AUTHOR_ID.",
+      "acceptance": "Последовательное чтение FIRST_ID/LAST_ID; ответ находится при нужной задаче; отказ без участия/прав."
+    }
+  ],
+  "counts": {
+    "intent_mapped": 19,
+    "new_card": {
+      "documented": 7,
+      "conditional": 12
+    },
+    "strict_rest3": {
+      "documented": 4,
+      "conditional": 14,
+      "gap": 1
+    }
+  }
+}

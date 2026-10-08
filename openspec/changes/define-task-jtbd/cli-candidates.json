@@ -1,0 +1,2037 @@
+{
+  "status": "candidate-not-implemented",
+  "checked_on": "2026-10-09",
+  "issue": "https://github.com/mesilov/bitrix24-cli/issues/10",
+  "change": "define-task-jtbd",
+  "docs_commit": "b4d3dc81619625c2bf21c28dd0227116f36c8743",
+  "scope": "new task card; v3 task writes; IM companion routes explicit; no legacy comments",
+  "commands": [
+    {
+      "name": "tasks:create",
+      "group": "Карточка и выборки",
+      "syntax": "--title TEXT --creator ID --responsible ID [--project ID --deadline ISO8601 --description-file PATH --fields @JSON]",
+      "route": "rest3",
+      "methods": [
+        "tasks.task.add"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-add-rest-v3.md"
+      ],
+      "jtbd": [
+        "PM-01",
+        "AM-01"
+      ],
+      "note": "Требуются title, creatorId, responsibleId. Критерии приёмки/источник/клиентский контекст можно передать текстом описания; структурированная модель отдельно.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.add",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "add",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:get",
+      "group": "Карточка и выборки",
+      "syntax": "TASK_ID [--select JSON]",
+      "route": "rest3",
+      "methods": [
+        "tasks.task.get"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-get-rest-v3.md"
+      ],
+      "jtbd": [
+        "PM-01",
+        "AM-01",
+        "EMP-02"
+      ],
+      "note": "Для связей select: responsible.id, creator.id, group.id, chat.id; не рассчитывать на responsibleId/groupId в get.",
+      "kind": "candidate",
+      "effect": "read",
+      "method_routes": [
+        {
+          "method": "tasks.task.get",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "get",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:list",
+      "group": "Карточка и выборки",
+      "syntax": "[--filter JSON] [--where @JSON] [--select JSON --order JSON --limit N --all --max-scan N]",
+      "route": "rest3-client-filter",
+      "methods": [
+        "tasks.task.list"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-list-rest-v3.md"
+      ],
+      "jtbd": [
+        "PM-02",
+        "AM-02",
+        "EMP-01"
+      ],
+      "note": "REST filter только id. --where выполняется локально по явно выбранным полям; полнота требует обхода всех доступных задач. --limit ограничивает выход, --max-scan число просмотренных, это разные значения.",
+      "kind": "candidate",
+      "effect": "read",
+      "method_routes": [
+        {
+          "method": "tasks.task.list",
+          "api_version": "3.0",
+          "sdk": "core-gap",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:update",
+      "group": "Карточка и выборки",
+      "syntax": "TASK_ID --fields @JSON",
+      "route": "rest3",
+      "methods": [
+        "tasks.task.update"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/fields-rest-v3.md"
+      ],
+      "jtbd": [
+        "PM-04",
+        "AM-04",
+        "EMP-04"
+      ],
+      "note": "CamelCase, boolean true/false. accomplices/auditors/tags/userFields read-only. Не скрывать read-modify-write гонки.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.update",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "update",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:delete",
+      "group": "Карточка и выборки",
+      "syntax": "TASK_ID --yes",
+      "route": "rest3",
+      "methods": [
+        "tasks.task.delete"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-delete-rest-v3.md"
+      ],
+      "jtbd": [],
+      "note": "Опциональная административная команда; JTBD не требует удаления задачи.",
+      "kind": "candidate",
+      "effect": "delete",
+      "method_routes": [
+        {
+          "method": "tasks.task.delete",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "delete",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:fields",
+      "group": "Карточка и выборки",
+      "syntax": "[--name FIELD]",
+      "route": "rest3",
+      "methods": [
+        "tasks.task.field.list",
+        "tasks.task.field.get"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-field-list.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-field-get.md"
+      ],
+      "jtbd": [],
+      "note": "Схема до локальной проверки fields; не повышает доступ.",
+      "kind": "candidate",
+      "effect": "read",
+      "method_routes": [
+        {
+          "method": "tasks.task.field.list",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "list",
+              "path": "Services/Task/TaskField/Service/TaskField.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/TaskField/Service/TaskField.php"
+            }
+          ]
+        },
+        {
+          "method": "tasks.task.field.get",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "get",
+              "path": "Services/Task/TaskField/Service/TaskField.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/TaskField/Service/TaskField.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:access",
+      "group": "Карточка и выборки",
+      "syntax": "TASK_ID",
+      "route": "rest3",
+      "methods": [
+        "tasks.task.access.get"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-access-get.md"
+      ],
+      "jtbd": [],
+      "note": "Права текущего подключения; check не заменяет серверную проверку write.",
+      "kind": "candidate",
+      "effect": "read",
+      "method_routes": [
+        {
+          "method": "tasks.task.access.get",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "get",
+              "path": "Services/Task/Service/TaskAccess.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/TaskAccess.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:assign",
+      "group": "Карточка и выборки",
+      "syntax": "TASK_ID --responsible ID",
+      "route": "rest3",
+      "methods": [
+        "tasks.task.update"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/fields-rest-v3.md"
+      ],
+      "jtbd": [
+        "PM-04"
+      ],
+      "note": "Изменяет responsibleId, не заявляется эквивалентом tasks.task.delegate.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.update",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "update",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:deadline:set",
+      "group": "Карточка и выборки",
+      "syntax": "TASK_ID --at ISO8601",
+      "route": "rest3",
+      "methods": [
+        "tasks.task.update"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/fields-rest-v3.md"
+      ],
+      "jtbd": [
+        "PM-04",
+        "AM-04"
+      ],
+      "note": "ISO8601 с offset; права deadline/allowsChangeDeadline. Клиентское обещание может отличаться от deadline.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.update",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "update",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:subtask:create",
+      "group": "Карточка и выборки",
+      "syntax": "PARENT_ID --title TEXT --creator ID --responsible ID [--fields @JSON]",
+      "route": "rest3",
+      "methods": [
+        "tasks.task.add"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-add-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/fields-rest-v3.md"
+      ],
+      "jtbd": [
+        "PM-01"
+      ],
+      "note": "fields.parentId; подзадачи не заменяют зависимости Ганта.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.add",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "add",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:dependency:list",
+      "group": "Карточка и выборки",
+      "syntax": "TASK_ID [--limit N --offset N]",
+      "route": "rest3",
+      "methods": [
+        "tasks.task.gantt.link.list"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-gantt-link-list.md"
+      ],
+      "jtbd": [
+        "PM-02"
+      ],
+      "note": "Возвращает исходящие связи. Для входящих отношений нужен обход/дополнительный источник; не обещать полный граф одной задачи.",
+      "kind": "candidate",
+      "effect": "read",
+      "method_routes": [
+        {
+          "method": "tasks.task.gantt.link.list",
+          "api_version": "3.0",
+          "sdk": "core-gap",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:chat:list",
+      "group": "Чат новой задачи",
+      "syntax": "TASK_ID [--before MESSAGE_ID | --after MESSAGE_ID] [--limit N --all --max-messages N]",
+      "route": "messenger",
+      "methods": [
+        "tasks.task.get",
+        "im.dialog.messages.get"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-new.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/chats/messages/im-dialog-messages-get.md"
+      ],
+      "jtbd": [
+        "PM-06",
+        "AM-06",
+        "EMP-07"
+      ],
+      "note": "get v3 запрашивает chat.id/entityId/entityType; DIALOG_ID=chat{ID}. IM не REST3. LAST_ID старее/FIRST_ID новее, mutually exclusive в CLI. LIMIT default20 max50; фактически может вернуться больше из-за непрочитанных.",
+      "kind": "candidate",
+      "effect": "read",
+      "method_routes": [
+        {
+          "method": "tasks.task.get",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "get",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        },
+        {
+          "method": "im.dialog.messages.get",
+          "api_version": "1.0",
+          "sdk": "outside-task-inventory",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:chat:send",
+      "group": "Чат новой задачи",
+      "syntax": "TASK_ID (--text TEXT | --text-file PATH)",
+      "route": "rest3",
+      "methods": [
+        "tasks.task.chat.message.send"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-chat-message-send.md"
+      ],
+      "jtbd": [
+        "PM-06",
+        "AM-06",
+        "EMP-07",
+        "EMP-03"
+      ],
+      "note": "fields={taskId,text}; MESSAGE_ID не COMMENT_ID. Участник действует от лица текущего подключения.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.chat.message.send",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "sendMessage",
+              "path": "Services/Task/Service/TaskChat.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/TaskChat.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:chat:update",
+      "group": "Чат новой задачи",
+      "syntax": "TASK_ID MESSAGE_ID --text TEXT",
+      "route": "messenger",
+      "methods": [
+        "tasks.task.get",
+        "im.message.update"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-new.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/chats/messages/im-message-update.md"
+      ],
+      "jtbd": [],
+      "note": "Проверить принадлежность сообщения выбранному task chat и авторство; пустой text запретить, поскольку API трактует как удаление.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.get",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "get",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        },
+        {
+          "method": "im.message.update",
+          "api_version": "1.0",
+          "sdk": "outside-task-inventory",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:chat:delete",
+      "group": "Чат новой задачи",
+      "syntax": "TASK_ID MESSAGE_ID --yes",
+      "route": "messenger",
+      "methods": [
+        "tasks.task.get",
+        "im.message.delete"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-new.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/chats/messages/im-message-delete.md"
+      ],
+      "jtbd": [],
+      "note": "Автор/допустимые права. Ни одного task.commentitem.* пути.",
+      "kind": "candidate",
+      "effect": "delete",
+      "method_routes": [
+        {
+          "method": "tasks.task.get",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "get",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        },
+        {
+          "method": "im.message.delete",
+          "api_version": "1.0",
+          "sdk": "outside-task-inventory",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:result:add",
+      "group": "Результат и материалы",
+      "syntax": "TASK_ID (--text TEXT | --text-file PATH)",
+      "route": "rest3",
+      "methods": [
+        "tasks.task.result.add"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/result/tasks-task-result-add.md"
+      ],
+      "jtbd": [
+        "PM-05",
+        "AM-05",
+        "EMP-05"
+      ],
+      "note": "Отдельный результат; не chat send и не complete.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.result.add",
+          "api_version": "3.0",
+          "sdk": "core-gap",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:result:list",
+      "group": "Результат и материалы",
+      "syntax": "TASK_ID [--params @JSON]",
+      "route": "rest3",
+      "methods": [
+        "tasks.task.result.list"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/result/tasks-task-result-list-rest-v3.md"
+      ],
+      "jtbd": [
+        "PM-05",
+        "AM-05",
+        "EMP-05"
+      ],
+      "note": "Выводить result IDs, материалы и доступные действия; собственная пагинация.",
+      "kind": "candidate",
+      "effect": "read",
+      "method_routes": [
+        {
+          "method": "tasks.task.result.list",
+          "api_version": "3.0",
+          "sdk": "core-gap",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:result:update",
+      "group": "Результат и материалы",
+      "syntax": "RESULT_ID --text TEXT",
+      "route": "rest3",
+      "methods": [
+        "tasks.task.result.update"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/result/tasks-task-result-update.md"
+      ],
+      "jtbd": [
+        "EMP-05"
+      ],
+      "note": "Права автора/сервера; CLI-параметры кандидаты, отдельный payload проверяется при реализации.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.result.update",
+          "api_version": "3.0",
+          "sdk": "core-gap",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:result:delete",
+      "group": "Результат и материалы",
+      "syntax": "RESULT_ID --yes",
+      "route": "rest3",
+      "methods": [
+        "tasks.task.result.delete"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/result/tasks-task-result-delete.md"
+      ],
+      "jtbd": [],
+      "note": "Удаление результата отдельно от удаления задачи.",
+      "kind": "candidate",
+      "effect": "delete",
+      "method_routes": [
+        {
+          "method": "tasks.task.result.delete",
+          "api_version": "3.0",
+          "sdk": "core-gap",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:result:from-message",
+      "group": "Результат и материалы",
+      "syntax": "MESSAGE_ID",
+      "route": "rest3",
+      "methods": [
+        "tasks.task.result.addfromchatmessage"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/result/tasks-task-result-addfromchatmessage.md"
+      ],
+      "jtbd": [
+        "EMP-05"
+      ],
+      "note": "fields.messageId; работает с сообщением task chat, не addFromComment.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.result.addfromchatmessage",
+          "api_version": "3.0",
+          "sdk": "core-gap",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:file:attach",
+      "group": "Результат и материалы",
+      "syntax": "TASK_ID --file-ids JSON",
+      "route": "rest3",
+      "methods": [
+        "tasks.task.file.attach"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-file-attach.md"
+      ],
+      "jtbd": [
+        "EMP-02",
+        "EMP-05",
+        "AM-05"
+      ],
+      "note": "Уже загруженные Disk IDs. В этом наборе нет неявной загрузки локальных файлов; upload требует отдельного Disk API workflow.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.file.attach",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "attachExists",
+              "path": "Services/Task/Service/TaskFile.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/TaskFile.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:time:show",
+      "group": "Результат и материалы",
+      "syntax": "TASK_ID",
+      "route": "rest3",
+      "methods": [
+        "tasks.task.get"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/fields-rest-v3.md"
+      ],
+      "jtbd": [
+        "EMP-06"
+      ],
+      "note": "Чтение связанного elapsedTime через select. Не обещать полную историю time entries или запись/исправление времени.",
+      "kind": "candidate",
+      "effect": "read",
+      "method_routes": [
+        {
+          "method": "tasks.task.get",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "get",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:start",
+      "group": "Жизненный цикл",
+      "syntax": "TASK_ID",
+      "route": "lifecycle-gate",
+      "methods": [
+        "tasks.task.update"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/fields-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/status/tasks-task-start.md"
+      ],
+      "jtbd": [
+        "EMP-01"
+      ],
+      "note": "Начать выполнение. Кандидат REST3 через fields.status=in_progress; семантическую эквивалентность специальному legacy действию нельзя считать доказанной. До acceptance — disabled, без молчаливого /rest fallback.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.update",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "update",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:pause",
+      "group": "Жизненный цикл",
+      "syntax": "TASK_ID",
+      "route": "lifecycle-gate",
+      "methods": [
+        "tasks.task.update"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/fields-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/status/tasks-task-pause.md"
+      ],
+      "jtbd": [],
+      "note": "Приостановить. Кандидат REST3 через fields.status=pending; семантическую эквивалентность специальному legacy действию нельзя считать доказанной. До acceptance — disabled, без молчаливого /rest fallback.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.update",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "update",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:defer",
+      "group": "Жизненный цикл",
+      "syntax": "TASK_ID",
+      "route": "lifecycle-gate",
+      "methods": [
+        "tasks.task.update"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/fields-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/status/tasks-task-defer.md"
+      ],
+      "jtbd": [],
+      "note": "Отложить. Кандидат REST3 через fields.status=deferred; семантическую эквивалентность специальному legacy действию нельзя считать доказанной. До acceptance — disabled, без молчаливого /rest fallback.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.update",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "update",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:renew",
+      "group": "Жизненный цикл",
+      "syntax": "TASK_ID",
+      "route": "lifecycle-gate",
+      "methods": [
+        "tasks.task.update"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/fields-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/status/tasks-task-renew.md"
+      ],
+      "jtbd": [],
+      "note": "Возобновить. Кандидат REST3 через fields.status=pending; семантическую эквивалентность специальному legacy действию нельзя считать доказанной. До acceptance — disabled, без молчаливого /rest fallback.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.update",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "update",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:complete",
+      "group": "Жизненный цикл",
+      "syntax": "TASK_ID",
+      "route": "lifecycle-gate",
+      "methods": [
+        "tasks.task.update"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/fields-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/status/tasks-task-complete.md"
+      ],
+      "jtbd": [
+        "EMP-05"
+      ],
+      "note": "Учитывать needsControl, requireResult и фактический статус после действия. Кандидат REST3 через fields.status=completed / supposedly_completed; семантическую эквивалентность специальному legacy действию нельзя считать доказанной. До acceptance — disabled, без молчаливого /rest fallback.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.update",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "update",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:approve",
+      "group": "Жизненный цикл",
+      "syntax": "TASK_ID",
+      "route": "lifecycle-gate",
+      "methods": [
+        "tasks.task.update"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/fields-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-approve.md"
+      ],
+      "jtbd": [
+        "PM-05"
+      ],
+      "note": "Внутренняя приёмка, права approve и задача awaiting control. Кандидат REST3 через fields.status=completed; семантическую эквивалентность специальному legacy действию нельзя считать доказанной. До acceptance — disabled, без молчаливого /rest fallback.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.update",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "update",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:disapprove",
+      "group": "Жизненный цикл",
+      "syntax": "TASK_ID --reason TEXT",
+      "route": "lifecycle-gate",
+      "methods": [
+        "tasks.task.update"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/fields-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-disapprove.md"
+      ],
+      "jtbd": [
+        "PM-05"
+      ],
+      "note": "Возврат с обязательной причиной в чате; не просто переписать status. Кандидат REST3 через fields.status=pending; семантическую эквивалентность специальному legacy действию нельзя считать доказанной. До acceptance — disabled, без молчаливого /rest fallback.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.update",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "update",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:brief",
+      "group": "Рабочие сценарии",
+      "syntax": "TASK_ID [--audience internal|client]",
+      "route": "workflow-data-gate",
+      "methods": [
+        "tasks.task.list",
+        "tasks.task.get",
+        "tasks.task.result.list",
+        "im.dialog.messages.get"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-list-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-get-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/result/tasks-task-result-list-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/chats/messages/im-dialog-messages-get.md"
+      ],
+      "jtbd": [
+        "EMP-02",
+        "EMP-04",
+        "AM-03"
+      ],
+      "note": "Карточка + результаты + история переписки. Клиентский вывод по явному набору разрешённых полей, не пересылка внутреннего чата.",
+      "kind": "candidate",
+      "effect": "read",
+      "method_routes": [
+        {
+          "method": "tasks.task.list",
+          "api_version": "3.0",
+          "sdk": "core-gap",
+          "wrappers": []
+        },
+        {
+          "method": "tasks.task.get",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "get",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        },
+        {
+          "method": "tasks.task.result.list",
+          "api_version": "3.0",
+          "sdk": "core-gap",
+          "wrappers": []
+        },
+        {
+          "method": "im.dialog.messages.get",
+          "api_version": "1.0",
+          "sdk": "outside-task-inventory",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:my",
+      "group": "Рабочие сценарии",
+      "syntax": "--user ID [--open --due-before ISO8601 --max-scan N]",
+      "route": "rest3-derived",
+      "methods": [
+        "tasks.task.list",
+        "tasks.task.get"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/fields-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-list-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-new.md"
+      ],
+      "jtbd": [
+        "EMP-01"
+      ],
+      "note": "List v3 + локальный фильтр responsibleId/status/deadline. ID указан явно; user.find/me — отдельные helpers вне task REST3.",
+      "kind": "candidate",
+      "effect": "read",
+      "method_routes": [
+        {
+          "method": "tasks.task.list",
+          "api_version": "3.0",
+          "sdk": "core-gap",
+          "wrappers": []
+        },
+        {
+          "method": "tasks.task.get",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "get",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:plan",
+      "group": "Рабочие сценарии",
+      "syntax": "--project ID [--max-scan N]",
+      "route": "rest3-derived",
+      "methods": [
+        "tasks.task.list",
+        "tasks.task.get"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/fields-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-list-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-new.md"
+      ],
+      "jtbd": [
+        "PM-01",
+        "PM-04"
+      ],
+      "note": "Сводка задач/ответственных/сроков/иерархии. Не прогноз доступности сотрудников; ресурсные ограничения надо предоставить отдельно.",
+      "kind": "candidate",
+      "effect": "read",
+      "method_routes": [
+        {
+          "method": "tasks.task.list",
+          "api_version": "3.0",
+          "sdk": "core-gap",
+          "wrappers": []
+        },
+        {
+          "method": "tasks.task.get",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "get",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:risks",
+      "group": "Рабочие сценарии",
+      "syntax": "--project ID [--at ISO8601 --due-within DURATION --max-scan N]",
+      "route": "workflow-data-gate",
+      "methods": [
+        "tasks.task.list",
+        "tasks.task.get",
+        "tasks.task.result.list",
+        "im.dialog.messages.get"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-list-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-get-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/result/tasks-task-result-list-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/chats/messages/im-dialog-messages-get.md"
+      ],
+      "jtbd": [
+        "PM-02",
+        "AM-02"
+      ],
+      "note": "Просрочки вычисляются по deadline/status; препятствия, ожидания и обещания только из явных структурированных данных, неизвестные выводятся как unknown.",
+      "kind": "candidate",
+      "effect": "read",
+      "method_routes": [
+        {
+          "method": "tasks.task.list",
+          "api_version": "3.0",
+          "sdk": "core-gap",
+          "wrappers": []
+        },
+        {
+          "method": "tasks.task.get",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "get",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        },
+        {
+          "method": "tasks.task.result.list",
+          "api_version": "3.0",
+          "sdk": "core-gap",
+          "wrappers": []
+        },
+        {
+          "method": "im.dialog.messages.get",
+          "api_version": "1.0",
+          "sdk": "outside-task-inventory",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:report",
+      "group": "Рабочие сценарии",
+      "syntax": "--project ID [--client-ref REF --audience internal|client --as-of ISO8601 --max-scan N]",
+      "route": "workflow-data-gate",
+      "methods": [
+        "tasks.task.list",
+        "tasks.task.get",
+        "tasks.task.result.list",
+        "im.dialog.messages.get"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-list-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-get-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/result/tasks-task-result-list-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/chats/messages/im-dialog-messages-get.md"
+      ],
+      "jtbd": [
+        "AM-02",
+        "AM-03",
+        "AM-05"
+      ],
+      "note": "Сводка сделано/осталось/что мешает/следующее обновление с evidence IDs; автоматически не отправляется клиенту.",
+      "kind": "candidate",
+      "effect": "read",
+      "method_routes": [
+        {
+          "method": "tasks.task.list",
+          "api_version": "3.0",
+          "sdk": "core-gap",
+          "wrappers": []
+        },
+        {
+          "method": "tasks.task.get",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "get",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        },
+        {
+          "method": "tasks.task.result.list",
+          "api_version": "3.0",
+          "sdk": "core-gap",
+          "wrappers": []
+        },
+        {
+          "method": "im.dialog.messages.get",
+          "api_version": "1.0",
+          "sdk": "outside-task-inventory",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:context:set",
+      "group": "Рабочие сценарии",
+      "syntax": "TASK_ID --file CONTEXT.json",
+      "route": "workflow-data-gate",
+      "methods": [
+        "tasks.task.update",
+        "tasks.task.chat.message.send",
+        "im.dialog.messages.get"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-chat-message-send.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-new.md"
+      ],
+      "jtbd": [
+        "AM-01",
+        "EMP-02"
+      ],
+      "note": "Кандидат структуры источника запроса, клиентского контекста, критериев и обещания; mapping к description/chat journal ещё не принят.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.update",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "update",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        },
+        {
+          "method": "tasks.task.chat.message.send",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "sendMessage",
+              "path": "Services/Task/Service/TaskChat.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/TaskChat.php"
+            }
+          ]
+        },
+        {
+          "method": "im.dialog.messages.get",
+          "api_version": "1.0",
+          "sdk": "outside-task-inventory",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:blocker:raise",
+      "group": "Рабочие сценарии",
+      "syntax": "TASK_ID --reason TEXT --needs TEXT --owner ID --next-step TEXT",
+      "route": "workflow-data-gate",
+      "methods": [
+        "tasks.task.update",
+        "tasks.task.chat.message.send",
+        "im.dialog.messages.get"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-chat-message-send.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-new.md"
+      ],
+      "jtbd": [
+        "PM-03",
+        "EMP-03"
+      ],
+      "note": "Кандидат события препятствия; не новый status API. Уведомление отправляется в task chat, доставка/прочтение участником не гарантируются.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.update",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "update",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        },
+        {
+          "method": "tasks.task.chat.message.send",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "sendMessage",
+              "path": "Services/Task/Service/TaskChat.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/TaskChat.php"
+            }
+          ]
+        },
+        {
+          "method": "im.dialog.messages.get",
+          "api_version": "1.0",
+          "sdk": "outside-task-inventory",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:blocker:resolve",
+      "group": "Рабочие сценарии",
+      "syntax": "TASK_ID BLOCKER_ID --resolution TEXT",
+      "route": "workflow-data-gate",
+      "methods": [
+        "tasks.task.update",
+        "tasks.task.chat.message.send",
+        "im.dialog.messages.get"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-chat-message-send.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-new.md"
+      ],
+      "jtbd": [
+        "PM-03"
+      ],
+      "note": "Отдельное событие разрешения, связанное с blocker ID; источник и конфликтные события надо определить.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.update",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "update",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        },
+        {
+          "method": "tasks.task.chat.message.send",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "sendMessage",
+              "path": "Services/Task/Service/TaskChat.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/TaskChat.php"
+            }
+          ]
+        },
+        {
+          "method": "im.dialog.messages.get",
+          "api_version": "1.0",
+          "sdk": "outside-task-inventory",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:change:propose",
+      "group": "Рабочие сценарии",
+      "syntax": "TASK_ID --file CHANGE.json",
+      "route": "workflow-data-gate",
+      "methods": [
+        "tasks.task.update",
+        "tasks.task.chat.message.send",
+        "im.dialog.messages.get"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-chat-message-send.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-new.md"
+      ],
+      "jtbd": [
+        "AM-04",
+        "PM-04",
+        "EMP-04"
+      ],
+      "note": "Предложение требований/объёма/срока/ответственного с исходными значениями и причиной; не применяет изменения до решения.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.update",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "update",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        },
+        {
+          "method": "tasks.task.chat.message.send",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "sendMessage",
+              "path": "Services/Task/Service/TaskChat.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/TaskChat.php"
+            }
+          ]
+        },
+        {
+          "method": "im.dialog.messages.get",
+          "api_version": "1.0",
+          "sdk": "outside-task-inventory",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:change:accept",
+      "group": "Рабочие сценарии",
+      "syntax": "TASK_ID CHANGE_ID [--apply]",
+      "route": "workflow-data-gate",
+      "methods": [
+        "tasks.task.update",
+        "tasks.task.chat.message.send",
+        "im.dialog.messages.get"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-chat-message-send.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-new.md"
+      ],
+      "jtbd": [
+        "AM-04",
+        "PM-04",
+        "EMP-04"
+      ],
+      "note": "Запись согласования и явное применение v3 update. Multi-step не атомарен; статусы записано/применено/частично должны различаться.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.update",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "update",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        },
+        {
+          "method": "tasks.task.chat.message.send",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "sendMessage",
+              "path": "Services/Task/Service/TaskChat.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/TaskChat.php"
+            }
+          ]
+        },
+        {
+          "method": "im.dialog.messages.get",
+          "api_version": "1.0",
+          "sdk": "outside-task-inventory",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:delivery:record",
+      "group": "Рабочие сценарии",
+      "syntax": "TASK_ID --recipient-ref REF --evidence JSON --at ISO8601",
+      "route": "workflow-data-gate",
+      "methods": [
+        "tasks.task.update",
+        "tasks.task.chat.message.send",
+        "im.dialog.messages.get"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-chat-message-send.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-new.md"
+      ],
+      "jtbd": [
+        "AM-05"
+      ],
+      "note": "Регистрирует факт передачи, подтверждённый оператором/источником; не отправляет email/сообщения и не выдумывает доставку.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.update",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "update",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        },
+        {
+          "method": "tasks.task.chat.message.send",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "sendMessage",
+              "path": "Services/Task/Service/TaskChat.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/TaskChat.php"
+            }
+          ]
+        },
+        {
+          "method": "im.dialog.messages.get",
+          "api_version": "1.0",
+          "sdk": "outside-task-inventory",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:feedback:record",
+      "group": "Рабочие сценарии",
+      "syntax": "TASK_ID --text TEXT --source-ref REF",
+      "route": "workflow-data-gate",
+      "methods": [
+        "tasks.task.update",
+        "tasks.task.chat.message.send",
+        "im.dialog.messages.get"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-chat-message-send.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-new.md"
+      ],
+      "jtbd": [
+        "AM-05"
+      ],
+      "note": "Явный источник клиентской обратной связи; внутренние сообщения не выдаются за ответ клиента.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.update",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "update",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        },
+        {
+          "method": "tasks.task.chat.message.send",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "sendMessage",
+              "path": "Services/Task/Service/TaskChat.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/TaskChat.php"
+            }
+          ]
+        },
+        {
+          "method": "im.dialog.messages.get",
+          "api_version": "1.0",
+          "sdk": "outside-task-inventory",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:acceptance:record",
+      "group": "Рабочие сценарии",
+      "syntax": "TASK_ID --kind internal|client --decision accepted|rework --reason TEXT",
+      "route": "workflow-data-gate",
+      "methods": [
+        "tasks.task.update",
+        "tasks.task.chat.message.send",
+        "im.dialog.messages.get"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-chat-message-send.md",
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-new.md"
+      ],
+      "jtbd": [
+        "PM-05",
+        "AM-05"
+      ],
+      "note": "Журнал решения. internal и client различаются; запись не подменяет нативную approve/complete и не завершает задачу автоматически.",
+      "kind": "candidate",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.update",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "update",
+              "path": "Services/Task/Service/Task.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+            }
+          ]
+        },
+        {
+          "method": "tasks.task.chat.message.send",
+          "api_version": "3.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "sendMessage",
+              "path": "Services/Task/Service/TaskChat.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/TaskChat.php"
+            }
+          ]
+        },
+        {
+          "method": "im.dialog.messages.get",
+          "api_version": "1.0",
+          "sdk": "outside-task-inventory",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:time:add",
+      "group": "Расширения вне REST 3.0",
+      "syntax": "TASK_ID --seconds N [--text TEXT]",
+      "route": "legacy-extension",
+      "methods": [
+        "task.elapseditem.add"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/elapsed-item/task-elapsed-item-add.md"
+      ],
+      "jtbd": [
+        "EMP-06"
+      ],
+      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "kind": "deferred",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "task.elapseditem.add",
+          "api_version": "1.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "add",
+              "path": "Services/Task/Elapseditem/Service/Elapseditem.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Elapseditem/Service/Elapseditem.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:time:list",
+      "group": "Расширения вне REST 3.0",
+      "syntax": "TASK_ID [--params @JSON]",
+      "route": "legacy-extension",
+      "methods": [
+        "task.elapseditem.getlist"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/elapsed-item/task-elapsed-item-get-list.md"
+      ],
+      "jtbd": [
+        "EMP-06"
+      ],
+      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "kind": "deferred",
+      "effect": "read",
+      "method_routes": [
+        {
+          "method": "task.elapseditem.getlist",
+          "api_version": "1.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "getList",
+              "path": "Services/Task/Elapseditem/Service/Elapseditem.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Elapseditem/Service/Elapseditem.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:time:update",
+      "group": "Расширения вне REST 3.0",
+      "syntax": "TASK_ID ENTRY_ID --seconds N [--text TEXT]",
+      "route": "legacy-extension",
+      "methods": [
+        "task.elapseditem.update"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/elapsed-item/task-elapsed-item-update.md"
+      ],
+      "jtbd": [
+        "EMP-06"
+      ],
+      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "kind": "deferred",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "task.elapseditem.update",
+          "api_version": "1.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "update",
+              "path": "Services/Task/Elapseditem/Service/Elapseditem.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Elapseditem/Service/Elapseditem.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:time:delete",
+      "group": "Расширения вне REST 3.0",
+      "syntax": "TASK_ID ENTRY_ID --yes",
+      "route": "legacy-extension",
+      "methods": [
+        "task.elapseditem.delete"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/elapsed-item/task-elapsed-item-delete.md"
+      ],
+      "jtbd": [
+        "EMP-06"
+      ],
+      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "kind": "deferred",
+      "effect": "delete",
+      "method_routes": [
+        {
+          "method": "task.elapseditem.delete",
+          "api_version": "1.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "delete",
+              "path": "Services/Task/Elapseditem/Service/Elapseditem.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Elapseditem/Service/Elapseditem.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:checklist:add",
+      "group": "Расширения вне REST 3.0",
+      "syntax": "TASK_ID --title TEXT [--parent ITEM_ID]",
+      "route": "legacy-extension",
+      "methods": [
+        "task.checklistitem.add"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-add.md"
+      ],
+      "jtbd": [
+        "PM-01"
+      ],
+      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "kind": "deferred",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "task.checklistitem.add",
+          "api_version": "1.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "add",
+              "path": "Services/Task/Checklistitem/Service/Checklistitem.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:checklist:list",
+      "group": "Расширения вне REST 3.0",
+      "syntax": "TASK_ID",
+      "route": "legacy-extension",
+      "methods": [
+        "task.checklistitem.getlist"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-get-list.md"
+      ],
+      "jtbd": [
+        "EMP-02"
+      ],
+      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "kind": "deferred",
+      "effect": "read",
+      "method_routes": [
+        {
+          "method": "task.checklistitem.getlist",
+          "api_version": "1.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "getList",
+              "path": "Services/Task/Checklistitem/Service/Checklistitem.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:checklist:complete",
+      "group": "Расширения вне REST 3.0",
+      "syntax": "TASK_ID ITEM_ID",
+      "route": "legacy-extension",
+      "methods": [
+        "task.checklistitem.complete"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-complete.md"
+      ],
+      "jtbd": [],
+      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "kind": "deferred",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "task.checklistitem.complete",
+          "api_version": "1.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "complete",
+              "path": "Services/Task/Checklistitem/Service/Checklistitem.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:checklist:renew",
+      "group": "Расширения вне REST 3.0",
+      "syntax": "TASK_ID ITEM_ID",
+      "route": "legacy-extension",
+      "methods": [
+        "task.checklistitem.renew"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-renew.md"
+      ],
+      "jtbd": [],
+      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "kind": "deferred",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "task.checklistitem.renew",
+          "api_version": "1.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "renew",
+              "path": "Services/Task/Checklistitem/Service/Checklistitem.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:checklist:delete",
+      "group": "Расширения вне REST 3.0",
+      "syntax": "TASK_ID ITEM_ID --yes",
+      "route": "legacy-extension",
+      "methods": [
+        "task.checklistitem.delete"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-delete.md"
+      ],
+      "jtbd": [],
+      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "kind": "deferred",
+      "effect": "delete",
+      "method_routes": [
+        {
+          "method": "task.checklistitem.delete",
+          "api_version": "1.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "delete",
+              "path": "Services/Task/Checklistitem/Service/Checklistitem.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tasks:dependency:add",
+      "group": "Расширения вне REST 3.0",
+      "syntax": "FROM_ID TO_ID --type TYPE",
+      "route": "legacy-extension",
+      "methods": [
+        "task.dependence.add"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/task-dependence-add.md"
+      ],
+      "jtbd": [
+        "PM-01"
+      ],
+      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "kind": "deferred",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "task.dependence.add",
+          "api_version": "1.0",
+          "sdk": "core-gap",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:dependency:delete",
+      "group": "Расширения вне REST 3.0",
+      "syntax": "FROM_ID TO_ID --yes",
+      "route": "legacy-extension",
+      "methods": [
+        "task.dependence.delete"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/task-dependence-delete.md"
+      ],
+      "jtbd": [],
+      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "kind": "deferred",
+      "effect": "delete",
+      "method_routes": [
+        {
+          "method": "task.dependence.delete",
+          "api_version": "1.0",
+          "sdk": "core-gap",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:participants:set",
+      "group": "Расширения вне REST 3.0",
+      "syntax": "TASK_ID [--accomplices JSON --auditors JSON]",
+      "route": "legacy-extension",
+      "methods": [
+        "tasks.task.update"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update.md"
+      ],
+      "jtbd": [
+        "PM-04"
+      ],
+      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "kind": "deferred",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "tasks.task.update",
+          "api_version": "1.0",
+          "sdk": "core-gap",
+          "wrappers": []
+        }
+      ]
+    },
+    {
+      "name": "tasks:history",
+      "group": "Расширения вне REST 3.0",
+      "syntax": "TASK_ID [--params @JSON]",
+      "route": "legacy-extension",
+      "methods": [
+        "tasks.task.history.list"
+      ],
+      "sources": [
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-history-list.md"
+      ],
+      "jtbd": [
+        "EMP-04"
+      ],
+      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "kind": "deferred",
+      "effect": "read",
+      "method_routes": [
+        {
+          "method": "tasks.task.history.list",
+          "api_version": "1.0",
+          "sdk": "core-gap",
+          "wrappers": []
+        }
+      ]
+    }
+  ],
+  "sdk": {
+    "version": "3.7.0",
+    "commit": "8ebd4c154d5557db949b0196825f347a3a6c5bf0",
+    "inspection": "Literal Task service Core calls; wrapper is static presence, not runtime proof; IM services not inspected"
+  }
+}
