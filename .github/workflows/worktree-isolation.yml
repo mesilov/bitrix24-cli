@@ -3,26 +3,8 @@ name: Worktree isolation
 on:
   pull_request:
     branches: [dev, main]
-    paths:
-      - Makefile
-      - docker-compose.yaml
-      - docker/**
-      - composer.*
-      - scripts/**
-      - tests/**
-      - .gitignore
-      - .github/workflows/worktree-isolation.yml
   push:
-    branches: [dev, 'feature/**', 'bugfix/**']
-    paths:
-      - Makefile
-      - docker-compose.yaml
-      - docker/**
-      - composer.*
-      - scripts/**
-      - tests/**
-      - .gitignore
-      - .github/workflows/worktree-isolation.yml
+    branches: [dev]
   workflow_dispatch:
 
 permissions:

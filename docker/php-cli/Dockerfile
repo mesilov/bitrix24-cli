@@ -35,7 +35,11 @@ RUN <<EOF
   rm -rf /var/lib/apt/lists/*
 EOF
 
-RUN install-php-extensions bcmath excimer intl pcntl opcache yaml zip
+# Pin upstream source commits for excimer 1.2.6 and yaml 2.3.0.
+# This avoids PECL download outages without changing the runtime extension set.
+RUN install-php-extensions bcmath intl pcntl opcache zip \
+    wikimedia/php-excimer@cc87c1e297cc39398ca786c41a486a3c1f17c8c3 \
+    php/pecl-file_formats-yaml@c1f0d8ba5ef3884846261bbdb91c2ab0b07db44c
 
 WORKDIR /var/www/html
 

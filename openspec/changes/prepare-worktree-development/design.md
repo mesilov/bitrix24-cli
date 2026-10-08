@@ -21,6 +21,17 @@
 5. **Очистка адресована текущему проекту.** Использовать существующий `docker-down` с тем же именем проекта. Не применять глобальный Docker prune и удаление других checkout. Документировать остановку окружения до `git worktree remove`; не добавлять принудительное удаление пользовательских файлов.
 6. **Приёмка через два checkout.** Проверка создаёт временные worktree из коммита с реализованным окружением, включая пару одинаковых basename, запускает сборку и подготовку параллельно, проверяет Compose labels, image tags и bind mounts. Сентинелы в checkout и `vendor/` проверяют независимость записи; `make cli`, `make check` и запуск оставшегося окружения после остановки первого подтверждают рабочий workflow. Cleanup по trap затрагивает только тестовые проекты и checkout; при ошибке сохраняет понятную диагностику. Нужны Docker и сеть для первоначальной установки зависимостей; live credentials Bitrix24 не требуются.
 
+## CI build correction (2026-10-08)
+
+Проверки Ubuntu/amd64 несколько раз получили HTTP 504 от PECL при скачивании excimer 1.2.6 и yaml 2.3.0. Сохранить Debian Bookworm, PHP 8.4 и весь набор расширений; для двух внешних расширений использовать поддержанную установщиком загрузку из официальных GitHub upstream-репозиториев по полному commit SHA соответствующего релиза:
+
+- excimer 1.2.6: `wikimedia/php-excimer@cc87c1e297cc39398ca786c41a486a3c1f17c8c3`.
+- yaml 2.3.0: `php/pecl-file_formats-yaml@c1f0d8ba5ef3884846261bbdb91c2ab0b07db44c`.
+
+Изменяется источник загрузки, а не состав runtime. Проверить наличие и версии расширений в контейнере; не пропускать сборку или тест изоляции при сетевой ошибке. Удалить path filters workflow, чтобы GitHub CI запускался на последнем коммите MR даже после изменения только артефактов OpenSpec. Оставить один pull_request run для feature-веток, push runs для `dev`, чтобы не дублировать тяжёлую проверку. Отчёт о первоначальном CI-сбое сохранить как историю, добавив успешные результаты после исправления.
+
+Источники: [installer source support](https://github.com/mlocati/docker-php-extension-installer/tree/2.4.0#installing-an-extension-from-its-source-code), [excimer 1.2.6](https://github.com/wikimedia/php-excimer/tree/cc87c1e297cc39398ca786c41a486a3c1f17c8c3), [yaml 2.3.0](https://github.com/php/pecl-file_formats-yaml/tree/c1f0d8ba5ef3884846261bbdb91c2ab0b07db44c).
+
 ## Risks / Trade-offs
 
 - [Новый путь checkout меняет идентичность проекта] → перед перемещением остановить старое окружение, затем подготовить его в новом пути; документировать это поведение.
