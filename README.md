@@ -5,15 +5,26 @@ CLI-обёртка для REST API портала Битрикс24. Первый
 ## Окружение
 
 - Docker и Docker Compose, Make; локальные PHP и Composer не требуются.
-- PHP 8.4 CLI (Debian Bookworm), Composer 2.8.
+- PHP 8.4 CLI (Alpine 3.23), Composer 2.8.
 - `symfony/console`: `^8.0`.
 - `bitrix24/b24phpsdk`: `^3.7`; при создании проекта последний стабильный релиз v3 — [3.7.0](https://github.com/bitrix24/b24phpsdk/releases/tag/3.7.0).
 
 Точные установленные версии зафиксированы в `composer.lock`.
 
-Dockerfile взят из [bitrix24/b24phpsdk, ветка v3](https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/docker/php-cli/Dockerfile). Compose и Makefile адаптированы из того же коммита: добавлены имя образа проекта и передача UID/GID, оставлены команды окружения и Composer, добавлен запуск CLI. В Dockerfile исправлены комментарий о версии PHP и путь к лицензии.
+Dockerfile первоначально взят из [bitrix24/b24phpsdk, ветка v3](https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/docker/php-cli/Dockerfile), затем переведён на `php:8.4-cli-alpine3.23` с минимальным набором дополнительных модулей. Compose и Makefile адаптированы из того же коммита SDK.
 
-Удалённые PHP-расширения закреплены по commit SHA официальных исходников: excimer 1.2.6 и yaml 2.3.0. Их сборка не зависит от доступности PECL REST metadata; набор расширений сохранён.
+| Компонент | Назначение и решение |
+| --- | --- |
+| `bcmath` | Обязателен для `moneyphp/money`; собирается из исходников PHP в базе |
+| `intl`, `icu-libs` | Обязателен для b24phpsdk; ICU остаётся как библиотека исполнения |
+| `unzip` | Распаковка Composer dist-архивов; дополнительный модуль `zip` не нужен |
+| Composer 2.8 | Установка и проверка зафиксированных зависимостей, включая dev-инструменты |
+| `curl`, `json`, `filter`, `ctype`, `tokenizer`, `iconv`, `hash` | Требования lock приложения и линтеров; уже предоставляются базовым PHP |
+| `excimer`, `pcntl`, `yaml`, `zip` | Текущему CLI и четырём линтерам не нужны; дополнительные установки удалены |
+| OPcache | Уже входит в официальный PHP 8.4 образ; повторная сборка удалена |
+| Extension installer, компилятор, заголовки ICU | Installer больше не используется; временные build-пакеты удаляются в том же слое |
+
+Остальные встроенные модули официального PHP не пересобираются. При изменении `composer.lock` достаточность окружения проверяется через `make composer ARGS="check-platform-reqs"`. Контейнер по умолчанию запускается пользователем `cli` (UID/GID 10001); Make сохраняет передачу UID/GID хоста. Composer cache создаётся запускающим пользователем в `/tmp/composer/cache`.
 
 ## Быстрый старт
 
