@@ -5,9 +5,9 @@
 
 | Измерение | Результат |
 | --- | --- |
-| Полнота | 9/9 задач; реализации всех 6 требований найдены |
+| Полнота | 12/12 задач; реализации всех 6 требований найдены |
 | Корректность | 6/6 требований и 7/7 сценариев покрыты локальной интеграционной приёмкой |
-| Согласованность | Все 6 решений design соблюдены; Make-workflow и Dockerfile сохранены |
+| Согласованность | Решения design и CI correction соблюдены; Make-workflow и runtime-модули сохранены |
 
 ## Соответствие требованиям
 
@@ -28,11 +28,24 @@
 - Linux arm64: тот же тест в Linux-контейнере с Docker CLI/Compose 5.6.0, отдельным чистым clone и доступом к тому же Docker Desktop daemon — PASS, exit 0, `cleanup=true`; результат `run.ngpiBO`. Это проверка Linux runtime для инструментов, а не отдельного физического Linux-хоста.
 - `sh -n scripts/compose.sh`, `bash -n tests/worktree-isolation.sh`, dry run Make-целей, `git diff --check`, `openspec validate prepare-worktree-development --strict` — PASS.
 
-## Ограничение CI
+## Первоначальный CI-сбой (устранён)
 
-WARNING: дополнительная проверка Ubuntu в GitHub Actions не прошла: сборка неизменённого базового PHP Dockerfile получила HTTP 504 от `pecl.php.net` при скачивании `excimer`/`yaml`. Повторный запуск подтвердил ошибку скачивания до запуска окружения; успешный CI на Ubuntu/amd64 не подтверждён. Это не ошибка проверки изоляции и не заменяется локальными PASS.
+Первоначально дополнительная проверка Ubuntu в GitHub Actions не прошла: сборка неизменённого базового PHP Dockerfile получила HTTP 504 от `pecl.php.net` при скачивании `excimer`/`yaml`. Повторный запуск подтвердил ошибку скачивания до запуска окружения; успешный CI на Ubuntu/amd64 не подтверждён. Это не ошибка проверки изоляции и не заменяется локальными PASS.
 
 Логи сохранены workflow как `worktree-isolation-linux`:
 [CI run](https://github.com/mesilov/bitrix24-cli/actions/runs/37750227029).
 
-Критических расхождений с шестью требованиями спеки не найдено. Остаётся одно предупреждение: CI требует повторной проверки после восстановления доступности PECL. Слияние MR должно учитывать этот незакрытый CI-гейт.
+Первоначальное ограничение CI закрыто результатами ниже. Критических расхождений с шестью требованиями спеки не найдено.
+
+## Завершение CI
+
+Проверенная реализация после интеграции `dev`: `408193519ac44b9d4ac2698dbc6963173ab3667a`.
+
+- excimer 1.2.6 и yaml 2.3.0 устанавливаются из официальных upstream-репозиториев по полным commit SHA; набор runtime-модулей проверяется тестом.
+- Конфликты с принятым MR линтеров разрешены; все новые Make-цели используют общий изолированный Compose wrapper.
+- Path filters Worktree isolation удалены; проверка запускается на каждом коммите PR, включая docs/OpenSpec-only изменения, без дополнительного feature push run.
+- macOS arm64: полный test-worktree после merge с dev — PASS, cleanup=true (`run.lF9IqI`); `make docker-init lint-all` — PASS.
+- Ubuntu/amd64 GitHub Actions: [Worktree isolation](https://github.com/mesilov/bitrix24-cli/actions/runs/37752346992) — success, cleanup=true; версии расширений подтверждены в обеих сборках.
+- GitHub checks на этом SHA: Worktree isolation и по два push/PR check для composer-license-checker, PHPStan, PhpCsFixer и Rector — все 9 success.
+
+Все 12 задач выполнены, применимых непроверенных требований не осталось. Последующие коммиты отчёта и архива тоже проходят CI; результат проверки окончательного HEAD фиксируется в MR.
