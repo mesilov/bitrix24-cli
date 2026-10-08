@@ -29,7 +29,15 @@
 
 - Первичный источник content/_index.md из cli-guidelines/cli-guidelines проверен на commit 697d6a29fc8c93d3981a755c0c7683507ad39c3e; ссылки, дата, авторы и лицензия указаны в каталоге, соответствие разделам и проектные решения — в design.md.
 - Добавлена cli-experience delta и основная spec: 11 требований, 29 проверяемых сценариев. Сверены полное совпадение после преобразования заголовков, уникальность имён, WHEN/THEN и предел длины нормативных описаний.
-- Все 55 command paths используют пробелы и прямой bitrix24 вызов; сложные связанные IDs переведены в named flags. Markdown/JSON синтаксис каждой записи совпадает, таблицы и локальные ссылки валидны. previous_proposal_name сохраняет историю, не runtime alias.
+- Все 55 command names используют namespaces Symfony Console с двоеточиями и entrypoint b24cli; сложные связанные IDs переведены в named flags. Markdown/JSON синтаксис каждой записи совпадает, таблицы и локальные ссылки валидны. previous_proposal_name сохраняет историю, не runtime alias.
 - Проверены удобные update/create flags, файловый ввод PATH/-, --fields/--fields-file, форматы/потоки, help, exit codes, finite defaults, dry-run/delete confirmation и ограничения автоматизации. Shell examples проверены bash -n и token parsing без исполнения task commands.
 - Baseline comparison подтверждает неизменность всех methods, method_routes/API versions/SDK wrappers, sources, route/kind/effect и связей JTBD. Все 19 coverage references обновлены; conditions/acceptance отличаются только именами. Counts 7/12 и 4/14/1 сохранены. Принятая task-workflows spec и её delta не менялись.
 - Повторная openspec validate --specs --strict: 4 passed, 0 failed; validate define-task-jtbd --strict: valid. git diff --check проходит. Runtime/PHP, auth, packaging и portal acceptance не выполнялись; обновлён проект интерфейса.
+
+
+## Уточнение: нативная нотация Symfony Console
+
+- По уточнению пользователя entrypoint изменён на b24cli, все 55 команд возвращены к colon namespaces; task-workflows не меняется. JSON/Markdown и 19 JTBD references согласованы. API methods/routes/SDK evidence и counts 7/12, 4/14/1 сохранены.
+- Справка использует list [namespace], help COMMAND и COMMAND --help. Root запускает list; отдельный tasks dispatcher не проектируется. No-interaction/-n, no-ansi, quiet/silent и verbosity согласованы с Console 8.1.8 из composer.lock, проверены официальные docs и pinned Application.php.
+- Обновлён контракт cli-experience delta/main с теми же 11 требованиями и 29 сценариями. Требования к scriptable flags и удобному редактированию сохранены; shell examples имеют будущий b24cli entrypoint, не доказывают runtime.
+- Launcher b24cli и task commands не добавлены. Это исправление planning artifacts; validation и статическая сверка не заменяют implementation/portal acceptance.
