@@ -1,0 +1,81 @@
+# Adapted from bitrix24/b24phpsdk v3, commit 8ebd4c154d5557db949b0196825f347a3a6c5bf0.
+# Copyright (c) Maksim Mesilov. Distributed under the MIT license; see LICENSE.
+
+.DEFAULT_GOAL := help
+
+export COMPOSE_HTTP_TIMEOUT=120
+export DOCKER_CLIENT_TIMEOUT=120
+export LOCAL_UID ?= $(shell id -u)
+export LOCAL_GID ?= $(shell id -g)
+
+COMPOSE := docker compose
+RUN := $(COMPOSE) run --rm -T php-cli
+ARGS ?=
+
+.PHONY: help docker-init docker-build docker-up docker-down docker-restart \
+        composer-install composer-update composer-dumpautoload composer \
+        composer-validate php-cli-bash cli lint check
+
+help:
+	@printf '%s\n' \
+	  'Bitrix24 CLI' \
+	  '' \
+	  'docker-init          Build the PHP image and install dependencies' \
+	  'docker-build         Build the PHP image' \
+	  'docker-up            Start the development container' \
+	  'docker-down          Stop the development container' \
+	  'docker-restart       Restart the development container' \
+	  'composer-install     Install locked dependencies' \
+	  'composer-update      Update dependencies and composer.lock' \
+	  'composer-dumpautoload Regenerate the Composer autoloader' \
+	  'composer ARGS="..."  Run Composer with arguments' \
+	  'composer-validate    Validate composer.json and composer.lock' \
+	  'php-cli-bash         Open a shell in the PHP container' \
+	  'cli ARGS="..."       Run bin/console (default: command list)' \
+	  'lint                 Check PHP syntax' \
+	  'check                Validate Composer, PHP syntax and CLI startup'
+
+docker-init:
+	$(MAKE) docker-build
+	$(MAKE) composer-install
+
+docker-build:
+	$(COMPOSE) build php-cli
+
+docker-up:
+	$(COMPOSE) up --build -d php-cli
+
+docker-down:
+	$(COMPOSE) down --remove-orphans
+
+docker-restart:
+	$(MAKE) docker-down
+	$(MAKE) docker-up
+
+composer-install:
+	$(RUN) composer install --no-interaction
+
+composer-update:
+	$(RUN) composer update --no-interaction
+
+composer-dumpautoload:
+	$(RUN) composer dump-autoload
+
+composer:
+	$(RUN) composer $(ARGS)
+
+composer-validate:
+	$(RUN) composer validate --strict
+
+php-cli-bash:
+	$(COMPOSE) run --rm php-cli sh
+
+cli:
+	$(RUN) php bin/console $(ARGS)
+
+lint:
+	$(RUN) php -l bin/console
+
+check: composer-validate lint
+	$(RUN) composer check-platform-reqs
+	$(RUN) php bin/console list --no-ansi
