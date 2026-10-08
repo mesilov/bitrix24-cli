@@ -3,6 +3,10 @@
 set -eu
 
 root=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd -P)
+# Direct wrapper calls use the same file ownership defaults as Make.
+LOCAL_UID=${LOCAL_UID:-$(id -u)}
+LOCAL_GID=${LOCAL_GID:-$(id -g)}
+export LOCAL_UID LOCAL_GID
 if command -v sha256sum >/dev/null 2>&1; then
     digest=$(printf '%s' "$root" | sha256sum)
 elif command -v shasum >/dev/null 2>&1; then
