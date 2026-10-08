@@ -14,7 +14,8 @@ ARGS ?=
 
 .PHONY: help docker-init docker-build docker-up docker-down docker-restart \
         composer-install composer-update composer-dumpautoload composer \
-        composer-validate php-cli-bash cli lint check worktree-info test-worktree
+        composer-validate php-cli-bash cli lint check worktree-info test-worktree \
+        lint-allowed-licenses lint-cs-fixer lint-phpstan lint-rector lint-all
 
 help:
 	@printf '%s\n' \
@@ -35,7 +36,12 @@ help:
 	  'lint                 Check PHP syntax' \
 	  'check                Validate Composer, PHP syntax and CLI startup' \
 	  'worktree-info        Show this checkout and its Compose project' \
-	  'test-worktree        Verify two concurrent worktrees from committed HEAD'
+	  'test-worktree        Verify two concurrent worktrees from committed HEAD' \
+	  'lint-allowed-licenses Check dependency licenses' \
+	  'lint-cs-fixer        Check PHP code style (no source changes)' \
+	  'lint-phpstan         Run PHPStan static analysis' \
+	  'lint-rector          Check Rector rules (dry run)' \
+	  'lint-all             Run all four quality checks'
 
 worktree-info:
 	@$(COMPOSE) --info
@@ -87,3 +93,17 @@ lint:
 check: composer-validate lint
 	$(RUN) composer check-platform-reqs
 	$(RUN) php bin/console list --no-ansi
+
+lint-allowed-licenses:
+	$(RUN) vendor/bin/composer-license-checker
+
+lint-cs-fixer:
+	$(RUN) vendor/bin/php-cs-fixer check --verbose --diff
+
+lint-phpstan:
+	$(RUN) vendor/bin/phpstan analyse --memory-limit=2G
+
+lint-rector:
+	$(RUN) vendor/bin/rector process --dry-run
+
+lint-all: lint-allowed-licenses lint-cs-fixer lint-phpstan lint-rector

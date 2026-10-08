@@ -4,3 +4,5 @@
 /.env.local
 /.worktree/
 /.worktree-test-results/
+
+/var/cache/
