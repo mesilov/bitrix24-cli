@@ -24,7 +24,7 @@
 - [x] 4.2 Обеспечить запуск Worktree isolation на каждом итоговом коммите MR, включая OpenSpec/docs-only изменения; подтвердить head SHA проверок совпадает с опубликованным HEAD.
 - [x] 4.3 Повторить локальную приёмку двух worktree и дождаться успешного Ubuntu/amd64 CI на последнем коммите MR; сохранить ссылки и обновить verification, issue и MR.
 
-- [ ] 4.4 Интегрировать принятую миграцию dev на Alpine из MR #9, согласовать проверку модулей с актуальной docker-cli-environment spec и Composer lock, повторить worktree-приёмку и получить зелёные checks на итоговом HEAD без конфликтов с dev.
+- [x] 4.4 Интегрировать принятую миграцию dev на Alpine из MR #9, согласовать проверку модулей с актуальной docker-cli-environment spec и Composer lock, повторить worktree-приёмку и получить зелёные checks на итоговом HEAD без конфликтов с dev.
 
 ## Workflow follow-up
 

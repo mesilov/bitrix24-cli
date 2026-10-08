@@ -1,13 +1,13 @@
 # Verification: prepare-worktree-development
 
 Дата: 2026-10-08. Связанные артефакты: issue #2, MR #3.
-Проверенная реализация: `8d6081c6240177c3569fef12a8b7f61260445884`.
+Итоговая проверенная реализация: `d5838d64fdc91211e064b38fb63e534becba7887`, после интеграции Alpine из `dev` (`903dc64`).
 
 | Измерение | Результат |
 | --- | --- |
-| Полнота | 12/12 задач; реализации всех 6 требований найдены |
+| Полнота | 13/13 задач; реализации всех 6 требований найдены |
 | Корректность | 6/6 требований и 7/7 сценариев покрыты локальной интеграционной приёмкой |
-| Согласованность | Решения design и CI correction соблюдены; Make-workflow и runtime-модули сохранены |
+| Согласованность | Решения design соблюдены; Make-workflow сохранён, PHP-окружение соответствует принятой Alpine spec и Composer lock |
 
 ## Соответствие требованиям
 
@@ -20,7 +20,7 @@
 | Documented setup and safe cleanup | README содержит setup, direct wrapper, cleanup, миграцию/перемещение; `git check-ignore` подтверждает игнорирование worktree и тестовых логов; ни секреты, ни vendor не копируются при создании checkout |
 | Reproducible concurrent acceptance check | `make test-worktree`; временные detached worktree, параллельные build/install/up/check, targeted cleanup и сохранение логов; намеренная ошибка завершилась ненулевым кодом с `cleanup=true` |
 
-## Выполненные проверки
+## Первоначальная приёмка до миграции Alpine
 
 - macOS arm64, Docker Desktop: `make test-worktree`, Compose 5.3.1 — PASS, exit 0, `cleanup=true`; результат `run.db2yQk`.
 - macOS arm64: `WORKTREE_TEST_FAIL_AFTER_START=1 bash tests/worktree-isolation.sh` — ожидаемый exit 1 на этапе intentional failure, `cleanup=true`; результат `run.Op9Gxi`.
@@ -30,14 +30,14 @@
 
 ## Первоначальный CI-сбой (устранён)
 
-Первоначально дополнительная проверка Ubuntu в GitHub Actions не прошла: сборка неизменённого базового PHP Dockerfile получила HTTP 504 от `pecl.php.net` при скачивании `excimer`/`yaml`. Повторный запуск подтвердил ошибку скачивания до запуска окружения; успешный CI на Ubuntu/amd64 не подтверждён. Это не ошибка проверки изоляции и не заменяется локальными PASS.
+Первоначально дополнительная проверка Ubuntu в GitHub Actions не прошла: сборка неизменённого базового PHP Dockerfile получила HTTP 504 от `pecl.php.net` при скачивании `excimer`/`yaml`. Повторный запуск подтвердил ошибку скачивания до запуска окружения; на этом раннем коммите успешный CI на Ubuntu/amd64 не был подтверждён. Это не ошибка проверки изоляции и не заменяется локальными PASS.
 
 Логи сохранены workflow как `worktree-isolation-linux`:
 [CI run](https://github.com/mesilov/bitrix24-cli/actions/runs/37750227029).
 
 Первоначальное ограничение CI закрыто результатами ниже. Критических расхождений с шестью требованиями спеки не найдено.
 
-## Завершение CI
+## Первое успешное завершение CI (Debian)
 
 Проверенная реализация после интеграции `dev`: `408193519ac44b9d4ac2698dbc6963173ab3667a`.
 
@@ -48,4 +48,12 @@
 - Ubuntu/amd64 GitHub Actions: [Worktree isolation](https://github.com/mesilov/bitrix24-cli/actions/runs/37752346992) — success, cleanup=true; версии расширений подтверждены в обеих сборках.
 - GitHub checks на этом SHA: Worktree isolation и по два push/PR check для composer-license-checker, PHPStan, PhpCsFixer и Rector — все 9 success.
 
-Все 12 задач выполнены, применимых непроверенных требований не осталось. Последующие коммиты отчёта и архива тоже проходят CI; результат проверки окончательного HEAD фиксируется в MR.
+## Итоговая приёмка на принятом Alpine-окружении
+
+- Включён актуальный `dev` с MR #9: Dockerfile сохранён из принятой миграции на `php:8.4-cli-alpine3.23`, без загрузок PECL. Проверка обязательных модулей (`bcmath`, `intl`) соответствует `docker-cli-environment`; `make check` проверяет platform requirements Composer lock.
+- macOS arm64, Docker Desktop, Compose 5.3.1: полный `make test-worktree` на `d5838d6` — PASS, exit 0, `cleanup=true`; результат `run.BzsXJf`. Параллельные сборки, runtime labels/mounts, UID/GID, локальные файлы/зависимости и независимые down/restart проверены.
+- `make docker-init lint-all` на Alpine — PASS: проверка лицензий, PhpCsFixer, PHPStan и Rector.
+- Ubuntu/amd64 на отдельном GitHub Actions runner: [Worktree isolation](https://github.com/mesilov/bitrix24-cli/actions/runs/37753286234) — success на head SHA `d5838d64fdc91211e064b38fb63e534becba7887`; артефакт `run.qxkTAo/result.txt` подтверждает успешную приёмку и `cleanup=true`.
+- Все 9 GitHub checks на этом HEAD завершились success; MR mergeable, merge state CLEAN.
+
+Все 13 задач выполнены, покрыты 6 требований и 7 сценариев. Актуальная основная спецификация совпадает с delta requirements. Результаты CI для последующего коммита отчёта и архива фиксируются в описании MR, чтобы ссылка относилась к окончательному HEAD.
