@@ -6,7 +6,7 @@
 
 ## Goals / Non-Goals
 
-Фиксация пользовательского поведения в task-workflows и перенос его в актуальную спецификацию. Этот этап не пишет код и не выбирает auth, модель клиентских обязательств, уведомления или окончательный набор команд.
+Фиксация пользовательского поведения в task-workflows и перенос его в актуальную спецификацию. Этот этап не пишет код; он фиксирует 16 согласованных исключений из MVP. Auth, модель клиентских обязательств, уведомления и окончательный допуск оставшихся API/lifecycle кандидатов требуют дальнейших решений.
 
 ## Decisions
 
@@ -72,3 +72,14 @@ Entrypoint b24cli пока является решением интерфейс�
 Требования к маппингу CLI ↔ REST 1:1 нет. Имя CLI описывает действие пользователя; implementation выбирает документированные REST routes и показывает их отдельно, когда это необходимо для API policy/dry-run/диагностики. Одно действие может использовать несколько методов, а несколько команд — один метод: task:add и task:subtask:add используют tasks.task.add; task:update/task:assign/task:deadline:set используют tasks.task.update. Имена tasks.task.* REST, scope tasks, SDK services и ссылки источников не переименовываются вслед за интерфейсом. JTBD и права также не выводятся из имени команды.
 
 В результате переименованы 55 кандидатов без изменения их method_routes, effect, gates или оценки 19 JTBD. Перевод namespace в singular и create → add не является реализацией новых операций; historical proposal names остаются metadata и не обещают aliases.
+
+
+## MVP exclusions and admission
+
+Пользователь вынес 16 операций: 3 dependency, 5 рабочих представлений, 3 context/blocker и 5 change/delivery/feedback/acceptance. JSON mvp_scope содержит точный набор и mvp_stage каждой команды. Каталог переорганизован: 28 MVP candidates, 11 API-policy-pending, 16 post-MVP. Исходные kind/route и 42+13 описывают API-кандидатов полного research catalogue, а не MVP состав.
+
+39 оставшихся операций — перечень в рассмотрении, не 39 утверждённых runnable команд. Семь lifecycle gates и 11 неутверждённых legacy admissions сохраняются. Policy new-card/task-v3/strict-rest3 не меняется; исключение scope не разрешает скрытый fallback. Dependency:list имеет REST3 route, но вынесен по пользовательскому решению так же, как legacy dependency mutations.
+
+Все 19 требований продукта остаются в task-workflows. В coverage добавлен отдельный MVP partition ссылок: retained candidates, API pending и post-MVP. AM-02/03 не имеют оставшихся mapped команд; EMP-01 сохраняет базовый task:list --responsible вместо исключённого task:my. Mapping-reduced — описательная структура набора команд, не доказательство частичного acceptance сценария. Старые documented/conditional counts остаются оценкой полного каталога.
+
+Provider blockers/changes/client obligations/delivery/feedback после этого решения не является предварительным условием выпуска retained CRUD/chat/result команд: проектирование продолжается после MVP. Это не означает, что соответствующие задачи выполнены; они остаются открытыми для дальнейшего продукта. Native lifecycle/result semantics, scoped scans и API exceptions оставшихся команд — условия допуска MVP и должны быть проверены в последующих implementation changes.

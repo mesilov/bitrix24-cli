@@ -6,7 +6,7 @@
 
 ## Итог
 
-Все **19/19 JTBD имеют кандидатные команды**, но это не 19/19 доказанных сценариев:
+Для исходного полного каталога все **19/19 JTBD имеют кандидатные команды**, но это не 19/19 доказанных сценариев:
 
 - Для новой карточки: **7 сценариев имеют документированные основные маршруты**, **12 условны** из-за рабочих данных, lifecycle semantics, полноты или исключений API.
 - Для строго только REST3: **4 имеют документированные основные маршруты**, **14 условны**, **EMP-06 имеет gap записи/исправления времени**.
@@ -72,3 +72,40 @@
 6. Пройти перечисленные acceptance cases на тестовом портале при реализации с правами реальных участников; client acceptance и внутренний контроль проверяются отдельно.
 
 Спецификация JTBD не ослабляется ради текущих API gaps. Каталог фиксирует варианты реализации и препятствия; окончательный MVP и исключения пользователь ещё не принял.
+
+
+## MVP command mapping
+
+По решению пользователя 16 команд относятся к развитию после MVP. Из оставшихся 39 операций 28 — кандидаты, 11 — API-policy-pending. Полный исходный mapping и его API assessment выше сохранены для продукта; это отдельный слой release scope. [Спецификация MVP](../../specs/task-mvp-scope/spec.md), stages каждой команды — в cli-candidates.json.
+
+Mapping-unchanged означает, что связанные имена не выносились; mapping-reduced — часть вынесена; no-remaining-mapped-commands — все связанные команды после MVP. Это **структурное разделение ссылок, не оценка полного/частичного выполнения JTBD**. Неизменный mapping с legacy time или gated lifecycle не доказывает допуск команды в MVP.
+
+| JTBD | Оставшиеся связи (кандидаты или API pending) | После MVP | Структура mapping |
+| --- | --- | --- | --- |
+| PM-01 | `task:add`, `task:subtask:add`, `task:show` | — | mapping-unchanged |
+| PM-02 | `task:list` | `task:plan`, `task:risks`, `task:dependency:list` | mapping-reduced |
+| PM-03 | `task:chat:send` | `task:blocker:raise`, `task:blocker:resolve` | mapping-reduced |
+| PM-04 | `task:assign`, `task:deadline:set` | `task:plan`, `task:change:propose`, `task:change:accept` | mapping-reduced |
+| PM-05 | `task:result:list`, `task:approve`, `task:disapprove` | `task:acceptance:record` | mapping-reduced |
+| PM-06 | `task:chat:list`, `task:chat:send` | — | mapping-unchanged |
+| AM-01 | `task:add`, `task:show` | — | mapping-unchanged |
+| AM-02 | — | `task:risks`, `task:report`, `task:context:set` | no-remaining-mapped-commands |
+| AM-03 | — | `task:report`, `task:brief` | no-remaining-mapped-commands |
+| AM-04 | `task:update` | `task:change:propose`, `task:change:accept` | mapping-reduced |
+| AM-05 | `task:result:list` | `task:delivery:record`, `task:feedback:record`, `task:acceptance:record`, `task:report` | mapping-reduced |
+| AM-06 | `task:chat:list`, `task:chat:send` | — | mapping-unchanged |
+| EMP-01 | `task:list` | `task:my` | mapping-reduced |
+| EMP-02 | `task:show`, `task:chat:send` | — | mapping-unchanged |
+| EMP-03 | `task:chat:send` | `task:blocker:raise` | mapping-reduced |
+| EMP-04 | `task:show` | `task:brief`, `task:change:propose`, `task:change:accept` | mapping-reduced |
+| EMP-05 | `task:result:add`, `task:result:from-message`, `task:file:attach`, `task:complete` | — | mapping-unchanged |
+| EMP-06 | `task:time:show`, `task:time:add`, `task:time:list`, `task:time:update` | — | mapping-unchanged |
+| EMP-07 | `task:chat:list`, `task:chat:send` | — | mapping-unchanged |
+
+Структурные counts: mapping-unchanged 8, mapping-reduced 9, no-remaining-mapped-commands 2. Прежние 7/12 и 4/14/1 описывают полный каталог и не являются счётом покрытия MVP.
+
+- **EMP-01:** task:my исключён; базовая выборка сотрудника остаётся через task:list --responsible ID. Это замена shortcut, а не утверждение runtime полноты всего JTBD.
+- **PM-05:** Базовые result/list и native review кандидаты сохранены; отдельный журнал acceptance вынесен. Lifecycle семантика по-прежнему требует проверки.
+- **EMP-06:** Список связей не сократился, но time add/list/update остаются API-policy-pending; неизменность mapping не означает их допуск в MVP.
+- **AM-02:** Все связанные команды вынесены; клиентские обязательства относятся к развитию после MVP.
+- **AM-03:** Все связанные сводки вынесены; отдельный workflow клиентского статусного отчёта после MVP.

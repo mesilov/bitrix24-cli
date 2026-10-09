@@ -7,13 +7,13 @@
 - В delta и основной spec task-workflows 17 требований и 19 JTBD-сценариев: PM-01..06, AM-01..06, EMP-01..07. Сохранены 16 прежних сценариев; 3 новых относятся к переписке.
 - У каждого JTBD сохранены ситуация, желаемое действие, рабочая цель и признак успеха. Общий chat contract включает всех участников в пределах прав, чтение истории и отправку сообщения в нужную задачу.
 - Основная спецификация содержит Purpose и Requirements без delta-заголовков; content соответствует delta. Product roles не предоставляют REST rights; клиентская и внутренняя приёмка различаются.
-- openspec validate --specs --strict: 4 passed, 0 failed после добавления cli-experience. openspec validate define-task-jtbd --strict: valid.
+- openspec validate --specs --strict: 5 passed, 0 failed после добавления task-mvp-scope. openspec validate define-task-jtbd --strict: valid.
 - MCP inventory построен по 27 файлам server/mcp/tools/tasks на commit 1f825befd6bfcb620324bd87858977062fabf9ec, актуальному HEAD при проверке. Все имена извлечены из defineMcpTool, REST имена — из исходников; Markdown/JSON сверены. b24_task_comment_add вызывает task.commentitem.add; в этом каталоге нет tool для чтения task chat или отправки через tasks.task.chat.message.send.
 - Изменения ограничены planning artifacts и новой основной spec; приложение, dependencies и чужие спецификации не изменялись. Issue #10 и PR #11 сохраняют трассировку обоих changes.
 
 ## Что остаётся открытым
 
-В tasks.md выполнены 6 из 9 задач фиксации/проектирования, 3 задачи закрытия условного покрытия остаются открытыми. Спецификация выражает согласованный продуктовый контракт, не успешное runtime acceptance. В bin/console нет прикладных task commands; реализация этих требований не подтверждена. Полную openspec-verify-change для implementation следует выполнить после реализации, не подменяя её validation схемы документов.
+В tasks.md выполнены 7 из 10 задач фиксации/проектирования, 3 задачи закрытия условного покрытия остаются открытыми. Спецификация выражает согласованный продуктовый контракт, не успешное runtime acceptance. В bin/console нет прикладных task commands; реализация этих требований не подтверждена. Полную openspec-verify-change для implementation следует выполнить после реализации, не подменяя её validation схемы документов.
 
 Не выполнялись live tools/list MCP, установка templates-mcp и операции на портале. Каталог не приписывается официальному hosted MCP.
 
@@ -48,3 +48,13 @@
 - По выбору пользователя корневой namespace — task, команда добавления — task:add; добавление подзадачи — task:subtask:add. Обязательный маппинг имён/количества CLI-команд на REST 1:1 отсутствует и это явно закреплено в spec/design/JSON metadata.
 - Согласованы все 55 имён, примеры и 19 JTBD references; имена REST tasks.task.*, API versions/scopes, SDK routes, effects, gates, sources и counts 7/12, 4/14/1 сохраняются. Task-workflows delta/main не меняются.
 - Проверки planning: strict validation 4 specs и change, canonical/delta equality, Markdown/JSON command syntax и tables/links, baseline сравнение API evidence и coverage conditions, shell example parsing, diff check. Task commands и launcher остаются будущей реализацией.
+
+
+## Граница MVP по решению пользователя
+
+- В task-mvp-scope delta/main добавлены 3 требования и 5 сценариев; перечислены ровно 16 пользовательских исключений: dependencies 3, views 5, context/blocker 3, changes/client agreements 5. Они сохранены в post-MVP; дополнительных исключений не внесено.
+- CLI JSON/Markdown содержит 55 операций с отдельным release stage: 28 mvp-candidate, 11 api-policy-pending, 16 post-mvp; 39 остаются в рассмотрении. Сопоставлены каждая строка и stage, исходные kind/routes 42+13 и 7 lifecycle gates сохранены. Наличие в остатке не утверждает legacy exception.
+- У всех 19 JTBD добавлен MVP command partition; 8 mappings не сократились, 9 сократились, AM-02/03 не имеют оставшихся связей. Это структурное разделение, не score полноты сценария. Прежние counts 7/12 и 4/14/1 описывают полный каталог. EMP-01 использует базовый task:list --responsible вместо вынесенного shortcut task:my.
+- Baseline comparison подтвердило неизменность исходных API methods/routes/versions/SDK sources/effects и original coverage conditions/acceptance. Task-workflows и cli-experience delta/main byte-identical к предыдущему commit; продуктовые цели не удалялись.
+- Проверены canonical/delta equality task-mvp-scope, точный набор исключений, 3/5 requirement/scenario counts, JSON/Markdown/table/local links, CLI shell examples и diff check. openspec validate --specs --strict: 5 passed, 0 failed; define-task-jtbd: valid.
+- Задачи provider/workflow после MVP остаются открытыми, не отмечаются выполненными фактом переноса. Текущий planning status 7/10; 3 дальнейшие задачи открыты. Runtime/launcher/task commands не реализовывались и portal acceptance не выполнялся.

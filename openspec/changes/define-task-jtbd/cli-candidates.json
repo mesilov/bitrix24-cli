@@ -39,7 +39,9 @@
         }
       ],
       "previous_proposal_name": "tasks:create",
-      "initial_proposal_name": "tasks:create"
+      "initial_proposal_name": "tasks:create",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:show",
@@ -75,7 +77,9 @@
         }
       ],
       "previous_proposal_name": "tasks:show",
-      "initial_proposal_name": "tasks:get"
+      "initial_proposal_name": "tasks:get",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:list",
@@ -105,7 +109,9 @@
         }
       ],
       "previous_proposal_name": "tasks:list",
-      "initial_proposal_name": "tasks:list"
+      "initial_proposal_name": "tasks:list",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:update",
@@ -142,7 +148,9 @@
         }
       ],
       "previous_proposal_name": "tasks:update",
-      "initial_proposal_name": "tasks:update"
+      "initial_proposal_name": "tasks:update",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:delete",
@@ -174,7 +182,9 @@
         }
       ],
       "previous_proposal_name": "tasks:delete",
-      "initial_proposal_name": "tasks:delete"
+      "initial_proposal_name": "tasks:delete",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:fields:list",
@@ -220,7 +230,9 @@
         }
       ],
       "previous_proposal_name": "tasks:fields:list",
-      "initial_proposal_name": "tasks:fields"
+      "initial_proposal_name": "tasks:fields",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:access:show",
@@ -252,7 +264,9 @@
         }
       ],
       "previous_proposal_name": "tasks:access:show",
-      "initial_proposal_name": "tasks:access"
+      "initial_proposal_name": "tasks:access",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:assign",
@@ -287,7 +301,9 @@
         }
       ],
       "previous_proposal_name": "tasks:assign",
-      "initial_proposal_name": "tasks:assign"
+      "initial_proposal_name": "tasks:assign",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:deadline:set",
@@ -323,7 +339,9 @@
         }
       ],
       "previous_proposal_name": "tasks:deadline:set",
-      "initial_proposal_name": "tasks:deadline:set"
+      "initial_proposal_name": "tasks:deadline:set",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:subtask:add",
@@ -358,7 +376,9 @@
         }
       ],
       "previous_proposal_name": "tasks:subtask:create",
-      "initial_proposal_name": "tasks:subtask:create"
+      "initial_proposal_name": "tasks:subtask:create",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:dependency:list",
@@ -386,7 +406,9 @@
         }
       ],
       "previous_proposal_name": "tasks:dependency:list",
-      "initial_proposal_name": "tasks:dependency:list"
+      "initial_proposal_name": "tasks:dependency:list",
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Explicit user exclusion from MVP on 2026-10-09; retained for subsequent development."
     },
     {
       "name": "task:chat:list",
@@ -430,7 +452,9 @@
         }
       ],
       "previous_proposal_name": "tasks:chat:list",
-      "initial_proposal_name": "tasks:chat:list"
+      "initial_proposal_name": "tasks:chat:list",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:chat:send",
@@ -467,7 +491,9 @@
         }
       ],
       "previous_proposal_name": "tasks:chat:send",
-      "initial_proposal_name": "tasks:chat:send"
+      "initial_proposal_name": "tasks:chat:send",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:chat:update",
@@ -507,7 +533,9 @@
         }
       ],
       "previous_proposal_name": "tasks:chat:update",
-      "initial_proposal_name": "tasks:chat:update"
+      "initial_proposal_name": "tasks:chat:update",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:chat:delete",
@@ -547,7 +575,9 @@
         }
       ],
       "previous_proposal_name": "tasks:chat:delete",
-      "initial_proposal_name": "tasks:chat:delete"
+      "initial_proposal_name": "tasks:chat:delete",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:result:add",
@@ -577,7 +607,9 @@
         }
       ],
       "previous_proposal_name": "tasks:result:add",
-      "initial_proposal_name": "tasks:result:add"
+      "initial_proposal_name": "tasks:result:add",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:result:list",
@@ -607,7 +639,9 @@
         }
       ],
       "previous_proposal_name": "tasks:result:list",
-      "initial_proposal_name": "tasks:result:list"
+      "initial_proposal_name": "tasks:result:list",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:result:update",
@@ -635,7 +669,9 @@
         }
       ],
       "previous_proposal_name": "tasks:result:update",
-      "initial_proposal_name": "tasks:result:update"
+      "initial_proposal_name": "tasks:result:update",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:result:delete",
@@ -661,7 +697,9 @@
         }
       ],
       "previous_proposal_name": "tasks:result:delete",
-      "initial_proposal_name": "tasks:result:delete"
+      "initial_proposal_name": "tasks:result:delete",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:result:from-message",
@@ -689,7 +727,9 @@
         }
       ],
       "previous_proposal_name": "tasks:result:from-message",
-      "initial_proposal_name": "tasks:result:from-message"
+      "initial_proposal_name": "tasks:result:from-message",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:file:attach",
@@ -725,7 +765,9 @@
         }
       ],
       "previous_proposal_name": "tasks:file:attach",
-      "initial_proposal_name": "tasks:file:attach"
+      "initial_proposal_name": "tasks:file:attach",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:time:show",
@@ -759,7 +801,9 @@
         }
       ],
       "previous_proposal_name": "tasks:time:show",
-      "initial_proposal_name": "tasks:time:show"
+      "initial_proposal_name": "tasks:time:show",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:start",
@@ -795,7 +839,9 @@
         }
       ],
       "previous_proposal_name": "tasks:start",
-      "initial_proposal_name": "tasks:start"
+      "initial_proposal_name": "tasks:start",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:pause",
@@ -829,7 +875,9 @@
         }
       ],
       "previous_proposal_name": "tasks:pause",
-      "initial_proposal_name": "tasks:pause"
+      "initial_proposal_name": "tasks:pause",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:defer",
@@ -863,7 +911,9 @@
         }
       ],
       "previous_proposal_name": "tasks:defer",
-      "initial_proposal_name": "tasks:defer"
+      "initial_proposal_name": "tasks:defer",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:renew",
@@ -897,7 +947,9 @@
         }
       ],
       "previous_proposal_name": "tasks:renew",
-      "initial_proposal_name": "tasks:renew"
+      "initial_proposal_name": "tasks:renew",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:complete",
@@ -933,7 +985,9 @@
         }
       ],
       "previous_proposal_name": "tasks:complete",
-      "initial_proposal_name": "tasks:complete"
+      "initial_proposal_name": "tasks:complete",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:approve",
@@ -969,7 +1023,9 @@
         }
       ],
       "previous_proposal_name": "tasks:approve",
-      "initial_proposal_name": "tasks:approve"
+      "initial_proposal_name": "tasks:approve",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:disapprove",
@@ -1005,7 +1061,9 @@
         }
       ],
       "previous_proposal_name": "tasks:disapprove",
-      "initial_proposal_name": "tasks:disapprove"
+      "initial_proposal_name": "tasks:disapprove",
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
       "name": "task:brief",
@@ -1065,7 +1123,9 @@
         }
       ],
       "previous_proposal_name": "tasks:brief",
-      "initial_proposal_name": "tasks:brief"
+      "initial_proposal_name": "tasks:brief",
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Explicit user exclusion from MVP on 2026-10-09; retained for subsequent development."
     },
     {
       "name": "task:my",
@@ -1108,7 +1168,9 @@
         }
       ],
       "previous_proposal_name": "tasks:my",
-      "initial_proposal_name": "tasks:my"
+      "initial_proposal_name": "tasks:my",
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Explicit user exclusion from MVP on 2026-10-09; retained for subsequent development."
     },
     {
       "name": "task:plan",
@@ -1152,7 +1214,9 @@
         }
       ],
       "previous_proposal_name": "tasks:plan",
-      "initial_proposal_name": "tasks:plan"
+      "initial_proposal_name": "tasks:plan",
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Explicit user exclusion from MVP on 2026-10-09; retained for subsequent development."
     },
     {
       "name": "task:risks",
@@ -1211,7 +1275,9 @@
         }
       ],
       "previous_proposal_name": "tasks:risks",
-      "initial_proposal_name": "tasks:risks"
+      "initial_proposal_name": "tasks:risks",
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Explicit user exclusion from MVP on 2026-10-09; retained for subsequent development."
     },
     {
       "name": "task:report",
@@ -1271,7 +1337,9 @@
         }
       ],
       "previous_proposal_name": "tasks:report",
-      "initial_proposal_name": "tasks:report"
+      "initial_proposal_name": "tasks:report",
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Explicit user exclusion from MVP on 2026-10-09; retained for subsequent development."
     },
     {
       "name": "task:context:set",
@@ -1328,7 +1396,9 @@
         }
       ],
       "previous_proposal_name": "tasks:context:set",
-      "initial_proposal_name": "tasks:context:set"
+      "initial_proposal_name": "tasks:context:set",
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Explicit user exclusion from MVP on 2026-10-09; retained for subsequent development."
     },
     {
       "name": "task:blocker:raise",
@@ -1385,7 +1455,9 @@
         }
       ],
       "previous_proposal_name": "tasks:blocker:raise",
-      "initial_proposal_name": "tasks:blocker:raise"
+      "initial_proposal_name": "tasks:blocker:raise",
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Explicit user exclusion from MVP on 2026-10-09; retained for subsequent development."
     },
     {
       "name": "task:blocker:resolve",
@@ -1441,7 +1513,9 @@
         }
       ],
       "previous_proposal_name": "tasks:blocker:resolve",
-      "initial_proposal_name": "tasks:blocker:resolve"
+      "initial_proposal_name": "tasks:blocker:resolve",
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Explicit user exclusion from MVP on 2026-10-09; retained for subsequent development."
     },
     {
       "name": "task:change:propose",
@@ -1499,7 +1573,9 @@
         }
       ],
       "previous_proposal_name": "tasks:change:propose",
-      "initial_proposal_name": "tasks:change:propose"
+      "initial_proposal_name": "tasks:change:propose",
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Explicit user exclusion from MVP on 2026-10-09; retained for subsequent development."
     },
     {
       "name": "task:change:accept",
@@ -1557,7 +1633,9 @@
         }
       ],
       "previous_proposal_name": "tasks:change:accept",
-      "initial_proposal_name": "tasks:change:accept"
+      "initial_proposal_name": "tasks:change:accept",
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Explicit user exclusion from MVP on 2026-10-09; retained for subsequent development."
     },
     {
       "name": "task:delivery:record",
@@ -1613,7 +1691,9 @@
         }
       ],
       "previous_proposal_name": "tasks:delivery:record",
-      "initial_proposal_name": "tasks:delivery:record"
+      "initial_proposal_name": "tasks:delivery:record",
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Explicit user exclusion from MVP on 2026-10-09; retained for subsequent development."
     },
     {
       "name": "task:feedback:record",
@@ -1669,7 +1749,9 @@
         }
       ],
       "previous_proposal_name": "tasks:feedback:record",
-      "initial_proposal_name": "tasks:feedback:record"
+      "initial_proposal_name": "tasks:feedback:record",
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Explicit user exclusion from MVP on 2026-10-09; retained for subsequent development."
     },
     {
       "name": "task:acceptance:record",
@@ -1726,7 +1808,9 @@
         }
       ],
       "previous_proposal_name": "tasks:acceptance:record",
-      "initial_proposal_name": "tasks:acceptance:record"
+      "initial_proposal_name": "tasks:acceptance:record",
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Explicit user exclusion from MVP on 2026-10-09; retained for subsequent development."
     },
     {
       "name": "task:time:add",
@@ -1760,7 +1844,9 @@
         }
       ],
       "previous_proposal_name": "tasks:time:add",
-      "initial_proposal_name": "tasks:time:add"
+      "initial_proposal_name": "tasks:time:add",
+      "mvp_stage": "api-policy-pending",
+      "mvp_reason": "Existing legacy API admission remains unapproved; user did not add a new exception."
     },
     {
       "name": "task:time:list",
@@ -1794,7 +1880,9 @@
         }
       ],
       "previous_proposal_name": "tasks:time:list",
-      "initial_proposal_name": "tasks:time:list"
+      "initial_proposal_name": "tasks:time:list",
+      "mvp_stage": "api-policy-pending",
+      "mvp_reason": "Existing legacy API admission remains unapproved; user did not add a new exception."
     },
     {
       "name": "task:time:update",
@@ -1828,7 +1916,9 @@
         }
       ],
       "previous_proposal_name": "tasks:time:update",
-      "initial_proposal_name": "tasks:time:update"
+      "initial_proposal_name": "tasks:time:update",
+      "mvp_stage": "api-policy-pending",
+      "mvp_reason": "Existing legacy API admission remains unapproved; user did not add a new exception."
     },
     {
       "name": "task:time:delete",
@@ -1862,7 +1952,9 @@
         }
       ],
       "previous_proposal_name": "tasks:time:delete",
-      "initial_proposal_name": "tasks:time:delete"
+      "initial_proposal_name": "tasks:time:delete",
+      "mvp_stage": "api-policy-pending",
+      "mvp_reason": "Existing legacy API admission remains unapproved; user did not add a new exception."
     },
     {
       "name": "task:checklist:add",
@@ -1896,7 +1988,9 @@
         }
       ],
       "previous_proposal_name": "tasks:checklist:add",
-      "initial_proposal_name": "tasks:checklist:add"
+      "initial_proposal_name": "tasks:checklist:add",
+      "mvp_stage": "api-policy-pending",
+      "mvp_reason": "Existing legacy API admission remains unapproved; user did not add a new exception."
     },
     {
       "name": "task:checklist:list",
@@ -1930,7 +2024,9 @@
         }
       ],
       "previous_proposal_name": "tasks:checklist:list",
-      "initial_proposal_name": "tasks:checklist:list"
+      "initial_proposal_name": "tasks:checklist:list",
+      "mvp_stage": "api-policy-pending",
+      "mvp_reason": "Existing legacy API admission remains unapproved; user did not add a new exception."
     },
     {
       "name": "task:checklist:complete",
@@ -1962,7 +2058,9 @@
         }
       ],
       "previous_proposal_name": "tasks:checklist:complete",
-      "initial_proposal_name": "tasks:checklist:complete"
+      "initial_proposal_name": "tasks:checklist:complete",
+      "mvp_stage": "api-policy-pending",
+      "mvp_reason": "Existing legacy API admission remains unapproved; user did not add a new exception."
     },
     {
       "name": "task:checklist:renew",
@@ -1994,7 +2092,9 @@
         }
       ],
       "previous_proposal_name": "tasks:checklist:renew",
-      "initial_proposal_name": "tasks:checklist:renew"
+      "initial_proposal_name": "tasks:checklist:renew",
+      "mvp_stage": "api-policy-pending",
+      "mvp_reason": "Existing legacy API admission remains unapproved; user did not add a new exception."
     },
     {
       "name": "task:checklist:delete",
@@ -2026,7 +2126,9 @@
         }
       ],
       "previous_proposal_name": "tasks:checklist:delete",
-      "initial_proposal_name": "tasks:checklist:delete"
+      "initial_proposal_name": "tasks:checklist:delete",
+      "mvp_stage": "api-policy-pending",
+      "mvp_reason": "Existing legacy API admission remains unapproved; user did not add a new exception."
     },
     {
       "name": "task:dependency:add",
@@ -2054,7 +2156,9 @@
         }
       ],
       "previous_proposal_name": "tasks:dependency:add",
-      "initial_proposal_name": "tasks:dependency:add"
+      "initial_proposal_name": "tasks:dependency:add",
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Explicit user exclusion from MVP on 2026-10-09; retained for subsequent development."
     },
     {
       "name": "task:dependency:delete",
@@ -2080,7 +2184,9 @@
         }
       ],
       "previous_proposal_name": "tasks:dependency:delete",
-      "initial_proposal_name": "tasks:dependency:delete"
+      "initial_proposal_name": "tasks:dependency:delete",
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Explicit user exclusion from MVP on 2026-10-09; retained for subsequent development."
     },
     {
       "name": "task:participants:set",
@@ -2108,7 +2214,9 @@
         }
       ],
       "previous_proposal_name": "tasks:participants:set",
-      "initial_proposal_name": "tasks:participants:set"
+      "initial_proposal_name": "tasks:participants:set",
+      "mvp_stage": "api-policy-pending",
+      "mvp_reason": "Existing legacy API admission remains unapproved; user did not add a new exception."
     },
     {
       "name": "task:history:list",
@@ -2136,7 +2244,9 @@
         }
       ],
       "previous_proposal_name": "tasks:history:list",
-      "initial_proposal_name": "tasks:history"
+      "initial_proposal_name": "tasks:history",
+      "mvp_stage": "api-policy-pending",
+      "mvp_reason": "Existing legacy API admission remains unapproved; user did not add a new exception."
     }
   ],
   "sdk": {
@@ -2220,5 +2330,62 @@
       "subtask_add_command": "task:subtask:add",
       "policy": "User-facing commands express user operations; no required 1:1 mapping to REST names or endpoints. API routes are explicit separate metadata."
     }
+  },
+  "mvp_scope": {
+    "decision_date": "2026-10-09",
+    "status": "exclusions-agreed; remaining API admission and lifecycle acceptance pending",
+    "spec": "openspec/specs/task-mvp-scope/spec.md",
+    "post_mvp_groups": {
+      "Зависимости": [
+        "task:dependency:list",
+        "task:dependency:add",
+        "task:dependency:delete"
+      ],
+      "Рабочие представления": [
+        "task:my",
+        "task:plan",
+        "task:brief",
+        "task:risks",
+        "task:report"
+      ],
+      "Контекст и препятствия": [
+        "task:context:set",
+        "task:blocker:raise",
+        "task:blocker:resolve"
+      ],
+      "Изменения и клиентские договорённости": [
+        "task:change:propose",
+        "task:change:accept",
+        "task:delivery:record",
+        "task:feedback:record",
+        "task:acceptance:record"
+      ]
+    },
+    "excluded_commands": [
+      "task:dependency:list",
+      "task:dependency:add",
+      "task:dependency:delete",
+      "task:my",
+      "task:plan",
+      "task:brief",
+      "task:risks",
+      "task:report",
+      "task:context:set",
+      "task:blocker:raise",
+      "task:blocker:resolve",
+      "task:change:propose",
+      "task:change:accept",
+      "task:delivery:record",
+      "task:feedback:record",
+      "task:acceptance:record"
+    ],
+    "counts": {
+      "all_researched": 55,
+      "excluded_post_mvp": 16,
+      "remaining_under_consideration": 39,
+      "mvp_candidates": 28,
+      "api_policy_pending": 11
+    },
+    "note": "Release scope is separate from existing candidate/deferred API-route classification; no runtime implementation or full JTBD acceptance is implied."
   }
 }
