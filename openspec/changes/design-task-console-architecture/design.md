@@ -4,7 +4,7 @@
 
 Мотивация — в [proposal.md](proposal.md). Контракты — [cli-experience](../../specs/cli-experience/spec.md), [task-mvp-scope](../../specs/task-mvp-scope/spec.md) и [новая delta](specs/task-console-runtime/spec.md).
 
-Проверено 2026-10-09 в worktree issue #10: `bin/console` создаёт standalone Symfony Application без прикладных команд; `src/` не содержит реализации команд; `vendor/` отсутствует. В `composer.lock` закреплены Console 8.1.8 и b24phpsdk 3.7.0. PSR-4 namespace — `Bitrix24\CLI\`. FrameworkBundle и DependencyInjection сейчас не установлены. Это проектирование будущего приложения, без изменения PHP, composer или Docker.
+Исходное состояние до разрешённого apply 2026-10-09 в worktree issue #10: `bin/console` создаёт standalone Symfony Application без прикладных команд; `src/` не содержит реализации команд; `vendor/` отсутствует. В `composer.lock` закреплены Console 8.1.8 и b24phpsdk 3.7.0. PSR-4 namespace — `Bitrix24\CLI\`. FrameworkBundle и DependencyInjection сейчас не установлены. После разрешения пользователя реализация создана в этом change; фактические файлы и local/portal границы перечислены в [implementation-verification](implementation-verification.md).
 
 Каталог [define-task-jtbd](../define-task-jtbd/cli-candidates.json) содержит 59 исследованных операций: **30 MVP / 0 API-policy-pending / 29 после MVP**. Название CLI не обязано совпадать с методом API. Полное покрытие 19 продуктовых JTBD не обещается текущим MVP.
 
@@ -12,13 +12,13 @@
 
 **Goals:** команды используют стандартные Symfony InputDefinition/help/list; DI собирает явно выбранные сервисы; подключение возникает только при выполнении операции; ввод, результат, ошибки и API policy имеют общие границы. Каждую команду можно проверить офлайн и отдельно принять на портале.
 
-**Non-Goals:** FrameworkBundle, Kernel, HTTP-приложение, ORM, message bus, общий REST proxy, универсальный workflow engine, выбор auth/secret storage, установка shell completion и выпуск пакета. Из post-MVP ничего не возвращается. Никаких PHP заготовок в этом change на этапе проектирования.
+**Non-Goals:** FrameworkBundle, Kernel, HTTP-приложение, ORM, message bus, общий REST proxy, универсальный workflow engine, OAuth login/token storage, установка shell completion и выпуск пакета. Из post-MVP ничего не возвращается. На исходном этапе проектирования PHP не менялся; теперь реализуется согласованный MVP.
 
 ## Decisions
 
 ### 1. Console и DI как самостоятельные компоненты
 
-Используем `symfony/console:^8.0` и планируем `symfony/dependency-injection:^8.0`. Нам нужны разбор CLI и сборка объектов; полноценный framework lifecycle не требуется. DI поддерживает standalone контейнер и compiler passes; Console поддерживает загрузку команд из PSR-11 контейнера ([DI](https://symfony.com/doc/current/service_container.html), [compiler passes](https://symfony.com/doc/current/service_container/compiler_passes.html), [lazy commands](https://symfony.com/doc/current/console/lazy_commands.html)).
+Используем `symfony/console:^8.0` и `symfony/dependency-injection:^8.0`. Нам нужны разбор CLI и сборка объектов; полноценный framework lifecycle не требуется. DI поддерживает standalone контейнер и compiler passes; Console поддерживает загрузку команд из PSR-11 контейнера ([DI](https://symfony.com/doc/current/service_container.html), [compiler passes](https://symfony.com/doc/current/service_container/compiler_passes.html), [lazy commands](https://symfony.com/doc/current/console/lazy_commands.html)).
 
 Ручная сборка всех зависимостей возможна, но при 30 командах увеличивает bootstrap и затрудняет замену адаптеров в проверках. FrameworkBundle дал бы conventions/configuration, ценой лишнего framework lifecycle и зависимостей. Выбираем DI с небольшим собственным composition root; решения по API остаются прикладными сервисами.
 
@@ -44,13 +44,13 @@ Console зависит от Application; Application зависит от сво�
 
 ### 3. Сборка приложения и регистрация
 
-| Будущий компонент | Ответственность |
+| Компонент | Ответственность |
 | --- | --- |
 | `Bootstrap/ContainerFactory` | Создать ContainerBuilder, загрузить PHP service definitions, добавить compiler pass, compile; не получать credentials |
 | `Bootstrap/ApplicationFactory` | Создать B24Application, передать loader, общие сервисы и build version |
 | `Console/B24Application` | Глобальная InputDefinition, error boundary и безопасный выбор команд |
 | `Bootstrap/RegisterTaskCommandsPass` | Собрать явные `console.command` tags, проверить уникальность/имена/точный MVP набор и сформировать name → service ID |
-| `config/services.php` | Будущие явные определения 30 команд, autowiring конструкторов и aliases порт → адаптер; это проектируемый файл, сейчас не создаётся |
+| `config/services.php` | Явные определения 30 команд, autowiring конструкторов и aliases порт → адаптер |
 | `bin/b24cli`, `bin/console` | Два тонких launcher одного ApplicationFactory; публичное имя приложения — b24cli |
 
 Каждый Command имеет `AsCommand` с полным именем и явное service definition/tag. В standalone Console атрибут сам не сканирует `src/` и не регистрирует сервис: карту строит наш pass. Не включаем массовое сканирование namespace, которое могло бы случайно зарегистрировать исключённую команду. Pass сравнивает tag и AsCommand, запрещает aliases post-MVP и несогласованные имена. Будущая компактная карта runtime содержит только имя/класс/effect; весь исследовательский каталог из `openspec/` не загружается при запуске.
@@ -67,7 +67,7 @@ Console зависит от Application; Application зависит от сво�
 
 В каждом классе остаются определение ввода/справки, сборка typed Request через общие input helpers и передача в конкретный handler через CommandRunner. Не делаем одну огромную TaskCommand с action switch и не связываем группы команд с SDK сервисами 1:1. Общий BaseTaskCommand с бизнес-логикой не нужен: повторяющийся цикл выполнения вынесен в сервис, а не в иерархию наследования.
 
-[Карта всех 30 команд](command-map.md) задаёт имя, класс, Request/Handler, маршруты, preflight и output profile. Классы команд находятся в `Console/Command/Task`, requests/handlers — в `Application/Task/Request` и `Application/Task/Handler`. Имена в карте — проектируемые классы, ни один пока не существует.
+[Карта всех 30 команд](command-map.md) задаёт имя, класс, Request/Handler, маршруты, preflight и output profile. Классы команд находятся в `Console/Command/Task`, requests/handlers — в `Application/Task/Request` и `Application/Task/Handler`. Имена в карте задают обязательные классы будущей реализации.
 
 `task:update`, `task:assign`, `task:deadline:set` передают `UpdateTaskRequest` в `UpdateTaskHandler`. Request содержит operation identity и patch; политика allowlist различается: общие writable поля / только responsibleId / только deadline. В результате **30 Command классов и 28 handlers**; общие сервисы поиска/валидации не являются отдельными CLI операциями. Message bus, service lookup по строке и новые сущности CQRS для этого не нужны.
 
@@ -96,7 +96,7 @@ Console зависит от Application; Application зависит от сво�
 ### 6. Общий цикл выполнения
 
 1. Symfony выбирает Command и разбирает ввод; mapper/validator формируют typed Request.
-2. CommandRunner создаёт InvocationContext: output mode, verbosity, connection selector, API policy, timeout, cancellation. Config precedence: invocation → выбранный config → environment → defaults. Config с секретами пока не выбирается этим design; credentials приходят только через ConnectionResolver.
+2. CommandRunner создаёт InvocationContext: output mode, verbosity, connection selector, API policy, timeout, cancellation. Config precedence: invocation → выбранный config → environment → defaults. Пользователь согласовал root .env с BITRIX24_WEBHOOK. EnvConnectionResolver читает .env только при execution, без override переменных процесса; credentials приходят только через ConnectionResolver.
 3. Handler объявляет весь возможный маршрут, включая дополнительные чтения. ApiPolicyGuard проверяет его **до первого API call**. Затем resolver/provider получают подключение, handler выполняет разрешённые preflight reads и возвращает PreparedOperation.
 4. При dry-run presenter показывает цель, patch, возможные шаги и выполненные чтения; мутации и prompts отсутствуют.
 5. При delete ConfirmationPolicy проверяет force/interactive stdin. Без force в non-TTY/-n — usage exit2, по возможности до remote read. В TTY показывает тип/ID/название цели; явный отказ пользователя — cancelled exit130 без mutation.
@@ -117,13 +117,19 @@ Runner получает конкретные typed prepare/execute callbacks han
 | `TimeEntryGateway` | `Rest1TimeEntryAdapter` | 4 elapseditem команды и проверка ENTRY_ID внутри TASK_ID |
 | `ParticipantGateway` | `Rest1ParticipantAdapter` | Только accomplice/auditor replacement/clear, без общего update payload |
 | `TaskHistoryGateway` | `Rest1TaskHistoryAdapter` | Доступная история изменений задачи, отдельно от IM |
-| `ConnectionResolver` | Выбирается отдельным auth change | Profile/config selector → secret-safe connection; фиктивное подключение в offline tests |
+| `ConnectionResolver` | EnvConnectionResolver (webhook, выбран пользователем) | Profile/config selector → secret-safe connection; фиктивное подключение в offline tests |
 
 Общий `B24ClientProvider` лениво создаёт SDK ServiceBuilder/Core из connection. В SDK 3.7.0 `Core::call` по умолчанию использует v1; adapters обязаны выбирать enum `Bitrix24\SDK\Core\Contracts\ApiVersion::v1/v3` явно ([Core](https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Core/Core.php), [enum](https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Core/Contracts/ApiVersion.php)). Wrapper допустим только при совпадении закреплённого контракта/версии; известные gaps реализуются явным Core call внутри адаптера. Например, checklist add wrapper не принимает PARENT_ID, поэтому root/item add идут через Core v1. Известные API/SDK mappings сохранены в каталоге.
 
 ApiPolicyGuard использует allowlist operation → method/version/field scope. `tasks.task.update` REST3 для карточки и одноимённый REST1 для participants — разные разрешения. Legacy admission 14 команд не разрешает общий v1 task CRUD. IM history не заменяется task.commentitem. При строгой политике смешанный план отклоняется целиком, до v3 lookup. Переключения версии после отказа сервера нет.
 
 В `command-map.md` основные маршруты дословно сверяются с catalog method_routes. Дополнительные preflight отдельно отмечены как **проектные чтения**, а не новая API evidence или мутации: v3 get перед удалением/participants и v3 field metadata для advanced validation; IM history для binding message; elapseditem getlist для binding entry. Они используют уже выбранные API семейства и проходят policy; лишний новый API exception не вводится.
+
+### 7a. Уточнения по интеграционным тестам SDK 3.7.0
+
+Используется pinned SDK 8ebd4c154d5557db949b0196825f347a3a6c5bf0. Update/assign/deadline передают sparse array, без TaskItemBuilder создания. Writable metadata использует editable=true плюс CLI allowlist. List/find идут через Core с явным ApiVersion::v3, без SDK REST1 batch list. Send получает boolean ACK без ID; подтверждённый send возвращает resourceId=null и success, без outcomeUnknown или поиска по тексту. elapsedTime — связанное поле карточки, без гарантии суммы/полноты. Checklist SORT_INDEX нормализуется в sortIndex, Y/N — в bool. History user.id/value.from/value.to и IM date/author_id переводятся в поля output profiles; nullable ACL сохраняет null, SDK userId=0 не считается identity. File attach отправляет один fileId на отдельный request для каждого ledger step. Remote ValidationException сохраняет безопасные field/message с api-validation-error и exit1.
+
+Root .env находится в checkout; BITRIX24_WEBHOOK — входящий webhook. Для Docker внешний root .env выбирается через B24CLI_ENV_FILE и read-only bind mount, без secret argv. Переменные процесса имеют приоритет над .env; help/parse/strict policy denial не читают .env. SDK Core/ServiceBuilder создаются лениво, HttpClient получает конечные timeout/max_duration и NullLogger. OAuth/ApplicationBridge и token refresh storage не реализуются этой пачкой. Integration suite запускается явно и пропускается без webhook; выделенная тестовая задача создаётся/удаляется с cleanup, без массовой очистки портала.
 
 ### 8. Binding, пагинация и полнота
 
@@ -158,7 +164,7 @@ B24Application сохраняет native parser/dispatcher, но оборачи�
 | Семейство failure | Exit | Stable error codes |
 | --- | --- | --- |
 | Parser/local input | 2 | usage-error |
-| Remote/transport/configuration | 1 | permission-denied, api-error, transport-error, configuration-error, connection-unavailable |
+| Remote/transport/configuration | 1 | permission-denied, api-validation-error, api-error, transport-error, configuration-error, connection-unavailable |
 | Incomplete scan/confirmed partial write | 3 | partial-result |
 | Policy/binding | 4 | policy-denied, message-binding-unverified, resource-binding-unverified |
 | Ctrl-C/отказ подтверждения | 130 | interrupted, cancelled |
@@ -173,11 +179,11 @@ Cancellation service обрабатывает SIGINT в поддерживаем
 
 ### 12. Проверки по уровням
 
-CommandTester + fake gateways проверяют команды/typed requests, omitted/empty values, fields allowlists, confirmation, dry-run, version policy и output profiles. ApplicationTester и реальные короткие subprocess calls проверяют глобальные flags до/после имени, parser failures, typo/ambiguity, native help/list/version/completion и exit codes. Spy resolver/client factory подтверждает **ноль credential reads и запросов** для offline surfaces/invalid local input/strict policy denial.
+ConsoleHarness с реальным ArgvInput/ConsoleOutputInterface и fake transport проверяет команды/typed requests, omitted/empty values, fields allowlists, confirmation, dry-run, version policy и output profiles. Application-level ArgvInput tests и реальные короткие subprocess calls проверяют глобальные flags до/после имени, parser failures, typo/ambiguity, native help/list/version/completion и exit codes. Spy resolver/client factory подтверждает **ноль credential reads и запросов** для offline surfaces/invalid local input/strict policy denial.
 
 Adapter contract tests проверяют method/version и payload/response fixtures закреплённого API/SDK, включая PARENT_ID, positional elapseditem arguments, v3 relation shape, restricted participants update. Scanner cases: page2 match, Unicode title, empty/one/many list, scan cap, missing fields, cursor repetition, page failure и output limit без лжи о полноте. HTTP/signal acceptance отдельно проверяет timeout, lost write response и SIGINT between steps.
 
-Portal cases — отдельный evidence artifact: роль/права, доступная схема полей, task→chat→message binding, time entry ownership, checklist tree/root/item, 14 legacy admissions, history navigation/completeness и частичная запись. Никакие локальные fixtures не закрывают эти cases. Подробные будущие шаги — в tasks.md; сейчас все implementation tasks остаются открытыми.
+Portal cases — отдельный evidence artifact: роль/права, доступная схема полей, task→chat→message binding, time entry ownership, checklist tree/root/item, 14 legacy admissions, history navigation/completeness и частичная запись. Никакие локальные fixtures не закрывают эти cases. Реализованные и проверенные шаги отмечены в tasks.md; portal acceptance 5.2–5.4 остаётся открытой до live запуска.
 
 ## Risks / Trade-offs
 
@@ -186,15 +192,25 @@ Portal cases — отдельный evidence artifact: роль/права, до
 - [Binding для старого chat message упирается в budget] → безопасный gate4 с явной причиной, без update/delete глобального ID на доверии.
 - [History docs и examples расходятся по navigation; общая фраза docs про SDK v3 устаревает относительно pinned Core] → adapter опирается на version-specific контракт и закреплённый SDK source; portal evidence подтверждает navigation, неполнота видна в результате.
 - [Cold-start compile/создание lightweight handlers ещё не измерены] → без cache на первом шаге; измерить help/list startup перед оптимизацией.
-- [Нет выбранного auth/storage provider] → интерфейс/тестовая замена готовы, реальные portal checks зависят от отдельного решения; не выдумывать рабочий профиль и не принимать secret в argv.
+- [Креды ещё не предоставлены] → webhook provider реализуется по запросу пользователя; portal cases остаются открытыми до явного запуска на тестовом подключении.
 - [Поведение signal/timeout зависит от среды и SDK transport] → интеграционные проверки поставляемого CLI окружения обязательны, одной проверки DTO недостаточно.
 
 ## Migration Plan
 
-Этот этап публикует только planning artifacts в существующем PR #11 → dev для issue #10. Изменение не архивируется, main spec task-console-runtime пока не создаётся; готовые документы не означают реализацию.
+Реализация разрешена пользователем 2026-10-09; результат поставляется в существующем PR #11 → dev для issue #10. Изменение не архивируется, main spec task-console-runtime пока не создаётся; local acceptance фиксируется отдельно от portal acceptance.
 
-После отдельного запроса apply: добавить DI и composition root; общий input/result/error цикл; adapters/handlers/30 Commands по карте; локальные проверки; затем portal evidence и runtime acceptance. Оба launcher используют одну фабрику, совместимость bin/console сохраняется. Distribution/install и auth/storage имеют отдельные решения. Откат документационного commit меняет только OpenSpec; будущие реализации поставляются отдельными проверенными commits/PR.
+Apply: DI/composition root, input/result/error цикл, adapters/handlers/30 Commands и локальные проверки реализованы; следующий шаг — portal evidence с предоставленным webhook. Оба launcher используют одну фабрику, совместимость bin/console сохраняется. Distribution/install и auth/storage имеют отдельные решения. Реализация публикуется отдельным commit в существующем PR; откат его изменений удаляет команды и тестовую обвязку, сохраняя предыдущие planning artifacts.
 
 ## Deferred verification
 
 При apply повторно проверяются совместимость DI с lock/PHP, transport timeout и signal support в Docker/CLI, а на тестовом портале — schema/rights/navigation. Эти проверки имеют конкретные задачи и не меняют выбранные слои/командный scope. Рабочее предположение про explicit parentId должно быть уточнено, если пользователь исключит создание подзадач целиком.
+
+## Implementation details 2026-10-09
+
+Общий Failure/exit mapping реализован в SdkApiTransport и B24Application; подтверждённый результат хранится в OperationResult/ExecutionLedger. Наличие optional value определяется null-versus-present в TaskInputMapper; отдельный OptionPresence класс не нужен. Cancellation state хранится в RuntimeState, обработчик SIGINT устанавливает CommandRunner, проверка перед запросом выполняется SdkApiTransport. Каждый adapter вызывает Core с явным ApiVersion, без fallback. Domain migration redirect отклоняется через SDK event, чтобы не повторять запись на другом host автоматически. JSON/TSV выдаются OUTPUT_RAW, human cells экранируют Console markup.
+
+Symfony 8.1 ArgvInput воспринимает отдельный `-` после file option как опцию и может предупреждать в getFirstArgument. B24Application нормализует только известные `--*-file -`/`--config -` в форму `--option=-`, сохраняя stream, interactivity и `--` separator. Прочий parser — штатный Symfony. Offline tests используют настоящие ArgvInput, включая stdin и PTY.
+
+Root env берётся от выбранного checkout; внешний файл — B24CLI_ENV_FILE/read-only bind. Make cli/integration передают process overrides через `--env NAME`, без значения секрета в argv. SDK NullLogger исключает credentials из request logs. Host PHP/Composer не требуются.
+
+Static advanced writable allowlist запрещает tags/userFields и relation objects по закреплённой v3 документации, даже если это поля чтения. Дополнительная portal metadata проверяет editable/type. Конечные поля select/order закреплены в FieldSchema; расширение API не принимается молча.

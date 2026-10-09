@@ -2,6 +2,10 @@
 
 Дата: 2026-10-09. База сравнения — commit `885890be6081ae4bb955fe0f7d931f3f1ba5b53c`, branch `feature/10-research-task-command-surface`, worktree issue #10. Проверяется только планирование; PHP runtime/portal acceptance отсутствуют.
 
+## Последующая реализация
+
+Этот отчёт относится к исходному documentation-only этапу. Пользователь разрешил реализацию 2026-10-09; актуальные code/test результаты и открытая portal acceptance находятся в [implementation-verification.md](implementation-verification.md).
+
 ## Артефакты
 
 - Proposal, design, delta `task-console-runtime`, карта 30 команд и tasks существуют; OpenSpec status сообщает planning complete для 4/4 артефактов. Это file/artifact status, не реализация.

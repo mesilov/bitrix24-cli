@@ -505,7 +505,7 @@
         "EMP-07",
         "EMP-03"
       ],
-      "note": "fields={taskId,text}; MESSAGE_ID не COMMENT_ID. Участник действует от лица текущего подключения.",
+      "note": "fields={taskId,text}; MESSAGE_ID не COMMENT_ID. Участник действует от лица текущего подключения. Send возвращает только boolean ACK, без MESSAGE_ID; MESSAGE_ID выбирается через chat:list для update/delete.",
       "kind": "candidate",
       "effect": "write",
       "method_routes": [
@@ -815,7 +815,7 @@
       "jtbd": [
         "EMP-06"
       ],
-      "note": "Чтение связанного elapsedTime через select. Не обещать полную историю time entries или запись/исправление времени.",
+      "note": "Чтение связанного elapsedTime через select. Не обещать полную историю time entries или запись/исправление времени. elapsedTime не объявляется готовым total seconds или полной историей без runtime evidence.",
       "kind": "candidate",
       "effect": "read",
       "method_routes": [

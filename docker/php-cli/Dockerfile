@@ -25,7 +25,7 @@ LABEL "org.opencontainers.image.source"="https://github.com/mesilov/bitrix24-cli
 RUN set -eux; \
     apk add --no-cache icu-libs unzip; \
     apk add --no-cache --virtual .build-deps $PHPIZE_DEPS icu-dev; \
-    docker-php-ext-install -j"$(nproc)" bcmath intl; \
+    docker-php-ext-install -j"$(nproc)" bcmath intl pcntl; \
     apk del --no-network .build-deps
 
 WORKDIR /var/www/html

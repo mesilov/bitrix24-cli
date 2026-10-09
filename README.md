@@ -5,7 +5,7 @@
 [![PHPStan](https://github.com/mesilov/bitrix24-cli/actions/workflows/phpstan.yml/badge.svg?branch=dev&event=push)](https://github.com/mesilov/bitrix24-cli/actions/workflows/phpstan.yml?query=branch%3Adev+event%3Apush)
 [![Rector](https://github.com/mesilov/bitrix24-cli/actions/workflows/rector.yml/badge.svg?branch=dev&event=push)](https://github.com/mesilov/bitrix24-cli/actions/workflows/rector.yml?query=branch%3Adev+event%3Apush)
 
-CLI-обёртка для REST API портала Битрикс24. Первый набор прикладных команд будет работать с задачами.
+CLI для REST API портала Битрикс24: 30 MVP-команд задач на Symfony Console и standalone DI. Карточка и отправка сообщения используют REST 3.0; IM, чек-листы, записи времени, участники и история — согласованные REST 1.0 маршруты.
 
 ## Окружение
 
@@ -25,7 +25,8 @@ Dockerfile первоначально взят из [bitrix24/b24phpsdk, вет�
 | `unzip` | Распаковка Composer dist-архивов; дополнительный модуль `zip` не нужен |
 | Composer 2.8 | Установка и проверка зафиксированных зависимостей, включая dev-инструменты |
 | `curl`, `json`, `filter`, `ctype`, `tokenizer`, `iconv`, `hash` | Требования lock приложения и линтеров; уже предоставляются базовым PHP |
-| `excimer`, `pcntl`, `yaml`, `zip` | Текущему CLI и четырём линтерам не нужны; дополнительные установки удалены |
+| `pcntl` | Обработка SIGINT с сохранением подтверждённых шагов; собирается в CLI-образе |
+| `excimer`, `yaml`, `zip` | Текущему CLI и линтерам не нужны |
 | OPcache | Уже входит в официальный PHP 8.4 образ; повторная сборка удалена |
 | Extension installer, компилятор, заголовки ICU | Installer больше не используется; временные build-пакеты удаляются в том же слое |
 
@@ -75,13 +76,84 @@ make lint-all
 | `lint-phpstan` | `PHPStan` | Статический анализ, level 5 |
 | `lint-rector` | `Rector` | Применимые правила b24phpsdk для PHP 8.4 |
 
-Проверки кода анализируют `src/` и явно включённый `bin/console` без расширения `.php`. Код зависимостей в `vendor/` не включается в область анализа исходников. PHP-CS-Fixer работает в режиме `check`, Rector — `--dry-run`: исходники не изменяются. `lint-all` запускает все четыре проверки; при первой ошибке Make останавливается. Кеши находятся в игнорируемом `var/cache/`.
+Проверки кода анализируют `src/`, `config/`, PHP-тесты и оба launcher `bin/b24cli`/`bin/console`. Код зависимостей в `vendor/` не включается в область анализа исходников. PHP-CS-Fixer работает в режиме `check`, Rector — `--dry-run`: исходники не изменяются. `lint-all` запускает все четыре проверки; при первой ошибке Make останавливается. Кеши находятся в игнорируемом `var/cache/`.
 
 В GitHub Actions четыре отдельных workflows запускаются при `push` и `pull_request`, включая PR из fork. Каждый собирает Docker-образ CLI и устанавливает зависимости из lock с dev-пакетами. GHCR login и секреты портала не требуются; token имеет только `contents: read`. Запуск внешнего PR может ожидать одобрения владельца согласно настройкам GitHub.
 
 Ошибка подготовки окружения или нарушение правил дают ненулевой код и ошибку соответствующего check. Диагностика доступна в логе шага установки или линтера. Для воспроизведения установите зависимости через `make composer-install`, запустите нужную команду и исправьте указанное нарушение. Изменение политики допустимых лицензий требует отдельного решения; ошибку нельзя скрывать расширением allowlist.
 
 Workflows и конфигурации адаптированы из [b24phpsdk v3](https://github.com/bitrix24/b24phpsdk/tree/8ebd4c154d5557db949b0196825f347a3a6c5bf0/.github/workflows). Существующий `make check` остаётся проверкой Composer, синтаксиса PHP и запуска CLI.
+
+## Подключение и команды
+
+```sh
+cp .env.example .env
+# В .env задайте BITRIX24_WEBHOOK — полный URL входящего webhook.
+make cli ARGS='list task'
+make cli ARGS='task:add --title "Подготовить договор" --creator 1 --responsible 2'
+make cli ARGS='task:update 123 --title "Согласовать договор"'
+make cli ARGS='task:assign 123 --responsible 3'
+make cli ARGS='task:update 123 --description "Проверить реквизиты"'
+make cli ARGS='task:find --title "договор" --json'
+make cli ARGS='task:chat:send 123 --text "Договор готов"'
+make cli ARGS='task:time:add 123 --seconds 3600 --text "Подготовка договора"'
+make cli ARGS='task:checklist:add 123 --title "Проверка"'
+make cli ARGS='task:checklist:item:add 123 --checklist 10 --title "Реквизиты"'
+```
+
+При установленном PHP 8.4/8.5 запускайте `bin/b24cli` напрямую; добавив `bin/` в PATH, используйте `b24cli`. `bin/console` вызывает тот же bootstrap. Справка каждой команды содержит параметры, пример и колонки вывода.
+
+ServiceBuilder создаётся перед первым API-запросом. `BITRIX24_WEBHOOK` из process environment имеет приоритет над корневым `.env`; поддерживается SDK alias `BITRIX24_PHP_SDK_PLAYGROUND_WEBHOOK`. `.env` игнорируется Git. Webhook не передаётся аргументом CLI и не добавляется в API trace. Нужны scopes `task` и `im`; действуют права пользователя webhook. Live-тесты дополнительно запрашивают `profile` для ID этого пользователя.
+
+Для worktree можно указать env основного checkout. Wrapper монтирует файл read-only, PHP получает его путь:
+
+```sh
+B24CLI_ENV_FILE=/Users/mesilov/work/Bitrix24/bitrix24-cli/.env make cli ARGS='task:show 123'
+B24CLI_ENV_FILE=/Users/mesilov/work/Bitrix24/bitrix24-cli/.env make test-integration
+```
+
+В [SDK integration Factory](https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/tests/Integration/Factory.php) по умолчанию используется webhook (`getServiceBuilder(false)`). `getServiceBuilder(true)` подключает OAuth-токены приложения через ApplicationBridge с сохранением обновлённых токенов. Для этой пачки выбран webhook.
+
+### Вывод и автоматизация
+
+`--json` выдаёт один объект `data/meta/error` со `schemaVersion: 1`. Список всегда находится в `data.items`, карточка — `data.task`, мутация — `data.operation` или `data.items` для нескольких шагов. Отправка сообщения возвращает boolean ACK и `resourceId: null`; ID для изменения выбирайте через `task:chat:list`.
+
+`--plain` выдаёт TSV без заголовков; табуляция, перевод строки, CR и обратный слеш внутри значения экранируются как `\t`, `\n`, `\r`, `\\`. Human-режим выдаёт таблицы. Диагностика идёт в stderr. `-q` скрывает результат, `--silent` скрывает и ошибки. Глобальные опции доступны до и после имени команды; `--` завершает разбор опций. Уникальные сокращения Symfony поддерживаются, опечатки не запускают команду автоматически.
+
+`--dry-run` показывает план без записей; проверочные чтения для binding видны в `meta.apiCalls`. Удаление в automation требует `--force`, на TTY запрашивает подтверждение. Force не отключает валидацию и привязку ресурса.
+
+`--api-policy strict-rest3` отклоняет REST 1.0/IM планы до первого запроса. Default `task-v3` допускает только явную карту MVP. `--timeout` ограничивает HTTP-запрос (30 секунд по умолчанию, максимум 300). При потере ответа записи выставляется `outcomeUnknown`, автоматического повтора нет. SIGINT сохраняет подтверждённые шаги нескольких вложений.
+
+| Exit code | Значение |
+| --- | --- |
+| 0 | Подтверждённый результат в заявленном scope |
+| 1 | Ошибка API, подключения, прав или transport |
+| 2 | Некорректные аргументы/локальный ввод |
+| 3 | Неполная выборка или частично выполненные шаги |
+| 4 | API policy или недоказанная привязка ресурса |
+| 130 | Прерывание или отказ подтверждения |
+
+`task:find` ищет буквальную подстроку title без учёта регистра локально по REST 3 списку. Серверный фильтр поддерживает ID; `--limit` ограничивает вывод, `--max-scan` — просмотр (10000 по умолчанию). `complete`, `scanned`, `matched`, `returned`, `limitApplied` обозначают полноту и ограничения. История без next/total возвращает partial/exit 3. `task:time:show` показывает `elapsedTime`, не обещая суммарное время или полноту записей. Удаление пункта удаляет его дочерние пункты; dry-run показывает их IDs.
+
+Update отправляет только явный патч; `--description=""` очищает описание. `--fields`/`--fields-file` — отдельный advanced JSON object режим с проверкой `editable` metadata. Status/lifecycle, participants, tags, userFields и object relations в патче запрещены. Пропущенная роль в `task:participants:set` сохраняется, указанная заменяется целиком. Разрешённые select/order/writable поля закреплены в `src/Application/Task/FieldSchema.php`; `task:fields:list` показывает metadata портала.
+
+## Тесты команд
+
+```sh
+make test                 # offline: Console + DI + SDK Core с контролируемым HTTP
+make test-integration     # живой портал; явный skip без webhook
+```
+
+Offline suite проверяет все 30 маршрутов, JSON-параметры, поиск/пагинацию, patches, binding, dry-run, API policy, вывод, env precedence, SDK ошибки, timeout и SIGINT в subprocess. GitHub Actions запускает только offline suite без секретов.
+
+Live suite создаёт задачи с префиксом `b24cli-test-`, проверяет изменения повторным чтением и удаляет созданные задачи в tearDown. Нужен тестовый портал и пользователь с правами создавать/удалять собственные задачи и работать с их чатом. При ошибке cleanup тест сообщает IDs для ручного удаления. Неверный webhook вызывает ошибку, а не skip.
+
+Дополнительные fixtures в том же `.env`:
+
+- `B24CLI_TEST_DISK_FILE_ID`: существующий доступный файл Диска. Тест его не загружает и не удаляет. Attachment проверяется по ACK: REST 3 get возвращает `fileIds: null`, поэтому не доказывает наличие вложения.
+- `B24CLI_TEST_RESTRICTED_WEBHOOK`: webhook другого, не административного пользователя без права редактировать создаваемую задачу для denied-role case.
+
+Без дополнительных fixtures эти cases пропускаются отдельно. Без основного webhook порталные сценарии не считаются пройденными; offline тесты не доказывают поведение конкретного портала.
 
 ## Параллельная работа в Git worktree
 

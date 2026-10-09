@@ -1,0 +1,249 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Bitrix24\CLI\Tests\Integration;
+
+use Bitrix24\CLI\Application\Failure;
+use Bitrix24\CLI\Application\RuntimeState;
+use Bitrix24\CLI\Bootstrap\ApplicationFactory;
+use Bitrix24\CLI\Console\B24Application;
+use Bitrix24\CLI\Infrastructure\Bitrix24\SdkApiTransport;
+use Bitrix24\CLI\Infrastructure\Connection\B24ClientProvider;
+use Bitrix24\CLI\Infrastructure\Connection\EnvConnectionResolver;
+use Bitrix24\CLI\Infrastructure\Connection\ConnectionResolver;
+use Bitrix24\CLI\Tests\Support\ConsoleHarness;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Dotenv\Dotenv;
+
+/** Live tests create disposable tasks under the webhook identity and read back changes. */
+final class TaskCommandsTest extends TestCase
+{
+    private B24Application $app;
+    private int $userId;
+    private array $createdTasks = [];
+    private array $settings = [];
+
+    protected function setUp(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $envConnectionResolver = new EnvConnectionResolver($root);
+        try {
+            $envConnectionResolver->webhook();
+        } catch (Failure $failure) {
+            if ($failure->errorCode === 'connection-unavailable') {
+                self::markTestSkipped('Live portal test needs BITRIX24_WEBHOOK in root .env or process environment.');
+            }
+
+            throw $failure;
+        }
+
+        $path = getenv('B24CLI_ENV_FILE') ?: $root . '/.env';
+        if (is_file($path)) {
+            $this->settings = (new Dotenv())->parse(file_get_contents($path));
+        }
+
+        $sdkApiTransport = new SdkApiTransport(new B24ClientProvider($envConnectionResolver, new RuntimeState()), new RuntimeState());
+        $this->userId = (int) ($sdkApiTransport->call('profile', 1, [])->result['ID'] ?? 0);
+        self::assertGreaterThan(0, $this->userId, 'Webhook profile must return the acting user ID.');
+        $this->app = (new ApplicationFactory())->create($root);
+    }
+
+    protected function tearDown(): void
+    {
+        $failed = [];
+        foreach (array_reverse($this->createdTasks) as $id) {
+            $run = ConsoleHarness::run($this->app, ['--json', 'task:delete', (string) $id, '--force']);
+            if ($run->status !== 0) {
+                $failed[] = $id;
+            }
+        }
+
+        if ($failed !== []) {
+            self::fail('Could not remove owned test tasks: ' . implode(', ', $failed) . '. Remove them manually.');
+        }
+    }
+
+    private function invoke(array $argv, array $statuses = [0]): array
+    {
+        $run = ConsoleHarness::run($this->app, ['--json', ...array_map(strval(...), $argv)]);
+        self::assertContains($run->status, $statuses, $run->stdout . $run->stderr);
+        return $run->json();
+    }
+
+    private function newTask(): int
+    {
+        $result = $this->invoke(['task:add', '--title', 'b24cli-test-' . bin2hex(random_bytes(8)), '--creator', $this->userId, '--responsible', $this->userId, '--description', 'original']);
+        $id = $result['data']['operation']['resourceId'];
+        self::assertIsInt($id);
+        $this->createdTasks[] = $id;
+        return $id;
+    }
+
+    private function card(int $taskId, array $select = []): array
+    {
+        $argv = ['task:show', $taskId];
+        foreach ($select as $field) {
+            $argv[] = '--select';
+            $argv[] = $field;
+        }
+
+        return $this->invoke($argv)['data']['task'];
+    }
+
+    public function testTaskCardSchemaSearchAndSparseUpdates(): void
+    {
+        $id = $this->newTask();
+        $title = 'b24cli-ёж-' . bin2hex(random_bytes(8));
+        $this->invoke(['task:update', $id, '--title', $title]);
+        self::assertSame($title, $this->card($id)['title']);
+        self::assertSame('original', $this->card($id)['description']);
+        $this->invoke(['task:update', $id, '--description', '']);
+        self::assertSame('', $this->card($id)['description']);
+        $this->invoke(['task:assign', $id, '--responsible', $this->userId]);
+        self::assertSame($this->userId, $this->card($id)['responsibleId']);
+        $at = '2027-01-10T12:00:00+06:00';
+        $this->invoke(['task:deadline:set', $id, '--at', $at]);
+        self::assertSame(strtotime($at), strtotime($this->card($id)['deadline']));
+        $items = $this->invoke(['task:list', '--id', $id])['data']['items'];
+        self::assertContains($id, array_column($items, 'id'));
+        $search = $this->invoke(['task:find', '--title', mb_strtoupper($title), '--all'], [0, 3]);
+        // A finite scan on a large portal may not reach this task; preserve that boundary.
+        if ($search['meta']['complete']) {
+            self::assertContains($id, array_column($search['data']['items'], 'id'));
+        } else {
+            self::assertSame('partial-result', $search['error']['code']);
+        }
+
+        self::assertNotEmpty($this->invoke(['task:fields:list'])['data']['items']);
+        self::assertSame('title', $this->invoke(['task:fields:list', '--name', 'title'])['data']['items'][0]['name']);
+        self::assertIsArray($this->invoke(['task:access:show', $id])['data']['access']);
+        $this->invoke(['task:delete', $id, '--force']);
+        $this->createdTasks = array_values(array_diff($this->createdTasks, [$id]));
+        $run = ConsoleHarness::run($this->app, ['--json', 'task:show', (string) $id]);
+        self::assertSame(1, $run->status);
+    }
+
+    public function testTaskChatSendReadUpdateDeleteAndWrongTaskBinding(): void
+    {
+        $id = $this->newTask();
+        $text = 'b24cli-message-' . bin2hex(random_bytes(8));
+        $sent = $this->invoke(['task:chat:send', $id, '--text', $text]);
+        self::assertNull($sent['data']['operation']['resourceId']);
+        $messages = $this->invoke(['task:chat:list', $id, '--all'])['data']['items'];
+        $own = array_values(array_filter($messages, static fn (array $row): bool => $row['text'] === $text));
+        self::assertCount(1, $own, 'Find the unique fixture message ID by reading its own task chat.');
+        $messageId = $own[0]['id'];
+        $other = $this->newTask();
+        $rejected = $this->invoke(['task:chat:update', $other, '--message', $messageId, '--text', 'foreign'], [4]);
+        self::assertSame('message-binding-unverified', $rejected['error']['code']);
+        $this->invoke(['task:chat:update', $id, '--message', $messageId, '--text', $text . '-changed']);
+        $messages = $this->invoke(['task:chat:list', $id, '--all'])['data']['items'];
+        self::assertContains($text . '-changed', array_column($messages, 'text'));
+        $this->invoke(['task:chat:delete', $id, '--message', $messageId, '--force']);
+        $messages = $this->invoke(['task:chat:list', $id, '--all'])['data']['items'];
+        self::assertNotContains($text . '-changed', array_column($messages, 'text'));
+    }
+
+    public function testOwnTimeEntriesReadBackSecondsAndKeepOmittedText(): void
+    {
+        $id = $this->newTask();
+        $entry = $this->invoke(['task:time:add', $id, '--seconds', '60', '--text', 'fixture'])['data']['operation']['resourceId'];
+        $entries = $this->invoke(['task:time:list', $id])['data']['items'];
+        self::assertContains($entry, array_column($entries, 'id'));
+        $other = $this->newTask();
+        $this->invoke(['task:time:update', $other, '--entry', $entry, '--seconds', '120'], [4]);
+        $this->invoke(['task:time:update', $id, '--entry', $entry, '--seconds', '120']);
+        $rows = array_values(array_filter($this->invoke(['task:time:list', $id])['data']['items'], static fn (array $row): bool => $row['id'] === $entry));
+        self::assertSame(120, $rows[0]['seconds']);
+        self::assertSame('fixture', $rows[0]['text']);
+        self::assertArrayHasKey('elapsedTime', $this->invoke(['task:time:show', $id], [0, 3])['data']['time']);
+        $this->invoke(['task:time:delete', $id, '--entry', $entry, '--force']);
+        self::assertNotContains($entry, array_column($this->invoke(['task:time:list', $id])['data']['items'], 'id'));
+    }
+
+    public function testChecklistRootsNestedItemsAndStateDoNotChangeTaskStatus(): void
+    {
+        $id = $this->newTask();
+        $status = $this->card($id)['status'];
+        $root = $this->invoke(['task:checklist:add', $id, '--title', 'Root'])['data']['operation']['resourceId'];
+        $secondRoot = $this->invoke(['task:checklist:add', $id, '--title', 'Other root'])['data']['operation']['resourceId'];
+        self::assertContains($root, array_column($this->invoke(['task:checklist:list', $id])['data']['items'], 'id'));
+        $item = $this->invoke(['task:checklist:item:add', $id, '--checklist', $root, '--title', 'Item'])['data']['operation']['resourceId'];
+        $nested = $this->invoke(['task:checklist:item:add', $id, '--checklist', $root, '--parent', $item, '--title', 'Nested'])['data']['operation']['resourceId'];
+        $this->invoke(['task:checklist:item:add', $id, '--checklist', $secondRoot, '--parent', $item, '--title', 'Wrong parent'], [4]);
+        $this->invoke(['task:checklist:item:update', $id, '--item', $item, '--title', 'Changed']);
+        $this->invoke(['task:checklist:item:complete', $id, '--item', $item]);
+        $items = $this->invoke(['task:checklist:item:list', $id, '--checklist', $root])['data']['items'];
+        $byId = array_column($items, null, 'id');
+        self::assertSame('Changed', $byId[$item]['title']);
+        self::assertTrue($byId[$item]['isComplete']);
+        self::assertSame($item, $byId[$nested]['parentId']);
+        $this->invoke(['task:checklist:item:renew', $id, '--item', $item]);
+        $items = $this->invoke(['task:checklist:item:list', $id, '--checklist', $root])['data']['items'];
+        self::assertFalse(array_column($items, null, 'id')[$item]['isComplete']);
+        self::assertSame($status, $this->card($id)['status']);
+        $this->invoke(['task:checklist:item:delete', $id, '--item', $item, '--force']);
+        self::assertSame([], $this->invoke(['task:checklist:item:list', $id, '--checklist', $root])['data']['items']);
+    }
+
+    public function testParticipantsOmissionClearAndHistoryCompletenessBoundary(): void
+    {
+        $id = $this->newTask();
+        $this->invoke(['task:participants:set', $id, '--auditor', $this->userId]);
+        $before = $this->card($id, ['accomplices', 'auditors']);
+        $this->invoke(['task:participants:set', $id, '--clear-accomplices']);
+        $after = $this->card($id, ['accomplices', 'auditors']);
+        self::assertSame($before['auditors'], $after['auditors']);
+        self::assertSame([], $after['accomplices']);
+        $this->invoke(['task:participants:set', $id, '--clear-auditors']);
+        self::assertSame([], $this->card($id, ['auditors'])['auditors']);
+        $this->invoke(['task:update', $id, '--title', 'history-fixture']);
+        $history = $this->invoke(['task:history:list', $id, '--params', '{"filter":{"FIELD":"TITLE"},"order":{"createdDate":"asc"}}'], [0, 3]);
+        self::assertIsArray($history['data']['items']);
+        self::assertNotEmpty($history['data']['items']);
+        if (!$history['meta']['complete']) {
+            self::assertSame('partial-result', $history['error']['code']);
+        }
+    }
+
+    public function testAttachExistingDiskFileWhenFixtureIsConfigured(): void
+    {
+        $fileId = getenv('B24CLI_TEST_DISK_FILE_ID') ?: ($this->settings['B24CLI_TEST_DISK_FILE_ID'] ?? null);
+        if ($fileId === null || $fileId === '') {
+            self::markTestSkipped('File attachment needs an existing B24CLI_TEST_DISK_FILE_ID fixture.');
+        }
+
+        self::assertMatchesRegularExpression('/^[1-9][0-9]*$/', $fileId);
+        $id = $this->newTask();
+        $result = $this->invoke(['task:file:attach', $id, '--file-id', $fileId]);
+        self::assertSame((int) $fileId, $result['data']['items'][0]['resourceId']);
+        // REST 3 get does not populate fileIds; attachment verification is ACK only.
+        self::assertNull($this->card($id, ['fileIds'])['fileIds']);
+    }
+
+    public function testRestrictedRoleCannotEditFixtureTask(): void
+    {
+        $webhook = getenv('B24CLI_TEST_RESTRICTED_WEBHOOK') ?: ($this->settings['B24CLI_TEST_RESTRICTED_WEBHOOK'] ?? '');
+        if ($webhook === '') {
+            self::markTestSkipped('Denied-role case needs B24CLI_TEST_RESTRICTED_WEBHOOK for a non-admin without edit access.');
+        }
+
+        $id = $this->newTask();
+        $before = $this->card($id)['title'];
+        $resolver = new readonly class ($webhook) implements ConnectionResolver {
+            public function __construct(private string $webhook)
+            {
+            }
+            public function webhook(): string
+            {
+                return $this->webhook;
+            }
+        };
+        $app = (new ApplicationFactory())->create(dirname(__DIR__, 2), null, $resolver);
+        $run = ConsoleHarness::run($app, ['--json', 'task:update', (string) $id, '--title', 'unauthorized-change']);
+        self::assertSame(1, $run->status, $run->stdout);
+        self::assertSame('permission-denied', $run->json()['error']['code']);
+        self::assertSame($before, $this->card($id)['title']);
+    }
+}

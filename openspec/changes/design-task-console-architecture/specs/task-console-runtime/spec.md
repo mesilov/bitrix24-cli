@@ -44,7 +44,7 @@ Runtime SHALL различать пропущенное поле, явное п�
 
 #### Scenario: Restricted update convenience commands
 - **WHEN** вызывается task:assign либо task:deadline:set
-- **THEN** отправляется только responsibleId либо deadline; status и другие поля не добавляются
+- **THEN** SDK получает sparse array только с responsibleId либо deadline; status и обязательные поля builder создания не добавляются
 
 #### Scenario: Attempted raw API escape
 - **WHEN** --fields, --where или --params пытаются задать неподдержанные ключи, другую цель, смену status либо произвольный маршрут
@@ -106,3 +106,22 @@ Runtime SHALL позволять проверять регистрацию, па
 #### Scenario: Passing command contract tests
 - **WHEN** проверки команд и API планов прошли на подставных ответах
 - **THEN** отчёт подтверждает локальный контракт и отдельно перечисляет ещё не выполненные portal cases, не объявляя команды принятыми на портале
+
+#### Scenario: Confirmed chat send without message ID
+- **WHEN** task:chat:send получает boolean подтверждение отправки без ID
+- **THEN** возвращается success с кодом 0 и resourceId=null; outcomeUnknown не выставляется и ID не восстанавливается по тексту
+
+#### Scenario: Time relation without an aggregate guarantee
+- **WHEN** task:time:show читает elapsedTime из карточки
+- **THEN** результат обозначает scope связанного поля и не объявляет его полной историей или total seconds без подтверждённого контракта и полноты
+
+### Requirement: Deferred root environment webhook connection
+Runtime SHALL поддерживать BITRIX24_WEBHOOK из root .env с приоритетом переменных процесса. Чтение env и создание SDK ServiceBuilder SHALL происходить после local validation и API policy. Webhook не SHALL попадать в argv, output или container config diagnostics. Integration tests SHALL запускаться отдельно и использовать тот же provider.
+
+#### Scenario: Offline help with an unreadable environment file
+- **WHEN** пользователь запускает help/list/version/completion без доступного env файла
+- **THEN** команда работает без чтения credentials и API calls
+
+#### Scenario: Explicit integration suite without credentials
+- **WHEN** запускается integration suite без webhook
+- **THEN** live cases явно пропускаются без портальных mutations; это не объявляется portal acceptance

@@ -26,16 +26,16 @@
 | Команда | Command class | Request / Handler stem | Основные API method/version | Дополнительные чтения и ограничения | Output profile |
 | --- | --- | --- | --- | --- | --- |
 | `task:chat:list` | `ListTaskChatCommand` | `ListTaskChat` | `tasks.task.get@3.0`, `im.dialog.messages.get@1.0` | Проверить task/chat association; before/after исключают друг друга; finite messages budget; IM version видима | chat-messages |
-| `task:chat:send` | `SendTaskChatMessageCommand` | `SendTaskChatMessage` | `tasks.task.chat.message.send@3.0` | Один explicit text/text-file, нет legacy comment; MESSAGE_ID результата; acting connection identity | mutation |
+| `task:chat:send` | `SendTaskChatMessageCommand` | `SendTaskChatMessage` | `tasks.task.chat.message.send@3.0` | Один explicit text/text-file, нет legacy comment; Подтверждение отправки без MESSAGE_ID, resourceId=null; acting connection identity | mutation |
 | `task:chat:update` | `UpdateTaskChatMessageCommand` | `UpdateTaskChatMessage` | `tasks.task.get@3.0`, `im.message.update@1.0` | `im.dialog.messages.get@1.0` для MESSAGE_ID binding к chat выбранной задачи; budget10 000, иначе gate4; server author/admin rights | mutation |
 | `task:chat:delete` | `DeleteTaskChatMessageCommand` | `DeleteTaskChatMessage` | `tasks.task.get@3.0`, `im.message.delete@1.0` | `im.dialog.messages.get@1.0` для binding; delete confirmation не отменяет связь/права | mutation |
-| `task:file:attach` | `AttachTaskFilesCommand` | `AttachTaskFiles` | `tasks.task.file.attach@3.0` | Повторяемые уже загруженные Disk IDs; никаких local upload; ledger нескольких attachments | mutation |
+| `task:file:attach` | `AttachTaskFilesCommand` | `AttachTaskFiles` | `tasks.task.file.attach@3.0` | Повторяемые уже загруженные Disk IDs; никаких local upload; отдельный request с одним fileId на шаг; ledger подтверждений | mutation |
 
 ## Время
 
 | Команда | Command class | Request / Handler stem | Основные API method/version | Дополнительные чтения и ограничения | Output profile |
 | --- | --- | --- | --- | --- | --- |
-| `task:time:show` | `ShowTaskTimeCommand` | `ShowTaskTime` | `tasks.task.get@3.0` | Select elapsedTime; агрегат не подменяет историю entries | time-summary |
+| `task:time:show` | `ShowTaskTimeCommand` | `ShowTaskTime` | `tasks.task.get@3.0` | Select elapsedTime; связанное поле без обещания total/completeness | time-context |
 | `task:time:add` | `AddTaskTimeEntryCommand` | `AddTaskTimeEntry` | `task.elapseditem.add@1.0` | Seconds integer >0, optional text; действует от текущего подключения; явный REST1 admission | mutation |
 | `task:time:list` | `ListTaskTimeEntriesCommand` | `ListTaskTimeEntries` | `task.elapseditem.getlist@1.0` | Typed --params query schema; positional API codec; pagination/scope/budget; no arbitrary payload | time-entries |
 | `task:time:update` | `UpdateTaskTimeEntryCommand` | `UpdateTaskTimeEntry` | `task.elapseditem.update@1.0` | `task.elapseditem.getlist@1.0` для TASK_ID/ENTRY_ID binding; seconds >0; omission text сохраняет комментарий; server rights | mutation |
@@ -78,13 +78,13 @@
 | task-card | data.task object | field, value; одна строка на нормализованное выбранное поле, lexicographic field order |
 | task-list | data.items | id, title, responsibleId, groupId, status, deadline |
 | title-matches | data.items, только id/title | id, title |
-| task-fields | data.items metadata records | name, type, readOnly, filterable, sortable; неизвестное metadata — null |
+| task-fields | data.items metadata records | name, type, editable, filterable, sortable; неизвестное metadata — null |
 | task-access | data.access object | permission, allowed; lexicographic permission order |
 | chat-messages | data.items | id, createdDate, authorId, text; порядок ID ASC внутри выбранного window |
-| time-summary | data.time object | taskId, elapsedSeconds; прочие aggregate fields остаются в JSON/human |
+| time-context | data.time object | field, value; taskId и elapsedTime, без выдуманного агрегата |
 | time-entries | data.items | id, userId, seconds, text, createdDate; default ID ASC |
-| checklist-roots | data.items | id, title; SORT затем ID, adapter сохраняет SORT в JSON |
-| checklist-items | data.items | id, parentId, title, isComplete; preorder, siblings SORT затем ID |
+| checklist-roots | data.items | id, title; sortIndex затем ID; sortIndex ← SORT_INDEX, adapter сохраняет его в JSON |
+| checklist-items | data.items | id, parentId, title, isComplete; preorder, siblings sortIndex затем ID; IS_COMPLETE Y/N → boolean |
 | task-history | data.items | id, createdDate, userId, field, from, to; default createdDate DESC, tie ID DESC |
 | mutation | data.operation object; при нескольких attachments data.items ledger | taskId, resourceId, action, changedFields; одна строка на confirmed step, changedFields — компактный JSON array |
 
