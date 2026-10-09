@@ -41,3 +41,10 @@
 - Справка использует list [namespace], help COMMAND и COMMAND --help. Root запускает list; отдельный tasks dispatcher не проектируется. No-interaction/-n, no-ansi, quiet/silent и verbosity согласованы с Console 8.1.8 из composer.lock, проверены официальные docs и pinned Application.php.
 - Обновлён контракт cli-experience delta/main с теми же 11 требованиями и 29 сценариями. Требования к scriptable flags и удобному редактированию сохранены; shell examples имеют будущий b24cli entrypoint, не доказывают runtime.
 - Launcher b24cli и task commands не добавлены. Это исправление planning artifacts; validation и статическая сверка не заменяют implementation/portal acceptance.
+
+
+## Уточнение: task:add и независимость от REST vocabulary
+
+- По выбору пользователя корневой namespace — task, команда добавления — task:add; добавление подзадачи — task:subtask:add. Обязательный маппинг имён/количества CLI-команд на REST 1:1 отсутствует и это явно закреплено в spec/design/JSON metadata.
+- Согласованы все 55 имён, примеры и 19 JTBD references; имена REST tasks.task.*, API versions/scopes, SDK routes, effects, gates, sources и counts 7/12, 4/14/1 сохраняются. Task-workflows delta/main не меняются.
+- Проверки planning: strict validation 4 specs и change, canonical/delta equality, Markdown/JSON command syntax и tables/links, baseline сравнение API evidence и coverage conditions, shell example parsing, diff check. Task commands и launcher остаются будущей реализацией.

@@ -7,14 +7,14 @@
 ## Requirements
 
 ### Requirement: Direct and consistent command structure
-CLI SHALL предоставлять entrypoint b24cli и нативные имена Symfony Console `tasks:<action>`/`tasks:<resource>:<action>`. Task command SHALL принимать не более одного позиционного ID; остальные сущности задаются флагами. Полные имена SHALL использоваться в документации; стандартные однозначные сокращения Symfony поддерживаются, опечатки или неоднозначные имена не SHALL автоматически выполнять запись.
+CLI SHALL использовать entrypoint b24cli, namespace `task` и имена Symfony `task:<action>`/`task:<resource>:<action>`. Добавление задачи SHALL называться `task:add`; vocabulary CLI SHALL определяться пользовательской операцией без обязательного соответствия именам REST. Task command принимает один позиционный ID, прочие сущности задаются флагами. Полные имена используются в документации; стандартные однозначные сокращения Symfony поддерживаются.
 
 #### Scenario: Task editing from the terminal
-- **WHEN** пользователь вызывает `b24cli tasks:update 123 --title "Отчёт за октябрь"`
+- **WHEN** пользователь вызывает `b24cli task:update 123 --title "Отчёт за октябрь"`
 - **THEN** интерфейс адресует задачу 123 и явное изменение заголовка без необходимости использовать Make или JSON
 
 #### Scenario: Two related entities
-- **WHEN** пользователь вызывает `b24cli tasks:chat:update 123 --message 456 --text "Уточнение"`
+- **WHEN** пользователь вызывает `b24cli task:chat:update 123 --message 456 --text "Уточнение"`
 - **THEN** идентификатор задачи и идентификатор сообщения различаются; проверка привязки сообщения к задаче обязательна
 
 #### Scenario: Mistyped write command
@@ -25,22 +25,22 @@ CLI SHALL предоставлять entrypoint b24cli и нативные им�
 CLI SHALL поддерживать `-h`/`--help`, `b24cli help COMMAND`, `b24cli list [NAMESPACE]` и `--version`/`-V`. Справка SHALL показывать краткое назначение, примеры обычных действий, обязательные флаги, значения по умолчанию, ограничения и ссылку на документацию. Справка и версия SHALL работать без авторизации и запросов на портал.
 
 #### Scenario: Root or group invocation
-- **WHEN** пользователь вызывает `b24cli` либо `b24cli list tasks`
-- **THEN** CLI выполняет встроенную list и показывает доступные команды целиком либо в namespace tasks, возвращает 0 и не выполняет удалённых операций
+- **WHEN** пользователь вызывает `b24cli` либо `b24cli list task`
+- **THEN** CLI выполняет встроенную list и показывает доступные команды целиком либо в namespace task, возвращает 0 и не выполняет удалённых операций
 
 #### Scenario: Command help
-- **WHEN** пользователь вызывает `b24cli tasks:update --help` или `b24cli help tasks:update`
+- **WHEN** пользователь вызывает `b24cli task:update --help` или `b24cli help task:update`
 - **THEN** оба вызова показывают одну справку с примерами изменения заголовка, ответственного и описания, без требования TASK_ID
 
 ### Requirement: Convenient and explicit task field updates
-CLI SHALL предоставлять `--title`, `--creator`, `--responsible`, `--project`, `--deadline`, `--description` и `--description-file` для создания и применимые флаги для изменения. `tasks:update` SHALL принимать хотя бы одно явное изменение и отправлять только заданные поля. `tasks:assign` SHALL изменять только responsibleId; остальные флаги SHALL отображаться на документированные writable REST3 поля.
+CLI SHALL предоставлять `--title`, `--creator`, `--responsible`, `--project`, `--deadline`, `--description` и `--description-file` для создания и применимые флаги для изменения. `task:update` SHALL принимать хотя бы одно явное изменение и отправлять только заданные поля. `task:assign` SHALL изменять только responsibleId; остальные флаги SHALL отображаться на документированные writable REST3 поля.
 
 #### Scenario: Basic task creation
-- **WHEN** пользователь задаёт title, creator и responsible флагами команды create
+- **WHEN** пользователь задаёт title, creator и responsible флагами команды task:add
 - **THEN** CLI формирует title, creatorId и responsibleId; отсутствующие обязательные значения приводят к ошибке до записи, без молчаливого выбора сотрудника
 
 #### Scenario: Several ordinary changes
-- **WHEN** пользователь вызывает `b24cli tasks:update 123 --title "Отчёт" --responsible 84 --description "Добавить сравнение"`
+- **WHEN** пользователь вызывает `b24cli task:update 123 --title "Отчёт" --responsible 84 --description "Добавить сравнение"`
 - **THEN** CLI изменяет три заданных поля одним update-запросом и не отправляет значения остальных полей
 
 #### Scenario: Empty and omitted description
@@ -81,7 +81,7 @@ CLI SHALL различать литеральный текст, JSON в `--field
 Списки SHALL различать серверный фильтр id и локальные фильтры REST3; --limit ограничивает результат, --all снимает этот предел, --max-scan ограничивает просмотр. CLI SHALL сообщать scope доступных задач, scanned count и полноту. Достигнутый scan cap, ошибка страницы или недостающие данные SHALL означать partial; полнота видимых задач не SHALL выдаваться за полноту проекта.
 
 #### Scenario: Responsible or project filter
-- **WHEN** пользователь задаёт `tasks:list --responsible 42 --project 7`
+- **WHEN** пользователь задаёт `task:list --responsible 42 --project 7`
 - **THEN** CLI фильтрует соответствующие selected fields локально, проверяет все страницы в установленном scan budget и не отправляет неподдерживаемый v3 filter или скрытый legacy request
 
 #### Scenario: Scan cap reached
@@ -96,7 +96,7 @@ CLI SHALL различать литеральный текст, JSON в `--field
 CLI SHALL возвращать 0 при успехе, 1 при ошибке выполнения, 2 при неверном вводе, 3 при частичном результате, 4 при недоступном gated действии или запрещённой API политике, 130 при Ctrl-C. Ошибка SHALL объяснять действие, причину и возможное исправление без секретов. В JSON режиме error SHALL иметь стабильный code; новые коды не SHALL менять значение существующих.
 
 #### Scenario: Missing required flag
-- **WHEN** вызов create не содержит --responsible
+- **WHEN** вызов task:add не содержит --responsible
 - **THEN** CLI возвращает 2, называет отсутствующий флаг и показывает корректный пример без создания задачи
 
 #### Scenario: Gated lifecycle action
@@ -111,7 +111,7 @@ CLI SHALL возвращать 0 при успехе, 1 при ошибке вы
 Удаление удалённого объекта SHALL требовать явного подтверждения в TTY либо --force без диалога. --force SHALL отменять только подтверждение, сохраняя validation, права и API gates. Команды записи SHALL поддерживать --dry-run: показать цель, поля и шаги без mutating requests; неизбранный provider или недоказанный маршрут SHALL оставаться gated и в dry-run.
 
 #### Scenario: Deletion in automation
-- **WHEN** пользователь вызывает `tasks:delete 123 --no-interaction` без --force
+- **WHEN** пользователь вызывает `task:delete 123 --no-interaction` без --force
 - **THEN** CLI возвращает 2 до записи и предлагает --dry-run для проверки или --force для явно выбранного удаления
 
 #### Scenario: Ordinary edit
@@ -119,7 +119,7 @@ CLI SHALL возвращать 0 при успехе, 1 при ошибке вы
 - **THEN** дополнительное подтверждение не требуется, если команда не удаляет объект и не добавляет неявных разрушительных действий
 
 #### Scenario: Preview of an update
-- **WHEN** пользователь задаёт `tasks:update 123 --title "Отчёт" --dry-run`
+- **WHEN** пользователь задаёт `task:update 123 --title "Отчёт" --dry-run`
 - **THEN** CLI показывает задачу, изменение и предполагаемый REST3 route; проверочные чтения допустимы и обозначены, запись не выполняется и server acceptance не заявляется
 
 ### Requirement: Predictable noninteractive and terminal behavior
@@ -136,8 +136,8 @@ CLI SHALL поддерживать нативные --no-interaction/-n без p
 ### Requirement: Bounded requests and honest recovery
 CLI SHALL поддерживать --timeout с конечным документированным default, реагировать на Ctrl-C и прекращать новые шаги. При неизвестном результате записи CLI SHALL сообщать неопределённость и способ сверить состояние без автоматического повторения create/send/add. Для неатомарных сценариев CLI SHALL показывать выполненные и невыполненные шаги и возвращать partial при частичном выполнении.
 
-#### Scenario: Response lost after create
-- **WHEN** соединение оборвалось после отправки create и результат сервера неизвестен
+#### Scenario: Response lost after task add
+- **WHEN** соединение оборвалось после отправки task:add и результат сервера неизвестен
 - **THEN** CLI возвращает ошибку с признаком outcomeUnknown и предлагает проверку состояния; повторное создание не выполняется автоматически
 
 #### Scenario: Cancellation between workflow steps
@@ -148,7 +148,7 @@ CLI SHALL поддерживать --timeout с конечным докумен�
 Общие флаги SHALL иметь одинаковые имена и значение во всех подкомандах и поддерживаться до либо после имени команды. Нечувствительные invocation flags SHALL иметь приоритет над явным config, environment и defaults. Секреты подключения не SHALL передаваться непосредственно в аргументах или выводиться в диагностике; механизм auth/storage определяется отдельно.
 
 #### Scenario: Global option placement
-- **WHEN** пользователь задаёт `b24cli --json tasks:show 123` либо `b24cli tasks:show 123 --json`
+- **WHEN** пользователь задаёт `b24cli --json task:show 123` либо `b24cli task:show 123 --json`
 - **THEN** формат и поведение обоих вызовов совпадают
 
 #### Scenario: Safe diagnostic information

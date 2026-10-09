@@ -16,7 +16,7 @@
 - Главная спецификация фиксирует принятые продуктовые цели; implementation tasks остаются открытыми. Архивирование этого change до реализации и проверки будущего поведения не выполняется.
 - Каталог MCP сохраняется с commit SHA и проверяется по исходникам, а не только README. Он характеризует templates-mcp, не hosted mcp.bitrix24.tech/com. Live tools/list не проверяется.
 - Для текущего CLI-предложения область — новая карточка. Card/result/chat.send используют REST3; history сообщений — официальный IM companion. task.commentitem.* и result-from-comment не входят в новый каталог. Strict-rest3 оценивается отдельно: сам факт новой карточки не переводит все методы в v3.
-- Native list v3 filter только id; tasks:my/plan используют полную выборку доступных задач и явные локальные predicates. Scan cap/недостающий доступ/сбой отражаются в partial, не маскируются под полную сводку проекта. Альтернатива legacy list не выбрана как скрытый fallback.
+- Native list v3 filter только id; task:my/plan используют полную выборку доступных задач и явные локальные predicates. Scan cap/недостающий доступ/сбой отражаются в partial, не маскируются под полную сводку проекта. Альтернатива legacy list не выбрана как скрытый fallback.
 - Семь lifecycle commands кандидаты через update.status, но соответствие специальным действиям при needsControl/requireResult не доказано; до acceptance они disabled. Наличие поля status и rights.approve не доказывает эквивалентность операции.
 - Для blocker/change/client promise/delivery/feedback нужны явные данные. В cli-candidates.md названы необходимые поля, альтернативы provider и границы полноты; схема хранения не принята. Альтернатива выводить согласованные факты из любого текста чата отвергнута как недоказуемая.
 - Каталог и coverage являются дополнительными planning artifacts, не изменяют принятые JTBD. Предыдущее предложение 79 имён остаётся историческим исследованием; проектирование продолжается по cli-candidates.md/json (55 имён, 42+13), со статической матрицей 19 сценариев.
@@ -38,7 +38,7 @@
 
 | Раздел первичного источника | Решение проекта | Проверяемый контракт |
 | --- | --- | --- |
-| [Human-first design](https://clig.dev/#human-first-design), [Subcommands](https://clig.dev/#subcommands) | Entrypoint b24cli; команды tasks:create, tasks:show, tasks:list, tasks:update и namespaces tasks:chat/result/time; один positional ID и именованные связанные сущности | Direct and consistent command structure |
+| [Human-first design](https://clig.dev/#human-first-design), [Subcommands](https://clig.dev/#subcommands) | Entrypoint b24cli; команды task:add, task:show, task:list, task:update и namespaces tasks:chat/result/time; один positional ID и именованные связанные сущности | Direct and consistent command structure |
 | [Help](https://clig.dev/#help), [Documentation](https://clig.dev/#documentation) | Help/version offline, примеры в начале, одинаковая справка command --help и help command, documented defaults/limitations | Discoverable help without remote operations |
 | [Arguments and flags](https://clig.dev/#arguments-and-flags) | Обычные title/responsible/description флаги; advanced fields отдельно, explicit PATH/- для files, полные названия; no arbitrary abbreviations | Convenient and explicit task field updates; Explicit file and structured input |
 | [Output](https://clig.dev/#output), [The Basics](https://clig.dev/#the-basics) | Human default, явные --json/--plain, native verbosity quiet/silent, stdout data / stderr messages, минимальное сообщение об успешном изменении | Human output and composable structured output |
@@ -58,8 +58,17 @@
 
 ## Symfony Console notation and entrypoint
 
-Уточнение пользователя: приложение основано на Symfony Console, имя entrypoint — b24cli. Основная нотация `b24cli tasks:create ...`, `b24cli tasks:chat:send TASK_ID --text ...`; встроенные `b24cli list tasks`, `b24cli help tasks:update`, `b24cli tasks:update --help`. Операция является одним именем Command, разделённым namespaces через `:`, а значения — обычными arguments/options. Однозначные сокращения оставлены в соответствии со стандартным Console resolver; скрипты и документация используют полные имена, неоднозначность или опечатка не запускает запись автоматически.
+Уточнение пользователя: приложение основано на Symfony Console, имя entrypoint — b24cli. Основная нотация `b24cli task:add ...`, `b24cli task:chat:send TASK_ID --text ...`; встроенные `b24cli list task`, `b24cli help task:update`, `b24cli task:update --help`. Операция является одним именем Command, разделённым namespaces через `:`, а значения — обычными arguments/options. Однозначные сокращения оставлены в соответствии со стандартным Console resolver; скрипты и документация используют полные имена, неоднозначность или опечатка не запускает запись автоматически.
 
 Проверены [официальные Console docs](https://symfony.com/doc/current/console.html#running-commands), [global options](https://symfony.com/doc/current/console/input.html#command-global-options) и [Application.php](https://github.com/symfony/console/blob/4b81146e3ee248ea969186f85499b54fbc78db08/Application.php) версии 8.1.8 из composer.lock. В standalone Application native options: help/-h, version/-V, quiet/-q, silent, verbose/-v/-vv/-vvv, ansi/no-ansi, no-interaction/-n. Native -q подавляет normal output, включая JSON data; --silent подавляет всё. --json/--plain/--profile NAME/--config/--timeout — проектные опции, не встроенные в standalone Console; --dry-run отдельная long option, -n ей не назначается. FrameworkBundle profiler --profile не является опцией текущего standalone Application; при переходе на FrameworkBundle конфликт должен быть пересмотрен.
 
 Entrypoint b24cli пока является решением интерфейса. Будущая упаковка должна запускать то же Console Application, что и текущий bin/console, без shell alias/пробельного dispatcher. Файл launcher, Composer bin/distribution и task commands этим planning change не реализуются. До их реализации нельзя объявлять b24cli доступным в PATH или работоспособность вызовов подтверждённой. API маршруты и все 19 JTBD сохраняются.
+
+
+## User-facing task naming
+
+Пользователь выбрал `task:add`: корневая сущность в единственном числе, глагол add для добавления задачи и подзадачи. Основная поверхность: `task:add`, `task:show`, `task:list`, `task:update`, `task:assign`, `task:chat:send`. Наличие list/my/plan не меняет имя сущности во множественное число. Эта нотация согласуется с выбранным Symfony Console separator `:` и entrypoint b24cli.
+
+Требования к маппингу CLI ↔ REST 1:1 нет. Имя CLI описывает действие пользователя; implementation выбирает документированные REST routes и показывает их отдельно, когда это необходимо для API policy/dry-run/диагностики. Одно действие может использовать несколько методов, а несколько команд — один метод: task:add и task:subtask:add используют tasks.task.add; task:update/task:assign/task:deadline:set используют tasks.task.update. Имена tasks.task.* REST, scope tasks, SDK services и ссылки источников не переименовываются вслед за интерфейсом. JTBD и права также не выводятся из имени команды.
+
+В результате переименованы 55 кандидатов без изменения их method_routes, effect, gates или оценки 19 JTBD. Перевод namespace в singular и create → add не является реализацией новых операций; historical proposal names остаются metadata и не обещают aliases.
