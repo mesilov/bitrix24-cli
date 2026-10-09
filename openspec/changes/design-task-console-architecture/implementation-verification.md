@@ -24,14 +24,14 @@ Issue: [#10](https://github.com/mesilov/bitrix24-cli/issues/10). PR: [#11 → de
 | Prepared mutation preview | PreparedOperation, CommandRunner | Advanced/child dry-run performs only explicit reads; noninteractive delete gate; real PTY decline/acceptance |
 | Execution accounting | OperationResult, ExecutionLedger | Per-file confirmed/unknown/skipped ledger; lost SDK write response is unknown with exactly one request |
 | Cancellation | RuntimeState, CommandRunner, SDK transport, Docker pcntl | Real subprocess SIGINT: exit130, confirmed first attachment retained and later steps stopped; actual local HTTP timeout <2s with timeout0.1 |
-| Offline versus portal evidence | phpunit.xml.dist, separate suites, CI workflow | 131 offline tests / 610 assertions passed. 7 live tests explicitly skipped, 0 portal assertions |
+| Offline versus portal evidence | phpunit.xml.dist, separate suites, CI workflow | 132 offline tests / 614 assertions passed. 7 live tests explicitly skipped, 0 portal assertions |
 | Root environment webhook | EnvConnectionResolver, provider, Compose read-only overlay, Make CLI_RUN | Synthetic external env bind read-only tested in Docker; process override precedence verified without exposing credentials |
 
 ## Local commands and results
 
 - `make docker-build`: PHP 8.4.26, Alpine 3.23, bcmath/intl/pcntl; build successful.
 - `make check`: Composer strict validation, platform requirements, all PHP syntax and CLI startup successful.
-- `make test`: **131 tests, 610 assertions**, no warnings/failures.
+- `make test`: **132 tests, 614 assertions**, no warnings/failures.
 - `make test-integration`: **7 skipped tests, 0 assertions**, missing webhook; not a portal pass.
 - `make lint-all`: dependency licenses, PSR-12, PHPStan level5 and Rector dry-run successful; tests/config/both launcher are in scope.
 - `openspec validate design-task-console-architecture --strict` and `openspec validate --specs --strict`: active architecture and 5 canonical specs valid.
@@ -51,3 +51,9 @@ O1 — **Open portal acceptance, critical for archive:** supply BITRIX24_WEBHOOK
 O2 — **Verification limits:** no live portal, second-user reassignment, independent attachment readback, restricted chat/time/checklist permissions or concrete history completeness were proven. Local fixtures and SDK source inspection do not close these boundaries. CI results are reported separately after publication; local checks do not prove remote CI.
 
 No archive or merge is performed while these portal acceptance tasks are open. This is a reviewable implementation with successful local acceptance and prepared live tests.
+
+## Final interruption regression
+
+A transport failure concurrent with cancellation now returns exit130 and outcomeUnknown=true for a sent write. MockHttpClient verifies one attempted request without retry; this supplements the real subprocess between-step SIGINT case. Full offline suite and lint-all rerun: 132 tests / 614 assertions passed.
+
+At commit 7133a76 all six PR workflows passed, including Linux Worktree isolation. The local worktree acceptance retry also passed with cleanup=true; the first run failed during Composer extraction before CLI startup and cleaned up successfully. Remote CI for subsequent commits must be checked separately.

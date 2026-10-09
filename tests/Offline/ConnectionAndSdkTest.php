@@ -129,6 +129,28 @@ final class ConnectionAndSdkTest extends TestCase
         self::assertSame(1, $mockHttpClient->getRequestsCount());
     }
 
+    public function testInterruptionDuringLostWriteResponseKeepsExit130AndUnknownOutcome(): void
+    {
+        $attempts = 0;
+        $runtimeState = new RuntimeState();
+        $mockHttpClient = new MockHttpClient(static function () use ($runtimeState, &$attempts): never {
+            $attempts++;
+            $runtimeState->cancelled = true;
+            throw new TransportException('response lost during interruption');
+        });
+        $sdkApiTransport = new SdkApiTransport(new B24ClientProvider($this->resolver(), $runtimeState, $mockHttpClient), $runtimeState);
+        try {
+            $sdkApiTransport->call('tasks.task.add', 3, ['fields' => ['title' => 'x']], 'write');
+            self::fail('Expected interrupted write.');
+        } catch (Failure $failure) {
+            self::assertSame('interrupted', $failure->errorCode);
+            self::assertSame(130, $failure->exitStatus);
+            self::assertTrue($failure->outcomeUnknown);
+        }
+
+        self::assertSame(1, $attempts);
+    }
+
     public function testRest3PermissionFailureMapsWithoutLeakingServerMessage(): void
     {
         $mockHttpClient = new MockHttpClient(new MockResponse('{"error":{"code":"BITRIX_REST_V3_EXCEPTION_ACCESSDENIEDEXCEPTION","message":"secret-fixture denied"}}', ['http_code' => 403]));

@@ -25,6 +25,10 @@ final readonly class SdkApiTransport implements ApiTransport
             $data = $builder->core->call($method, $parameters, ApiVersion::from($version))->getResponseData();
             return new ApiResponse($data->getResult(), $data->getPagination()->getNextItem(), $data->getPagination()->getTotal());
         } catch (\Throwable $exception) {
+            if ($this->state->cancelled) {
+                throw new Failure('interrupted', 'Interrupted while awaiting the API response; inspect a sent write before retrying.', 130, [], $effect !== 'read');
+            }
+
             for ($cause = $exception; $cause instanceof \Throwable; $cause = $cause->getPrevious()) {
                 if ($cause instanceof ValidationException) {
                     $validation = array_map(fn ($error): array => ['field' => $error->field, 'message' => $this->provider->redact($error->message), 'option' => $error->field === 'task.responsible.id' ? '--responsible' : null], $cause->getValidationErrors());
