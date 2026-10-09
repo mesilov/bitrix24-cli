@@ -45,11 +45,11 @@ task:disapprove
 ```
 
 ### Requirement: API admission and future lifecycle acceptance remain explicit
-Каталог SHALL отделять release scope от API support: 59 операций = 29 кандидатов MVP, 2 API-policy-pending и 28 после MVP. В MVP явно допущены 4 time и 8 checklist/root/item команд через REST1. Права SHALL проверяться для кандидатов; lifecycle SHALL оставаться после MVP независимо от возможности записи status. Наличие команды в каталоге не SHALL означать принятие иных API exceptions, доказанную семантику или runtime readiness.
+Каталог SHALL отделять release scope от API support: 59 операций = 31 кандидат MVP, 0 API-policy-pending и 28 после MVP. Через REST1 явно допущены 4 time, 8 checklist/root/item и 2 participants/history команды. Права SHALL проверяться для кандидатов; lifecycle SHALL оставаться после MVP независимо от возможности записи status. Наличие команды в каталоге не SHALL означать принятие иных API exceptions, доказанную семантику или runtime readiness.
 
-#### Scenario: Remaining legacy extension
-- **WHEN** команда участников или истории использует прежний API и решение о допуске ещё не принято
-- **THEN** она остаётся в разделе API-policy-pending и не считается утверждённой частью MVP; допуск time/checklist routes не разрешает остальные legacy запросы или скрытый fallback
+#### Scenario: Legacy admission is limited to selected commands
+- **WHEN** вызывается иной legacy маршрут либо общий tasks.task.update используется для действий за пределами participants:set
+- **THEN** допуск четырнадцати выбранных REST1 команд не разрешает такую операцию; policy отклоняет запрос и не выполняет скрытый fallback или исключённый lifecycle переход
 
 #### Scenario: Lifecycle commands after MVP
 - **WHEN** формируется MVP или пользователь передаёт смену status через task:update --fields/--fields-file
@@ -88,6 +88,21 @@ MVP SHALL включать task:checklist:add/list и task:checklist:item:add/li
 #### Scenario: Checklist operations with strict REST3 policy
 - **WHEN** пользователь вызывает любую из восьми checklist/root/item команд в strict-rest3 режиме
 - **THEN** CLI до запроса возвращает gated-unavailable с объяснением прежнего API; он не переключает политику и не подменяет действие неподтверждённым v3 маршрутом
+
+### Requirement: Participants and history are included through explicit legacy routes
+MVP SHALL включать task:participants:set через REST1 tasks.task.update и task:history:list через REST1 tasks.task.history.list. Допуск SHALL ограничиваться этими действиями, показывать API version 1.0 и сохранять запрет non-v3 в strict-rest3. Participants:set SHALL изменять только наборы соисполнителей/наблюдателей; общий update не SHALL разрешать lifecycle status. Права и TASK_ID SHALL проверяться; история изменений SHALL отличаться от переписки.
+
+#### Scenario: Explicit participant role sets
+- **WHEN** пользователь задаёт --accomplice/--auditor IDs или --clear-accomplices/--clear-auditors
+- **THEN** CLI меняет полный набор только указанной роли, сохраняет пропущенную роль, требует хотя бы одну явную операцию и отклоняет одновременное clear и IDs одной роли; проверяет ID/права и не меняет status задачи
+
+#### Scenario: Task change history
+- **WHEN** пользователь вызывает task:history:list TASK_ID в task-v3 режиме
+- **THEN** CLI использует согласованный REST1 history маршрут и возвращает доступную историю изменений выбранной задачи, отдельно от сообщений чата; допустимые params, пагинация и полнота проверяются при реализации и не объявляются подтверждёнными самим допуском API
+
+#### Scenario: Participants and history with strict REST3 policy
+- **WHEN** вызывается task:participants:set или task:history:list в strict-rest3 режиме
+- **THEN** CLI до запроса возвращает gated-unavailable, объясняет REST1 и не меняет политику или маршрут автоматически
 
 ### Requirement: MVP coverage is distinct from product JTBD
 Матрица SHALL сохранять 19 согласованных JTBD и отдельно перечислять оставшиеся и исключённые связи команд для MVP. Сокращённый mapping не SHALL выдаваться за полное покрытие сценария; отсутствие mapped команды не SHALL удалять продуктовое требование. Ручные действия через базовые retained команды SHALL отличаться от исключённых сводок и автоматизации.

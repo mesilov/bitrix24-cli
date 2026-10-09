@@ -76,11 +76,11 @@
 
 ## MVP command mapping
 
-После MVP — 28 команд; из оставшейся 31 операции 29 — кандидаты MVP, 2 — API-policy-pending. Четыре time и восемь checklist/root/item команд явно допущены через REST1; participants/history ещё требуют решения. Task:find включён в MVP. [Спецификация MVP](../../specs/task-mvp-scope/spec.md).
+После MVP — 28 команд; все оставшиеся 31 операции — кандидаты MVP, ожидающих решения по API нет. Четыре time, восемь checklist/root/item и две participants/history команды явно допущены через REST1. Task:find включён в MVP. [Спецификация MVP](../../specs/task-mvp-scope/spec.md).
 
 Структура ссылок не является оценкой полного/частичного выполнения JTBD. Все 19 продуктовых целей и API assessment сохраняются; optional discovery/checklist mappings не доказывают дополнительного acceptance.
 
-| JTBD | Оставшиеся связи (кандидаты или API pending) | После MVP | Структура mapping |
+| JTBD | Связи команд MVP | После MVP | Структура mapping |
 | --- | --- | --- | --- |
 | PM-01 | `task:add`, `task:subtask:add`, `task:show`, `task:checklist:add`, `task:checklist:item:add` | — | mapping-unchanged |
 | PM-02 | `task:list` | `task:plan`, `task:risks`, `task:dependency:list` | mapping-reduced |

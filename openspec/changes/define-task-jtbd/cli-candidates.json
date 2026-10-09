@@ -2286,7 +2286,7 @@
       "jtbd": [
         "PM-04"
       ],
-      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях. Повторяемые флаги составляют полный набор соответствующей роли; --clear-accomplices/--clear-auditors явно очищают набор и исключают одновременный ввод его IDs.",
+      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Включено в MVP по решению пользователя 2026-10-09 через явный REST 1.0 маршрут; API version отражается в meta, strict-rest3 отклоняет запрос до обращения к серверу. Права и TASK_ID проверяются при реализации; скрытый fallback запрещён. Повторяемые флаги составляют полный набор соответствующей роли; --clear-accomplices/--clear-auditors явно очищают набор и исключают одновременный ввод его IDs. Допуск tasks.task.update ограничен составом соисполнителей/наблюдателей; он не разрешает lifecycle status или другие legacy изменения.",
       "kind": "deferred",
       "effect": "write",
       "method_routes": [
@@ -2299,8 +2299,8 @@
       ],
       "previous_proposal_name": "tasks:participants:set",
       "initial_proposal_name": "tasks:participants:set",
-      "mvp_stage": "api-policy-pending",
-      "mvp_reason": "Existing legacy API admission remains unapproved; user did not add a new exception."
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "User explicitly approved selected REST1 participants/history routes for MVP on 2026-10-09; strict-rest3 unavailable; task binding, rights and runtime acceptance remain required."
     },
     {
       "name": "task:history:list",
@@ -2316,7 +2316,7 @@
       "jtbd": [
         "EMP-04"
       ],
-      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Включено в MVP по решению пользователя 2026-10-09 через явный REST 1.0 маршрут; API version отражается в meta, strict-rest3 отклоняет запрос до обращения к серверу. Права и TASK_ID проверяются при реализации; скрытый fallback запрещён.",
       "kind": "deferred",
       "effect": "read",
       "method_routes": [
@@ -2329,8 +2329,8 @@
       ],
       "previous_proposal_name": "tasks:history:list",
       "initial_proposal_name": "tasks:history",
-      "mvp_stage": "api-policy-pending",
-      "mvp_reason": "Existing legacy API admission remains unapproved; user did not add a new exception."
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "User explicitly approved selected REST1 participants/history routes for MVP on 2026-10-09; strict-rest3 unavailable; task binding, rights and runtime acceptance remain required."
     },
     {
       "name": "task:checklist:add",
@@ -2613,7 +2613,7 @@
   },
   "mvp_scope": {
     "decision_date": "2026-10-09",
-    "status": "28 exclusions, four legacy time commands and eight legacy checklist commands agreed; participants/history legacy admission pending; lifecycle deferred after MVP",
+    "status": "31 MVP candidates and 28 post-MVP commands agreed; all selected legacy API admissions approved; runtime acceptance pending; task lifecycle remains after MVP",
     "spec": "openspec/specs/task-mvp-scope/spec.md",
     "post_mvp_groups": {
       "Зависимости": [
@@ -2691,8 +2691,8 @@
       "all_researched": 59,
       "excluded_post_mvp": 28,
       "remaining_under_consideration": 31,
-      "mvp_candidates": 29,
-      "api_policy_pending": 2
+      "mvp_candidates": 31,
+      "api_policy_pending": 0
     },
     "note": "Release scope is separate from existing candidate/deferred API-route classification; no runtime implementation or full JTBD acceptance is implied.",
     "result_scope_note": "All five result commands and all seven lifecycle commands are post-MVP; task:file:attach remains a candidate. Chat messages/files are not native task results. Future lifecycle admission preserves requireResult and cannot introduce hidden result creation or bypass its gates.",
@@ -2710,12 +2710,14 @@
         "task:checklist:item:update",
         "task:checklist:item:complete",
         "task:checklist:item:renew",
-        "task:checklist:item:delete"
+        "task:checklist:item:delete",
+        "task:participants:set",
+        "task:history:list"
       ],
       "api_version": "1.0",
       "route": "legacy-extension",
       "strict_rest3": "unavailable",
-      "note": "Explicitly included by user: four time entry commands and eight checklist/root/item commands. Admission is limited to their documented command routes and preflight steps; never automatic fallback or unrestricted legacy access.",
+      "note": "Explicitly approved by user: four time entry, eight checklist/root/item and two participants/history commands. Admission is limited to their command routes and documented preflight steps; participants update is limited to its two roles. No automatic fallback, unrestricted legacy fields or task lifecycle transitions.",
       "command_routes": {
         "task:time:add": [
           "task.elapseditem.add"
@@ -2757,10 +2759,17 @@
         "task:checklist:item:delete": [
           "task.checklistitem.getlist",
           "task.checklistitem.delete"
+        ],
+        "task:participants:set": [
+          "tasks.task.update"
+        ],
+        "task:history:list": [
+          "tasks.task.history.list"
         ]
       }
     },
     "checklist_scope_note": "Two root and six item operations are included in MVP through explicit REST1 routes. Root PARENT_ID=0 and item parent semantics remain distinct; task/ID/rights checks and SDK PARENT_ID gap are preserved. Item complete/renew never performs an excluded task lifecycle transition.",
-    "lifecycle_scope_note": "All seven transitions are post-MVP. MVP excludes status changes through task:update --fields/--fields-file, aliases and implicit steps. Reading status and ordinary task field updates remain available; needsControl/requireResult/rights/side effects must be verified before future lifecycle admission."
+    "lifecycle_scope_note": "All seven transitions are post-MVP. MVP excludes status changes through task:update --fields/--fields-file, aliases and implicit steps. Reading status and ordinary task field updates remain available; needsControl/requireResult/rights/side effects must be verified before future lifecycle admission.",
+    "participants_history_scope_note": "Both selected commands are MVP candidates through explicit REST1 routes. Participants set changes only the supplied accomplice/auditor role sets; omission preserves a role and explicit clear empties it. The shared update method does not admit task lifecycle/raw status. History reads task changes separately from chat; rights and output completeness require runtime acceptance."
   }
 }

@@ -6,7 +6,7 @@
 
 ## Goals / Non-Goals
 
-Фиксация пользовательского поведения в task-workflows и перенос его в актуальную спецификацию. Этот этап не пишет код; он фиксирует 28 согласованных исключений из MVP. Auth и окончательный допуск оставшихся API кандидатов требуют дальнейших решений. Модель клиентских обязательств, уведомления и все lifecycle команды проектируются после MVP.
+Фиксация пользовательского поведения в task-workflows и перенос его в актуальную спецификацию. Этот этап не пишет код; он фиксирует 28 согласованных исключений из MVP. Auth и детали реализации требуют дальнейших решений; допуск выбранных MVP API маршрутов согласован. Модель клиентских обязательств, уведомления и все lifecycle команды проектируются после MVP.
 
 ## Decisions
 
@@ -53,7 +53,7 @@
 
 Отличия, выбранные проектом: один positional task ID ради краткости; creator/responsible остаются явными; limit50/max-scan10000/timeout30 и exit codes 0/1/2/3/4/130 являются нашими defaults, не требованиями CLIG. Plain TSV columns определяются отдельно по командам до реализации. Pager, interactive missing-field wizard, man pages, установка shell completion, distribution и analytics не включены в этот этап; auth/storage также отдельное решение. --no-interaction/-n — встроенная опция Symfony; отдельный --no-input не вводится. --ansi/--no-ansi, --quiet/--silent и verbosity сохраняют встроенную семантику. Short -n не назначается dry-run из-за существующей Symfony convention. CLI Guidelines не определяют обязательный разделитель namespaces; их Help пример Heroku содержит apps:create. Сохраняем нативный colon-separated интерфейс Symfony и его help/list; отдельный пробельный dispatcher не нужен.
 
-Предыдущие имена/--yes/exit-code предложения остаются в неизменённом архиве исследования. Текущий каталог использует нативные colon namespaces; пробельные command paths отменены по уточнению пользователя до выпуска команд; compatibility aliases не нужны для несуществующего runtime. Даже --fields status и --force не обходят lifecycle/data/API gates. Новые UX сценарии не закрывают 3 открытые задачи по provider, lifecycle и API exceptions и не повышают documented JTBD score.
+Предыдущие имена/--yes/exit-code предложения остаются в неизменённом архиве исследования. Текущий каталог использует нативные colon namespaces; пробельные command paths отменены по уточнению пользователя до выпуска команд; compatibility aliases не нужны для несуществующего runtime. Даже --fields status и --force не обходят lifecycle/data/API gates. Новые UX сценарии не закрывают 3 открытые задачи по provider, будущему lifecycle и runtime acceptance выбранных API маршрутов и не повышают documented JTBD score.
 
 
 ## Symfony Console notation and entrypoint
@@ -76,9 +76,9 @@ Entrypoint b24cli пока является решением интерфейс�
 
 ## MVP exclusions and admission
 
-Пользователь вынес 28 операций: 3 dependency, 5 рабочих представлений, 3 context/blocker, 5 change/delivery/feedback/acceptance, 5 task:result операций и 7 команд жизненного цикла. JSON mvp_scope содержит точный набор и mvp_stage каждой команды. Каталог переорганизован: 29 MVP candidates, 2 API-policy-pending, 28 post-MVP. Текущие kind/route и 43+16 описывают API-кандидатов полного research catalogue, а не MVP состав.
+Пользователь вынес 28 операций: 3 dependency, 5 рабочих представлений, 3 context/blocker, 5 change/delivery/feedback/acceptance, 5 task:result операций и 7 команд жизненного цикла. JSON mvp_scope содержит точный набор и mvp_stage каждой команды. Каталог переорганизован: 31 MVP candidates, 0 API-policy-pending, 28 post-MVP. Текущие kind/route и 43+16 описывают API-кандидатов полного research catalogue, а не MVP состав.
 
-31 оставшаяся операция — перечень в рассмотрении. Два legacy admissions (participants/history) ещё не утверждены; четыре time команды и восемь checklist/root/item команд согласованы для MVP. Lifecycle не входит в первый релиз; его gates сохраняются для будущего допуска. Политика task-v3 допускает эти явные REST 1.0 маршруты вместе с документированными IM companions; strict-rest3 продолжает отклонять non-v3 запросы; исключение scope не разрешает скрытый fallback. Dependency:list имеет REST3 route, но вынесен по пользовательскому решению так же, как legacy dependency mutations.
+Все оставшиеся операции (31) — кандидаты MVP. Допуск legacy API согласован для четырёх time, восьми checklist/root/item и двух participants/history команд; ожидающих решения по API команд нет. Lifecycle не входит в первый релиз; его gates сохраняются для будущего допуска. Политика task-v3 допускает эти явные REST 1.0 маршруты вместе с документированными IM companions; strict-rest3 продолжает отклонять non-v3 запросы; исключение scope не разрешает скрытый fallback. Dependency:list имеет REST3 route, но вынесен по пользовательскому решению так же, как legacy dependency mutations.
 
 Все 19 требований продукта остаются в task-workflows. В coverage добавлен отдельный MVP partition ссылок: retained candidates, API pending и post-MVP. PM-05 и AM-02/03/05 не имеют оставшихся mapped команд; EMP-01 сохраняет базовый task:list --responsible вместо исключённого task:my. Mapping-reduced — описательная структура набора команд, не доказательство частичного acceptance сценария. Старые documented/conditional counts остаются оценкой полного каталога.
 
@@ -93,7 +93,7 @@ Provider blockers/changes/client obligations/delivery/feedback после это
 
 ## Time entries in MVP
 
-Пользователь включил task:time:add/list/update/delete. Эти команды используют явно выбранные task.elapseditem.add/getlist/update/delete (REST 1.0), сохраняют API/SDK provenance и не маскируются под REST3. Допуск времени ограничен четырьмя time routes; отдельное решение включает восемь checklist/root/item команд. Participants/history и другие legacy extensions не допускаются автоматически. В meta показывается API version; strict-rest3 возвращает gated-unavailable до запроса.
+Пользователь включил task:time:add/list/update/delete. Эти команды используют явно выбранные task.elapseditem.add/getlist/update/delete (REST 1.0), сохраняют API/SDK provenance и не маскируются под REST3. Допуск времени ограничен четырьмя time routes; отдельное решение включает восемь checklist/root/item команд. Participants/history отдельно допущены пользователем; другие legacy extensions не допускаются автоматически. В meta показывается API version; strict-rest3 возвращает gated-unavailable до запроса.
 
 EMP-06 включает создание, полный список, исправление и удаление своих записей. При update/delete проверяются связь TASK_ID/ENTRY_ID и права текущего подключения; --force отменяет только подтверждение, не права. Task:time:show читает elapsedTime через v3 и не заменяет список записей. Решение о MVP не доказывает portal acceptance.
 
@@ -116,3 +116,9 @@ REST3 list документирует server filter только id. Find выб
 User clarification: результат find — список задач. Stable columns/fields: id/title. Human — таблица ID/TITLE, plain — TSV id/title без заголовка с общим escaping, JSON — data.items array внутри общего data/meta/error envelope. Ноль или одно совпадение сохраняет тип списка; команда не открывает задачу и не переключается на task:show. Остальные meta/partial/limit правила сохраняются.
 
 API-контракт повторно проверен 2026-10-09 по опубликованным list v3/field.list docs и официальному MCP документации: list поддерживает server filter id, в примере field metadata title filterable=false. Это подтверждение документации, не live portal verdict. MCP summary list смешивает v3 pagination с legacy start/params и содержит недействующий URL; version-specific published v3 page используется для маршрута/пагинации. Live field.list/select id/title и запросы list на тестовом портале остаются runtime acceptance; в этом worktree нет настроенного подключения. Документированный metadata пример не выдаётся за фактическую схему конкретного портала.
+
+## Participants and history in MVP
+
+Пользователь явно разрешил REST1 tasks.task.update для task:participants:set и tasks.task.history.list для task:history:list. Это выбранные маршруты с показом API version в meta; strict-rest3 отклоняет обе команды до запроса. Общий метод update не разрешает остальные legacy field updates, raw status или исключённые lifecycle переходы.
+
+Participants:set задаёт полный состав указанной роли через повторяемые IDs; omission сохраняет роль, explicit clear очищает её и несовместим с её IDs. Нужна хотя бы одна явная операция с ролью; ID и права подключения проверяются. History:list возвращает историю изменений выбранной задачи отдельно от task chat; допустимые params, полнота/пагинация и доступ проверяются при реализации. API/SDK core-gap и все существующие source mappings сохранены; это допуск scope/API, не runtime acceptance.

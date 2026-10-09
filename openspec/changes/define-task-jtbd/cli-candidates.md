@@ -1,6 +1,6 @@
 # Потенциальная CLI-поверхность для новой карточки задач
 
-Статус: кандидаты для проектирования, команды не реализованы; 28 исключений из MVP согласовано; допуск participants/history ещё требует решения, lifecycle отложен после MVP. Дата: 2026-10-09. Связь: [issue #10](https://github.com/mesilov/bitrix24-cli/issues/10), change define-task-jtbd, [согласованные JTBD](../../specs/task-workflows/spec.md), [JSON каталога](cli-candidates.json), [проверка покрытия](jtbd-coverage.md).
+Статус: кандидаты для проектирования, команды не реализованы; 28 исключений из MVP согласовано; допуск всех выбранных MVP API маршрутов согласован, runtime acceptance ещё требуется, lifecycle отложен после MVP. Дата: 2026-10-09. Связь: [issue #10](https://github.com/mesilov/bitrix24-cli/issues/10), change define-task-jtbd, [согласованные JTBD](../../specs/task-workflows/spec.md), [JSON каталога](cli-candidates.json), [проверка покрытия](jtbd-coverage.md).
 
 Проверен текущий HEAD официального b24restdocs: `b4d3dc81619625c2bf21c28dd0227116f36c8743`. Новый каталог учитывает новую карточку и заменяет предложенный набор 79 имён из исторического исследования как основание для дальнейшего проектирования. Исторический архив сохраняется без изменений.
 
@@ -11,7 +11,7 @@ JSON содержит method_routes с API version и SDK wrapper/core-gap дл�
 
 ## Граница MVP
 
-Решение пользователя от 2026-10-09: **28 команд вынесены после MVP**. Из текущих 59 остаётся **31 команда в рассмотрении**: **29 кандидатов MVP** и **2 расширения с неутверждённым допуском прежнего API**. Четыре команды записей времени и восемь checklist/root/item команд явно включены пользователем в MVP через прежний API; participants/history требуют отдельного решения. Все семь lifecycle команд вынесены после MVP; их будущий допуск сохраняет acceptance gates.
+Решение пользователя от 2026-10-09: **28 команд вынесены после MVP**. Из текущих 59 остаётся **31 кандидат MVP**; ожидающих решения по API команд нет. Четыре time, восемь checklist/root/item и две participants/history команды явно включены пользователем в MVP через прежний API. Все семь lifecycle команд вынесены после MVP; их будущий допуск сохраняет acceptance gates.
 
 После MVP: зависимости (3), рабочие представления (5), контекст/препятствия (3), изменения/клиентские договорённости (5), результаты задач (5), жизненный цикл (7). Прикрепление файла task:file:attach сохранено. Полный перечень находится ниже в отдельном разделе. [task-mvp-scope](../../specs/task-mvp-scope/spec.md) фиксирует границу; JSON mvp_stage отделяет её от kind/route/API evidence.
 
@@ -23,7 +23,7 @@ JSON содержит method_routes с API version и SDK wrapper/core-gap дл�
 
 Для новой карточки основной task CRUD/result/file/schema/access — REST3, scope tasks. Для истории чата — документированный IM route, scope im. Имя API-версии и методы каждого шага должны попадать в meta, не скрываться общим названием команды.
 
-Предложение для конфигурации реализации: политика `task-v3` разрешает документированные IM companion routes; `strict-rest3` запрещает любой non-v3 запрос. Для task:time:add/list/update/delete согласован явный допуск REST 1.0 task.elapseditem.* в MVP при политике task-v3. Восемь checklist/root/item команд также явно допущены через REST1 task.checklistitem.*; остальные legacy task extensions требуют отдельного решения; strict-rest3 отклоняет time entry и checklist/root/item команды до запроса. Ни одна политика не переключает маршрут молча после ошибки.
+Предложение для конфигурации реализации: политика `task-v3` разрешает документированные IM companion routes; `strict-rest3` запрещает любой non-v3 запрос. Для task:time:add/list/update/delete согласован явный допуск REST 1.0 task.elapseditem.* в MVP при политике task-v3. Восемь checklist/root/item команд также явно допущены через REST1 task.checklistitem.*; participants:set/history:list также явно допущены через REST1; остальные legacy extensions не допускаются автоматически. Strict-rest3 отклоняет все четырнадцать согласованных legacy команд до запроса. Ни одна политика не переключает маршрут молча после ошибки.
 
 ## Карточка, списки и приёмка
 
@@ -102,9 +102,9 @@ b24cli help task:update
 b24cli list task
 ```
 
-## Каталог: кандидаты MVP — 29
+## Каталог: кандидаты MVP — 31
 
-Имена и параметры — проектный интерфейс. Lifecycle после MVP; чтение status и обычные field updates сохраняются, raw смена status запрещена. Файл/чат не заменяют native result. Четыре операции записей времени и восемь checklist/root/item операций согласованы через REST1. Task:find добавлен в MVP как локальный поиск title через v3 list.
+Имена и параметры — проектный интерфейс. Lifecycle после MVP; чтение status и обычные field updates сохраняются, raw смена status запрещена. Файл/чат не заменяют native result. Четыре time, восемь checklist/root/item и две participants/history операции согласованы через REST1. Task:find добавлен в MVP как локальный поиск title через v3 list.
 
 ### Карточка и выборки
 
@@ -167,16 +167,12 @@ b24cli list task
 | `b24cli task:checklist:item:delete TASK_ID --item ITEM_ID [--force]` | REST 1.0 (явный допуск) / delete | `task.checklistitem.getlist`, `task.checklistitem.delete`; [source 1](https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-get-list.html), [source 2](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-delete.md) | До действия проверить, что ITEM_ID — пункт выбранной TASK_ID, а не корневой чек-лист; права проверяются сервером. --force у delete отменяет только подтверждение. Включено в MVP решением пользователя 2026-10-09 через явный REST 1.0 маршрут; API version показывается в meta, strict-rest3 отклоняет запрос. Права и принадлежность ID задаче проверяются при реализации; скрытый fallback запрещён. |
 
 
-## Допуск прежнего API ещё не выбран — 2
-
-Участники и история требуют отдельного решения о legacy API scope и runtime acceptance.
-
-### Расширения вне REST 3.0
+### Участники и история
 
 | Команда и параметры | Маршрут / эффект | Методы и источники | Ограничение |
 | --- | --- | --- | --- |
-| `b24cli task:participants:set TASK_ID [--accomplice ID ... \| --clear-accomplices] [--auditor ID ... \| --clear-auditors]` | Прежний API / write | `tasks.task.update`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update.md) | Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях. Повторяемые флаги составляют полный набор соответствующей роли; --clear-accomplices/--clear-auditors явно очищают набор и исключают одновременный ввод его IDs. |
-| `b24cli task:history:list TASK_ID [--params JSON \| --params-file PATH\|-]` | Прежний API / read | `tasks.task.history.list`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-history-list.md) | Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях. |
+| `b24cli task:participants:set TASK_ID [--accomplice ID ... \| --clear-accomplices] [--auditor ID ... \| --clear-auditors]` | REST 1.0 (явный допуск) / write | `tasks.task.update`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update.md) | Официальный прежний метод совместим с новой карточкой, но это не REST3. Включено в MVP по решению пользователя 2026-10-09 через явный REST 1.0 маршрут; API version отражается в meta, strict-rest3 отклоняет запрос до обращения к серверу. Права и TASK_ID проверяются при реализации; скрытый fallback запрещён. Повторяемые флаги составляют полный набор соответствующей роли; --clear-accomplices/--clear-auditors явно очищают набор и исключают одновременный ввод его IDs. Допуск tasks.task.update ограничен составом соисполнителей/наблюдателей; он не разрешает lifecycle status или другие legacy изменения. |
+| `b24cli task:history:list TASK_ID [--params JSON \| --params-file PATH\|-]` | REST 1.0 (явный допуск) / read | `tasks.task.history.list`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-history-list.md) | Официальный прежний метод совместим с новой карточкой, но это не REST3. Включено в MVP по решению пользователя 2026-10-09 через явный REST 1.0 маршрут; API version отражается в meta, strict-rest3 отклоняет запрос до обращения к серверу. Права и TASK_ID проверяются при реализации; скрытый fallback запрещён. |
 
 ## После MVP — 28
 
