@@ -66,7 +66,7 @@
 
 1. Утвердить политику: новая task card с документированными IM companion routes либо строго любой запрос только REST3. При strict-rest3 полноценное чтение переписки пока не подтверждено.
 2. Выбрать provider и схему рабочих фактов: client promise, blocker, change/approval, delivery, feedback и next update. Матрица называет необходимые факты и сохраняет unknown.
-3. Проверить семь v3 lifecycle mappings с needsControl/requireResult, правами и side effects. Until then команды disabled; legacy вызов не скрывается.
+3. После MVP проверить семь v3 lifecycle mappings с needsControl/requireResult, правами и side effects перед их допуском. Их acceptance не является условием выпуска оставшихся команд MVP; legacy вызов не скрывается.
 4. Для EMP-06 пользователь включил четыре команды записей времени в MVP с явным допуском прежнего API. Проверить список, создание, исправление и удаление своих записей; strict-rest3 gap сохраняется. Чтение elapsedTime не заменяет запись времени.
 5. Проверить сканирование v3 list и реальные объёмы/доступность задач. Caps/ошибки/смена данных => partial; одна страница не является полной выборкой проекта.
 6. Пройти перечисленные acceptance cases на тестовом портале при реализации с правами реальных участников; client acceptance и внутренний контроль проверяются отдельно.
@@ -76,7 +76,7 @@
 
 ## MVP command mapping
 
-После MVP — 21 команда; из оставшихся 38 операций 28 — кандидаты MVP, 10 — API-policy-pending. Четыре time routes явно допущены; восемь checklist/item операций ещё требуют legacy API решения. Task:find включён в MVP. [Спецификация MVP](../../specs/task-mvp-scope/spec.md).
+После MVP — 28 команд; из оставшейся 31 операции 21 — кандидат MVP, 10 — API-policy-pending. Четыре time routes явно допущены; восемь checklist/item операций ещё требуют legacy API решения. Task:find включён в MVP. [Спецификация MVP](../../specs/task-mvp-scope/spec.md).
 
 Структура ссылок не является оценкой полного/частичного выполнения JTBD. Все 19 продуктовых целей и API assessment сохраняются; optional discovery/checklist mappings не доказывают дополнительного acceptance.
 
@@ -86,7 +86,7 @@
 | PM-02 | `task:list` | `task:plan`, `task:risks`, `task:dependency:list` | mapping-reduced |
 | PM-03 | `task:chat:send` | `task:blocker:raise`, `task:blocker:resolve` | mapping-reduced |
 | PM-04 | `task:assign`, `task:deadline:set` | `task:plan`, `task:change:propose`, `task:change:accept` | mapping-reduced |
-| PM-05 | `task:approve`, `task:disapprove` | `task:result:list`, `task:acceptance:record` | mapping-reduced |
+| PM-05 | — | `task:result:list`, `task:approve`, `task:disapprove`, `task:acceptance:record` | no-remaining-mapped-commands |
 | PM-06 | `task:chat:list`, `task:chat:send` | — | mapping-unchanged |
 | AM-01 | `task:add`, `task:show`, `task:find` | — | mapping-unchanged |
 | AM-02 | — | `task:risks`, `task:report`, `task:context:set` | no-remaining-mapped-commands |
@@ -98,19 +98,19 @@
 | EMP-02 | `task:show`, `task:chat:send`, `task:find`, `task:checklist:list`, `task:checklist:item:list` | — | mapping-unchanged |
 | EMP-03 | `task:chat:send` | `task:blocker:raise` | mapping-reduced |
 | EMP-04 | `task:show` | `task:brief`, `task:change:propose`, `task:change:accept` | mapping-reduced |
-| EMP-05 | `task:file:attach`, `task:complete` | `task:result:add`, `task:result:from-message` | mapping-reduced |
+| EMP-05 | `task:file:attach` | `task:result:add`, `task:result:from-message`, `task:complete` | mapping-reduced |
 | EMP-06 | `task:time:show`, `task:time:add`, `task:time:list`, `task:time:update`, `task:time:delete` | — | mapping-unchanged |
 | EMP-07 | `task:chat:list`, `task:chat:send` | — | mapping-unchanged |
 
-Структурные counts: mapping-unchanged 7, mapping-reduced 9, no-remaining-mapped-commands 3. Full-product API assessment: 7/12 и 4/14/1; это не score MVP.
+Структурные counts: mapping-unchanged 7, mapping-reduced 8, no-remaining-mapped-commands 4. Full-product API assessment: 7/12 и 4/14/1; это не score MVP.
 
 - **PM-01:** Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD. Дополнительные связи поиска и чек-листов описывают discovery/декомпозицию; checklist routes ещё API-policy-pending и не повышают доказанность покрытия.
-- **PM-05:** Result:list и отдельный acceptance journal после MVP; approve/disapprove остаются gated. MVP не предоставляет отдельный просмотр native results и не обещает полного JTBD внутренней приёмки.
+- **PM-05:** Все связанные команды результатов и внутренней приёмки после MVP. PM-05 сохраняется как требование продукта; MVP не выполняет approve/disapprove или скрытый переход статуса.
 - **AM-01:** Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD. Дополнительные связи поиска и чек-листов описывают discovery/декомпозицию; checklist routes ещё API-policy-pending и не повышают доказанность покрытия.
 - **AM-02:** Все связанные команды вынесены; клиентские обязательства относятся к развитию после MVP.
 - **AM-03:** Все связанные сводки вынесены; отдельный workflow клиентского статусного отчёта после MVP.
 - **AM-05:** Все исходные mapped команды, включая result:list, после MVP. Клиентская передача/отзыв/приёмка сохраняются общими требованиями продукта.
 - **EMP-01:** task:my исключён; базовая выборка сотрудника остаётся через task:list --responsible ID. Это замена shortcut, а не утверждение runtime полноты всего JTBD.
 - **EMP-02:** Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD. Дополнительные связи поиска и чек-листов описывают discovery/декомпозицию; checklist routes ещё API-policy-pending и не повышают доказанность покрытия.
-- **EMP-05:** Result:add/from-message после MVP. File:attach и complete остаются кандидатами; файл/чат не считается native result. При requireResult существующий допустимый result должен удовлетворять проверенным условиям lifecycle; нельзя создавать его неявно или отключать требование.
+- **EMP-05:** В MVP остаётся только task:file:attach. Result:add/from-message и complete после MVP; прикрепление файла не выполняет предъявление native result или завершение задачи. Для будущего lifecycle сохраняются requireResult/needsControl, права и проверка side effects без скрытого создания результата.
 - **EMP-06:** Все четыре операции записей времени включены в MVP с явным REST 1.0 допуском. Time:show остаётся REST3. Для EMP-06 проверяются создание, полный список, исправление и удаление своих записей, права и принадлежность ENTRY_ID задаче. Strict-rest3 gap сохраняется; решение о scope не подтверждает runtime acceptance.

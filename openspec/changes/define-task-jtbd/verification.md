@@ -2,6 +2,8 @@
 
 Дата: 2026-10-09. Это проверка фиксации согласованных JTBD и статического каталога MCP; проверка реализации CLI не выполняется.
 
+Дополнения ниже сохраняют результаты последовательных уточнений. Текущая граница MVP зафиксирована в последнем разделе о переносе жизненного цикла; прежние counts описывают предыдущие состояния.
+
 ## Подтверждённые результаты
 
 - В delta и основной spec task-workflows 17 требований и 19 JTBD-сценариев: PM-01..06, AM-01..06, EMP-01..07. Сохранены 16 прежних сценариев; 3 новых относятся к переписке.
@@ -13,7 +15,7 @@
 
 ## Что остаётся открытым
 
-В tasks.md выполнены 7 из 10 задач фиксации/проектирования, 3 задачи закрытия условного покрытия остаются открытыми. Спецификация выражает согласованный продуктовый контракт, не успешное runtime acceptance. В bin/console нет прикладных task commands; реализация этих требований не подтверждена. Полную openspec-verify-change для implementation следует выполнить после реализации, не подменяя её validation схемы документов.
+В tasks.md выполнены 8 из 11 задач фиксации/проектирования, 3 задачи закрытия условного покрытия остаются открытыми. Спецификация выражает согласованный продуктовый контракт, не успешное runtime acceptance. В bin/console нет прикладных task commands; реализация этих требований не подтверждена. Полную openspec-verify-change для implementation следует выполнить после реализации, не подменяя её validation схемы документов.
 
 Не выполнялись live tools/list MCP, установка templates-mcp и операции на портале. Каталог не приписывается официальному hosted MCP.
 
@@ -67,3 +69,12 @@
 - Task:find всегда возвращает список id/title: human ID/TITLE table, plain TSV без заголовка с общим escaping, JSON data.items array. 0/1/many совпадений сохраняют тип списка; автоматическое открытие задачи отсутствует. Пример JSON помечен как условный, не ответ реального портала.
 - Документированная схема не выдаётся за проверенную схему конкретного портала. Живые field.list/list запросы не выполнялись: в worktree отсутствует конфигурация подключения. Поиск остаётся REST3 list + local title matching; runtime API acceptance сохраняется в дальнейшей задаче 2.3.
 - Проверены неизменность методов/routes/effects/syntax task:find и остальных 58 команд, scope 59/28/10/21, все исходные JTBD/coverage и task-mvp-scope; JSON example/list schema, Markdown row/source links, UX canonical/delta equality (13 requirements/38 scenarios), strict validation 5 specs и change, diff check. Planning 8/11, runtime реализации нет.
+
+## Жизненный цикл после MVP (2026-10-09)
+
+- По решению пользователя task:start, task:pause, task:defer, task:renew, task:complete, task:approve и task:disapprove перенесены из mvp-candidate в post-mvp. Exact set изменения — только эти семь команд. Все 59 имён, syntax, API/SDK methods/routes/sources, effects/kind и исходные JTBD связи сверены с предыдущим HEAD и сохранены.
+- Текущий каталог: 59 команд, 21 mvp-candidate, 10 api-policy-pending, 28 post-mvp; 31 в рассмотрении. API research kind остаётся 43 candidate/16 deferred. Четыре time exceptions и десять pending операций, включая восемь root/item checklist команд, не изменены.
+- MVP не предоставляет lifecycle переходы через aliases, неявный шаг или raw status в task:update --fields/--fields-file. Чтение status и обычные поля сохраняются. NeedsControl/requireResult, права, native result и side effects проверяются перед будущим допуском lifecycle после MVP; эти workflow не блокируют первый релиз оставшихся команд.
+- Все 19 продуктовых JTBD и исходные API assessments/conditions/acceptance сохранены. MVP mapping: 7 unchanged, 8 reduced, 4 empty (PM-05, AM-02/03/05). EMP-05 сохраняет только task:file:attach; это не выполняет native result/completion workflow. JSON/Markdown partition всех 19 строк согласован.
+- Проверены exact lifecycle/post-MVP/time sets, release counts, неизменность API evidence, 59 уникальных имён и совпадение Markdown syntax/stage с JSON; canonical/delta equality task-mvp-scope (4 requirements/9 scenarios). Task-workflows и cli-experience delta/main byte-identical к предыдущему HEAD. Strict validation: 5 specs passed, change valid; git diff --check прошёл.
+- Planning 8/11; задачи будущего продукта остаются открытыми, lifecycle acceptance перенесён из MVP admission task 2.3 в последующее проектирование 2.1. Изменены только planning/specs; PHP/launcher/portal calls не выполнялись, change не архивирован.

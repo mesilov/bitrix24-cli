@@ -140,21 +140,17 @@
       "condition": "REST3 status writable в модели, но эквивалентность approve/disapprove требует acceptance. До него специальные команды disabled.",
       "acceptance": "Контроль включён; проверяющий имеет approve rights; возврат содержит замечания; клиентская приёмка не подменяет внутреннюю.",
       "mvp": {
-        "mapping_status": "mapping-reduced",
-        "remaining_commands": [
-          "task:approve",
-          "task:disapprove"
-        ],
-        "mvp_candidates": [
-          "task:approve",
-          "task:disapprove"
-        ],
+        "mapping_status": "no-remaining-mapped-commands",
+        "remaining_commands": [],
+        "mvp_candidates": [],
         "api_policy_pending_commands": [],
         "post_mvp_commands": [
           "task:result:list",
+          "task:approve",
+          "task:disapprove",
           "task:acceptance:record"
         ],
-        "note": "Result:list и отдельный acceptance journal после MVP; approve/disapprove остаются gated. MVP не предоставляет отдельный просмотр native results и не обещает полного JTBD внутренней приёмки."
+        "note": "Все связанные команды результатов и внутренней приёмки после MVP. PM-05 сохраняется как требование продукта; MVP не выполняет approve/disapprove или скрытый переход статуса."
       }
     },
     {
@@ -465,19 +461,18 @@
       "mvp": {
         "mapping_status": "mapping-reduced",
         "remaining_commands": [
-          "task:file:attach",
-          "task:complete"
+          "task:file:attach"
         ],
         "mvp_candidates": [
-          "task:file:attach",
-          "task:complete"
+          "task:file:attach"
         ],
         "api_policy_pending_commands": [],
         "post_mvp_commands": [
           "task:result:add",
-          "task:result:from-message"
+          "task:result:from-message",
+          "task:complete"
         ],
-        "note": "Result:add/from-message после MVP. File:attach и complete остаются кандидатами; файл/чат не считается native result. При requireResult существующий допустимый result должен удовлетворять проверенным условиям lifecycle; нельзя создавать его неявно или отключать требование."
+        "note": "В MVP остаётся только task:file:attach. Result:add/from-message и complete после MVP; прикрепление файла не выполняет предъявление native result или завершение задачи. Для будущего lifecycle сохраняются requireResult/needsControl, права и проверка side effects без скрытого создания результата."
       }
     },
     {
@@ -556,8 +551,8 @@
   "mvp_scope_spec": "openspec/specs/task-mvp-scope/spec.md",
   "mvp_mapping_counts": {
     "mapping-unchanged": 7,
-    "mapping-reduced": 9,
-    "no-remaining-mapped-commands": 3
+    "mapping-reduced": 8,
+    "no-remaining-mapped-commands": 4
   },
-  "mvp_mapping_definition": "Structural command partition after 21 user exclusions, not a full/partial JTBD acceptance score. remaining_commands includes candidates and API-policy-pending extensions."
+  "mvp_mapping_definition": "Structural command partition after 28 user exclusions, not a full/partial JTBD acceptance score. remaining_commands includes candidates and API-policy-pending extensions."
 }

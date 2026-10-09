@@ -6,7 +6,7 @@
 
 ## Goals / Non-Goals
 
-Фиксация пользовательского поведения в task-workflows и перенос его в актуальную спецификацию. Этот этап не пишет код; он фиксирует 21 согласованное исключение из MVP. Auth, модель клиентских обязательств, уведомления и окончательный допуск оставшихся API/lifecycle кандидатов требуют дальнейших решений.
+Фиксация пользовательского поведения в task-workflows и перенос его в актуальную спецификацию. Этот этап не пишет код; он фиксирует 28 согласованных исключений из MVP. Auth и окончательный допуск оставшихся API кандидатов требуют дальнейших решений. Модель клиентских обязательств, уведомления и все lifecycle команды проектируются после MVP.
 
 ## Decisions
 
@@ -17,7 +17,7 @@
 - Каталог MCP сохраняется с commit SHA и проверяется по исходникам, а не только README. Он характеризует templates-mcp, не hosted mcp.bitrix24.tech/com. Live tools/list не проверяется.
 - Для текущего CLI-предложения область — новая карточка. Card/result/chat.send используют REST3; history сообщений — официальный IM companion. task.commentitem.* и result-from-comment не входят в новый каталог. Strict-rest3 оценивается отдельно: сам факт новой карточки не переводит все методы в v3.
 - Native list v3 filter только id; task:my/plan используют полную выборку доступных задач и явные локальные predicates. Scan cap/недостающий доступ/сбой отражаются в partial, не маскируются под полную сводку проекта. Альтернатива legacy list не выбрана как скрытый fallback.
-- Семь lifecycle commands кандидаты через update.status, но соответствие специальным действиям при needsControl/requireResult не доказано; до acceptance они disabled. Наличие поля status и rights.approve не доказывает эквивалентность операции.
+- Семь lifecycle commands вынесены после MVP; исследованный кандидатный маршрут — update.status, но соответствие специальным действиям при needsControl/requireResult не доказано; до acceptance они disabled. Наличие поля status и rights.approve не доказывает эквивалентность операции.
 - Для blocker/change/client promise/delivery/feedback нужны явные данные. В cli-candidates.md названы необходимые поля, альтернативы provider и границы полноты; схема хранения не принята. Альтернатива выводить согласованные факты из любого текста чата отвергнута как недоказуемая.
 - Каталог и coverage являются дополнительными planning artifacts, не изменяют принятые JTBD. Предыдущее предложение 79 имён остаётся историческим исследованием; проектирование продолжается по cli-candidates.md/json (59 имён, 43+16), со статической матрицей 19 сценариев.
 
@@ -76,20 +76,20 @@ Entrypoint b24cli пока является решением интерфейс�
 
 ## MVP exclusions and admission
 
-Пользователь вынес 21 операцию: 3 dependency, 5 рабочих представлений, 3 context/blocker, 5 change/delivery/feedback/acceptance и 5 task:result операций. JSON mvp_scope содержит точный набор и mvp_stage каждой команды. Каталог переорганизован: 28 MVP candidates, 10 API-policy-pending, 21 post-MVP. Текущие kind/route и 43+16 описывают API-кандидатов полного research catalogue, а не MVP состав.
+Пользователь вынес 28 операций: 3 dependency, 5 рабочих представлений, 3 context/blocker, 5 change/delivery/feedback/acceptance, 5 task:result операций и 7 команд жизненного цикла. JSON mvp_scope содержит точный набор и mvp_stage каждой команды. Каталог переорганизован: 21 MVP candidates, 10 API-policy-pending, 28 post-MVP. Текущие kind/route и 43+16 описывают API-кандидатов полного research catalogue, а не MVP состав.
 
-38 оставшихся операций — перечень в рассмотрении. Семь lifecycle gates и 10 неутверждённых legacy admissions сохраняются; четыре time routes согласованы для MVP. Политика task-v3 допускает эти явные REST 1.0 маршруты вместе с документированными IM companions; strict-rest3 продолжает отклонять non-v3 запросы; исключение scope не разрешает скрытый fallback. Dependency:list имеет REST3 route, но вынесен по пользовательскому решению так же, как legacy dependency mutations.
+31 оставшаяся операция — перечень в рассмотрении. 10 legacy admissions ещё не утверждены; четыре time routes согласованы для MVP. Lifecycle не входит в первый релиз; его gates сохраняются для будущего допуска. Политика task-v3 допускает эти явные REST 1.0 маршруты вместе с документированными IM companions; strict-rest3 продолжает отклонять non-v3 запросы; исключение scope не разрешает скрытый fallback. Dependency:list имеет REST3 route, но вынесен по пользовательскому решению так же, как legacy dependency mutations.
 
-Все 19 требований продукта остаются в task-workflows. В coverage добавлен отдельный MVP partition ссылок: retained candidates, API pending и post-MVP. AM-02/03/05 не имеют оставшихся mapped команд; EMP-01 сохраняет базовый task:list --responsible вместо исключённого task:my. Mapping-reduced — описательная структура набора команд, не доказательство частичного acceptance сценария. Старые documented/conditional counts остаются оценкой полного каталога.
+Все 19 требований продукта остаются в task-workflows. В coverage добавлен отдельный MVP partition ссылок: retained candidates, API pending и post-MVP. PM-05 и AM-02/03/05 не имеют оставшихся mapped команд; EMP-01 сохраняет базовый task:list --responsible вместо исключённого task:my. Mapping-reduced — описательная структура набора команд, не доказательство частичного acceptance сценария. Старые documented/conditional counts остаются оценкой полного каталога.
 
-Provider blockers/changes/client obligations/delivery/feedback после этого решения не является предварительным условием выпуска retained CRUD/chat/file команд: проектирование продолжается после MVP. Это не означает, что соответствующие задачи выполнены; они остаются открытыми для дальнейшего продукта. Native lifecycle/result semantics, scoped scans и API exceptions оставшихся команд — условия допуска MVP и должны быть проверены в последующих implementation changes.
+Provider blockers/changes/client obligations/delivery/feedback после этого решения не является предварительным условием выпуска retained CRUD/chat/file команд: проектирование продолжается после MVP. Это не означает, что соответствующие задачи выполнены; они остаются открытыми для дальнейшего продукта. Scoped scans, права и API exceptions оставшихся команд — условия допуска MVP. Native lifecycle/result semantics проверяются перед реализацией после MVP; они не блокируют выпуск оставшихся команд. Task:update в MVP не меняет status через raw fields, aliases или неявные шаги.
 
 
 ## Task results after MVP
 
-Все пять task:result команд исключены по прямому решению пользователя; task:file:attach остаётся кандидатом. Общая продуктовая карта результатов/приёмки не удаляется и API evidence result методов остаётся в полном каталоге. MVP partitions PM-05, AM-05, EMP-05 отражают исключение result операций: у AM-05 больше нет mapped MVP команды.
+Все пять task:result команд исключены по прямому решению пользователя; task:file:attach остаётся кандидатом. Общая продуктовая карта результатов/приёмки не удаляется и API evidence result методов остаётся в полном каталоге. MVP partitions PM-05, AM-05, EMP-05 отражают исключение result операций: у PM-05 и AM-05 больше нет mapped MVP команды, у EMP-05 остаётся только file:attach.
 
-task:complete/approve/disapprove остаются lifecycle кандидатами с неизменными gates. Если requireResult включён, чат или прикреплённый файл не выдают за native result; нельзя скрыто вызывать result:add/from-message, отключать requireResult или обещать завершение без проверенного допустимого результата. Result, уже оформленный в портале, может удовлетворять lifecycle условиям только после проверки прав и семантики. При невыполненных/непроверенных условиях операция не выполняется и объясняет ограничение. Наличие task:file:attach не восстанавливает result workflow в MVP.
+Все семь lifecycle команд, включая task:complete/approve/disapprove, вынесены после MVP. Перед их будущим допуском сохраняются проверки gates. Если requireResult включён, чат или прикреплённый файл не выдают за native result; нельзя скрыто вызывать result:add/from-message, отключать requireResult или обещать завершение без проверенного допустимого результата. Result, уже оформленный в портале, может удовлетворять lifecycle условиям только после проверки прав и семантики. В будущей реализации при невыполненных/непроверенных условиях операция не выполняется и объясняет ограничение. Наличие task:file:attach не восстанавливает result workflow в MVP.
 
 ## Time entries in MVP
 

@@ -7,7 +7,7 @@
 ## Requirements
 
 ### Requirement: Explicit exclusions from the task MVP
-CLI MVP SHALL исключать 21 команду зависимостей, рабочих представлений, контекста/препятствий, изменений/клиентских договорённостей и результатов задач, перечисленных в сценарии. Каталог SHALL сохранять их в области после MVP. Отсутствие требований к маппингу CLI/REST 1:1 не SHALL разрешать вернуть эти операции в MVP под другим именем или как неявный шаг.
+CLI MVP SHALL исключать 28 команд зависимостей, рабочих представлений, контекста/препятствий, изменений/клиентских договорённостей, результатов задач и жизненного цикла, перечисленных в сценарии. Каталог SHALL сохранять их в области после MVP. Отсутствие требований к маппингу CLI/REST 1:1 не SHALL разрешать вернуть эти операции в MVP под другим именем или как неявный шаг.
 
 #### Scenario: Excluded command groups
 - **WHEN** формируются список команд, справка и критерии приёмки MVP
@@ -35,22 +35,29 @@ task:result:list
 task:result:update
 task:result:delete
 task:result:from-message
+task:start
+task:pause
+task:defer
+task:renew
+task:complete
+task:approve
+task:disapprove
 ```
 
-### Requirement: API and lifecycle admission remains explicit
-Каталог SHALL отделять release scope от API support: после 21 исключения остаются 38 команд в рассмотрении, 28 кандидатов MVP, включая четыре согласованные legacy time команды, и 10 команд с неутверждённым допуском прежнего API. Lifecycle gates и права SHALL сохраняться для кандидатов. Наличие команды в остатке не SHALL означать принятие API exception, доказанную семантику или runtime readiness.
+### Requirement: API admission and future lifecycle acceptance remain explicit
+Каталог SHALL отделять release scope от API support: после 28 исключений остаётся 31 команда в рассмотрении, 21 кандидат MVP, включая четыре согласованные legacy time команды, и 10 команд с неутверждённым допуском прежнего API. Права SHALL проверяться для оставшихся кандидатов; lifecycle команды SHALL оставаться после MVP независимо от технической возможности записи status. Наличие команды в остатке не SHALL означать принятие API exception, доказанную семантику или runtime readiness.
 
 #### Scenario: Remaining legacy extension
 - **WHEN** команда чек-листа, участников или истории использует прежний API и решение о допуске ещё не принято
 - **THEN** она остаётся в разделе API-policy-pending и не считается утверждённой частью MVP; восемь операций корней/пунктов чек-листов имеют раздельные имена, но согласование vocabulary не разрешает legacy запросы или скрытый fallback
 
-#### Scenario: Remaining lifecycle candidate
-- **WHEN** task:complete, task:approve или другая lifecycle команда сохраняется кандидатом MVP
-- **THEN** до её допуска проверяются needsControl, requireResult, права и side effects; сокращение MVP не считается такой проверкой
+#### Scenario: Lifecycle commands after MVP
+- **WHEN** формируется MVP или пользователь передаёт смену status через task:update --fields/--fields-file
+- **THEN** все семь lifecycle команд отсутствуют в MVP; raw смена status отклоняется до записи и не предоставляется через другое имя или неявный шаг; чтение status и обычное изменение полей сохраняются
 
-#### Scenario: Required result with result commands outside MVP
-- **WHEN** завершается задача с requireResult и native result отсутствует либо его допустимость не подтверждена
-- **THEN** task:complete не выполняет переход, объясняет требование результата и не создаёт result неявно, не подменяет его файлом/чатом и не отключает requireResult; существующий native result допускается только по проверенным lifecycle условиям
+#### Scenario: Future lifecycle admission preserves required result
+- **WHEN** после MVP проектируется допуск lifecycle команд
+- **THEN** до допуска проверяются needsControl, requireResult, права и side effects; при отсутствующем или непроверенном допустимом native result task:complete не выполняет переход, не создаёт result неявно, не подменяет его файлом/чатом и не отключает requireResult; сокращение scope не считается acceptance
 
 ### Requirement: Time entries are included through explicit legacy routes
 MVP SHALL включать task:time:add/list/update/delete через явно согласованные REST 1.0 task.elapseditem.add/getlist/update/delete. Этот допуск SHALL ограничиваться четырьмя маршрутами, отражать API version в meta и сохранять запрет non-v3 запросов в strict-rest3. Update/delete SHALL проверять связь TASK_ID/ENTRY_ID и права подключения. Task:time:show SHALL сохранять свой REST3 маршрут.
@@ -70,8 +77,8 @@ MVP SHALL включать task:time:add/list/update/delete через явно 
 ### Requirement: MVP coverage is distinct from product JTBD
 Матрица SHALL сохранять 19 согласованных JTBD и отдельно перечислять оставшиеся и исключённые связи команд для MVP. Сокращённый mapping не SHALL выдаваться за полное покрытие сценария; отсутствие mapped команды не SHALL удалять продуктовое требование. Ручные действия через базовые retained команды SHALL отличаться от исключённых сводок и автоматизации.
 
-#### Scenario: Client promises and status reporting after MVP
-- **WHEN** оцениваются AM-02, AM-03 и AM-05 после исключения risks/report/context/brief и result-команд
+#### Scenario: Internal acceptance and client workflows after MVP
+- **WHEN** оцениваются PM-05, AM-02, AM-03 и AM-05 после исключения lifecycle, risks/report/context/brief и result-команд
 - **THEN** MVP mapping этих сценариев пуст; общие JTBD сохраняются для последующего развития и не входят в утверждение о полноте MVP
 
 #### Scenario: Personal task selection through the base list

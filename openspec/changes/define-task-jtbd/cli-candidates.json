@@ -872,8 +872,8 @@
       ],
       "previous_proposal_name": "tasks:start",
       "initial_proposal_name": "tasks:start",
-      "mvp_stage": "mvp-candidate",
-      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Lifecycle excluded from MVP by user on 2026-10-09; API semantics and acceptance gates remain for future admission. No alias, implicit transition or raw status update in MVP."
     },
     {
       "name": "task:pause",
@@ -908,8 +908,8 @@
       ],
       "previous_proposal_name": "tasks:pause",
       "initial_proposal_name": "tasks:pause",
-      "mvp_stage": "mvp-candidate",
-      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Lifecycle excluded from MVP by user on 2026-10-09; API semantics and acceptance gates remain for future admission. No alias, implicit transition or raw status update in MVP."
     },
     {
       "name": "task:defer",
@@ -944,8 +944,8 @@
       ],
       "previous_proposal_name": "tasks:defer",
       "initial_proposal_name": "tasks:defer",
-      "mvp_stage": "mvp-candidate",
-      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Lifecycle excluded from MVP by user on 2026-10-09; API semantics and acceptance gates remain for future admission. No alias, implicit transition or raw status update in MVP."
     },
     {
       "name": "task:renew",
@@ -980,8 +980,8 @@
       ],
       "previous_proposal_name": "tasks:renew",
       "initial_proposal_name": "tasks:renew",
-      "mvp_stage": "mvp-candidate",
-      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Lifecycle excluded from MVP by user on 2026-10-09; API semantics and acceptance gates remain for future admission. No alias, implicit transition or raw status update in MVP."
     },
     {
       "name": "task:complete",
@@ -1018,8 +1018,8 @@
       ],
       "previous_proposal_name": "tasks:complete",
       "initial_proposal_name": "tasks:complete",
-      "mvp_stage": "mvp-candidate",
-      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Lifecycle excluded from MVP by user on 2026-10-09; API semantics and acceptance gates remain for future admission. No alias, implicit transition or raw status update in MVP."
     },
     {
       "name": "task:approve",
@@ -1056,8 +1056,8 @@
       ],
       "previous_proposal_name": "tasks:approve",
       "initial_proposal_name": "tasks:approve",
-      "mvp_stage": "mvp-candidate",
-      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Lifecycle excluded from MVP by user on 2026-10-09; API semantics and acceptance gates remain for future admission. No alias, implicit transition or raw status update in MVP."
     },
     {
       "name": "task:disapprove",
@@ -1094,8 +1094,8 @@
       ],
       "previous_proposal_name": "tasks:disapprove",
       "initial_proposal_name": "tasks:disapprove",
-      "mvp_stage": "mvp-candidate",
-      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Lifecycle excluded from MVP by user on 2026-10-09; API semantics and acceptance gates remain for future admission. No alias, implicit transition or raw status update in MVP."
     },
     {
       "name": "task:brief",
@@ -2613,7 +2613,7 @@
   },
   "mvp_scope": {
     "decision_date": "2026-10-09",
-    "status": "exclusions and four legacy time routes agreed; other legacy admission and lifecycle acceptance pending",
+    "status": "28 exclusions and four legacy time routes agreed; other legacy admission pending; lifecycle acceptance deferred after MVP",
     "spec": "openspec/specs/task-mvp-scope/spec.md",
     "post_mvp_groups": {
       "Зависимости": [
@@ -2646,6 +2646,15 @@
         "task:result:update",
         "task:result:delete",
         "task:result:from-message"
+      ],
+      "Жизненный цикл": [
+        "task:start",
+        "task:pause",
+        "task:defer",
+        "task:renew",
+        "task:complete",
+        "task:approve",
+        "task:disapprove"
       ]
     },
     "excluded_commands": [
@@ -2669,17 +2678,24 @@
       "task:result:list",
       "task:result:update",
       "task:result:delete",
-      "task:result:from-message"
+      "task:result:from-message",
+      "task:start",
+      "task:pause",
+      "task:defer",
+      "task:renew",
+      "task:complete",
+      "task:approve",
+      "task:disapprove"
     ],
     "counts": {
       "all_researched": 59,
-      "excluded_post_mvp": 21,
-      "remaining_under_consideration": 38,
-      "mvp_candidates": 28,
+      "excluded_post_mvp": 28,
+      "remaining_under_consideration": 31,
+      "mvp_candidates": 21,
       "api_policy_pending": 10
     },
     "note": "Release scope is separate from existing candidate/deferred API-route classification; no runtime implementation or full JTBD acceptance is implied.",
-    "result_scope_note": "All five result commands are post-MVP; task:file:attach remains a candidate. Chat messages/files are not native task results. requireResult and existing lifecycle gates cannot be bypassed or hidden result commands introduced.",
+    "result_scope_note": "All five result commands and all seven lifecycle commands are post-MVP; task:file:attach remains a candidate. Chat messages/files are not native task results. Future lifecycle admission preserves requireResult and cannot introduce hidden result creation or bypass its gates.",
     "legacy_api_exceptions": {
       "decision_date": "2026-10-09",
       "commands": [
@@ -2693,6 +2709,7 @@
       "strict_rest3": "unavailable",
       "note": "Explicitly included in MVP by user; selected routes, never automatic fallback."
     },
-    "checklist_scope_note": "Two checklist operations and six item operations are distinct; all eight still require explicit legacy API admission. Root add/list reuse checklistitem.add/getlist with explicit parent semantics."
+    "checklist_scope_note": "Two checklist operations and six item operations are distinct; all eight still require explicit legacy API admission. Root add/list reuse checklistitem.add/getlist with explicit parent semantics.",
+    "lifecycle_scope_note": "All seven transitions are post-MVP. MVP excludes status changes through task:update --fields/--fields-file, aliases and implicit steps. Reading status and ordinary task field updates remain available; needsControl/requireResult/rights/side effects must be verified before future lifecycle admission."
   }
 }
