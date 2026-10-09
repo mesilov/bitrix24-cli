@@ -19,7 +19,7 @@
 - Native list v3 filter только id; task:my/plan используют полную выборку доступных задач и явные локальные predicates. Scan cap/недостающий доступ/сбой отражаются в partial, не маскируются под полную сводку проекта. Альтернатива legacy list не выбрана как скрытый fallback.
 - Семь lifecycle commands кандидаты через update.status, но соответствие специальным действиям при needsControl/requireResult не доказано; до acceptance они disabled. Наличие поля status и rights.approve не доказывает эквивалентность операции.
 - Для blocker/change/client promise/delivery/feedback нужны явные данные. В cli-candidates.md названы необходимые поля, альтернативы provider и границы полноты; схема хранения не принята. Альтернатива выводить согласованные факты из любого текста чата отвергнута как недоказуемая.
-- Каталог и coverage являются дополнительными planning artifacts, не изменяют принятые JTBD. Предыдущее предложение 79 имён остаётся историческим исследованием; проектирование продолжается по cli-candidates.md/json (55 имён, 42+13), со статической матрицей 19 сценариев.
+- Каталог и coverage являются дополнительными planning artifacts, не изменяют принятые JTBD. Предыдущее предложение 79 имён остаётся историческим исследованием; проектирование продолжается по cli-candidates.md/json (59 имён, 43+16), со статической матрицей 19 сценариев.
 
 ## Risks / Trade-offs
 
@@ -49,7 +49,7 @@
 
 Новая capability cli-experience дополняет task-workflows общими наблюдаемыми правилами. Основную spec синхронизируем по прямому запросу пользователя; implementation tests и packaging ещё не существуют. Shell examples представлены как будущие вызовы установленного CLI.
 
-В каталоге сохраняются 55 операций, 42 кандидата и 13 extensions: смена command path не добавляет API методов или реализации. --fields-file заменяет прежнюю @JSON нотацию; два источника одного поля отклоняются. В update raw JSON является отдельным режимом; create разрешает дополнительные fields без дубликатов и проверяет обязательные поля итогового payload. Схема прочих параметров --where/--params и допустимые operators должны быть определены отдельным implementation change, неподдержанный произвольный payload не обещается.
+На этапе выбора Symfony нотации каталог содержал 55 операций (42 кандидата и 13 extensions); смена command path сохраняла API mappings. Текущий каталог после разделения чек-листов и добавления поиска содержит 59 операций (43+16). --fields-file заменяет прежнюю @JSON нотацию; два источника одного поля отклоняются. В update raw JSON является отдельным режимом; create разрешает дополнительные fields без дубликатов и проверяет обязательные поля итогового payload. Схема прочих параметров --where/--params и допустимые operators должны быть определены отдельным implementation change, неподдержанный произвольный payload не обещается.
 
 Отличия, выбранные проектом: один positional task ID ради краткости; creator/responsible остаются явными; limit50/max-scan10000/timeout30 и exit codes 0/1/2/3/4/130 являются нашими defaults, не требованиями CLIG. Plain TSV columns определяются отдельно по командам до реализации. Pager, interactive missing-field wizard, man pages, установка shell completion, distribution и analytics не включены в этот этап; auth/storage также отдельное решение. --no-interaction/-n — встроенная опция Symfony; отдельный --no-input не вводится. --ansi/--no-ansi, --quiet/--silent и verbosity сохраняют встроенную семантику. Short -n не назначается dry-run из-за существующей Symfony convention. CLI Guidelines не определяют обязательный разделитель namespaces; их Help пример Heroku содержит apps:create. Сохраняем нативный colon-separated интерфейс Symfony и его help/list; отдельный пробельный dispatcher не нужен.
 
@@ -76,9 +76,9 @@ Entrypoint b24cli пока является решением интерфейс�
 
 ## MVP exclusions and admission
 
-Пользователь вынес 21 операцию: 3 dependency, 5 рабочих представлений, 3 context/blocker, 5 change/delivery/feedback/acceptance и 5 task:result операций. JSON mvp_scope содержит точный набор и mvp_stage каждой команды. Каталог переорганизован: 27 MVP candidates, 7 API-policy-pending, 21 post-MVP. Исходные kind/route и 42+13 описывают API-кандидатов полного research catalogue, а не MVP состав.
+Пользователь вынес 21 операцию: 3 dependency, 5 рабочих представлений, 3 context/blocker, 5 change/delivery/feedback/acceptance и 5 task:result операций. JSON mvp_scope содержит точный набор и mvp_stage каждой команды. Каталог переорганизован: 28 MVP candidates, 10 API-policy-pending, 21 post-MVP. Текущие kind/route и 43+16 описывают API-кандидатов полного research catalogue, а не MVP состав.
 
-34 оставшиеся операции — перечень в рассмотрении. Семь lifecycle gates и 7 неутверждённых legacy admissions сохраняются; четыре time routes согласованы для MVP. Политика task-v3 допускает эти явные REST 1.0 маршруты вместе с документированными IM companions; strict-rest3 продолжает отклонять non-v3 запросы; исключение scope не разрешает скрытый fallback. Dependency:list имеет REST3 route, но вынесен по пользовательскому решению так же, как legacy dependency mutations.
+38 оставшихся операций — перечень в рассмотрении. Семь lifecycle gates и 10 неутверждённых legacy admissions сохраняются; четыре time routes согласованы для MVP. Политика task-v3 допускает эти явные REST 1.0 маршруты вместе с документированными IM companions; strict-rest3 продолжает отклонять non-v3 запросы; исключение scope не разрешает скрытый fallback. Dependency:list имеет REST3 route, но вынесен по пользовательскому решению так же, как legacy dependency mutations.
 
 Все 19 требований продукта остаются в task-workflows. В coverage добавлен отдельный MVP partition ссылок: retained candidates, API pending и post-MVP. AM-02/03/05 не имеют оставшихся mapped команд; EMP-01 сохраняет базовый task:list --responsible вместо исключённого task:my. Mapping-reduced — описательная структура набора команд, не доказательство частичного acceptance сценария. Старые documented/conditional counts остаются оценкой полного каталога.
 
@@ -96,3 +96,17 @@ task:complete/approve/disapprove остаются lifecycle кандидатам
 Пользователь включил task:time:add/list/update/delete. Эти команды используют явно выбранные task.elapseditem.add/getlist/update/delete (REST 1.0), сохраняют API/SDK provenance и не маскируются под REST3. Решение ограничено четырьмя time routes и не допускает другие legacy extensions. В meta показывается API version; strict-rest3 возвращает gated-unavailable до запроса.
 
 EMP-06 включает создание, полный список, исправление и удаление своих записей. При update/delete проверяются связь TASK_ID/ENTRY_ID и права текущего подключения; --force отменяет только подтверждение, не права. Task:time:show читает elapsedTime через v3 и не заменяет список записей. Решение о MVP не доказывает portal acceptance.
+
+## Checklist roots and items
+
+Согласованы две операции корня (add/list) и шесть операций пунктов (add/list/update/complete/renew/delete). Старые пять неоднозначных именований заменены item namespace; это не runtime aliases. CHECKLIST_ID и ITEM_ID различаются по роли узла: корень PARENT_ID=0, пункт имеет родителя. Task:checklist:add всегда передаёт PARENT_ID=0, item:add всегда явный проверенный parent; не использовать API default с автоматическим выбором/созданием корня.
+
+Getlist возвращает элементы всех чек-листов одним плоским списком без pagination. Для root:list выбираются корни; item:list выбирает потомков указанного корня и показывает ID/PARENT_ID. Корень, parent и item должны принадлежать TASK_ID; parent — выбранному корню. Некорректное дерево/ID не допускает mutating request. Item:update разрешает только непустой title. Восемь команд остаются API-policy-pending.
+
+Проверен Checklistitem.php pinned b24phpsdk: add(taskId,title,sort,completed) не передаёт PARENT_ID. Для root/item add требуется явный Core REST1; SDK wrapper update принимает fields и позволяет изменить TITLE. Контроль дерева использует getlist. API routes и SDK gap отражены в JSON, не маскируются одним wrapper name.
+
+## Title search in MVP
+
+Task:find --title TEXT — read-only MVP команда. Согласованы буквальная подстрока только title, trim запроса по краям, Unicode case-insensitive matching, порядок id ASC. Пустой/пробельный запрос отклоняется с usage exit2 до API call. Wildcard/regex/fuzzy и поиск description/chat не включены.
+
+REST3 list документирует server filter только id. Find выбирает id/title и сканирует все видимые текущему подключению страницы в max-scan budget, затем возвращает совпадения в рамках limit. Limit50/--all управляет выводом; max-scan10000 просмотром, --all его не отменяет. Meta содержит query, match, scannedCount, matchedCount, returnedCount, limitApplied, complete и scope видимости; API version/local matching явно отражены. Превышение cap, ошибка или отсутствующий title означает partial exit3, даже если совпадений нет. Полная пустая выборка — success exit0. Полнота scan не означает полный вывод при limitApplied и не обещает доступ к чужим задачам/атомарный snapshot.

@@ -9,7 +9,9 @@
       "commands": [
         "task:add",
         "task:subtask:add",
-        "task:show"
+        "task:show",
+        "task:checklist:add",
+        "task:checklist:item:add"
       ],
       "new_card_status": "documented",
       "strict_rest3_status": "documented",
@@ -20,16 +22,21 @@
         "remaining_commands": [
           "task:add",
           "task:subtask:add",
-          "task:show"
+          "task:show",
+          "task:checklist:add",
+          "task:checklist:item:add"
         ],
         "mvp_candidates": [
           "task:add",
           "task:subtask:add",
           "task:show"
         ],
-        "api_policy_pending_commands": [],
+        "api_policy_pending_commands": [
+          "task:checklist:add",
+          "task:checklist:item:add"
+        ],
         "post_mvp_commands": [],
-        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD."
+        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD. Дополнительные связи поиска и чек-листов описывают discovery/декомпозицию; checklist routes ещё API-policy-pending и не повышают доказанность покрытия."
       }
     },
     {
@@ -179,7 +186,8 @@
       "id": "AM-01",
       "commands": [
         "task:add",
-        "task:show"
+        "task:show",
+        "task:find"
       ],
       "new_card_status": "documented",
       "strict_rest3_status": "documented",
@@ -189,15 +197,17 @@
         "mapping_status": "mapping-unchanged",
         "remaining_commands": [
           "task:add",
-          "task:show"
+          "task:show",
+          "task:find"
         ],
         "mvp_candidates": [
           "task:add",
-          "task:show"
+          "task:show",
+          "task:find"
         ],
         "api_policy_pending_commands": [],
         "post_mvp_commands": [],
-        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD."
+        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD. Дополнительные связи поиска и чек-листов описывают discovery/декомпозицию; checklist routes ещё API-policy-pending и не повышают доказанность покрытия."
       }
     },
     {
@@ -355,7 +365,10 @@
       "id": "EMP-02",
       "commands": [
         "task:show",
-        "task:chat:send"
+        "task:chat:send",
+        "task:find",
+        "task:checklist:list",
+        "task:checklist:item:list"
       ],
       "new_card_status": "documented",
       "strict_rest3_status": "documented",
@@ -365,15 +378,22 @@
         "mapping_status": "mapping-unchanged",
         "remaining_commands": [
           "task:show",
-          "task:chat:send"
+          "task:chat:send",
+          "task:find",
+          "task:checklist:list",
+          "task:checklist:item:list"
         ],
         "mvp_candidates": [
           "task:show",
-          "task:chat:send"
+          "task:chat:send",
+          "task:find"
         ],
-        "api_policy_pending_commands": [],
+        "api_policy_pending_commands": [
+          "task:checklist:list",
+          "task:checklist:item:list"
+        ],
         "post_mvp_commands": [],
-        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD."
+        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD. Дополнительные связи поиска и чек-листов описывают discovery/декомпозицию; checklist routes ещё API-policy-pending и не повышают доказанность покрытия."
       }
     },
     {

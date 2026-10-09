@@ -7,7 +7,7 @@
 ## Requirements
 
 ### Requirement: Direct and consistent command structure
-CLI SHALL использовать entrypoint b24cli, namespace `task` и имена Symfony `task:<action>`/`task:<resource>:<action>`. Добавление задачи SHALL называться `task:add`; vocabulary CLI SHALL определяться пользовательской операцией без обязательного соответствия именам REST. Task command принимает один позиционный ID, прочие сущности задаются флагами. Полные имена используются в документации; стандартные однозначные сокращения Symfony поддерживаются.
+CLI SHALL использовать b24cli и Symfony имена task:<action>/task:<resource>:<action>. Добавление задачи SHALL называться task:add; имена отражают операцию без маппинга REST 1:1. Команда одной задачи SHALL принимать позиционный TASK_ID, связанные ID — флагами; task:list/find задают критерии флагами. Для пунктов SHALL использоваться task:checklist:item:<action>. Документация SHALL содержать полные имена; однозначные сокращения Symfony сохраняются.
 
 #### Scenario: Task editing from the terminal
 - **WHEN** пользователь вызывает `b24cli task:update 123 --title "Отчёт за октябрь"`
@@ -154,3 +154,41 @@ CLI SHALL поддерживать --timeout с конечным докумен�
 #### Scenario: Safe diagnostic information
 - **WHEN** пользователь получает ошибку подключения или включает --verbose
 - **THEN** CLI маскирует credentials и секретные части URL; поддержка --verbose не разрешает их раскрытие
+
+### Requirement: Distinct checklist and item operations
+CLI SHALL разделять task:checklist:add/list для корневых чек-листов и task:checklist:item:add/list/update/complete/renew/delete для пунктов. Создание пункта SHALL требовать --checklist; optional --parent SHALL принадлежать выбранному корню. CLI SHALL проверять принадлежность ID задаче и различать корень/пункт до записи. Согласование имён не SHALL отменять API gates.
+
+#### Scenario: Create a checklist root
+- **WHEN** пользователь задаёт task:checklist:add TASK_ID --title TEXT и маршрут допущен политикой
+- **THEN** CLI создаёт отдельный корневой чек-лист с указанным названием, возвращает его ID и не добавляет пункт в существующий чек-лист
+
+#### Scenario: Add an item to a selected checklist
+- **WHEN** пользователь задаёт item:add TASK_ID --checklist CHECKLIST_ID --title TEXT с optional --parent ITEM_ID
+- **THEN** пункт создаётся только внутри выбранного чек-листа; отсутствующий/чужой корень или parent не допускает запись и не приводит к неявному созданию другого чек-листа
+
+#### Scenario: List roots and list items
+- **WHEN** пользователь вызывает task:checklist:list TASK_ID либо task:checklist:item:list TASK_ID --checklist CHECKLIST_ID
+- **THEN** первый вызов показывает корни задачи, второй — дочерние пункты выбранного корня, включая вложенные, с ID и PARENT_ID; пункты других чек-листов не смешиваются
+
+#### Scenario: Edit a checklist item
+- **WHEN** пользователь вызывает item:update/complete/renew/delete с --item ITEM_ID
+- **THEN** проверяется пункт выбранной задачи; корневой ID не допускается. Update меняет только непустой title; delete сохраняет подтверждение и права, --force не отменяет gates
+
+### Requirement: Bounded task search by title
+MVP SHALL включать task:find --title TEXT с буквальным поиском подстроки только title без учёта регистра Unicode. Запрос SHALL обрезаться по краям; пустой запрос SHALL отклоняться до API call. Поиск SHALL обходить видимые задачи в scan budget и сохранять limit/all/partial правила списков. Полнота, scope, scanned/matched/returned counts и limitApplied SHALL показываться явно; description/chat, wildcard/regex/fuzzy не SHALL участвовать.
+
+#### Scenario: Find tasks by a title fragment
+- **WHEN** пользователь вызывает b24cli task:find --title "ДОГОВОР"
+- **THEN** CLI находит заголовок "Согласовать договор" и другие совпадения без учёта регистра; совпадение только в description не включает задачу, порядок результата — id ASC
+
+#### Scenario: Literal title query and empty query
+- **WHEN** пользователь передаёт --title "*договор*" либо пустой/пробельный --title
+- **THEN** в первом случае звёздочки ищутся буквально; во втором CLI возвращает usage exit2 до запроса, не превращая поиск в выборку всех задач
+
+#### Scenario: Search across pages within a scan budget
+- **WHEN** совпадение находится после первой страницы либо исчерпан --max-scan до окончания доступной выборки
+- **THEN** поиск просматривает следующие страницы в пределах budget; cap/ошибка/нет title дают partial exit3, complete=false и причину. --all не снимает scan cap; серверный title filter и legacy fallback не используются
+
+#### Scenario: Complete empty title search and limited output
+- **WHEN** просмотр всех доступных страниц не дал совпадений либо совпадений больше output limit
+- **THEN** пустой complete результат возвращает exit0; при лимите CLI различает полную проверку видимой выборки и сокращённый вывод через matched/returned counts и limitApplied; прав сверх подключения не обещает

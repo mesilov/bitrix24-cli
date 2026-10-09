@@ -114,6 +114,37 @@
       "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
     },
     {
+      "name": "task:find",
+      "group": "Карточка и выборки",
+      "syntax": "--title TEXT [--limit N | --all] [--max-scan N]",
+      "route": "rest3-client-filter",
+      "methods": [
+        "tasks.task.list"
+      ],
+      "sources": [
+        "https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-list-rest-v3.html"
+      ],
+      "jtbd": [
+        "AM-01",
+        "EMP-02"
+      ],
+      "note": "Поиск буквальной подстроки только в title, без учёта регистра Unicode; непустой --title обязателен, пробелы по краям запроса убираются. V3 filter поддерживает только id: выбрать id/title и локально проверить все страницы доступных задач в scan budget, без legacy fallback. --limit50/--all ограничивают вывод, --max-scan10000 — просмотр; cap/ошибка/нет title => partial, exit3; полный пустой результат => exit0. Порядок id ASC; regex/wildcards/fuzzy не поддерживаются.",
+      "kind": "candidate",
+      "effect": "read",
+      "method_routes": [
+        {
+          "method": "tasks.task.list",
+          "api_version": "3.0",
+          "sdk": "core-gap",
+          "wrappers": []
+        }
+      ],
+      "previous_proposal_name": null,
+      "initial_proposal_name": null,
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Explicit user addition to MVP on 2026-10-09; documented REST3 list with bounded local title search."
+    },
+    {
       "name": "task:update",
       "group": "Карточка и выборки",
       "syntax": "TASK_ID [--title TEXT] [--creator ID] [--responsible ID] [--project ID] [--deadline ISO8601] [--description TEXT | --description-file PATH|-] [--fields JSON | --fields-file PATH|-]",
@@ -1957,56 +1988,66 @@
       "mvp_reason": "Explicit user inclusion in MVP on 2026-10-09, accepting the documented legacy time route; runtime permissions and acceptance still required."
     },
     {
-      "name": "task:checklist:add",
-      "group": "Расширения вне REST 3.0",
-      "syntax": "TASK_ID --title TEXT [--parent ITEM_ID]",
+      "name": "task:checklist:item:add",
+      "group": "Пункты чек-листа",
+      "syntax": "TASK_ID --checklist CHECKLIST_ID --title TEXT [--parent ITEM_ID]",
       "route": "legacy-extension",
       "methods": [
+        "task.checklistitem.getlist",
         "task.checklistitem.add"
       ],
       "sources": [
-        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-add.md"
+        "https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-get-list.html",
+        "https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-add.html",
+        "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
       ],
       "jtbd": [
         "PM-01"
       ],
-      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "note": "Пункт создаётся с явным PARENT_ID: выбранный CHECKLIST_ID либо --parent внутри него. Проверить корневой чек-лист и родителя в TASK_ID до записи; без неявного создания чек-листа. SDK add не принимает PARENT_ID, нужен Core REST1. Допуск прежнего API ещё не утверждён.",
       "kind": "deferred",
       "effect": "write",
       "method_routes": [
         {
-          "method": "task.checklistitem.add",
+          "method": "task.checklistitem.getlist",
           "api_version": "1.0",
           "sdk": "wrapper",
           "wrappers": [
             {
-              "function": "add",
+              "function": "getList",
               "path": "Services/Task/Checklistitem/Service/Checklistitem.php",
               "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
             }
           ]
+        },
+        {
+          "method": "task.checklistitem.add",
+          "api_version": "1.0",
+          "sdk": "core-gap",
+          "wrappers": [],
+          "note": "SDK add wrapper does not accept PARENT_ID; explicit Core REST1 call required."
         }
       ],
-      "previous_proposal_name": "tasks:checklist:add",
+      "previous_proposal_name": "task:checklist:add",
       "initial_proposal_name": "tasks:checklist:add",
       "mvp_stage": "api-policy-pending",
-      "mvp_reason": "Existing legacy API admission remains unapproved; user did not add a new exception."
+      "mvp_reason": "Checklist routes remain API-policy-pending; naming approval does not grant legacy API admission."
     },
     {
-      "name": "task:checklist:list",
-      "group": "Расширения вне REST 3.0",
-      "syntax": "TASK_ID",
+      "name": "task:checklist:item:list",
+      "group": "Пункты чек-листа",
+      "syntax": "TASK_ID --checklist CHECKLIST_ID",
       "route": "legacy-extension",
       "methods": [
         "task.checklistitem.getlist"
       ],
       "sources": [
-        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-get-list.md"
+        "https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-get-list.html"
       ],
       "jtbd": [
         "EMP-02"
       ],
-      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "note": "getlist возвращает все элементы задачи без пагинации. CLI проверяет CHECKLIST_ID и показывает его дочерние элементы, включая вложенные, с ID/PARENT_ID; корень выводится отдельно. Допуск прежнего API ещё не утверждён.",
       "kind": "deferred",
       "effect": "read",
       "method_routes": [
@@ -2023,27 +2064,41 @@
           ]
         }
       ],
-      "previous_proposal_name": "tasks:checklist:list",
+      "previous_proposal_name": "task:checklist:list",
       "initial_proposal_name": "tasks:checklist:list",
       "mvp_stage": "api-policy-pending",
-      "mvp_reason": "Existing legacy API admission remains unapproved; user did not add a new exception."
+      "mvp_reason": "Checklist routes remain API-policy-pending; naming approval does not grant legacy API admission."
     },
     {
-      "name": "task:checklist:complete",
-      "group": "Расширения вне REST 3.0",
+      "name": "task:checklist:item:complete",
+      "group": "Пункты чек-листа",
       "syntax": "TASK_ID --item ITEM_ID",
       "route": "legacy-extension",
       "methods": [
+        "task.checklistitem.getlist",
         "task.checklistitem.complete"
       ],
       "sources": [
+        "https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-get-list.html",
         "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-complete.md"
       ],
       "jtbd": [],
-      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "note": "До действия проверить, что ITEM_ID — пункт выбранной TASK_ID, а не корневой чек-лист; права проверяются сервером. --force у delete отменяет только подтверждение. Допуск прежнего API ещё не утверждён.",
       "kind": "deferred",
       "effect": "write",
       "method_routes": [
+        {
+          "method": "task.checklistitem.getlist",
+          "api_version": "1.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "getList",
+              "path": "Services/Task/Checklistitem/Service/Checklistitem.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+            }
+          ]
+        },
         {
           "method": "task.checklistitem.complete",
           "api_version": "1.0",
@@ -2057,27 +2112,41 @@
           ]
         }
       ],
-      "previous_proposal_name": "tasks:checklist:complete",
+      "previous_proposal_name": "task:checklist:complete",
       "initial_proposal_name": "tasks:checklist:complete",
       "mvp_stage": "api-policy-pending",
-      "mvp_reason": "Existing legacy API admission remains unapproved; user did not add a new exception."
+      "mvp_reason": "Checklist routes remain API-policy-pending; naming approval does not grant legacy API admission."
     },
     {
-      "name": "task:checklist:renew",
-      "group": "Расширения вне REST 3.0",
+      "name": "task:checklist:item:renew",
+      "group": "Пункты чек-листа",
       "syntax": "TASK_ID --item ITEM_ID",
       "route": "legacy-extension",
       "methods": [
+        "task.checklistitem.getlist",
         "task.checklistitem.renew"
       ],
       "sources": [
+        "https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-get-list.html",
         "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-renew.md"
       ],
       "jtbd": [],
-      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "note": "До действия проверить, что ITEM_ID — пункт выбранной TASK_ID, а не корневой чек-лист; права проверяются сервером. --force у delete отменяет только подтверждение. Допуск прежнего API ещё не утверждён.",
       "kind": "deferred",
       "effect": "write",
       "method_routes": [
+        {
+          "method": "task.checklistitem.getlist",
+          "api_version": "1.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "getList",
+              "path": "Services/Task/Checklistitem/Service/Checklistitem.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+            }
+          ]
+        },
         {
           "method": "task.checklistitem.renew",
           "api_version": "1.0",
@@ -2091,27 +2160,41 @@
           ]
         }
       ],
-      "previous_proposal_name": "tasks:checklist:renew",
+      "previous_proposal_name": "task:checklist:renew",
       "initial_proposal_name": "tasks:checklist:renew",
       "mvp_stage": "api-policy-pending",
-      "mvp_reason": "Existing legacy API admission remains unapproved; user did not add a new exception."
+      "mvp_reason": "Checklist routes remain API-policy-pending; naming approval does not grant legacy API admission."
     },
     {
-      "name": "task:checklist:delete",
-      "group": "Расширения вне REST 3.0",
+      "name": "task:checklist:item:delete",
+      "group": "Пункты чек-листа",
       "syntax": "TASK_ID --item ITEM_ID [--force]",
       "route": "legacy-extension",
       "methods": [
+        "task.checklistitem.getlist",
         "task.checklistitem.delete"
       ],
       "sources": [
+        "https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-get-list.html",
         "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-delete.md"
       ],
       "jtbd": [],
-      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "note": "До действия проверить, что ITEM_ID — пункт выбранной TASK_ID, а не корневой чек-лист; права проверяются сервером. --force у delete отменяет только подтверждение. Допуск прежнего API ещё не утверждён.",
       "kind": "deferred",
       "effect": "delete",
       "method_routes": [
+        {
+          "method": "task.checklistitem.getlist",
+          "api_version": "1.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "getList",
+              "path": "Services/Task/Checklistitem/Service/Checklistitem.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+            }
+          ]
+        },
         {
           "method": "task.checklistitem.delete",
           "api_version": "1.0",
@@ -2125,10 +2208,10 @@
           ]
         }
       ],
-      "previous_proposal_name": "tasks:checklist:delete",
+      "previous_proposal_name": "task:checklist:delete",
       "initial_proposal_name": "tasks:checklist:delete",
       "mvp_stage": "api-policy-pending",
-      "mvp_reason": "Existing legacy API admission remains unapproved; user did not add a new exception."
+      "mvp_reason": "Checklist routes remain API-policy-pending; naming approval does not grant legacy API admission."
     },
     {
       "name": "task:dependency:add",
@@ -2247,6 +2330,123 @@
       "initial_proposal_name": "tasks:history",
       "mvp_stage": "api-policy-pending",
       "mvp_reason": "Existing legacy API admission remains unapproved; user did not add a new exception."
+    },
+    {
+      "name": "task:checklist:add",
+      "group": "Чек-листы",
+      "syntax": "TASK_ID --title TEXT",
+      "route": "legacy-extension",
+      "methods": [
+        "task.checklistitem.add"
+      ],
+      "sources": [
+        "https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-add.html",
+        "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+      ],
+      "jtbd": [
+        "PM-01"
+      ],
+      "note": "Создать именно чек-лист: FIELDS.PARENT_ID=0, TITLE — название. SDK add не принимает PARENT_ID; нужен Core REST1. Допуск прежнего API ещё не утверждён.",
+      "kind": "deferred",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "task.checklistitem.add",
+          "api_version": "1.0",
+          "sdk": "core-gap",
+          "wrappers": [],
+          "note": "SDK add wrapper does not accept PARENT_ID; explicit Core REST1 call required."
+        }
+      ],
+      "previous_proposal_name": null,
+      "initial_proposal_name": null,
+      "mvp_stage": "api-policy-pending",
+      "mvp_reason": "Checklist routes remain API-policy-pending; naming approval does not grant legacy API admission."
+    },
+    {
+      "name": "task:checklist:list",
+      "group": "Чек-листы",
+      "syntax": "TASK_ID",
+      "route": "legacy-extension",
+      "methods": [
+        "task.checklistitem.getlist"
+      ],
+      "sources": [
+        "https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-get-list.html"
+      ],
+      "jtbd": [
+        "EMP-02"
+      ],
+      "note": "Показать только корневые элементы PARENT_ID=0 как чек-листы задачи; дочерние пункты отделены в item:list. Ответ API плоский и не пагинируется. Допуск прежнего API ещё не утверждён.",
+      "kind": "deferred",
+      "effect": "read",
+      "method_routes": [
+        {
+          "method": "task.checklistitem.getlist",
+          "api_version": "1.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "getList",
+              "path": "Services/Task/Checklistitem/Service/Checklistitem.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+            }
+          ]
+        }
+      ],
+      "previous_proposal_name": null,
+      "initial_proposal_name": null,
+      "mvp_stage": "api-policy-pending",
+      "mvp_reason": "Checklist routes remain API-policy-pending; naming approval does not grant legacy API admission."
+    },
+    {
+      "name": "task:checklist:item:update",
+      "group": "Пункты чек-листа",
+      "syntax": "TASK_ID --item ITEM_ID --title TEXT",
+      "route": "legacy-extension",
+      "methods": [
+        "task.checklistitem.getlist",
+        "task.checklistitem.update"
+      ],
+      "sources": [
+        "https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-get-list.html",
+        "https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-update.html",
+        "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+      ],
+      "jtbd": [],
+      "note": "Изменить только TITLE пункта; пустой текст отклоняется до записи. Проверить TASK_ID/ITEM_ID, запретить корневой чек-лист и сохранить остальные поля. Допуск прежнего API ещё не утверждён.",
+      "kind": "deferred",
+      "effect": "write",
+      "method_routes": [
+        {
+          "method": "task.checklistitem.getlist",
+          "api_version": "1.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "getList",
+              "path": "Services/Task/Checklistitem/Service/Checklistitem.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+            }
+          ]
+        },
+        {
+          "method": "task.checklistitem.update",
+          "api_version": "1.0",
+          "sdk": "wrapper",
+          "wrappers": [
+            {
+              "function": "update",
+              "path": "Services/Task/Checklistitem/Service/Checklistitem.php",
+              "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+            }
+          ]
+        }
+      ],
+      "previous_proposal_name": null,
+      "initial_proposal_name": null,
+      "mvp_stage": "api-policy-pending",
+      "mvp_reason": "Checklist routes remain API-policy-pending; naming approval does not grant legacy API admission."
     }
   ],
   "sdk": {
@@ -2329,6 +2529,51 @@
       "task_add_command": "task:add",
       "subtask_add_command": "task:subtask:add",
       "policy": "User-facing commands express user operations; no required 1:1 mapping to REST names or endpoints. API routes are explicit separate metadata."
+    },
+    "checklists": {
+      "root_commands": [
+        "task:checklist:add",
+        "task:checklist:list"
+      ],
+      "item_commands": [
+        "task:checklist:item:add",
+        "task:checklist:item:list",
+        "task:checklist:item:update",
+        "task:checklist:item:complete",
+        "task:checklist:item:renew",
+        "task:checklist:item:delete"
+      ],
+      "root_parent_id": 0,
+      "item_parent": "explicit checklist or validated descendant parent",
+      "flat_api_response": true,
+      "api_version": "1.0",
+      "admission": "api-policy-pending",
+      "sdk_parent_id_gap": true,
+      "checked_on": "2026-10-09",
+      "sources": [
+        "https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-add.html",
+        "https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-get-list.html",
+        "https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-update.html",
+        "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+      ]
+    },
+    "title_search": {
+      "command": "task:find",
+      "query_option": "--title",
+      "scope": "title only, tasks visible to current connection",
+      "match": "literal Unicode case-insensitive substring; trim query edges",
+      "server_title_filter": false,
+      "route": "tasks.task.list REST3 plus local matching",
+      "ordering": "id ASC",
+      "pagination": "all available pages within max-scan budget",
+      "complete_empty_exit": 0,
+      "incomplete_exit": 3,
+      "defaults": {
+        "limit": 50,
+        "max_scan": 10000
+      },
+      "source": "https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-list-rest-v3.html",
+      "checked_on": "2026-10-09"
     }
   },
   "mvp_scope": {
@@ -2392,11 +2637,11 @@
       "task:result:from-message"
     ],
     "counts": {
-      "all_researched": 55,
+      "all_researched": 59,
       "excluded_post_mvp": 21,
-      "remaining_under_consideration": 34,
-      "mvp_candidates": 27,
-      "api_policy_pending": 7
+      "remaining_under_consideration": 38,
+      "mvp_candidates": 28,
+      "api_policy_pending": 10
     },
     "note": "Release scope is separate from existing candidate/deferred API-route classification; no runtime implementation or full JTBD acceptance is implied.",
     "result_scope_note": "All five result commands are post-MVP; task:file:attach remains a candidate. Chat messages/files are not native task results. requireResult and existing lifecycle gates cannot be bypassed or hidden result commands introduced.",
@@ -2412,6 +2657,7 @@
       "route": "legacy-extension",
       "strict_rest3": "unavailable",
       "note": "Explicitly included in MVP by user; selected routes, never automatic fallback."
-    }
+    },
+    "checklist_scope_note": "Two checklist operations and six item operations are distinct; all eight still require explicit legacy API admission. Root add/list reuse checklistitem.add/getlist with explicit parent semantics."
   }
 }

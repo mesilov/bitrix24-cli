@@ -38,11 +38,11 @@ task:result:from-message
 ```
 
 ### Requirement: API and lifecycle admission remains explicit
-Каталог SHALL отделять release scope от API support: после 21 исключения остаются 34 команды в рассмотрении, 27 кандидатов MVP, включая четыре согласованные legacy time команды, и 7 команд с неутверждённым допуском прежнего API. Lifecycle gates и права SHALL сохраняться для кандидатов. Наличие команды в остатке не SHALL означать принятие API exception, доказанную семантику или runtime readiness.
+Каталог SHALL отделять release scope от API support: после 21 исключения остаются 38 команд в рассмотрении, 28 кандидатов MVP, включая четыре согласованные legacy time команды, и 10 команд с неутверждённым допуском прежнего API. Lifecycle gates и права SHALL сохраняться для кандидатов. Наличие команды в остатке не SHALL означать принятие API exception, доказанную семантику или runtime readiness.
 
 #### Scenario: Remaining legacy extension
 - **WHEN** команда чек-листа, участников или истории использует прежний API и решение о допуске ещё не принято
-- **THEN** она остаётся в отдельном разделе API-policy-pending, не считается утверждённой частью MVP и не включается через скрытый fallback
+- **THEN** она остаётся в разделе API-policy-pending и не считается утверждённой частью MVP; восемь операций корней/пунктов чек-листов имеют раздельные имена, но согласование vocabulary не разрешает legacy запросы или скрытый fallback
 
 #### Scenario: Remaining lifecycle candidate
 - **WHEN** task:complete, task:approve или другая lifecycle команда сохраняется кандидатом MVP

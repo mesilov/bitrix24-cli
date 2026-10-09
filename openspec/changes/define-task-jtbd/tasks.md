@@ -8,7 +8,9 @@
 - [x] 1.4 Сохранить потенциальные CLI-команды и матрицу полноты для всех 19 JTBD; проверить 55 уникальных имён (42 кандидата + 13 расширений), ссылки команд/сценариев, API/SDK маршруты и source paths, JSON/Markdown и количественные результаты.
 - [x] 1.5 Закрепить первичный источник CLI Guidelines, сохранить cli-experience delta/main и согласовать entrypoint b24cli, singular namespace task и task:add, 55 имён Symfony Console с colon namespaces/flags/19 coverage references; проверить strict validation, JSON/Markdown, неизменность API mappings и полноты, прямые shell examples. Только planning, не реализация CLI.
 
-- [x] 1.6 Зафиксировать 21 исключение из MVP в task-mvp-scope delta/main; разделить 55 команд на 27 MVP candidates, 7 API-policy-pending и 21 post-MVP с четырьмя явно согласованными REST 1.0 time routes; сверить отдельный MVP mapping всех 19 JTBD без изменения продуктовых требований/API evidence.
+- [x] 1.6 Зафиксировать 21 исключение из MVP в task-mvp-scope delta/main; разделить 59 команд на 28 MVP candidates, 10 API-policy-pending и 21 post-MVP с четырьмя явно согласованными REST 1.0 time routes; сверить отдельный MVP mapping всех 19 JTBD без изменения продуктовых требований/API evidence.
+
+- [x] 1.7 Разделить checklist roots/items, добавить item:update и task:find --title; сверить 59 имён, 28/10/21 stages, bounded title search и parent/ID/SDK constraints, UX delta/main и обновлённые JTBD mappings. Только планирование.
 
 ## 2. Проектирование дальнейшей реализации
 

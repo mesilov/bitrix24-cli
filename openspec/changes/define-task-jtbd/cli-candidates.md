@@ -4,14 +4,14 @@
 
 Проверен текущий HEAD официального b24restdocs: `b4d3dc81619625c2bf21c28dd0227116f36c8743`. Новый каталог учитывает новую карточку и заменяет предложенный набор 79 имён из исторического исследования как основание для дальнейшего проектирования. Исторический архив сохраняется без изменений.
 
-Всего 55 имён. Исходная исследовательская классификация kind: **42 кандидата** и **13 расширений** с прежним API; актуальный release stage задаётся отдельно через mvp_stage. 42 включают 19 task REST3 маршрутов (18 прямых и list с client filtering), 3 IM companion routes, 7 lifecycle gates, 2 локальных REST3 сводки и 11 команд с невыбранным контрактом рабочих данных. Наличие имени не закрывает JTBD.
+Всего **59 имён**: API research kind содержит **43 кандидата** и **16 расширений с прежним API**. Release stage задаётся отдельно через mvp_stage. Добавлены task:find, две операции корневых чек-листов и item:update; прежние пять операций пунктов перенесены в task:checklist:item:*.
 
 JSON содержит method_routes с API version и SDK wrapper/core-gap для закреплённого b24phpsdk 3.7.0 (8ebd4c154d5557db949b0196825f347a3a6c5bf0). CRUD/schema/access/chat.send/file.attach имеют task wrappers; v3 list/result/gantt gaps требуют явного Core v3. IM inventory не проверен. Атрибуты scope TaskServiceBuilder и старые примеры docs не заменяют фактическую ApiVersion; совпадение имени метода REST1/3 не разрешает выбрать версию по одному имени.
 
 
 ## Граница MVP
 
-Решение пользователя от 2026-10-09: **21 команда вынесена после MVP**. Из исходных 55 остаются **34 команды в рассмотрении**: **27 кандидатов MVP** и **7 расширений с неутверждённым допуском прежнего API**. Четыре команды записей времени явно включены пользователем в MVP через прежний API; остальные 7 требуют отдельного решения. Семь lifecycle кандидатов остаются gated.
+Решение пользователя от 2026-10-09: **21 команда вынесена после MVP**. Из текущих 59 остаются **38 команд в рассмотрении**: **28 кандидатов MVP** и **10 расширений с неутверждённым допуском прежнего API**. Четыре команды записей времени явно включены пользователем в MVP через прежний API; остальные 10 требуют отдельного решения. Семь lifecycle кандидатов остаются gated.
 
 После MVP: зависимости (3), рабочие представления (5), контекст/препятствия (3), изменения/клиентские договорённости (5), результаты задач (5). Прикрепление файла task:file:attach сохранено. Полный перечень находится ниже в отдельном разделе. [task-mvp-scope](../../specs/task-mvp-scope/spec.md) фиксирует границу; JSON mvp_stage отделяет её от kind/route/API evidence.
 
@@ -102,9 +102,9 @@ b24cli help task:update
 b24cli list task
 ```
 
-## Каталог: кандидаты MVP — 27
+## Каталог: кандидаты MVP — 28
 
-Имена и параметры являются проектным интерфейсом. Lifecycle gates сохраняются. Если завершение требует result, исключение result-команд не разрешает отключить requireResult или создать result неявно. Файл/чат не заменяет native result. Четыре команды записей времени входят в MVP с явным REST 1.0 маршрутом; kind=deferred сохраняет исходную классификацию API research, но не исключает эти четыре команды из release scope.
+Имена и параметры — проектный интерфейс. Lifecycle gates и requireResult сохраняются; файл/чат не заменяют native result. Четыре операции записей времени согласованы через REST1. Task:find добавлен в MVP как локальный поиск title через v3 list.
 
 ### Карточка и выборки
 
@@ -113,6 +113,7 @@ b24cli list task
 | `b24cli task:add --title TEXT --creator ID --responsible ID [--project ID --deadline ISO8601 --description TEXT \| --description-file PATH\|-] [--fields JSON \| --fields-file PATH\|-]` | REST 3.0 / write | `tasks.task.add`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-add-rest-v3.md) | Требуются title, creatorId, responsibleId. Критерии приёмки/источник/клиентский контекст можно передать текстом описания; структурированная модель отдельно. Обычные флаги разрешены вместе; advanced fields object задаёт дополнительные writable поля без повторного задания полей, уже заданных флагами. Title/creator/responsible обязательны и в итоговом advanced вводе. |
 | `b24cli task:show TASK_ID [--select FIELD ...]` | REST 3.0 / read | `tasks.task.get`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-get-rest-v3.md) | Для связей select: responsible.id, creator.id, group.id, chat.id; не рассчитывать на responsibleId/groupId в get. |
 | `b24cli task:list [--id ID ...] [--responsible ID --project ID --status STATUS --due-before ISO8601] [--where JSON \| --where-file PATH\|-] [--select FIELD ... --order FIELD:asc\|desc ... --limit N \| --all] [--max-scan N]` | REST3 + локальный фильтр / read | `tasks.task.list`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-list-rest-v3.md) | REST filter только id. --where выполняется локально по явно выбранным полям; полнота требует обхода всех доступных задач. --limit ограничивает выход, --max-scan число просмотренных, это разные значения. --responsible/--project/--status/--due-before — локальные predicates; --id — единственный server filter. --where/--where-file — альтернативный advanced режим локального фильтра, без смешивания с удобными predicates. --limit и --all взаимоисключающие. |
+| `b24cli task:find --title TEXT [--limit N \| --all] [--max-scan N]` | REST3 + локальный фильтр / read | `tasks.task.list`; [source 1](https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-list-rest-v3.html) | Поиск буквальной подстроки только в title, без учёта регистра Unicode; непустой --title обязателен, пробелы по краям запроса убираются. V3 filter поддерживает только id: выбрать id/title и локально проверить все страницы доступных задач в scan budget, без legacy fallback. --limit50/--all ограничивают вывод, --max-scan10000 — просмотр; cap/ошибка/нет title => partial, exit3; полный пустой результат => exit0. Порядок id ASC; regex/wildcards/fuzzy не поддерживаются. |
 | `b24cli task:update TASK_ID [--title TEXT] [--creator ID] [--responsible ID] [--project ID] [--deadline ISO8601] [--description TEXT \| --description-file PATH\|-] [--fields JSON \| --fields-file PATH\|-]` | REST 3.0 / write | `tasks.task.update`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md), [source 2](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/fields-rest-v3.md) | CamelCase, boolean true/false. accomplices/auditors/tags/userFields read-only. Не скрывать read-modify-write гонки. Обычные флаги можно комбинировать; требуется хотя бы одно изменение. Advanced --fields/--fields-file вместо флагов редактирования; дубли, read-only поля и gated status отклоняются до записи. |
 | `b24cli task:delete TASK_ID [--force]` | REST 3.0 / delete | `tasks.task.delete`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-delete-rest-v3.md) | Опциональная административная команда; JTBD не требует удаления задачи. |
 | `b24cli task:fields:list [--name FIELD]` | REST 3.0 / read | `tasks.task.field.list`, `tasks.task.field.get`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-field-list.md), [source 2](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-field-get.md) | Схема до локальной проверки fields; не повышает доступ. |
@@ -158,23 +159,38 @@ b24cli list task
 | `b24cli task:approve TASK_ID` | Lifecycle gate / write | `tasks.task.update`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/fields-rest-v3.md), [source 2](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md), [source 3](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-approve.md) | Внутренняя приёмка, права approve и задача awaiting control. Кандидат REST3 через fields.status=completed; семантическую эквивалентность специальному legacy действию нельзя считать доказанной. До acceptance — disabled, без молчаливого /rest fallback. |
 | `b24cli task:disapprove TASK_ID --reason TEXT` | Lifecycle gate / write | `tasks.task.update`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/fields-rest-v3.md), [source 2](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md), [source 3](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-disapprove.md) | Возврат с обязательной причиной в чате; не просто переписать status. Кандидат REST3 через fields.status=pending; семантическую эквивалентность специальному legacy действию нельзя считать доказанной. До acceptance — disabled, без молчаливого /rest fallback. |
 
-## Допуск прежнего API ещё не выбран — 7
+## Допуск прежнего API ещё не выбран — 10
 
-Чек-листы, участники и история требуют отдельного решения по API scope и acceptance; до этого они не считаются утверждённым MVP.
+Именование чек-листов и пунктов согласовано отдельно от допуска REST1; восемь их операций, участники и история требуют решения о API scope и acceptance.
+
+### Чек-листы
 
 | Команда и параметры | Маршрут / эффект | Методы и источники | Ограничение |
 | --- | --- | --- | --- |
-| `b24cli task:checklist:add TASK_ID --title TEXT [--parent ITEM_ID]` | Прежний API / write | `task.checklistitem.add`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-add.md) | Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях. |
-| `b24cli task:checklist:list TASK_ID` | Прежний API / read | `task.checklistitem.getlist`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-get-list.md) | Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях. |
-| `b24cli task:checklist:complete TASK_ID --item ITEM_ID` | Прежний API / write | `task.checklistitem.complete`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-complete.md) | Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях. |
-| `b24cli task:checklist:renew TASK_ID --item ITEM_ID` | Прежний API / write | `task.checklistitem.renew`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-renew.md) | Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях. |
-| `b24cli task:checklist:delete TASK_ID --item ITEM_ID [--force]` | Прежний API / delete | `task.checklistitem.delete`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-delete.md) | Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях. |
+| `b24cli task:checklist:add TASK_ID --title TEXT` | Прежний API / write | `task.checklistitem.add`; [source 1](https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-add.html), [source 2](https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php) | Создать именно чек-лист: FIELDS.PARENT_ID=0, TITLE — название. SDK add не принимает PARENT_ID; нужен Core REST1. Допуск прежнего API ещё не утверждён. |
+| `b24cli task:checklist:list TASK_ID` | Прежний API / read | `task.checklistitem.getlist`; [source 1](https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-get-list.html) | Показать только корневые элементы PARENT_ID=0 как чек-листы задачи; дочерние пункты отделены в item:list. Ответ API плоский и не пагинируется. Допуск прежнего API ещё не утверждён. |
+
+### Пункты чек-листа
+
+| Команда и параметры | Маршрут / эффект | Методы и источники | Ограничение |
+| --- | --- | --- | --- |
+| `b24cli task:checklist:item:add TASK_ID --checklist CHECKLIST_ID --title TEXT [--parent ITEM_ID]` | Прежний API / write | `task.checklistitem.getlist`, `task.checklistitem.add`; [source 1](https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-get-list.html), [source 2](https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-add.html), [source 3](https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php) | Пункт создаётся с явным PARENT_ID: выбранный CHECKLIST_ID либо --parent внутри него. Проверить корневой чек-лист и родителя в TASK_ID до записи; без неявного создания чек-листа. SDK add не принимает PARENT_ID, нужен Core REST1. Допуск прежнего API ещё не утверждён. |
+| `b24cli task:checklist:item:list TASK_ID --checklist CHECKLIST_ID` | Прежний API / read | `task.checklistitem.getlist`; [source 1](https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-get-list.html) | getlist возвращает все элементы задачи без пагинации. CLI проверяет CHECKLIST_ID и показывает его дочерние элементы, включая вложенные, с ID/PARENT_ID; корень выводится отдельно. Допуск прежнего API ещё не утверждён. |
+| `b24cli task:checklist:item:complete TASK_ID --item ITEM_ID` | Прежний API / write | `task.checklistitem.getlist`, `task.checklistitem.complete`; [source 1](https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-get-list.html), [source 2](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-complete.md) | До действия проверить, что ITEM_ID — пункт выбранной TASK_ID, а не корневой чек-лист; права проверяются сервером. --force у delete отменяет только подтверждение. Допуск прежнего API ещё не утверждён. |
+| `b24cli task:checklist:item:renew TASK_ID --item ITEM_ID` | Прежний API / write | `task.checklistitem.getlist`, `task.checklistitem.renew`; [source 1](https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-get-list.html), [source 2](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-renew.md) | До действия проверить, что ITEM_ID — пункт выбранной TASK_ID, а не корневой чек-лист; права проверяются сервером. --force у delete отменяет только подтверждение. Допуск прежнего API ещё не утверждён. |
+| `b24cli task:checklist:item:delete TASK_ID --item ITEM_ID [--force]` | Прежний API / delete | `task.checklistitem.getlist`, `task.checklistitem.delete`; [source 1](https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-get-list.html), [source 2](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-delete.md) | До действия проверить, что ITEM_ID — пункт выбранной TASK_ID, а не корневой чек-лист; права проверяются сервером. --force у delete отменяет только подтверждение. Допуск прежнего API ещё не утверждён. |
+| `b24cli task:checklist:item:update TASK_ID --item ITEM_ID --title TEXT` | Прежний API / write | `task.checklistitem.getlist`, `task.checklistitem.update`; [source 1](https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-get-list.html), [source 2](https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-update.html), [source 3](https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php) | Изменить только TITLE пункта; пустой текст отклоняется до записи. Проверить TASK_ID/ITEM_ID, запретить корневой чек-лист и сохранить остальные поля. Допуск прежнего API ещё не утверждён. |
+
+### Расширения вне REST 3.0
+
+| Команда и параметры | Маршрут / эффект | Методы и источники | Ограничение |
+| --- | --- | --- | --- |
 | `b24cli task:participants:set TASK_ID [--accomplice ID ... \| --clear-accomplices] [--auditor ID ... \| --clear-auditors]` | Прежний API / write | `tasks.task.update`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update.md) | Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях. Повторяемые флаги составляют полный набор соответствующей роли; --clear-accomplices/--clear-auditors явно очищают набор и исключают одновременный ввод его IDs. |
 | `b24cli task:history:list TASK_ID [--params JSON \| --params-file PATH\|-]` | Прежний API / read | `tasks.task.history.list`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-history-list.md) | Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях. |
 
 ## После MVP — 21
 
-Команды сохранены для последующего развития; они не входят в MVP и не возвращаются в него как скрытый workflow.
+Команды сохранены для последующего развития; скрытое возвращение их workflow в MVP не допускается.
 
 ### Зависимости
 
@@ -225,3 +241,21 @@ b24cli list task
 ## За пределами этого предложения
 
 Собственный MCP, TUI, фоновые уведомления/watch, календарь ёмкости команды, автоматическая отправка клиенту, полноценные CRM операции, Scrum/flows/templates, bulk orchestration и импорт сторонних метаданных не добавляются этим документом. Полный каталог не является обещанием состава первого релиза: граница MVP и API-policy-pending описаны выше. Реализация и проверки кандидатов готовятся отдельными changes.
+
+## Чек-листы, пункты и поиск title
+
+Task:checklist:add создаёт корень с PARENT_ID=0; task:checklist:list показывает корни. Task:checklist:item:add требует --checklist; optional --parent должен принадлежать этому корню. Item:list показывает дочерние элементы выбранного чек-листа; update меняет только title. Complete/renew/delete не принимают корневой ID. API task.checklistitem.* представляет дерево плоским списком без пагинации. Эти восемь команд сохраняют API-policy-pending.
+
+Task:find --title TEXT ищет буквальную подстроку без учёта регистра Unicode только в заголовке. Это новая read-only команда MVP: REST3 list + локальная фильтрация. Limit50, max-scan10000, --all, partial и complete имеют общую семантику списков; --all не снимает scan cap. Description/chat не участвуют, wildcard/regex/fuzzy и серверный title filter не обещаются.
+
+```bash
+b24cli task:find --title "договор"
+b24cli task:find --title "договор" --all --max-scan 20000 --json
+b24cli task:checklist:add 123 --title "Подготовка релиза"
+b24cli task:checklist:list 123
+b24cli task:checklist:item:add 123 --checklist 456 --title "Проверить сборку"
+b24cli task:checklist:item:list 123 --checklist 456
+b24cli task:checklist:item:update 123 --item 457 --title "Проверить сборку и тесты"
+```
+
+Примеры показывают будущий интерфейс; checklist calls требуют допуска API и runtime реализации.
