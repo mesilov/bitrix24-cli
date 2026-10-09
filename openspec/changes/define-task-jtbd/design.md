@@ -76,9 +76,9 @@ Entrypoint b24cli пока является решением интерфейс�
 
 ## MVP exclusions and admission
 
-Пользователь вынес 28 операций: 3 dependency, 5 рабочих представлений, 3 context/blocker, 5 change/delivery/feedback/acceptance, 5 task:result операций и 7 команд жизненного цикла. JSON mvp_scope содержит точный набор и mvp_stage каждой команды. Каталог переорганизован: 21 MVP candidates, 10 API-policy-pending, 28 post-MVP. Текущие kind/route и 43+16 описывают API-кандидатов полного research catalogue, а не MVP состав.
+Пользователь вынес 28 операций: 3 dependency, 5 рабочих представлений, 3 context/blocker, 5 change/delivery/feedback/acceptance, 5 task:result операций и 7 команд жизненного цикла. JSON mvp_scope содержит точный набор и mvp_stage каждой команды. Каталог переорганизован: 29 MVP candidates, 2 API-policy-pending, 28 post-MVP. Текущие kind/route и 43+16 описывают API-кандидатов полного research catalogue, а не MVP состав.
 
-31 оставшаяся операция — перечень в рассмотрении. 10 legacy admissions ещё не утверждены; четыре time routes согласованы для MVP. Lifecycle не входит в первый релиз; его gates сохраняются для будущего допуска. Политика task-v3 допускает эти явные REST 1.0 маршруты вместе с документированными IM companions; strict-rest3 продолжает отклонять non-v3 запросы; исключение scope не разрешает скрытый fallback. Dependency:list имеет REST3 route, но вынесен по пользовательскому решению так же, как legacy dependency mutations.
+31 оставшаяся операция — перечень в рассмотрении. Два legacy admissions (participants/history) ещё не утверждены; четыре time команды и восемь checklist/root/item команд согласованы для MVP. Lifecycle не входит в первый релиз; его gates сохраняются для будущего допуска. Политика task-v3 допускает эти явные REST 1.0 маршруты вместе с документированными IM companions; strict-rest3 продолжает отклонять non-v3 запросы; исключение scope не разрешает скрытый fallback. Dependency:list имеет REST3 route, но вынесен по пользовательскому решению так же, как legacy dependency mutations.
 
 Все 19 требований продукта остаются в task-workflows. В coverage добавлен отдельный MVP partition ссылок: retained candidates, API pending и post-MVP. PM-05 и AM-02/03/05 не имеют оставшихся mapped команд; EMP-01 сохраняет базовый task:list --responsible вместо исключённого task:my. Mapping-reduced — описательная структура набора команд, не доказательство частичного acceptance сценария. Старые documented/conditional counts остаются оценкой полного каталога.
 
@@ -93,15 +93,15 @@ Provider blockers/changes/client obligations/delivery/feedback после это
 
 ## Time entries in MVP
 
-Пользователь включил task:time:add/list/update/delete. Эти команды используют явно выбранные task.elapseditem.add/getlist/update/delete (REST 1.0), сохраняют API/SDK provenance и не маскируются под REST3. Решение ограничено четырьмя time routes и не допускает другие legacy extensions. В meta показывается API version; strict-rest3 возвращает gated-unavailable до запроса.
+Пользователь включил task:time:add/list/update/delete. Эти команды используют явно выбранные task.elapseditem.add/getlist/update/delete (REST 1.0), сохраняют API/SDK provenance и не маскируются под REST3. Допуск времени ограничен четырьмя time routes; отдельное решение включает восемь checklist/root/item команд. Participants/history и другие legacy extensions не допускаются автоматически. В meta показывается API version; strict-rest3 возвращает gated-unavailable до запроса.
 
 EMP-06 включает создание, полный список, исправление и удаление своих записей. При update/delete проверяются связь TASK_ID/ENTRY_ID и права текущего подключения; --force отменяет только подтверждение, не права. Task:time:show читает elapsedTime через v3 и не заменяет список записей. Решение о MVP не доказывает portal acceptance.
 
 ## Checklist roots and items
 
-Согласованы две операции корня (add/list) и шесть операций пунктов (add/list/update/complete/renew/delete). Старые пять неоднозначных именований заменены item namespace; это не runtime aliases. CHECKLIST_ID и ITEM_ID различаются по роли узла: корень PARENT_ID=0, пункт имеет родителя. Task:checklist:add всегда передаёт PARENT_ID=0, item:add всегда явный проверенный parent; не использовать API default с автоматическим выбором/созданием корня.
+В MVP включены две операции корня (add/list) и шесть операций пунктов (add/list/update/complete/renew/delete) с явным допуском REST 1.0 task.checklistitem.* маршрутов и preflight getlist. Strict-rest3 отклоняет эти команды до запроса. Старые пять неоднозначных именований заменены item namespace; это не runtime aliases. CHECKLIST_ID и ITEM_ID различаются по роли узла: корень PARENT_ID=0, пункт имеет родителя. Task:checklist:add всегда передаёт PARENT_ID=0, item:add всегда явный проверенный parent; не использовать API default с автоматическим выбором/созданием корня.
 
-Getlist возвращает элементы всех чек-листов одним плоским списком без pagination. Для root:list выбираются корни; item:list выбирает потомков указанного корня и показывает ID/PARENT_ID. Корень, parent и item должны принадлежать TASK_ID; parent — выбранному корню. Некорректное дерево/ID не допускает mutating request. Item:update разрешает только непустой title. Восемь команд остаются API-policy-pending.
+Getlist возвращает элементы всех чек-листов одним плоским списком без pagination. Для root:list выбираются корни; item:list выбирает потомков указанного корня и показывает ID/PARENT_ID. Корень, parent и item должны принадлежать TASK_ID; parent — выбранному корню. Некорректное дерево/ID не допускает mutating request. Item:update разрешает только непустой title. Все восемь команд — кандидаты MVP; runtime acceptance ещё требуется. Item:complete/renew меняют состояние пункта, не status задачи и не возвращают исключённый lifecycle в MVP.
 
 Проверен Checklistitem.php pinned b24phpsdk: add(taskId,title,sort,completed) не передаёт PARENT_ID. Для root/item add требуется явный Core REST1; SDK wrapper update принимает fields и позволяет изменить TITLE. Контроль дерева использует getlist. API routes и SDK gap отражены в JSON, не маскируются одним wrapper name.
 

@@ -45,11 +45,11 @@ task:disapprove
 ```
 
 ### Requirement: API admission and future lifecycle acceptance remain explicit
-Каталог SHALL отделять release scope от API support: после 28 исключений остаётся 31 команда в рассмотрении, 21 кандидат MVP, включая четыре согласованные legacy time команды, и 10 команд с неутверждённым допуском прежнего API. Права SHALL проверяться для оставшихся кандидатов; lifecycle команды SHALL оставаться после MVP независимо от технической возможности записи status. Наличие команды в остатке не SHALL означать принятие API exception, доказанную семантику или runtime readiness.
+Каталог SHALL отделять release scope от API support: 59 операций = 29 кандидатов MVP, 2 API-policy-pending и 28 после MVP. В MVP явно допущены 4 time и 8 checklist/root/item команд через REST1. Права SHALL проверяться для кандидатов; lifecycle SHALL оставаться после MVP независимо от возможности записи status. Наличие команды в каталоге не SHALL означать принятие иных API exceptions, доказанную семантику или runtime readiness.
 
 #### Scenario: Remaining legacy extension
-- **WHEN** команда чек-листа, участников или истории использует прежний API и решение о допуске ещё не принято
-- **THEN** она остаётся в разделе API-policy-pending и не считается утверждённой частью MVP; восемь операций корней/пунктов чек-листов имеют раздельные имена, но согласование vocabulary не разрешает legacy запросы или скрытый fallback
+- **WHEN** команда участников или истории использует прежний API и решение о допуске ещё не принято
+- **THEN** она остаётся в разделе API-policy-pending и не считается утверждённой частью MVP; допуск time/checklist routes не разрешает остальные legacy запросы или скрытый fallback
 
 #### Scenario: Lifecycle commands after MVP
 - **WHEN** формируется MVP или пользователь передаёт смену status через task:update --fields/--fields-file
@@ -73,6 +73,21 @@ MVP SHALL включать task:time:add/list/update/delete через явно 
 #### Scenario: Modification of a time entry
 - **WHEN** пользователь изменяет или удаляет ENTRY_ID в указанной TASK_ID
 - **THEN** CLI проверяет принадлежность записи задаче и права действующего подключения; --force для delete отменяет только подтверждение, а неверная задача или отсутствие прав не допускают запись
+
+### Requirement: Checklist roots and items are included through explicit legacy routes
+MVP SHALL включать task:checklist:add/list и task:checklist:item:add/list/update/complete/renew/delete через явно согласованные REST 1.0 task.checklistitem.* маршруты и preflight getlist. Допуск SHALL ограничиваться этими восемью командами, показывать API version и сохранять запрет non-v3 в strict-rest3. CLI SHALL различать корни/пункты и проверять TASK_ID, parent и права. Item:complete/renew не SHALL менять lifecycle status задачи.
+
+#### Scenario: Checklist operations in the default task policy
+- **WHEN** пользователь вызывает одну из восьми checklist/root/item команд в task-v3 режиме
+- **THEN** CLI использует согласованный REST1 маршрут, отражает API version 1.0 и не выполняет скрытый fallback; root:list показывает только корни, item:list — потомков выбранного корня с ID/PARENT_ID
+
+#### Scenario: Checklist hierarchy and mutation checks
+- **WHEN** пользователь создаёт корень или добавляет, изменяет, выполняет, возобновляет либо удаляет пункт
+- **THEN** root:add задаёт PARENT_ID=0, item:add — явный проверенный parent внутри выбранного чек-листа; IDs принадлежат TASK_ID, root ID не принимается за пункт. Item:update меняет только непустой title; права и подтверждение delete сохраняются. SDK PARENT_ID gap требует явного Core REST1; операции не меняют status задачи
+
+#### Scenario: Checklist operations with strict REST3 policy
+- **WHEN** пользователь вызывает любую из восьми checklist/root/item команд в strict-rest3 режиме
+- **THEN** CLI до запроса возвращает gated-unavailable с объяснением прежнего API; он не переключает политику и не подменяет действие неподтверждённым v3 маршрутом
 
 ### Requirement: MVP coverage is distinct from product JTBD
 Матрица SHALL сохранять 19 согласованных JTBD и отдельно перечислять оставшиеся и исключённые связи команд для MVP. Сокращённый mapping не SHALL выдаваться за полное покрытие сценария; отсутствие mapped команды не SHALL удалять продуктовое требование. Ручные действия через базовые retained команды SHALL отличаться от исключённых сводок и автоматизации.

@@ -2005,7 +2005,7 @@
       "jtbd": [
         "PM-01"
       ],
-      "note": "Пункт создаётся с явным PARENT_ID: выбранный CHECKLIST_ID либо --parent внутри него. Проверить корневой чек-лист и родителя в TASK_ID до записи; без неявного создания чек-листа. SDK add не принимает PARENT_ID, нужен Core REST1. Допуск прежнего API ещё не утверждён.",
+      "note": "Пункт создаётся с явным PARENT_ID: выбранный CHECKLIST_ID либо --parent внутри него. Проверить корневой чек-лист и родителя в TASK_ID до записи; без неявного создания чек-листа. SDK add не принимает PARENT_ID, нужен Core REST1. Включено в MVP решением пользователя 2026-10-09 через явный REST 1.0 маршрут; API version показывается в meta, strict-rest3 отклоняет запрос. Права и принадлежность ID задаче проверяются при реализации; скрытый fallback запрещён.",
       "kind": "deferred",
       "effect": "write",
       "method_routes": [
@@ -2031,8 +2031,8 @@
       ],
       "previous_proposal_name": "task:checklist:add",
       "initial_proposal_name": "tasks:checklist:add",
-      "mvp_stage": "api-policy-pending",
-      "mvp_reason": "Checklist routes remain API-policy-pending; naming approval does not grant legacy API admission."
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Explicitly included in MVP by user on 2026-10-09 through selected REST1 checklist routes; strict-rest3 remains unavailable; hierarchy, task binding and rights require runtime acceptance."
     },
     {
       "name": "task:checklist:item:list",
@@ -2048,7 +2048,7 @@
       "jtbd": [
         "EMP-02"
       ],
-      "note": "getlist возвращает все элементы задачи без пагинации. CLI проверяет CHECKLIST_ID и показывает его дочерние элементы, включая вложенные, с ID/PARENT_ID; корень выводится отдельно. Допуск прежнего API ещё не утверждён.",
+      "note": "getlist возвращает все элементы задачи без пагинации. CLI проверяет CHECKLIST_ID и показывает его дочерние элементы, включая вложенные, с ID/PARENT_ID; корень выводится отдельно. Включено в MVP решением пользователя 2026-10-09 через явный REST 1.0 маршрут; API version показывается в meta, strict-rest3 отклоняет запрос. Права и принадлежность ID задаче проверяются при реализации; скрытый fallback запрещён.",
       "kind": "deferred",
       "effect": "read",
       "method_routes": [
@@ -2067,8 +2067,8 @@
       ],
       "previous_proposal_name": "task:checklist:list",
       "initial_proposal_name": "tasks:checklist:list",
-      "mvp_stage": "api-policy-pending",
-      "mvp_reason": "Checklist routes remain API-policy-pending; naming approval does not grant legacy API admission."
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Explicitly included in MVP by user on 2026-10-09 through selected REST1 checklist routes; strict-rest3 remains unavailable; hierarchy, task binding and rights require runtime acceptance."
     },
     {
       "name": "task:checklist:item:complete",
@@ -2084,7 +2084,7 @@
         "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-complete.md"
       ],
       "jtbd": [],
-      "note": "До действия проверить, что ITEM_ID — пункт выбранной TASK_ID, а не корневой чек-лист; права проверяются сервером. --force у delete отменяет только подтверждение. Допуск прежнего API ещё не утверждён.",
+      "note": "До действия проверить, что ITEM_ID — пункт выбранной TASK_ID, а не корневой чек-лист; права проверяются сервером. --force у delete отменяет только подтверждение. Включено в MVP решением пользователя 2026-10-09 через явный REST 1.0 маршрут; API version показывается в meta, strict-rest3 отклоняет запрос. Права и принадлежность ID задаче проверяются при реализации; скрытый fallback запрещён.",
       "kind": "deferred",
       "effect": "write",
       "method_routes": [
@@ -2115,8 +2115,8 @@
       ],
       "previous_proposal_name": "task:checklist:complete",
       "initial_proposal_name": "tasks:checklist:complete",
-      "mvp_stage": "api-policy-pending",
-      "mvp_reason": "Checklist routes remain API-policy-pending; naming approval does not grant legacy API admission."
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Explicitly included in MVP by user on 2026-10-09 through selected REST1 checklist routes; strict-rest3 remains unavailable; hierarchy, task binding and rights require runtime acceptance."
     },
     {
       "name": "task:checklist:item:renew",
@@ -2132,7 +2132,7 @@
         "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-renew.md"
       ],
       "jtbd": [],
-      "note": "До действия проверить, что ITEM_ID — пункт выбранной TASK_ID, а не корневой чек-лист; права проверяются сервером. --force у delete отменяет только подтверждение. Допуск прежнего API ещё не утверждён.",
+      "note": "До действия проверить, что ITEM_ID — пункт выбранной TASK_ID, а не корневой чек-лист; права проверяются сервером. --force у delete отменяет только подтверждение. Включено в MVP решением пользователя 2026-10-09 через явный REST 1.0 маршрут; API version показывается в meta, strict-rest3 отклоняет запрос. Права и принадлежность ID задаче проверяются при реализации; скрытый fallback запрещён.",
       "kind": "deferred",
       "effect": "write",
       "method_routes": [
@@ -2163,8 +2163,8 @@
       ],
       "previous_proposal_name": "task:checklist:renew",
       "initial_proposal_name": "tasks:checklist:renew",
-      "mvp_stage": "api-policy-pending",
-      "mvp_reason": "Checklist routes remain API-policy-pending; naming approval does not grant legacy API admission."
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Explicitly included in MVP by user on 2026-10-09 through selected REST1 checklist routes; strict-rest3 remains unavailable; hierarchy, task binding and rights require runtime acceptance."
     },
     {
       "name": "task:checklist:item:delete",
@@ -2180,7 +2180,7 @@
         "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-delete.md"
       ],
       "jtbd": [],
-      "note": "До действия проверить, что ITEM_ID — пункт выбранной TASK_ID, а не корневой чек-лист; права проверяются сервером. --force у delete отменяет только подтверждение. Допуск прежнего API ещё не утверждён.",
+      "note": "До действия проверить, что ITEM_ID — пункт выбранной TASK_ID, а не корневой чек-лист; права проверяются сервером. --force у delete отменяет только подтверждение. Включено в MVP решением пользователя 2026-10-09 через явный REST 1.0 маршрут; API version показывается в meta, strict-rest3 отклоняет запрос. Права и принадлежность ID задаче проверяются при реализации; скрытый fallback запрещён.",
       "kind": "deferred",
       "effect": "delete",
       "method_routes": [
@@ -2211,8 +2211,8 @@
       ],
       "previous_proposal_name": "task:checklist:delete",
       "initial_proposal_name": "tasks:checklist:delete",
-      "mvp_stage": "api-policy-pending",
-      "mvp_reason": "Checklist routes remain API-policy-pending; naming approval does not grant legacy API admission."
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Explicitly included in MVP by user on 2026-10-09 through selected REST1 checklist routes; strict-rest3 remains unavailable; hierarchy, task binding and rights require runtime acceptance."
     },
     {
       "name": "task:dependency:add",
@@ -2347,7 +2347,7 @@
       "jtbd": [
         "PM-01"
       ],
-      "note": "Создать именно чек-лист: FIELDS.PARENT_ID=0, TITLE — название. SDK add не принимает PARENT_ID; нужен Core REST1. Допуск прежнего API ещё не утверждён.",
+      "note": "Создать именно чек-лист: FIELDS.PARENT_ID=0, TITLE — название. SDK add не принимает PARENT_ID; нужен Core REST1. Включено в MVP решением пользователя 2026-10-09 через явный REST 1.0 маршрут; API version показывается в meta, strict-rest3 отклоняет запрос. Права и принадлежность ID задаче проверяются при реализации; скрытый fallback запрещён.",
       "kind": "deferred",
       "effect": "write",
       "method_routes": [
@@ -2361,8 +2361,8 @@
       ],
       "previous_proposal_name": null,
       "initial_proposal_name": null,
-      "mvp_stage": "api-policy-pending",
-      "mvp_reason": "Checklist routes remain API-policy-pending; naming approval does not grant legacy API admission."
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Explicitly included in MVP by user on 2026-10-09 through selected REST1 checklist routes; strict-rest3 remains unavailable; hierarchy, task binding and rights require runtime acceptance."
     },
     {
       "name": "task:checklist:list",
@@ -2378,7 +2378,7 @@
       "jtbd": [
         "EMP-02"
       ],
-      "note": "Показать только корневые элементы PARENT_ID=0 как чек-листы задачи; дочерние пункты отделены в item:list. Ответ API плоский и не пагинируется. Допуск прежнего API ещё не утверждён.",
+      "note": "Показать только корневые элементы PARENT_ID=0 как чек-листы задачи; дочерние пункты отделены в item:list. Ответ API плоский и не пагинируется. Включено в MVP решением пользователя 2026-10-09 через явный REST 1.0 маршрут; API version показывается в meta, strict-rest3 отклоняет запрос. Права и принадлежность ID задаче проверяются при реализации; скрытый fallback запрещён.",
       "kind": "deferred",
       "effect": "read",
       "method_routes": [
@@ -2397,8 +2397,8 @@
       ],
       "previous_proposal_name": null,
       "initial_proposal_name": null,
-      "mvp_stage": "api-policy-pending",
-      "mvp_reason": "Checklist routes remain API-policy-pending; naming approval does not grant legacy API admission."
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Explicitly included in MVP by user on 2026-10-09 through selected REST1 checklist routes; strict-rest3 remains unavailable; hierarchy, task binding and rights require runtime acceptance."
     },
     {
       "name": "task:checklist:item:update",
@@ -2415,7 +2415,7 @@
         "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
       ],
       "jtbd": [],
-      "note": "Изменить только TITLE пункта; пустой текст отклоняется до записи. Проверить TASK_ID/ITEM_ID, запретить корневой чек-лист и сохранить остальные поля. Допуск прежнего API ещё не утверждён.",
+      "note": "Изменить только TITLE пункта; пустой текст отклоняется до записи. Проверить TASK_ID/ITEM_ID, запретить корневой чек-лист и сохранить остальные поля. Включено в MVP решением пользователя 2026-10-09 через явный REST 1.0 маршрут; API version показывается в meta, strict-rest3 отклоняет запрос. Права и принадлежность ID задаче проверяются при реализации; скрытый fallback запрещён.",
       "kind": "deferred",
       "effect": "write",
       "method_routes": [
@@ -2446,8 +2446,8 @@
       ],
       "previous_proposal_name": null,
       "initial_proposal_name": null,
-      "mvp_stage": "api-policy-pending",
-      "mvp_reason": "Checklist routes remain API-policy-pending; naming approval does not grant legacy API admission."
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Explicitly included in MVP by user on 2026-10-09 through selected REST1 checklist routes; strict-rest3 remains unavailable; hierarchy, task binding and rights require runtime acceptance."
     }
   ],
   "sdk": {
@@ -2548,7 +2548,7 @@
       "item_parent": "explicit checklist or validated descendant parent",
       "flat_api_response": true,
       "api_version": "1.0",
-      "admission": "api-policy-pending",
+      "admission": "explicit-mvp-rest1-exception",
       "sdk_parent_id_gap": true,
       "checked_on": "2026-10-09",
       "sources": [
@@ -2613,7 +2613,7 @@
   },
   "mvp_scope": {
     "decision_date": "2026-10-09",
-    "status": "28 exclusions and four legacy time routes agreed; other legacy admission pending; lifecycle acceptance deferred after MVP",
+    "status": "28 exclusions, four legacy time commands and eight legacy checklist commands agreed; participants/history legacy admission pending; lifecycle deferred after MVP",
     "spec": "openspec/specs/task-mvp-scope/spec.md",
     "post_mvp_groups": {
       "Зависимости": [
@@ -2691,8 +2691,8 @@
       "all_researched": 59,
       "excluded_post_mvp": 28,
       "remaining_under_consideration": 31,
-      "mvp_candidates": 21,
-      "api_policy_pending": 10
+      "mvp_candidates": 29,
+      "api_policy_pending": 2
     },
     "note": "Release scope is separate from existing candidate/deferred API-route classification; no runtime implementation or full JTBD acceptance is implied.",
     "result_scope_note": "All five result commands and all seven lifecycle commands are post-MVP; task:file:attach remains a candidate. Chat messages/files are not native task results. Future lifecycle admission preserves requireResult and cannot introduce hidden result creation or bypass its gates.",
@@ -2702,14 +2702,65 @@
         "task:time:add",
         "task:time:list",
         "task:time:update",
-        "task:time:delete"
+        "task:time:delete",
+        "task:checklist:add",
+        "task:checklist:list",
+        "task:checklist:item:add",
+        "task:checklist:item:list",
+        "task:checklist:item:update",
+        "task:checklist:item:complete",
+        "task:checklist:item:renew",
+        "task:checklist:item:delete"
       ],
       "api_version": "1.0",
       "route": "legacy-extension",
       "strict_rest3": "unavailable",
-      "note": "Explicitly included in MVP by user; selected routes, never automatic fallback."
+      "note": "Explicitly included by user: four time entry commands and eight checklist/root/item commands. Admission is limited to their documented command routes and preflight steps; never automatic fallback or unrestricted legacy access.",
+      "command_routes": {
+        "task:time:add": [
+          "task.elapseditem.add"
+        ],
+        "task:time:list": [
+          "task.elapseditem.getlist"
+        ],
+        "task:time:update": [
+          "task.elapseditem.update"
+        ],
+        "task:time:delete": [
+          "task.elapseditem.delete"
+        ],
+        "task:checklist:add": [
+          "task.checklistitem.add"
+        ],
+        "task:checklist:list": [
+          "task.checklistitem.getlist"
+        ],
+        "task:checklist:item:add": [
+          "task.checklistitem.getlist",
+          "task.checklistitem.add"
+        ],
+        "task:checklist:item:list": [
+          "task.checklistitem.getlist"
+        ],
+        "task:checklist:item:update": [
+          "task.checklistitem.getlist",
+          "task.checklistitem.update"
+        ],
+        "task:checklist:item:complete": [
+          "task.checklistitem.getlist",
+          "task.checklistitem.complete"
+        ],
+        "task:checklist:item:renew": [
+          "task.checklistitem.getlist",
+          "task.checklistitem.renew"
+        ],
+        "task:checklist:item:delete": [
+          "task.checklistitem.getlist",
+          "task.checklistitem.delete"
+        ]
+      }
     },
-    "checklist_scope_note": "Two checklist operations and six item operations are distinct; all eight still require explicit legacy API admission. Root add/list reuse checklistitem.add/getlist with explicit parent semantics.",
+    "checklist_scope_note": "Two root and six item operations are included in MVP through explicit REST1 routes. Root PARENT_ID=0 and item parent semantics remain distinct; task/ID/rights checks and SDK PARENT_ID gap are preserved. Item complete/renew never performs an excluded task lifecycle transition.",
     "lifecycle_scope_note": "All seven transitions are post-MVP. MVP excludes status changes through task:update --fields/--fields-file, aliases and implicit steps. Reading status and ordinary task field updates remain available; needsControl/requireResult/rights/side effects must be verified before future lifecycle admission."
   }
 }

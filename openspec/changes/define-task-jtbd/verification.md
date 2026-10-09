@@ -2,7 +2,7 @@
 
 Дата: 2026-10-09. Это проверка фиксации согласованных JTBD и статического каталога MCP; проверка реализации CLI не выполняется.
 
-Дополнения ниже сохраняют результаты последовательных уточнений. Текущая граница MVP зафиксирована в последнем разделе о переносе жизненного цикла; прежние counts описывают предыдущие состояния.
+Дополнения ниже сохраняют результаты последовательных уточнений. Текущая граница MVP зафиксирована в последнем разделе; прежние counts описывают предыдущие состояния.
 
 ## Подтверждённые результаты
 
@@ -78,3 +78,12 @@
 - Все 19 продуктовых JTBD и исходные API assessments/conditions/acceptance сохранены. MVP mapping: 7 unchanged, 8 reduced, 4 empty (PM-05, AM-02/03/05). EMP-05 сохраняет только task:file:attach; это не выполняет native result/completion workflow. JSON/Markdown partition всех 19 строк согласован.
 - Проверены exact lifecycle/post-MVP/time sets, release counts, неизменность API evidence, 59 уникальных имён и совпадение Markdown syntax/stage с JSON; canonical/delta equality task-mvp-scope (4 requirements/9 scenarios). Task-workflows и cli-experience delta/main byte-identical к предыдущему HEAD. Strict validation: 5 specs passed, change valid; git diff --check прошёл.
 - Planning 8/11; задачи будущего продукта остаются открытыми, lifecycle acceptance перенесён из MVP admission task 2.3 в последующее проектирование 2.1. Изменены только planning/specs; PHP/launcher/portal calls не выполнялись, change не архивирован.
+
+## Чек-листы и пункты включены в MVP (2026-10-09)
+
+- По решению пользователя task:checklist:add/list и task:checklist:item:add/list/update/complete/renew/delete включены в MVP с явным REST1 допуском. Exact set изменения — восемь ранее API-policy-pending команд; syntax, methods/method_routes, SDK evidence, sources, kind/effect и исходные JTBD связи сохранены.
+- Текущий каталог: 59 команд, 29 mvp-candidate, 2 api-policy-pending (participants:set, history:list), 28 post-mvp; 31 в рассмотрении. Все прежние исключения, включая семь task lifecycle команд и пять result команд, сохранены. Kind остаётся 43 candidate/16 deferred и не является release stage.
+- Legacy exceptions ограничены четырьмя time и восемью checklist/root/item командами и их перечисленными preflight маршрутами. API version 1.0 отражается в meta, strict-rest3 отказывает до запроса. Core REST1 для PARENT_ID, корни/пункты, проверка TASK_ID/parent/прав и подтверждение delete сохраняются. Item complete/renew не меняют lifecycle status задачи.
+- Все 19 JTBD, их исходные условия, acceptance и API assessment 7/12 и 4/14/1 сохранены. Связи checklist в PM-01/EMP-02 перемещены из API pending в MVP candidates. Structural mapping остаётся 7 unchanged/8 reduced/4 empty; согласование scope/API не подтверждает runtime полноту.
+- Проверены exact восемь admissions, 12 explicit legacy commands, counts 59/29/2/28, API/SDK/syntax/effect invariants, все 59 Markdown rows и JSON stages, canonical/delta equality task-mvp-scope (5 requirements/12 scenarios). Task-workflows и cli-experience delta/main byte-identical к предыдущему HEAD. Strict validation: 5 specs passed, change valid; git diff --check прошёл.
+- Planning 8/11. Runtime acceptance чек-листов остаётся в задаче 2.3; её наличие не отменяет уже принятого допуска REST1. Изменены только planning/specs; PHP/launcher/portal operations не реализованы, change не архивирован.

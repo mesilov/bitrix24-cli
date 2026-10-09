@@ -29,14 +29,13 @@
         "mvp_candidates": [
           "task:add",
           "task:subtask:add",
-          "task:show"
-        ],
-        "api_policy_pending_commands": [
+          "task:show",
           "task:checklist:add",
           "task:checklist:item:add"
         ],
+        "api_policy_pending_commands": [],
         "post_mvp_commands": [],
-        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD. Дополнительные связи поиска и чек-листов описывают discovery/декомпозицию; checklist routes ещё API-policy-pending и не повышают доказанность покрытия."
+        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD. Дополнительные связи поиска и чек-листов описывают discovery/декомпозицию. Все восемь checklist/root/item команд явно включены в MVP через REST1; это решение о scope/API, а не доказательство runtime acceptance или повышения исходного API assessment."
       }
     },
     {
@@ -203,7 +202,7 @@
         ],
         "api_policy_pending_commands": [],
         "post_mvp_commands": [],
-        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD. Дополнительные связи поиска и чек-листов описывают discovery/декомпозицию; checklist routes ещё API-policy-pending и не повышают доказанность покрытия."
+        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD. Дополнительные связи поиска и чек-листов описывают discovery/декомпозицию. Все восемь checklist/root/item команд явно включены в MVP через REST1; это решение о scope/API, а не доказательство runtime acceptance или повышения исходного API assessment."
       }
     },
     {
@@ -382,14 +381,13 @@
         "mvp_candidates": [
           "task:show",
           "task:chat:send",
-          "task:find"
-        ],
-        "api_policy_pending_commands": [
+          "task:find",
           "task:checklist:list",
           "task:checklist:item:list"
         ],
+        "api_policy_pending_commands": [],
         "post_mvp_commands": [],
-        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD. Дополнительные связи поиска и чек-листов описывают discovery/декомпозицию; checklist routes ещё API-policy-pending и не повышают доказанность покрытия."
+        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD. Дополнительные связи поиска и чек-листов описывают discovery/декомпозицию. Все восемь checklist/root/item команд явно включены в MVP через REST1; это решение о scope/API, а не доказательство runtime acceptance или повышения исходного API assessment."
       }
     },
     {
