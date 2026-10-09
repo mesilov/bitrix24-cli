@@ -1,19 +1,19 @@
 # Потенциальная CLI-поверхность для новой карточки задач
 
-Статус: кандидаты для проектирования, команды не реализованы; 16 исключений из MVP согласованы, допуск оставшихся операций ещё требует API/lifecycle решений. Дата: 2026-10-09. Связь: [issue #10](https://github.com/mesilov/bitrix24-cli/issues/10), change define-task-jtbd, [согласованные JTBD](../../specs/task-workflows/spec.md), [JSON каталога](cli-candidates.json), [проверка покрытия](jtbd-coverage.md).
+Статус: кандидаты для проектирования, команды не реализованы; 21 исключение из MVP согласовано, допуск оставшихся операций ещё требует API/lifecycle решений. Дата: 2026-10-09. Связь: [issue #10](https://github.com/mesilov/bitrix24-cli/issues/10), change define-task-jtbd, [согласованные JTBD](../../specs/task-workflows/spec.md), [JSON каталога](cli-candidates.json), [проверка покрытия](jtbd-coverage.md).
 
 Проверен текущий HEAD официального b24restdocs: `b4d3dc81619625c2bf21c28dd0227116f36c8743`. Новый каталог учитывает новую карточку и заменяет предложенный набор 79 имён из исторического исследования как основание для дальнейшего проектирования. Исторический архив сохраняется без изменений.
 
-Всего 55 имён: **42 кандидата** и **13 отложенных расширений** с прежним API. 42 включают 19 task REST3 маршрутов (18 прямых и list с client filtering), 3 IM companion routes, 7 lifecycle gates, 2 локальных REST3 сводки и 11 команд с невыбранным контрактом рабочих данных. Наличие имени не закрывает JTBD.
+Всего 55 имён. Исходная исследовательская классификация kind: **42 кандидата** и **13 расширений** с прежним API; актуальный release stage задаётся отдельно через mvp_stage. 42 включают 19 task REST3 маршрутов (18 прямых и list с client filtering), 3 IM companion routes, 7 lifecycle gates, 2 локальных REST3 сводки и 11 команд с невыбранным контрактом рабочих данных. Наличие имени не закрывает JTBD.
 
 JSON содержит method_routes с API version и SDK wrapper/core-gap для закреплённого b24phpsdk 3.7.0 (8ebd4c154d5557db949b0196825f347a3a6c5bf0). CRUD/schema/access/chat.send/file.attach имеют task wrappers; v3 list/result/gantt gaps требуют явного Core v3. IM inventory не проверен. Атрибуты scope TaskServiceBuilder и старые примеры docs не заменяют фактическую ApiVersion; совпадение имени метода REST1/3 не разрешает выбрать версию по одному имени.
 
 
 ## Граница MVP
 
-Решение пользователя от 2026-10-09: **16 команд вынесены после MVP**. Из исходных 55 остаются **39 команд в рассмотрении**: **28 кандидатов MVP** и **11 расширений с неутверждённым допуском прежнего API**. Эти 11 уже были отложены по API policy; исключение других разделов не делает их автоматически утверждёнными. Семь lifecycle кандидатов остаются gated.
+Решение пользователя от 2026-10-09: **21 команда вынесена после MVP**. Из исходных 55 остаются **34 команды в рассмотрении**: **27 кандидатов MVP** и **7 расширений с неутверждённым допуском прежнего API**. Четыре команды записей времени явно включены пользователем в MVP через прежний API; остальные 7 требуют отдельного решения. Семь lifecycle кандидатов остаются gated.
 
-После MVP: зависимости (3), рабочие представления (5), контекст/препятствия (3), изменения/клиентские договорённости (5). Полный перечень находится ниже в отдельном разделе. [task-mvp-scope](../../specs/task-mvp-scope/spec.md) фиксирует границу; JSON mvp_stage отделяет её от kind/route/API evidence.
+После MVP: зависимости (3), рабочие представления (5), контекст/препятствия (3), изменения/клиентские договорённости (5), результаты задач (5). Прикрепление файла task:file:attach сохранено. Полный перечень находится ниже в отдельном разделе. [task-mvp-scope](../../specs/task-mvp-scope/spec.md) фиксирует границу; JSON mvp_stage отделяет её от kind/route/API evidence.
 
 Все 19 согласованных JTBD сохраняются как общие требования продукта. [Матрица](jtbd-coverage.md#mvp-command-mapping) отдельно показывает оставшиеся и вынесенные команды. Сокращение command mapping не является обещанием полного MVP-покрытия. Отбор собственных задач остаётся доступен через базовый `b24cli task:list --responsible ID`; shortcut task:my вынесен.
 
@@ -23,7 +23,7 @@ JSON содержит method_routes с API version и SDK wrapper/core-gap дл�
 
 Для новой карточки основной task CRUD/result/file/schema/access — REST3, scope tasks. Для истории чата — документированный IM route, scope im. Имя API-версии и методы каждого шага должны попадать в meta, не скрываться общим названием команды.
 
-Предложение для конфигурации реализации: политика `task-v3` разрешает документированные IM companion routes; `strict-rest3` запрещает любой non-v3 запрос. Legacy task extensions требуют отдельного явного разрешения. Ни одна политика не переключает маршрут молча после ошибки.
+Предложение для конфигурации реализации: политика `task-v3` разрешает документированные IM companion routes; `strict-rest3` запрещает любой non-v3 запрос. Для task:time:add/list/update/delete согласован явный допуск REST 1.0 task.elapseditem.* в MVP при политике task-v3. Остальные legacy task extensions требуют отдельного решения; strict-rest3 отклоняет time entry команды до запроса. Ни одна политика не переключает маршрут молча после ошибки.
 
 ## Карточка, списки и приёмка
 
@@ -102,9 +102,9 @@ b24cli help task:update
 b24cli list task
 ```
 
-## Каталог: кандидаты MVP — 28
+## Каталог: кандидаты MVP — 27
 
-Имена и параметры являются проектным интерфейсом. Команда остаётся кандидатом, пока не выполнены проверки её маршрута и прав; lifecycle gate не снимается принадлежностью к MVP.
+Имена и параметры являются проектным интерфейсом. Lifecycle gates сохраняются. Если завершение требует result, исключение result-команд не разрешает отключить requireResult или создать result неявно. Файл/чат не заменяет native result. Четыре команды записей времени входят в MVP с явным REST 1.0 маршрутом; kind=deferred сохраняет исходную классификацию API research, но не исключает эти четыре команды из release scope.
 
 ### Карточка и выборки
 
@@ -130,17 +130,21 @@ b24cli list task
 | `b24cli task:chat:update TASK_ID --message MESSAGE_ID (--text TEXT \| --text-file PATH\|-)` | IM companion / write | `tasks.task.get`, `im.message.update`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-new.md), [source 2](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/chats/messages/im-message-update.md) | Проверить принадлежность сообщения выбранному task chat и авторство; пустой text запретить, поскольку API трактует как удаление. --message явно отличает сообщение от задачи; --text и --text-file взаимоисключающие. |
 | `b24cli task:chat:delete TASK_ID --message MESSAGE_ID [--force]` | IM companion / delete | `tasks.task.get`, `im.message.delete`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-new.md), [source 2](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/chats/messages/im-message-delete.md) | Автор/допустимые права. Ни одного task.commentitem.* пути. |
 
-### Результат и материалы
+### Материалы
 
 | Команда и параметры | Маршрут / эффект | Методы и источники | Ограничение |
 | --- | --- | --- | --- |
-| `b24cli task:result:add TASK_ID (--text TEXT \| --text-file PATH\|-)` | REST 3.0 / write | `tasks.task.result.add`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/result/tasks-task-result-add.md) | Отдельный результат; не chat send и не complete. |
-| `b24cli task:result:list TASK_ID [--params JSON \| --params-file PATH\|-]` | REST 3.0 / read | `tasks.task.result.list`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/result/tasks-task-result-list-rest-v3.md) | Выводить result IDs, материалы и доступные действия; собственная пагинация. |
-| `b24cli task:result:update RESULT_ID (--text TEXT \| --text-file PATH\|-)` | REST 3.0 / write | `tasks.task.result.update`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/result/tasks-task-result-update.md) | Права автора/сервера; CLI-параметры кандидаты, отдельный payload проверяется при реализации. |
-| `b24cli task:result:delete RESULT_ID [--force]` | REST 3.0 / delete | `tasks.task.result.delete`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/result/tasks-task-result-delete.md) | Удаление результата отдельно от удаления задачи. |
-| `b24cli task:result:from-message MESSAGE_ID` | REST 3.0 / write | `tasks.task.result.addfromchatmessage`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/result/tasks-task-result-addfromchatmessage.md) | fields.messageId; работает с сообщением task chat, не addFromComment. |
 | `b24cli task:file:attach TASK_ID --file-id ID ...` | REST 3.0 / write | `tasks.task.file.attach`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-file-attach.md) | Уже загруженные Disk IDs. В этом наборе нет неявной загрузки локальных файлов; upload требует отдельного Disk API workflow. |
+
+### Записи времени
+
+| Команда и параметры | Маршрут / эффект | Методы и источники | Ограничение |
+| --- | --- | --- | --- |
 | `b24cli task:time:show TASK_ID` | REST 3.0 / read | `tasks.task.get`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/fields-rest-v3.md) | Чтение связанного elapsedTime через select. Не обещать полную историю time entries или запись/исправление времени. |
+| `b24cli task:time:add TASK_ID --seconds N [--text TEXT]` | REST 1.0 (явный допуск) / write | `task.elapseditem.add`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/elapsed-item/task-elapsed-item-add.md) | Включено в MVP решением пользователя 2026-10-09 через документированный REST 1.0 task.elapseditem маршрут для новой карточки. API version показывается явно; strict-rest3 не выполняет команду. Проверяются права и связь записи с задачей; скрытый fallback запрещён. |
+| `b24cli task:time:list TASK_ID [--params JSON \| --params-file PATH\|-]` | REST 1.0 (явный допуск) / read | `task.elapseditem.getlist`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/elapsed-item/task-elapsed-item-get-list.md) | Включено в MVP решением пользователя 2026-10-09 через документированный REST 1.0 task.elapseditem маршрут для новой карточки. API version показывается явно; strict-rest3 не выполняет команду. Проверяются права и связь записи с задачей; скрытый fallback запрещён. |
+| `b24cli task:time:update TASK_ID --entry ENTRY_ID --seconds N [--text TEXT]` | REST 1.0 (явный допуск) / write | `task.elapseditem.update`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/elapsed-item/task-elapsed-item-update.md) | Включено в MVP решением пользователя 2026-10-09 через документированный REST 1.0 task.elapseditem маршрут для новой карточки. API version показывается явно; strict-rest3 не выполняет команду. Проверяются права и связь записи с задачей; скрытый fallback запрещён. |
+| `b24cli task:time:delete TASK_ID --entry ENTRY_ID [--force]` | REST 1.0 (явный допуск) / delete | `task.elapseditem.delete`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/elapsed-item/task-elapsed-item-delete.md) | Включено в MVP решением пользователя 2026-10-09 через документированный REST 1.0 task.elapseditem маршрут для новой карточки. API version показывается явно; strict-rest3 не выполняет команду. Проверяются права и связь записи с задачей; скрытый fallback запрещён. |
 
 ### Жизненный цикл
 
@@ -154,16 +158,12 @@ b24cli list task
 | `b24cli task:approve TASK_ID` | Lifecycle gate / write | `tasks.task.update`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/fields-rest-v3.md), [source 2](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md), [source 3](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-approve.md) | Внутренняя приёмка, права approve и задача awaiting control. Кандидат REST3 через fields.status=completed; семантическую эквивалентность специальному legacy действию нельзя считать доказанной. До acceptance — disabled, без молчаливого /rest fallback. |
 | `b24cli task:disapprove TASK_ID --reason TEXT` | Lifecycle gate / write | `tasks.task.update`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/fields-rest-v3.md), [source 2](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md), [source 3](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-disapprove.md) | Возврат с обязательной причиной в чате; не просто переписать status. Кандидат REST3 через fields.status=pending; семантическую эквивалентность специальному legacy действию нельзя считать доказанной. До acceptance — disabled, без молчаливого /rest fallback. |
 
-## Допуск прежнего API ещё не выбран — 11
+## Допуск прежнего API ещё не выбран — 7
 
-Эти оставшиеся операции не исключены новым решением пользователя, но требуют отдельного разрешённого API scope и acceptance; до этого они не считаются утверждённым MVP.
+Чек-листы, участники и история требуют отдельного решения по API scope и acceptance; до этого они не считаются утверждённым MVP.
 
 | Команда и параметры | Маршрут / эффект | Методы и источники | Ограничение |
 | --- | --- | --- | --- |
-| `b24cli task:time:add TASK_ID --seconds N [--text TEXT]` | Прежний API / write | `task.elapseditem.add`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/elapsed-item/task-elapsed-item-add.md) | Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях. |
-| `b24cli task:time:list TASK_ID [--params JSON \| --params-file PATH\|-]` | Прежний API / read | `task.elapseditem.getlist`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/elapsed-item/task-elapsed-item-get-list.md) | Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях. |
-| `b24cli task:time:update TASK_ID --entry ENTRY_ID --seconds N [--text TEXT]` | Прежний API / write | `task.elapseditem.update`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/elapsed-item/task-elapsed-item-update.md) | Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях. |
-| `b24cli task:time:delete TASK_ID --entry ENTRY_ID [--force]` | Прежний API / delete | `task.elapseditem.delete`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/elapsed-item/task-elapsed-item-delete.md) | Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях. |
 | `b24cli task:checklist:add TASK_ID --title TEXT [--parent ITEM_ID]` | Прежний API / write | `task.checklistitem.add`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-add.md) | Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях. |
 | `b24cli task:checklist:list TASK_ID` | Прежний API / read | `task.checklistitem.getlist`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-get-list.md) | Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях. |
 | `b24cli task:checklist:complete TASK_ID --item ITEM_ID` | Прежний API / write | `task.checklistitem.complete`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/checklist-item/task-checklist-item-complete.md) | Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях. |
@@ -172,7 +172,7 @@ b24cli list task
 | `b24cli task:participants:set TASK_ID [--accomplice ID ... \| --clear-accomplices] [--auditor ID ... \| --clear-auditors]` | Прежний API / write | `tasks.task.update`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update.md) | Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях. Повторяемые флаги составляют полный набор соответствующей роли; --clear-accomplices/--clear-auditors явно очищают набор и исключают одновременный ввод его IDs. |
 | `b24cli task:history:list TASK_ID [--params JSON \| --params-file PATH\|-]` | Прежний API / read | `tasks.task.history.list`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-history-list.md) | Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях. |
 
-## После MVP — 16
+## После MVP — 21
 
 Команды сохранены для последующего развития; они не входят в MVP и не возвращаются в него как скрытый workflow.
 
@@ -211,6 +211,16 @@ b24cli list task
 | `b24cli task:delivery:record TASK_ID --recipient-ref REF (--evidence JSON \| --evidence-file PATH\|-) --at ISO8601` | Data contract gate / write | `tasks.task.update`, `tasks.task.chat.message.send`, `im.dialog.messages.get`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md), [source 2](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-chat-message-send.md), [source 3](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-new.md) | Регистрирует факт передачи, подтверждённый оператором/источником; не отправляет email/сообщения и не выдумывает доставку. |
 | `b24cli task:feedback:record TASK_ID --text TEXT --source-ref REF` | Data contract gate / write | `tasks.task.update`, `tasks.task.chat.message.send`, `im.dialog.messages.get`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md), [source 2](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-chat-message-send.md), [source 3](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-new.md) | Явный источник клиентской обратной связи; внутренние сообщения не выдаются за ответ клиента. |
 | `b24cli task:acceptance:record TASK_ID --kind internal\|client --decision accepted\|rework --reason TEXT` | Data contract gate / write | `tasks.task.update`, `tasks.task.chat.message.send`, `im.dialog.messages.get`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-update-rest-v3.md), [source 2](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-chat-message-send.md), [source 3](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-new.md) | Журнал решения. internal и client различаются; запись не подменяет нативную approve/complete и не завершает задачу автоматически. |
+
+### Результаты задачи
+
+| Команда и параметры | Маршрут / эффект | Методы и источники | Ограничение |
+| --- | --- | --- | --- |
+| `b24cli task:result:add TASK_ID (--text TEXT \| --text-file PATH\|-)` | REST 3.0 / write | `tasks.task.result.add`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/result/tasks-task-result-add.md) | Отдельный результат; не chat send и не complete. |
+| `b24cli task:result:list TASK_ID [--params JSON \| --params-file PATH\|-]` | REST 3.0 / read | `tasks.task.result.list`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/result/tasks-task-result-list-rest-v3.md) | Выводить result IDs, материалы и доступные действия; собственная пагинация. |
+| `b24cli task:result:update RESULT_ID (--text TEXT \| --text-file PATH\|-)` | REST 3.0 / write | `tasks.task.result.update`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/result/tasks-task-result-update.md) | Права автора/сервера; CLI-параметры кандидаты, отдельный payload проверяется при реализации. |
+| `b24cli task:result:delete RESULT_ID [--force]` | REST 3.0 / delete | `tasks.task.result.delete`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/result/tasks-task-result-delete.md) | Удаление результата отдельно от удаления задачи. |
+| `b24cli task:result:from-message MESSAGE_ID` | REST 3.0 / write | `tasks.task.result.addfromchatmessage`; [source 1](https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/result/tasks-task-result-addfromchatmessage.md) | fields.messageId; работает с сообщением task chat, не addFromComment. |
 
 ## За пределами этого предложения
 

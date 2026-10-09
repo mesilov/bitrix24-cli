@@ -6,7 +6,7 @@
 
 ## Goals / Non-Goals
 
-Фиксация пользовательского поведения в task-workflows и перенос его в актуальную спецификацию. Этот этап не пишет код; он фиксирует 16 согласованных исключений из MVP. Auth, модель клиентских обязательств, уведомления и окончательный допуск оставшихся API/lifecycle кандидатов требуют дальнейших решений.
+Фиксация пользовательского поведения в task-workflows и перенос его в актуальную спецификацию. Этот этап не пишет код; он фиксирует 21 согласованное исключение из MVP. Auth, модель клиентских обязательств, уведомления и окончательный допуск оставшихся API/lifecycle кандидатов требуют дальнейших решений.
 
 ## Decisions
 
@@ -76,10 +76,23 @@ Entrypoint b24cli пока является решением интерфейс�
 
 ## MVP exclusions and admission
 
-Пользователь вынес 16 операций: 3 dependency, 5 рабочих представлений, 3 context/blocker и 5 change/delivery/feedback/acceptance. JSON mvp_scope содержит точный набор и mvp_stage каждой команды. Каталог переорганизован: 28 MVP candidates, 11 API-policy-pending, 16 post-MVP. Исходные kind/route и 42+13 описывают API-кандидатов полного research catalogue, а не MVP состав.
+Пользователь вынес 21 операцию: 3 dependency, 5 рабочих представлений, 3 context/blocker, 5 change/delivery/feedback/acceptance и 5 task:result операций. JSON mvp_scope содержит точный набор и mvp_stage каждой команды. Каталог переорганизован: 27 MVP candidates, 7 API-policy-pending, 21 post-MVP. Исходные kind/route и 42+13 описывают API-кандидатов полного research catalogue, а не MVP состав.
 
-39 оставшихся операций — перечень в рассмотрении, не 39 утверждённых runnable команд. Семь lifecycle gates и 11 неутверждённых legacy admissions сохраняются. Policy new-card/task-v3/strict-rest3 не меняется; исключение scope не разрешает скрытый fallback. Dependency:list имеет REST3 route, но вынесен по пользовательскому решению так же, как legacy dependency mutations.
+34 оставшиеся операции — перечень в рассмотрении. Семь lifecycle gates и 7 неутверждённых legacy admissions сохраняются; четыре time routes согласованы для MVP. Политика task-v3 допускает эти явные REST 1.0 маршруты вместе с документированными IM companions; strict-rest3 продолжает отклонять non-v3 запросы; исключение scope не разрешает скрытый fallback. Dependency:list имеет REST3 route, но вынесен по пользовательскому решению так же, как legacy dependency mutations.
 
-Все 19 требований продукта остаются в task-workflows. В coverage добавлен отдельный MVP partition ссылок: retained candidates, API pending и post-MVP. AM-02/03 не имеют оставшихся mapped команд; EMP-01 сохраняет базовый task:list --responsible вместо исключённого task:my. Mapping-reduced — описательная структура набора команд, не доказательство частичного acceptance сценария. Старые documented/conditional counts остаются оценкой полного каталога.
+Все 19 требований продукта остаются в task-workflows. В coverage добавлен отдельный MVP partition ссылок: retained candidates, API pending и post-MVP. AM-02/03/05 не имеют оставшихся mapped команд; EMP-01 сохраняет базовый task:list --responsible вместо исключённого task:my. Mapping-reduced — описательная структура набора команд, не доказательство частичного acceptance сценария. Старые documented/conditional counts остаются оценкой полного каталога.
 
-Provider blockers/changes/client obligations/delivery/feedback после этого решения не является предварительным условием выпуска retained CRUD/chat/result команд: проектирование продолжается после MVP. Это не означает, что соответствующие задачи выполнены; они остаются открытыми для дальнейшего продукта. Native lifecycle/result semantics, scoped scans и API exceptions оставшихся команд — условия допуска MVP и должны быть проверены в последующих implementation changes.
+Provider blockers/changes/client obligations/delivery/feedback после этого решения не является предварительным условием выпуска retained CRUD/chat/file команд: проектирование продолжается после MVP. Это не означает, что соответствующие задачи выполнены; они остаются открытыми для дальнейшего продукта. Native lifecycle/result semantics, scoped scans и API exceptions оставшихся команд — условия допуска MVP и должны быть проверены в последующих implementation changes.
+
+
+## Task results after MVP
+
+Все пять task:result команд исключены по прямому решению пользователя; task:file:attach остаётся кандидатом. Общая продуктовая карта результатов/приёмки не удаляется и API evidence result методов остаётся в полном каталоге. MVP partitions PM-05, AM-05, EMP-05 отражают исключение result операций: у AM-05 больше нет mapped MVP команды.
+
+task:complete/approve/disapprove остаются lifecycle кандидатами с неизменными gates. Если requireResult включён, чат или прикреплённый файл не выдают за native result; нельзя скрыто вызывать result:add/from-message, отключать requireResult или обещать завершение без проверенного допустимого результата. Result, уже оформленный в портале, может удовлетворять lifecycle условиям только после проверки прав и семантики. При невыполненных/непроверенных условиях операция не выполняется и объясняет ограничение. Наличие task:file:attach не восстанавливает result workflow в MVP.
+
+## Time entries in MVP
+
+Пользователь включил task:time:add/list/update/delete. Эти команды используют явно выбранные task.elapseditem.add/getlist/update/delete (REST 1.0), сохраняют API/SDK provenance и не маскируются под REST3. Решение ограничено четырьмя time routes и не допускает другие legacy extensions. В meta показывается API version; strict-rest3 возвращает gated-unavailable до запроса.
+
+EMP-06 включает создание, полный список, исправление и удаление своих записей. При update/delete проверяются связь TASK_ID/ENTRY_ID и права текущего подключения; --force отменяет только подтверждение, не права. Task:time:show читает elapsedTime через v3 и не заменяет список записей. Решение о MVP не доказывает portal acceptance.

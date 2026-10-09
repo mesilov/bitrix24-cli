@@ -135,20 +135,19 @@
       "mvp": {
         "mapping_status": "mapping-reduced",
         "remaining_commands": [
-          "task:result:list",
           "task:approve",
           "task:disapprove"
         ],
         "mvp_candidates": [
-          "task:result:list",
           "task:approve",
           "task:disapprove"
         ],
         "api_policy_pending_commands": [],
         "post_mvp_commands": [
+          "task:result:list",
           "task:acceptance:record"
         ],
-        "note": "Базовые result/list и native review кандидаты сохранены; отдельный журнал acceptance вынесен. Lifecycle семантика по-прежнему требует проверки."
+        "note": "Result:list и отдельный acceptance journal после MVP; approve/disapprove остаются gated. MVP не предоставляет отдельный просмотр native results и не обещает полного JTBD внутренней приёмки."
       }
     },
     {
@@ -288,21 +287,18 @@
       "condition": "Публичная передача и отзыв подтверждаются оператором/источником. Хранилище и схема событий ещё не приняты; команды не отправляют клиенту сообщения.",
       "acceptance": "Передача имеет evidence и дату; отзыв имеет source ref; внутреннее approve не делает client accepted автоматически.",
       "mvp": {
-        "mapping_status": "mapping-reduced",
-        "remaining_commands": [
-          "task:result:list"
-        ],
-        "mvp_candidates": [
-          "task:result:list"
-        ],
+        "mapping_status": "no-remaining-mapped-commands",
+        "remaining_commands": [],
+        "mvp_candidates": [],
         "api_policy_pending_commands": [],
         "post_mvp_commands": [
+          "task:result:list",
           "task:delivery:record",
           "task:feedback:record",
           "task:acceptance:record",
           "task:report"
         ],
-        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD."
+        "note": "Все исходные mapped команды, включая result:list, после MVP. Клиентская передача/отзыв/приёмка сохраняются общими требованиями продукта."
       }
     },
     {
@@ -447,22 +443,21 @@
       "condition": "Предъявить result через v3 можно; переход на контроль, requireResult и post-condition complete нуждаются в lifecycle acceptance.",
       "acceptance": "Нет result при requireResult => ошибка; needsControl => awaiting control; права и действительный статус проверены.",
       "mvp": {
-        "mapping_status": "mapping-unchanged",
+        "mapping_status": "mapping-reduced",
         "remaining_commands": [
-          "task:result:add",
-          "task:result:from-message",
           "task:file:attach",
           "task:complete"
         ],
         "mvp_candidates": [
-          "task:result:add",
-          "task:result:from-message",
           "task:file:attach",
           "task:complete"
         ],
         "api_policy_pending_commands": [],
-        "post_mvp_commands": [],
-        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD."
+        "post_mvp_commands": [
+          "task:result:add",
+          "task:result:from-message"
+        ],
+        "note": "Result:add/from-message после MVP. File:attach и complete остаются кандидатами; файл/чат не считается native result. При requireResult существующий допустимый result должен удовлетворять проверенным условиям lifecycle; нельзя создавать его неявно или отключать требование."
       }
     },
     {
@@ -471,30 +466,32 @@
         "task:time:show",
         "task:time:add",
         "task:time:list",
-        "task:time:update"
+        "task:time:update",
+        "task:time:delete"
       ],
       "new_card_status": "conditional",
       "strict_rest3_status": "gap",
-      "condition": "V3 даёт чтение elapsedTime, но не документирует запись/исправление elapsed entries. Нужны явные legacy time exceptions либо оставить сценарий вне strictly-v3 MVP.",
-      "acceptance": "Собственная запись seconds/comment; исправление author/admin; не секундомер; проверка полного списка entries отдельно.",
+      "condition": "V3 даёт чтение elapsedTime, но не документирует запись/исправление elapsed entries. Четыре legacy time маршрута явно допущены в MVP пользователем; strict-rest3 gap и runtime проверки сохраняются.",
+      "acceptance": "Собственная запись seconds/comment; исправление и удаление в пределах author/admin прав и выбранной задачи; не секундомер; проверка полного списка entries отдельно.",
       "mvp": {
         "mapping_status": "mapping-unchanged",
         "remaining_commands": [
           "task:time:show",
           "task:time:add",
           "task:time:list",
-          "task:time:update"
+          "task:time:update",
+          "task:time:delete"
         ],
         "mvp_candidates": [
-          "task:time:show"
-        ],
-        "api_policy_pending_commands": [
+          "task:time:show",
           "task:time:add",
           "task:time:list",
-          "task:time:update"
+          "task:time:update",
+          "task:time:delete"
         ],
+        "api_policy_pending_commands": [],
         "post_mvp_commands": [],
-        "note": "Список связей не сократился, но time add/list/update остаются API-policy-pending; неизменность mapping не означает их допуск в MVP."
+        "note": "Все четыре операции записей времени включены в MVP с явным REST 1.0 допуском. Time:show остаётся REST3. Для EMP-06 проверяются создание, полный список, исправление и удаление своих записей, права и принадлежность ENTRY_ID задаче. Strict-rest3 gap сохраняется; решение о scope не подтверждает runtime acceptance."
       }
     },
     {
@@ -538,9 +535,9 @@
   "cli_contract": "openspec/specs/cli-experience/spec.md",
   "mvp_scope_spec": "openspec/specs/task-mvp-scope/spec.md",
   "mvp_mapping_counts": {
-    "mapping-unchanged": 8,
+    "mapping-unchanged": 7,
     "mapping-reduced": 9,
-    "no-remaining-mapped-commands": 2
+    "no-remaining-mapped-commands": 3
   },
-  "mvp_mapping_definition": "Structural command partition after 16 user exclusions, not a full/partial JTBD acceptance score. remaining_commands includes candidates and API-policy-pending extensions."
+  "mvp_mapping_definition": "Structural command partition after 21 user exclusions, not a full/partial JTBD acceptance score. remaining_commands includes candidates and API-policy-pending extensions."
 }

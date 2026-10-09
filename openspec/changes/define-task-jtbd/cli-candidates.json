@@ -4,7 +4,7 @@
   "issue": "https://github.com/mesilov/bitrix24-cli/issues/10",
   "change": "define-task-jtbd",
   "docs_commit": "b4d3dc81619625c2bf21c28dd0227116f36c8743",
-  "scope": "new task card; v3 task writes; IM companion routes explicit; no legacy comments",
+  "scope": "new task card; core task writes v3; four explicitly agreed REST1 time routes; IM companion routes explicit; no legacy comments",
   "commands": [
     {
       "name": "task:add",
@@ -608,8 +608,8 @@
       ],
       "previous_proposal_name": "tasks:result:add",
       "initial_proposal_name": "tasks:result:add",
-      "mvp_stage": "mvp-candidate",
-      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Explicit user exclusion of result operations from MVP on 2026-10-09; preserved for later development."
     },
     {
       "name": "task:result:list",
@@ -640,8 +640,8 @@
       ],
       "previous_proposal_name": "tasks:result:list",
       "initial_proposal_name": "tasks:result:list",
-      "mvp_stage": "mvp-candidate",
-      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Explicit user exclusion of result operations from MVP on 2026-10-09; preserved for later development."
     },
     {
       "name": "task:result:update",
@@ -670,8 +670,8 @@
       ],
       "previous_proposal_name": "tasks:result:update",
       "initial_proposal_name": "tasks:result:update",
-      "mvp_stage": "mvp-candidate",
-      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Explicit user exclusion of result operations from MVP on 2026-10-09; preserved for later development."
     },
     {
       "name": "task:result:delete",
@@ -698,8 +698,8 @@
       ],
       "previous_proposal_name": "tasks:result:delete",
       "initial_proposal_name": "tasks:result:delete",
-      "mvp_stage": "mvp-candidate",
-      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Explicit user exclusion of result operations from MVP on 2026-10-09; preserved for later development."
     },
     {
       "name": "task:result:from-message",
@@ -728,8 +728,8 @@
       ],
       "previous_proposal_name": "tasks:result:from-message",
       "initial_proposal_name": "tasks:result:from-message",
-      "mvp_stage": "mvp-candidate",
-      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Explicit user exclusion of result operations from MVP on 2026-10-09; preserved for later development."
     },
     {
       "name": "task:file:attach",
@@ -1826,7 +1826,7 @@
       "jtbd": [
         "EMP-06"
       ],
-      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "note": "Включено в MVP решением пользователя 2026-10-09 через документированный REST 1.0 task.elapseditem маршрут для новой карточки. API version показывается явно; strict-rest3 не выполняет команду. Проверяются права и связь записи с задачей; скрытый fallback запрещён.",
       "kind": "deferred",
       "effect": "write",
       "method_routes": [
@@ -1845,8 +1845,8 @@
       ],
       "previous_proposal_name": "tasks:time:add",
       "initial_proposal_name": "tasks:time:add",
-      "mvp_stage": "api-policy-pending",
-      "mvp_reason": "Existing legacy API admission remains unapproved; user did not add a new exception."
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Explicit user inclusion in MVP on 2026-10-09, accepting the documented legacy time route; runtime permissions and acceptance still required."
     },
     {
       "name": "task:time:list",
@@ -1862,7 +1862,7 @@
       "jtbd": [
         "EMP-06"
       ],
-      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "note": "Включено в MVP решением пользователя 2026-10-09 через документированный REST 1.0 task.elapseditem маршрут для новой карточки. API version показывается явно; strict-rest3 не выполняет команду. Проверяются права и связь записи с задачей; скрытый fallback запрещён.",
       "kind": "deferred",
       "effect": "read",
       "method_routes": [
@@ -1881,8 +1881,8 @@
       ],
       "previous_proposal_name": "tasks:time:list",
       "initial_proposal_name": "tasks:time:list",
-      "mvp_stage": "api-policy-pending",
-      "mvp_reason": "Existing legacy API admission remains unapproved; user did not add a new exception."
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Explicit user inclusion in MVP on 2026-10-09, accepting the documented legacy time route; runtime permissions and acceptance still required."
     },
     {
       "name": "task:time:update",
@@ -1898,7 +1898,7 @@
       "jtbd": [
         "EMP-06"
       ],
-      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "note": "Включено в MVP решением пользователя 2026-10-09 через документированный REST 1.0 task.elapseditem маршрут для новой карточки. API version показывается явно; strict-rest3 не выполняет команду. Проверяются права и связь записи с задачей; скрытый fallback запрещён.",
       "kind": "deferred",
       "effect": "write",
       "method_routes": [
@@ -1917,8 +1917,8 @@
       ],
       "previous_proposal_name": "tasks:time:update",
       "initial_proposal_name": "tasks:time:update",
-      "mvp_stage": "api-policy-pending",
-      "mvp_reason": "Existing legacy API admission remains unapproved; user did not add a new exception."
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Explicit user inclusion in MVP on 2026-10-09, accepting the documented legacy time route; runtime permissions and acceptance still required."
     },
     {
       "name": "task:time:delete",
@@ -1934,7 +1934,7 @@
       "jtbd": [
         "EMP-06"
       ],
-      "note": "Официальный прежний метод совместим с новой карточкой, но это не REST3. Не входит в строгое REST3-ядро; не включать без явного решения об исключениях.",
+      "note": "Включено в MVP решением пользователя 2026-10-09 через документированный REST 1.0 task.elapseditem маршрут для новой карточки. API version показывается явно; strict-rest3 не выполняет команду. Проверяются права и связь записи с задачей; скрытый fallback запрещён.",
       "kind": "deferred",
       "effect": "delete",
       "method_routes": [
@@ -1953,8 +1953,8 @@
       ],
       "previous_proposal_name": "tasks:time:delete",
       "initial_proposal_name": "tasks:time:delete",
-      "mvp_stage": "api-policy-pending",
-      "mvp_reason": "Existing legacy API admission remains unapproved; user did not add a new exception."
+      "mvp_stage": "mvp-candidate",
+      "mvp_reason": "Explicit user inclusion in MVP on 2026-10-09, accepting the documented legacy time route; runtime permissions and acceptance still required."
     },
     {
       "name": "task:checklist:add",
@@ -2333,7 +2333,7 @@
   },
   "mvp_scope": {
     "decision_date": "2026-10-09",
-    "status": "exclusions-agreed; remaining API admission and lifecycle acceptance pending",
+    "status": "exclusions and four legacy time routes agreed; other legacy admission and lifecycle acceptance pending",
     "spec": "openspec/specs/task-mvp-scope/spec.md",
     "post_mvp_groups": {
       "Зависимости": [
@@ -2359,6 +2359,13 @@
         "task:delivery:record",
         "task:feedback:record",
         "task:acceptance:record"
+      ],
+      "Результаты задачи": [
+        "task:result:add",
+        "task:result:list",
+        "task:result:update",
+        "task:result:delete",
+        "task:result:from-message"
       ]
     },
     "excluded_commands": [
@@ -2377,15 +2384,34 @@
       "task:change:accept",
       "task:delivery:record",
       "task:feedback:record",
-      "task:acceptance:record"
+      "task:acceptance:record",
+      "task:result:add",
+      "task:result:list",
+      "task:result:update",
+      "task:result:delete",
+      "task:result:from-message"
     ],
     "counts": {
       "all_researched": 55,
-      "excluded_post_mvp": 16,
-      "remaining_under_consideration": 39,
-      "mvp_candidates": 28,
-      "api_policy_pending": 11
+      "excluded_post_mvp": 21,
+      "remaining_under_consideration": 34,
+      "mvp_candidates": 27,
+      "api_policy_pending": 7
     },
-    "note": "Release scope is separate from existing candidate/deferred API-route classification; no runtime implementation or full JTBD acceptance is implied."
+    "note": "Release scope is separate from existing candidate/deferred API-route classification; no runtime implementation or full JTBD acceptance is implied.",
+    "result_scope_note": "All five result commands are post-MVP; task:file:attach remains a candidate. Chat messages/files are not native task results. requireResult and existing lifecycle gates cannot be bypassed or hidden result commands introduced.",
+    "legacy_api_exceptions": {
+      "decision_date": "2026-10-09",
+      "commands": [
+        "task:time:add",
+        "task:time:list",
+        "task:time:update",
+        "task:time:delete"
+      ],
+      "api_version": "1.0",
+      "route": "legacy-extension",
+      "strict_rest3": "unavailable",
+      "note": "Explicitly included in MVP by user; selected routes, never automatic fallback."
+    }
   }
 }
