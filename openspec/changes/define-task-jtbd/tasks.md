@@ -8,9 +8,9 @@
 - [x] 1.4 Сохранить потенциальные CLI-команды и матрицу полноты для всех 19 JTBD; проверить 55 уникальных имён (42 кандидата + 13 расширений), ссылки команд/сценариев, API/SDK маршруты и source paths, JSON/Markdown и количественные результаты.
 - [x] 1.5 Закрепить первичный источник CLI Guidelines, сохранить cli-experience delta/main и согласовать entrypoint b24cli, singular namespace task и task:add, 55 имён Symfony Console с colon namespaces/flags/19 coverage references; проверить strict validation, JSON/Markdown, неизменность API mappings и полноты, прямые shell examples. Только planning, не реализация CLI.
 
-- [x] 1.6 Зафиксировать 28 исключений из MVP в task-mvp-scope delta/main; разделить 59 команд на 31 MVP candidates, 0 API-policy-pending и 28 post-MVP с четырьмя time, восемью checklist/root/item и двумя participants/history командами через явно согласованные REST 1.0 routes; сверить отдельный MVP mapping всех 19 JTBD без изменения продуктовых требований/API evidence.
+- [x] 1.6 Зафиксировать 29 исключений из MVP в task-mvp-scope delta/main; разделить 59 команд на 30 MVP candidates, 0 API-policy-pending и 29 post-MVP с четырьмя time, восемью checklist/root/item и двумя participants/history командами через явно согласованные REST 1.0 routes; сверить отдельный MVP mapping всех 19 JTBD без изменения продуктовых требований/API evidence.
 
-- [x] 1.7 Разделить checklist roots/items, добавить item:update и task:find --title; сверить 59 имён, 31/0/28 stages, bounded title search, список id/title во всех форматах, документированный API filterable и parent/ID/SDK constraints, UX delta/main и обновлённые JTBD mappings. Только планирование.
+- [x] 1.7 Разделить checklist roots/items, добавить item:update и task:find --title; сверить 59 имён, 30/0/29 stages, bounded title search, список id/title во всех форматах, документированный API filterable и parent/ID/SDK constraints, UX delta/main и обновлённые JTBD mappings. Только планирование.
 
 ## 2. Проектирование дальнейшей реализации
 
@@ -22,4 +22,5 @@
 ## Workflow follow-up
 
 - Реализацию подготовленных частей вести через отдельные OpenSpec changes, не отмечая продуктовые JTBD выполненными по наличию документов.
+- Архитектурный следующий change: [design-task-console-architecture](../design-task-console-architecture/proposal.md), только проектирование Console/DI; его implementation tasks открыты.
 - Архивировать define-task-jtbd после завершения оставшихся задач проектирования и проверки соответствия; при этом явно сохранять границы runtime-доказательств.

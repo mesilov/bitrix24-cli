@@ -21,7 +21,7 @@
         "PM-01",
         "AM-01"
       ],
-      "note": "Требуются title, creatorId, responsibleId. Критерии приёмки/источник/клиентский контекст можно передать текстом описания; структурированная модель отдельно. Обычные флаги разрешены вместе; advanced fields object задаёт дополнительные writable поля без повторного задания полей, уже заданных флагами. Title/creator/responsible обязательны и в итоговом advanced вводе.",
+      "note": "Требуются title, creatorId, responsibleId. Критерии приёмки/источник/клиентский контекст можно передать текстом описания; структурированная модель отдельно. Обычные флаги разрешены вместе; advanced --fields/--fields-file является отдельным режимом без смешивания с полевыми флагами согласно cli-experience. Title/creator/responsible обязательны и в итоговом advanced вводе.",
       "kind": "candidate",
       "effect": "write",
       "method_routes": [
@@ -409,8 +409,8 @@
       ],
       "previous_proposal_name": "tasks:subtask:create",
       "initial_proposal_name": "tasks:subtask:create",
-      "mvp_stage": "mvp-candidate",
-      "mvp_reason": "Retained under consideration after explicit exclusions; all existing API and lifecycle gates still apply."
+      "mvp_stage": "post-mvp",
+      "mvp_reason": "Dedicated subtask command removed from MVP by user on 2026-10-09. Explicit parentId in ordinary task:add writable fields remains supported; no separate alias or implicit subtask action."
     },
     {
       "name": "task:dependency:list",
@@ -2613,7 +2613,7 @@
   },
   "mvp_scope": {
     "decision_date": "2026-10-09",
-    "status": "31 MVP candidates and 28 post-MVP commands agreed; all selected legacy API admissions approved; runtime acceptance pending; task lifecycle remains after MVP",
+    "status": "30 MVP commands and 29 post-MVP commands agreed; selected legacy admissions approved; dedicated subtask command removed; runtime acceptance pending",
     "spec": "openspec/specs/task-mvp-scope/spec.md",
     "post_mvp_groups": {
       "Зависимости": [
@@ -2655,6 +2655,9 @@
         "task:complete",
         "task:approve",
         "task:disapprove"
+      ],
+      "Подзадачи — отдельная команда": [
+        "task:subtask:add"
       ]
     },
     "excluded_commands": [
@@ -2685,13 +2688,14 @@
       "task:renew",
       "task:complete",
       "task:approve",
-      "task:disapprove"
+      "task:disapprove",
+      "task:subtask:add"
     ],
     "counts": {
       "all_researched": 59,
-      "excluded_post_mvp": 28,
-      "remaining_under_consideration": 31,
-      "mvp_candidates": 31,
+      "excluded_post_mvp": 29,
+      "remaining_under_consideration": 30,
+      "mvp_candidates": 30,
       "api_policy_pending": 0
     },
     "note": "Release scope is separate from existing candidate/deferred API-route classification; no runtime implementation or full JTBD acceptance is implied.",
@@ -2770,6 +2774,7 @@
     },
     "checklist_scope_note": "Two root and six item operations are included in MVP through explicit REST1 routes. Root PARENT_ID=0 and item parent semantics remain distinct; task/ID/rights checks and SDK PARENT_ID gap are preserved. Item complete/renew never performs an excluded task lifecycle transition.",
     "lifecycle_scope_note": "All seven transitions are post-MVP. MVP excludes status changes through task:update --fields/--fields-file, aliases and implicit steps. Reading status and ordinary task field updates remain available; needsControl/requireResult/rights/side effects must be verified before future lifecycle admission.",
-    "participants_history_scope_note": "Both selected commands are MVP candidates through explicit REST1 routes. Participants set changes only the supplied accomplice/auditor role sets; omission preserves a role and explicit clear empties it. The shared update method does not admit task lifecycle/raw status. History reads task changes separately from chat; rights and output completeness require runtime acceptance."
+    "participants_history_scope_note": "Both selected commands are MVP candidates through explicit REST1 routes. Participants set changes only the supplied accomplice/auditor role sets; omission preserves a role and explicit clear empties it. The shared update method does not admit task lifecycle/raw status. History reads task changes separately from chat; rights and output completeness require runtime acceptance.",
+    "subtask_scope_note": "Only the dedicated task:subtask:add command is removed. Ordinary task:add may accept explicitly supplied parentId through advanced writable fields; no parent is selected implicitly and no subtask alias is registered. This interpretation is an assumption awaiting optional user clarification."
   }
 }

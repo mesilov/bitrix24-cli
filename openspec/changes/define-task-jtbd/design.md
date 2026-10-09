@@ -6,7 +6,7 @@
 
 ## Goals / Non-Goals
 
-Фиксация пользовательского поведения в task-workflows и перенос его в актуальную спецификацию. Этот этап не пишет код; он фиксирует 28 согласованных исключений из MVP. Auth и детали реализации требуют дальнейших решений; допуск выбранных MVP API маршрутов согласован. Модель клиентских обязательств, уведомления и все lifecycle команды проектируются после MVP.
+Фиксация пользовательского поведения в task-workflows и перенос его в актуальную спецификацию. Этот этап не пишет код; он фиксирует 29 согласованных исключений из MVP. Auth и детали реализации требуют дальнейших решений; допуск выбранных MVP API маршрутов согласован. Модель клиентских обязательств, уведомления и все lifecycle команды проектируются после MVP.
 
 ## Decisions
 
@@ -49,7 +49,7 @@
 
 Новая capability cli-experience дополняет task-workflows общими наблюдаемыми правилами. Основную spec синхронизируем по прямому запросу пользователя; implementation tests и packaging ещё не существуют. Shell examples представлены как будущие вызовы установленного CLI.
 
-На этапе выбора Symfony нотации каталог содержал 55 операций (42 кандидата и 13 extensions); смена command path сохраняла API mappings. Текущий каталог после разделения чек-листов и добавления поиска содержит 59 операций (43+16). --fields-file заменяет прежнюю @JSON нотацию; два источника одного поля отклоняются. В update raw JSON является отдельным режимом; create разрешает дополнительные fields без дубликатов и проверяет обязательные поля итогового payload. Схема прочих параметров --where/--params и допустимые operators должны быть определены отдельным implementation change, неподдержанный произвольный payload не обещается.
+На этапе выбора Symfony нотации каталог содержал 55 операций (42 кандидата и 13 extensions); смена command path сохраняла API mappings. Текущий каталог после разделения чек-листов и добавления поиска содержит 59 операций (43+16). --fields-file заменяет прежнюю @JSON нотацию; два источника одного поля отклоняются. В create/update raw JSON является отдельным режимом без смешивания с полевыми флагами согласно cli-experience; create проверяет обязательные поля итогового payload. Схема прочих параметров --where/--params и допустимые operators должны быть определены отдельным implementation change, неподдержанный произвольный payload не обещается.
 
 Отличия, выбранные проектом: один positional task ID ради краткости; creator/responsible остаются явными; limit50/max-scan10000/timeout30 и exit codes 0/1/2/3/4/130 являются нашими defaults, не требованиями CLIG. Plain TSV columns определяются отдельно по командам до реализации. Pager, interactive missing-field wizard, man pages, установка shell completion, distribution и analytics не включены в этот этап; auth/storage также отдельное решение. --no-interaction/-n — встроенная опция Symfony; отдельный --no-input не вводится. --ansi/--no-ansi, --quiet/--silent и verbosity сохраняют встроенную семантику. Short -n не назначается dry-run из-за существующей Symfony convention. CLI Guidelines не определяют обязательный разделитель namespaces; их Help пример Heroku содержит apps:create. Сохраняем нативный colon-separated интерфейс Symfony и его help/list; отдельный пробельный dispatcher не нужен.
 
@@ -76,9 +76,9 @@ Entrypoint b24cli пока является решением интерфейс�
 
 ## MVP exclusions and admission
 
-Пользователь вынес 28 операций: 3 dependency, 5 рабочих представлений, 3 context/blocker, 5 change/delivery/feedback/acceptance, 5 task:result операций и 7 команд жизненного цикла. JSON mvp_scope содержит точный набор и mvp_stage каждой команды. Каталог переорганизован: 31 MVP candidates, 0 API-policy-pending, 28 post-MVP. Текущие kind/route и 43+16 описывают API-кандидатов полного research catalogue, а не MVP состав.
+Пользователь вынес 29 команд: 3 dependency, 5 рабочих представлений, 3 context/blocker, 5 change/delivery/feedback/acceptance, 5 task:result операций, 7 команд жизненного цикла и отдельную task:subtask:add. JSON mvp_scope содержит точный набор и mvp_stage каждой команды. Каталог переорганизован: 30 MVP candidates, 0 API-policy-pending, 29 post-MVP. Текущие kind/route и 43+16 описывают API-кандидатов полного research catalogue, а не MVP состав.
 
-Все оставшиеся операции (31) — кандидаты MVP. Допуск legacy API согласован для четырёх time, восьми checklist/root/item и двух participants/history команд; ожидающих решения по API команд нет. Lifecycle не входит в первый релиз; его gates сохраняются для будущего допуска. Политика task-v3 допускает эти явные REST 1.0 маршруты вместе с документированными IM companions; strict-rest3 продолжает отклонять non-v3 запросы; исключение scope не разрешает скрытый fallback. Dependency:list имеет REST3 route, но вынесен по пользовательскому решению так же, как legacy dependency mutations.
+Все оставшиеся команды (30) — кандидаты MVP. Допуск legacy API согласован для четырёх time, восьми checklist/root/item и двух participants/history команд; ожидающих решения по API команд нет. Lifecycle не входит в первый релиз; его gates сохраняются для будущего допуска. Политика task-v3 допускает эти явные REST 1.0 маршруты вместе с документированными IM companions; strict-rest3 продолжает отклонять non-v3 запросы; исключение scope не разрешает скрытый fallback. Dependency:list имеет REST3 route, но вынесен по пользовательскому решению так же, как legacy dependency mutations.
 
 Все 19 требований продукта остаются в task-workflows. В coverage добавлен отдельный MVP partition ссылок: retained candidates, API pending и post-MVP. PM-05 и AM-02/03/05 не имеют оставшихся mapped команд; EMP-01 сохраняет базовый task:list --responsible вместо исключённого task:my. Mapping-reduced — описательная структура набора команд, не доказательство частичного acceptance сценария. Старые documented/conditional counts остаются оценкой полного каталога.
 
@@ -122,3 +122,11 @@ API-контракт повторно проверен 2026-10-09 по опуб�
 Пользователь явно разрешил REST1 tasks.task.update для task:participants:set и tasks.task.history.list для task:history:list. Это выбранные маршруты с показом API version в meta; strict-rest3 отклоняет обе команды до запроса. Общий метод update не разрешает остальные legacy field updates, raw status или исключённые lifecycle переходы.
 
 Participants:set задаёт полный состав указанной роли через повторяемые IDs; omission сохраняет роль, explicit clear очищает её и несовместим с её IDs. Нужна хотя бы одна явная операция с ролью; ID и права подключения проверяются. History:list возвращает историю изменений выбранной задачи отдельно от task chat; допустимые params, полнота/пагинация и доступ проверяются при реализации. API/SDK core-gap и все существующие source mappings сохранены; это допуск scope/API, не runtime acceptance.
+
+## Dedicated subtask command after MVP
+
+task:subtask:add исключена из регистрации первого релиза. Рабочее предположение: пользователь удаляет отдельную команду, а явный parentId через обычную task:add и её advanced writable fields сохраняется. CLI не добавляет --parent shortcut/alias и не выбирает родителя неявно. При уточнении о полном запрете подзадач правило parentId требуется пересмотреть до реализации.
+
+## Console architecture follow-up
+
+Архитектура 30 retained команд проектируется отдельно в [design-task-console-architecture](../design-task-console-architecture/proposal.md): Symfony Console + DependencyInjection, без FrameworkBundle, PHP реализации и установки зависимостей. Карта Command/Request/Handler/API/output, параметры --where/--params и TSV profiles уточнены в [design](../design-task-console-architecture/design.md) и [command map](../design-task-console-architecture/command-map.md). Это не закрывает оставшиеся provider/runtime acceptance задачи данного change.

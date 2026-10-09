@@ -7,7 +7,7 @@
 ## ADDED Requirements
 
 ### Requirement: Explicit exclusions from the task MVP
-CLI MVP SHALL исключать 28 команд зависимостей, рабочих представлений, контекста/препятствий, изменений/клиентских договорённостей, результатов задач и жизненного цикла, перечисленных в сценарии. Каталог SHALL сохранять их в области после MVP. Отсутствие требований к маппингу CLI/REST 1:1 не SHALL разрешать вернуть эти операции в MVP под другим именем или как неявный шаг.
+CLI MVP SHALL исключать 29 команд зависимостей, рабочих представлений, контекста/препятствий, изменений/клиентских договорённостей, результатов задач, жизненного цикла и отдельную task:subtask:add, перечисленных в сценарии. Каталог SHALL сохранять их в области после MVP. Отсутствие требований к маппингу CLI/REST 1:1 не SHALL разрешать вернуть эти операции в MVP под другим именем или как неявный шаг.
 
 #### Scenario: Excluded command groups
 - **WHEN** формируются список команд, справка и критерии приёмки MVP
@@ -42,10 +42,15 @@ task:renew
 task:complete
 task:approve
 task:disapprove
+task:subtask:add
 ```
 
+#### Scenario: Explicit parent field without a dedicated subtask command
+- **WHEN** пользователь явно задаёт parentId через advanced writable fields обычной task:add
+- **THEN** отдельная task:subtask:add не регистрируется и не вызывается; task:add сохраняет явное поле, проверяет его допустимость и не выбирает parent неявно. Рабочее предположение касается удаления отдельной команды и уточняется при запросе полного запрета подзадач
+
 ### Requirement: API admission and future lifecycle acceptance remain explicit
-Каталог SHALL отделять release scope от API support: 59 операций = 31 кандидат MVP, 0 API-policy-pending и 28 после MVP. Через REST1 явно допущены 4 time, 8 checklist/root/item и 2 participants/history команды. Права SHALL проверяться для кандидатов; lifecycle SHALL оставаться после MVP независимо от возможности записи status. Наличие команды в каталоге не SHALL означать принятие иных API exceptions, доказанную семантику или runtime readiness.
+Каталог SHALL отделять release scope от API support: 59 операций = 30 кандидатов MVP, 0 API-policy-pending и 29 после MVP. Через REST1 явно допущены 4 time, 8 checklist/root/item и 2 participants/history команды. Права SHALL проверяться для кандидатов; lifecycle SHALL оставаться после MVP независимо от возможности записи status. Наличие команды в каталоге не SHALL означать принятие иных API exceptions, доказанную семантику или runtime readiness.
 
 #### Scenario: Legacy admission is limited to selected commands
 - **WHEN** вызывается иной legacy маршрут либо общий tasks.task.update используется для действий за пределами participants:set

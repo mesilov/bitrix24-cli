@@ -76,13 +76,13 @@
 
 ## MVP command mapping
 
-После MVP — 28 команд; все оставшиеся 31 операции — кандидаты MVP, ожидающих решения по API нет. Четыре time, восемь checklist/root/item и две participants/history команды явно допущены через REST1. Task:find включён в MVP. [Спецификация MVP](../../specs/task-mvp-scope/spec.md).
+После MVP — 29 команд; все оставшиеся 30 команд — кандидаты MVP, ожидающих решения по API нет. Четыре time, восемь checklist/root/item и две participants/history команды явно допущены через REST1. Task:find включён в MVP. [Спецификация MVP](../../specs/task-mvp-scope/spec.md).
 
 Структура ссылок не является оценкой полного/частичного выполнения JTBD. Все 19 продуктовых целей и API assessment сохраняются; optional discovery/checklist mappings не доказывают дополнительного acceptance.
 
 | JTBD | Связи команд MVP | После MVP | Структура mapping |
 | --- | --- | --- | --- |
-| PM-01 | `task:add`, `task:subtask:add`, `task:show`, `task:checklist:add`, `task:checklist:item:add` | — | mapping-unchanged |
+| PM-01 | `task:add`, `task:show`, `task:checklist:add`, `task:checklist:item:add` | `task:subtask:add` | mapping-reduced |
 | PM-02 | `task:list` | `task:plan`, `task:risks`, `task:dependency:list` | mapping-reduced |
 | PM-03 | `task:chat:send` | `task:blocker:raise`, `task:blocker:resolve` | mapping-reduced |
 | PM-04 | `task:assign`, `task:deadline:set` | `task:plan`, `task:change:propose`, `task:change:accept` | mapping-reduced |
@@ -102,9 +102,9 @@
 | EMP-06 | `task:time:show`, `task:time:add`, `task:time:list`, `task:time:update`, `task:time:delete` | — | mapping-unchanged |
 | EMP-07 | `task:chat:list`, `task:chat:send` | — | mapping-unchanged |
 
-Структурные counts: mapping-unchanged 7, mapping-reduced 8, no-remaining-mapped-commands 4. Full-product API assessment: 7/12 и 4/14/1; это не score MVP.
+Структурные counts: mapping-unchanged 6, mapping-reduced 9, no-remaining-mapped-commands 4. Full-product API assessment: 7/12 и 4/14/1; это не score MVP.
 
-- **PM-01:** Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD. Дополнительные связи поиска и чек-листов описывают discovery/декомпозицию. Все восемь checklist/root/item команд явно включены в MVP через REST1; это решение о scope/API, а не доказательство runtime acceptance или повышения исходного API assessment.
+- **PM-01:** Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD. Дополнительные связи поиска и чек-листов описывают discovery/декомпозицию. Все восемь checklist/root/item команд явно включены в MVP через REST1; это решение о scope/API, а не доказательство runtime acceptance или повышения исходного API assessment. Отдельная task:subtask:add после MVP; явный parentId обычной task:add не является отдельной командой или неявной операцией. Исходный продуктовый JTBD не удаляется.
 - **PM-05:** Все связанные команды результатов и внутренней приёмки после MVP. PM-05 сохраняется как требование продукта; MVP не выполняет approve/disapprove или скрытый переход статуса.
 - **AM-01:** Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD. Дополнительные связи поиска и чек-листов описывают discovery/декомпозицию. Все восемь checklist/root/item команд явно включены в MVP через REST1; это решение о scope/API, а не доказательство runtime acceptance или повышения исходного API assessment.
 - **AM-02:** Все связанные команды вынесены; клиентские обязательства относятся к развитию после MVP.

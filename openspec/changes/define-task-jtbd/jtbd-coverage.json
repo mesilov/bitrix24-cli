@@ -18,24 +18,24 @@
       "condition": "Для каждого задания заданы title, creator/responsible, deadline и критерии в description. Зависимости/чек-листы — отдельные расширения, не обязательны для базовой декомпозиции.",
       "acceptance": "Создание с критериями и сроком; отсутствие обязательного creator; отказ в правах.",
       "mvp": {
-        "mapping_status": "mapping-unchanged",
+        "mapping_status": "mapping-reduced",
         "remaining_commands": [
           "task:add",
-          "task:subtask:add",
           "task:show",
           "task:checklist:add",
           "task:checklist:item:add"
         ],
         "mvp_candidates": [
           "task:add",
-          "task:subtask:add",
           "task:show",
           "task:checklist:add",
           "task:checklist:item:add"
         ],
         "api_policy_pending_commands": [],
-        "post_mvp_commands": [],
-        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD. Дополнительные связи поиска и чек-листов описывают discovery/декомпозицию. Все восемь checklist/root/item команд явно включены в MVP через REST1; это решение о scope/API, а не доказательство runtime acceptance или повышения исходного API assessment."
+        "post_mvp_commands": [
+          "task:subtask:add"
+        ],
+        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD. Дополнительные связи поиска и чек-листов описывают discovery/декомпозицию. Все восемь checklist/root/item команд явно включены в MVP через REST1; это решение о scope/API, а не доказательство runtime acceptance или повышения исходного API assessment. Отдельная task:subtask:add после MVP; явный parentId обычной task:add не является отдельной командой или неявной операцией. Исходный продуктовый JTBD не удаляется."
       }
     },
     {
@@ -548,9 +548,9 @@
   "cli_contract": "openspec/specs/cli-experience/spec.md",
   "mvp_scope_spec": "openspec/specs/task-mvp-scope/spec.md",
   "mvp_mapping_counts": {
-    "mapping-unchanged": 7,
-    "mapping-reduced": 8,
+    "mapping-unchanged": 6,
+    "mapping-reduced": 9,
     "no-remaining-mapped-commands": 4
   },
-  "mvp_mapping_definition": "Structural command partition after 28 user exclusions, not a full/partial JTBD acceptance score. remaining_commands includes candidates and API-policy-pending extensions."
+  "mvp_mapping_definition": "Structural command partition after 29 user exclusions, not a full/partial JTBD acceptance score. remaining_commands includes candidates and API-policy-pending extensions."
 }
