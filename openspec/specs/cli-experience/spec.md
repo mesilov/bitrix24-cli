@@ -175,7 +175,7 @@ CLI SHALL разделять task:checklist:add/list для корневых ч�
 - **THEN** проверяется пункт выбранной задачи; корневой ID не допускается. Update меняет только непустой title; delete сохраняет подтверждение и права, --force не отменяет gates
 
 ### Requirement: Bounded task search by title
-MVP SHALL включать task:find --title TEXT с буквальным поиском подстроки только title без учёта регистра Unicode. Запрос SHALL обрезаться по краям; пустой запрос SHALL отклоняться до API call. Поиск SHALL обходить видимые задачи в scan budget и сохранять limit/all/partial правила списков. Полнота, scope, scanned/matched/returned counts и limitApplied SHALL показываться явно; description/chat, wildcard/regex/fuzzy не SHALL участвовать.
+MVP SHALL включать task:find --title TEXT: буквальная подстрока только title без регистра Unicode, trim запроса; пустой запрос отклоняется до API call. Результат SHALL всегда быть списком: таблица ID/TITLE, plain TSV id/title или JSON data.items array. Поиск SHALL соблюдать scan budget и limit/all/partial; scope, scanned/matched/returned counts, limitApplied и полнота показываются явно. Description/chat и wildcard/regex/fuzzy не SHALL участвовать.
 
 #### Scenario: Find tasks by a title fragment
 - **WHEN** пользователь вызывает b24cli task:find --title "ДОГОВОР"
@@ -192,3 +192,7 @@ MVP SHALL включать task:find --title TEXT с буквальным пои
 #### Scenario: Complete empty title search and limited output
 - **WHEN** просмотр всех доступных страниц не дал совпадений либо совпадений больше output limit
 - **THEN** пустой complete результат возвращает exit0; при лимите CLI различает полную проверку видимой выборки и сокращённый вывод через matched/returned counts и limitApplied; прав сверх подключения не обещает
+
+#### Scenario: Title search always returns a list
+- **WHEN** task:find находит ноль, одну или несколько задач и пользователь выбирает обычный, --plain или --json формат
+- **THEN** результат остаётся списком: обычная таблица ID/TITLE, plain TSV id/title без заголовка либо JSON data.items с массивом объектов id/title; при отсутствии совпадений массив пуст, а единственное совпадение не превращается в карточку или автоматически открытую задачу

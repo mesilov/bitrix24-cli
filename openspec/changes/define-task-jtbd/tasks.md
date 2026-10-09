@@ -10,7 +10,7 @@
 
 - [x] 1.6 Зафиксировать 21 исключение из MVP в task-mvp-scope delta/main; разделить 59 команд на 28 MVP candidates, 10 API-policy-pending и 21 post-MVP с четырьмя явно согласованными REST 1.0 time routes; сверить отдельный MVP mapping всех 19 JTBD без изменения продуктовых требований/API evidence.
 
-- [x] 1.7 Разделить checklist roots/items, добавить item:update и task:find --title; сверить 59 имён, 28/10/21 stages, bounded title search и parent/ID/SDK constraints, UX delta/main и обновлённые JTBD mappings. Только планирование.
+- [x] 1.7 Разделить checklist roots/items, добавить item:update и task:find --title; сверить 59 имён, 28/10/21 stages, bounded title search, список id/title во всех форматах, документированный API filterable и parent/ID/SDK constraints, UX delta/main и обновлённые JTBD mappings. Только планирование.
 
 ## 2. Проектирование дальнейшей реализации
 

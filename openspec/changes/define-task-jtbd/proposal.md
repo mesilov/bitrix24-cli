@@ -17,7 +17,7 @@
 
 - Включить task:time:add/list/update/delete в MVP по решению пользователя, явно допустив документированные REST 1.0 task.elapseditem.* маршруты. Сохранить strict-rest3 restriction и проверки прав/принадлежности записи задаче; дополнить EMP-06 удалением записи.
 
-- Разделить две операции корневых чек-листов и шесть операций пунктов с namespace task:checklist:item:*, добавить item:update и task:find --title TEXT в MVP. Поиск использует REST3 list и локальное совпадение title; legacy checklist admission остаётся отдельным решением.
+- Разделить две операции корневых чек-листов и шесть операций пунктов с namespace task:checklist:item:*, добавить item:update и task:find --title TEXT в MVP. Поиск использует REST3 list и локальное совпадение title, возвращает список id/title в human/plain/JSON; legacy checklist admission остаётся отдельным решением.
 
 ## Capabilities
 

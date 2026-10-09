@@ -122,13 +122,14 @@
         "tasks.task.list"
       ],
       "sources": [
-        "https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-list-rest-v3.html"
+        "https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-list-rest-v3.html",
+        "https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-field-list.html"
       ],
       "jtbd": [
         "AM-01",
         "EMP-02"
       ],
-      "note": "Поиск буквальной подстроки только в title, без учёта регистра Unicode; непустой --title обязателен, пробелы по краям запроса убираются. V3 filter поддерживает только id: выбрать id/title и локально проверить все страницы доступных задач в scan budget, без legacy fallback. --limit50/--all ограничивают вывод, --max-scan10000 — просмотр; cap/ошибка/нет title => partial, exit3; полный пустой результат => exit0. Порядок id ASC; regex/wildcards/fuzzy не поддерживаются.",
+      "note": "Поиск буквальной подстроки только в title, без учёта регистра Unicode; непустой --title обязателен, пробелы по краям запроса убираются. V3 filter поддерживает только id: выбрать id/title и локально проверить все страницы доступных задач в scan budget, без legacy fallback. --limit50/--all ограничивают вывод, --max-scan10000 — просмотр; cap/ошибка/нет title => partial, exit3; полный пустой результат => exit0. Порядок id ASC; regex/wildcards/fuzzy не поддерживаются. Результат всегда список id/title: human таблица, plain TSV, JSON data.items array, включая 0/1 совпадение; карточка не открывается автоматически.",
       "kind": "candidate",
       "effect": "read",
       "method_routes": [
@@ -2573,7 +2574,41 @@
         "max_scan": 10000
       },
       "source": "https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-list-rest-v3.html",
-      "checked_on": "2026-10-09"
+      "checked_on": "2026-10-09",
+      "output": {
+        "shape": "list for zero, one or many matches",
+        "fields": [
+          "id",
+          "title"
+        ],
+        "human": "table ID/TITLE",
+        "plain": "TSV id/title without header, tabs/newlines escaped",
+        "json": "data.items array of objects id/title",
+        "empty_json_items": [],
+        "automatic_task_selection": false
+      },
+      "api_verification": {
+        "checked_on": "2026-10-09",
+        "scope": "documented API contract, not a live portal call",
+        "list_filter_fields": [
+          "id"
+        ],
+        "documented_field_metadata_example": {
+          "id": {
+            "filterable": true
+          },
+          "title": {
+            "filterable": false
+          }
+        },
+        "sources": [
+          "https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-list-rest-v3.html",
+          "https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-field-list.html"
+        ],
+        "official_docs_mcp_checked": true,
+        "live_portal_verified": false,
+        "live_portal_limit": "No configured connection profile in this worktree; live field.list and list calls not performed."
+      }
     }
   },
   "mvp_scope": {
