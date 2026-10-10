@@ -10,12 +10,13 @@ export LOCAL_GID ?= $(shell id -g)
 
 COMPOSE := sh ./scripts/compose.sh
 RUN := $(COMPOSE) run --rm -T php-cli
+CLI_RUN := $(COMPOSE) run --rm -T --env BITRIX24_WEBHOOK --env BITRIX24_PHP_SDK_PLAYGROUND_WEBHOOK --env B24CLI_TIMEOUT --env B24CLI_API_POLICY --env B24CLI_TEST_DISK_FILE_ID --env B24CLI_TEST_RESTRICTED_WEBHOOK php-cli
 ARGS ?=
 
 .PHONY: help docker-init docker-build docker-up docker-down docker-restart \
         composer-install composer-update composer-dumpautoload composer \
         composer-validate php-cli-bash cli lint check worktree-info test-worktree \
-        lint-allowed-licenses lint-cs-fixer lint-phpstan lint-rector lint-all
+        lint-allowed-licenses lint-cs-fixer lint-phpstan lint-rector lint-all test test-integration
 
 help:
 	@printf '%s\n' \
@@ -32,7 +33,7 @@ help:
 	  'composer ARGS="..."  Run Composer with arguments' \
 	  'composer-validate    Validate composer.json and composer.lock' \
 	  'php-cli-bash         Open a shell in the PHP container' \
-	  'cli ARGS="..."       Run bin/console (default: command list)' \
+	  'cli ARGS="..."       Run bin/b24cli (default: command list)' \
 	  'lint                 Check PHP syntax' \
 	  'check                Validate Composer, PHP syntax and CLI startup' \
 	  'worktree-info        Show this checkout and its Compose project' \
@@ -42,6 +43,8 @@ help:
 	  'lint-phpstan         Run PHPStan static analysis' \
 	  'lint-rector          Check Rector rules (dry run)' \
 	  'lint-all             Run all four quality checks'
+	@printf '%s\n' 'test                 Run offline command/SDK contract tests' \
+	  'test-integration     Run live portal tests using .env.local/.env (skip without webhook)'
 
 worktree-info:
 	@$(COMPOSE) --info
@@ -85,10 +88,10 @@ php-cli-bash:
 	$(COMPOSE) run --rm php-cli sh
 
 cli:
-	$(RUN) php bin/console $(ARGS)
+	$(CLI_RUN) php bin/b24cli $(ARGS)
 
 lint:
-	$(RUN) php -l bin/console
+	$(RUN) sh -c 'find src config tests -name "*.php" -exec php -l {} + && php -l bin/console && php -l bin/b24cli'
 
 check: composer-validate lint
 	$(RUN) composer check-platform-reqs
@@ -107,3 +110,9 @@ lint-rector:
 	$(RUN) vendor/bin/rector process --dry-run
 
 lint-all: lint-allowed-licenses lint-cs-fixer lint-phpstan lint-rector
+
+test:
+	$(RUN) vendor/bin/phpunit --testsuite offline
+
+test-integration:
+	$(CLI_RUN) vendor/bin/phpunit --testsuite integration

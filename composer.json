@@ -6,7 +6,9 @@
     "require": {
         "php": "8.4.* || 8.5.*",
         "bitrix24/b24phpsdk": "^3.7",
-        "symfony/console": "^8.0"
+        "symfony/console": "^8.0",
+        "symfony/dependency-injection": "^8.0",
+        "symfony/dotenv": "^8.0"
     },
     "autoload": {
         "psr-4": {
@@ -20,6 +22,19 @@
         "friendsofphp/php-cs-fixer": "^3",
         "lendable/composer-license-checker": "^1",
         "phpstan/phpstan": "^2.2.16",
-        "rector/rector": "^2.6.7"
+        "rector/rector": "^2.6.7",
+        "phpunit/phpunit": "^12.0"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Bitrix24\\CLI\\Tests\\": "tests/"
+        }
+    },
+    "bin": [
+        "bin/b24cli"
+    ],
+    "scripts": {
+        "test": "phpunit --testsuite offline",
+        "test:integration": "phpunit --testsuite integration"
     }
 }

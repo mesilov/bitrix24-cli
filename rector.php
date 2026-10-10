@@ -14,8 +14,8 @@ use Rector\Naming\Rector\Class_\RenamePropertyToMatchTypeRector;
 use Rector\Set\ValueObject\LevelSetList;
 
 return RectorConfig::configure()
-    ->withPaths([__DIR__ . '/src', __DIR__ . '/bin/console'])
-    ->withFileExtensions(['php', 'console'])
+    ->withPaths([__DIR__ . '/src', __DIR__ . '/config', __DIR__ . '/tests/Offline', __DIR__ . '/tests/Integration', __DIR__ . '/tests/Support', __DIR__ . '/bin/console', __DIR__ . '/bin/b24cli'])
+    ->withFileExtensions(['php', 'console', 'b24cli'])
     ->withCache(cacheDirectory: __DIR__ . '/var/cache/rector')
     ->withSets(
         [
