@@ -39,10 +39,16 @@ final class ConnectionAndSdkTest extends TestCase
             $envConnectionResolver = new EnvConnectionResolver($root);
             self::assertSame('https://file.invalid/rest/1/file-token/', $envConnectionResolver->webhook());
             self::assertFalse(getenv('BITRIX24_WEBHOOK'));
+            file_put_contents($root . '/.env.local', "BITRIX24_WEBHOOK=https://local.invalid/rest/1/local-token/\n");
+            self::assertSame('https://local.invalid/rest/1/local-token/', $envConnectionResolver->webhook());
+            self::assertFalse(getenv('BITRIX24_WEBHOOK'));
+            putenv('B24CLI_ENV_FILE=' . $root . '/.env');
+            self::assertSame('https://file.invalid/rest/1/file-token/', $envConnectionResolver->webhook());
             putenv('BITRIX24_WEBHOOK=https://process.invalid/rest/1/process-token/');
             self::assertSame('https://process.invalid/rest/1/process-token/', $envConnectionResolver->webhook());
         } finally {
             unlink($root . '/.env');
+            unlink($root . '/.env.local');
             rmdir($root);
             foreach ($old as $name => [$process, $value]) {
                 putenv($process === false ? $name : $name . '=' . $process);
@@ -75,6 +81,25 @@ final class ConnectionAndSdkTest extends TestCase
         self::assertStringContainsString('tasks.task.get', $requests[1][1]);
         self::assertSame(['id' => 123], $requests[0][2]);
         self::assertSame(['3.0', '1.0'], array_column($runtimeState->calls, 'apiVersion'));
+    }
+
+    public function testSdkInternalServerErrorIsReportedAsApiFailureWithoutRetry(): void
+    {
+        foreach (['read', 'write'] as $effect) {
+            $client = new MockHttpClient(new MockResponse('{"error":"internal_server_error","error_description":"internal server error"}', ['http_code' => 500]));
+            $state = new RuntimeState();
+            $api = new SdkApiTransport(new B24ClientProvider($this->resolver(), $state, $client), $state);
+            try {
+                $api->call('tasks.task.get', 3, ['id' => 123, 'select' => ['auditors.id']], $effect);
+                self::fail('Expected the server error.');
+            } catch (Failure $failure) {
+                self::assertSame('api-error', $failure->errorCode);
+                self::assertSame('INTERNAL_SERVER_ERROR', $failure->details['apiErrorCode']);
+                self::assertSame($effect === 'write', $failure->outcomeUnknown);
+                self::assertSame(1, $client->getRequestsCount());
+                self::assertSame(['3.0'], array_column($state->calls, 'apiVersion'));
+            }
+        }
     }
 
     public function testStructuredValidationIsRedactedAndMappedToResponsibleFlag(): void

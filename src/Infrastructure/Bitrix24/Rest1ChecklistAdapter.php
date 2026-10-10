@@ -42,7 +42,7 @@ final readonly class Rest1ChecklistAdapter implements ChecklistGateway
 
     public function update(int $taskId, int $itemId, string $title): void
     {
-        ResponseNormalizer::ack($this->api->call('task.checklistitem.update', 1, ['TASKID' => $taskId, 'ITEMID' => $itemId, 'FIELDS' => ['TITLE' => $title]], 'write')->result);
+        ResponseNormalizer::voidAck($this->api->call('task.checklistitem.update', 1, ['TASKID' => $taskId, 'ITEMID' => $itemId, 'FIELDS' => ['TITLE' => $title]], 'write')->result);
     }
 
     public function complete(int $taskId, int $itemId): void

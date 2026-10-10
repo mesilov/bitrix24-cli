@@ -46,11 +46,11 @@ final readonly class Rest1TimeEntryAdapter implements TimeEntryGateway
             $fields['COMMENT_TEXT'] = $text;
         }
 
-        ResponseNormalizer::ack($this->api->call('task.elapseditem.update', 1, ['TASKID' => $taskId, 'ITEMID' => $entryId, 'ARFIELDS' => $fields], 'write')->result);
+        ResponseNormalizer::voidAck($this->api->call('task.elapseditem.update', 1, ['TASKID' => $taskId, 'ITEMID' => $entryId, 'ARFIELDS' => $fields], 'write')->result);
     }
 
     public function delete(int $taskId, int $entryId): void
     {
-        ResponseNormalizer::ack($this->api->call('task.elapseditem.delete', 1, ['TASKID' => $taskId, 'ITEMID' => $entryId], 'delete')->result);
+        ResponseNormalizer::voidAck($this->api->call('task.elapseditem.delete', 1, ['TASKID' => $taskId, 'ITEMID' => $entryId], 'delete')->result);
     }
 }

@@ -31,6 +31,8 @@ final class FixturePortal
             'task.checklistitem.getlist' => new ApiResponse($this->nodes),
             'task.checklistitem.add' => new ApiResponse([13]),
             'tasks.task.history.list' => new ApiResponse(['list' => [['id' => 70, 'createdDate' => '2026-10-09T12:00:00+06:00', 'field' => 'TITLE', 'user' => ['id' => 2], 'value' => ['from' => 'old', 'to' => 'new']]]], null, 1),
+            'task.elapseditem.update', 'task.elapseditem.delete', 'task.checklistitem.update' => new ApiResponse([null]),
+            'tasks.task.update' => new ApiResponse($version === 3 ? ['result' => true] : ['task' => ['id' => '123']]),
             default => new ApiResponse($version === 3 ? ['result' => true] : [true]),
         };
     }

@@ -50,7 +50,15 @@ Runtime SHALL различать пропущенное поле, явное п�
 - **WHEN** --fields, --where или --params пытаются задать неподдержанные ключи, другую цель, смену status либо произвольный маршрут
 - **THEN** ввод отклоняется до mutating request; допуск REST1 для участников не превращается в общий legacy update
 
+### Requirement: Participant relation select projections
+Runtime SHALL раскрывать корневые select пользовательских списков в документированные nested проекции без неявного перехода на другую версию API.
+
+#### Scenario: Participant relation select projections
+- **WHEN** task:show или task:list получает --select accomplices либо --select auditors
+- **THEN** runtime локально раскрывает корень в соответствующие `.id` и `.name` проекции документированного user object; явно указанные nested select сохраняются
+
 ### Requirement: Policy covers the complete route plan
+
 Runtime SHALL заранее проверять все потенциальные маршруты операции, включая preflight, по паре method/API version и разрешённым полям. task-v3 SHALL допускать выбранные REST3, IM companion и 14 согласованных REST1 команд; strict-rest3 SHALL отклонять любой non-v3 план до первого запроса. Совпадение имени метода не SHALL означать взаимозаменяемость версий или скрытый fallback.
 
 #### Scenario: Strict policy before a mixed route plan
@@ -93,7 +101,12 @@ Runtime SHALL нормализовать API ответы в пользоват�
 - **WHEN** API не вернул ответ после отправки task:add
 - **THEN** CLI возвращает код 1 с outcomeUnknown=true и безопасным способом сверки; повторная задача автоматически не создаётся
 
+#### Scenario: Method-specific legacy write acknowledgements
+- **WHEN** REST1 elapseditem update/delete или checklistitem update возвращают успешный null, либо participants update возвращает объект task выбранной задачи
+- **THEN** runtime принимает только соответствующий подтверждённый формат: SDK `[null]` для трёх void методов либо совпадающий положительный task.id для participants; false, отсутствующее подтверждение и чужой task.id отклоняются
+
 ### Requirement: Cancellation stops subsequent requests
+
 Runtime SHALL ограничивать сетевые шаги документированным timeout и прекращать новые запросы после Ctrl-C. Отмена SHALL возвращать 130 с доступной информацией о выполненных шагах и неопределённости отправленной записи; она не SHALL обещать отмену уже принятого сервером действия.
 
 #### Scenario: Interruption after an attachment
@@ -107,6 +120,10 @@ Runtime SHALL позволять проверять регистрацию, па
 - **WHEN** проверки команд и API планов прошли на подставных ответах
 - **THEN** отчёт подтверждает локальный контракт и отдельно перечисляет ещё не выполненные portal cases, не объявляя команды принятыми на портале
 
+#### Scenario: Portal internal server error without API fallback
+- **WHEN** SDK оборачивает API INTERNAL_SERVER_ERROR в TransportException
+- **THEN** CLI возвращает api-error и безопасный details.apiErrorCode, не повторяет запрос и не меняет API version; для отправленной записи сохраняется outcomeUnknown
+
 #### Scenario: Confirmed chat send without message ID
 - **WHEN** task:chat:send получает boolean подтверждение отправки без ID
 - **THEN** возвращается success с кодом 0 и resourceId=null; outcomeUnknown не выставляется и ID не восстанавливается по тексту
@@ -116,7 +133,11 @@ Runtime SHALL позволять проверять регистрацию, па
 - **THEN** результат обозначает scope связанного поля и не объявляет его полной историей или total seconds без подтверждённого контракта и полноты
 
 ### Requirement: Deferred root environment webhook connection
-Runtime SHALL поддерживать BITRIX24_WEBHOOK из root .env с приоритетом переменных процесса. Чтение env и создание SDK ServiceBuilder SHALL происходить после local validation и API policy. Webhook не SHALL попадать в argv, output или container config diagnostics. Integration tests SHALL запускаться отдельно и использовать тот же provider.
+Runtime SHALL поддерживать BITRIX24_WEBHOOK из выбранного B24CLI_ENV_FILE, иначе существующего root .env.local, иначе root .env, с приоритетом переменных процесса. Чтение env и создание SDK ServiceBuilder SHALL происходить после local validation и API policy. Webhook не SHALL попадать в argv, output или container config diagnostics. Integration tests SHALL запускаться отдельно и использовать тот же provider и выбранный файл для fixture settings.
+
+#### Scenario: Root local environment and explicit file precedence
+- **WHEN** в checkout доступны .env и .env.local, либо выбран B24CLI_ENV_FILE
+- **THEN** credentials берутся из .env.local, а явный файл заменяет этот выбор; process credentials имеют высший приоритет, глобальное окружение не изменяется
 
 #### Scenario: Offline help with an unreadable environment file
 - **WHEN** пользователь запускает help/list/version/completion без доступного env файла

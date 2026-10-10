@@ -29,7 +29,12 @@ final class FieldSchema
             }
         }
 
-        return $fields;
+        $select = [];
+        foreach ($fields as $field) {
+            array_push($select, ...(in_array($field, ['accomplices', 'auditors'], true) ? [$field . '.id', $field . '.name'] : [$field]));
+        }
+
+        return array_values(array_unique($select));
     }
 
     public static function localPatch(array $fields, bool $create): void

@@ -41,6 +41,13 @@ final class ResponseNormalizer
         return $task;
     }
 
+    public static function voidAck(array $result): void
+    {
+        if ($result !== [null]) {
+            throw new Failure('api-error', 'Bitrix24 did not confirm the operation.');
+        }
+    }
+
     public static function fields(array $row, array $mapping): array
     {
         $out = [];

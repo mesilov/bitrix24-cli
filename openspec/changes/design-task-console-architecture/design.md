@@ -192,7 +192,7 @@ Portal cases — отдельный evidence artifact: роль/права, до
 - [Binding для старого chat message упирается в budget] → безопасный gate4 с явной причиной, без update/delete глобального ID на доверии.
 - [History docs и examples расходятся по navigation; общая фраза docs про SDK v3 устаревает относительно pinned Core] → adapter опирается на version-specific контракт и закреплённый SDK source; portal evidence подтверждает navigation, неполнота видна в результате.
 - [Cold-start compile/создание lightweight handlers ещё не измерены] → без cache на первом шаге; измерить help/list startup перед оптимизацией.
-- [Креды ещё не предоставлены] → webhook provider реализуется по запросу пользователя; portal cases остаются открытыми до явного запуска на тестовом подключении.
+- [Для denied-role нужен отдельный webhook] → основной .env.local предоставлен 2026-10-10; роли с отказом прав остаются открытой portal acceptance.
 - [Поведение signal/timeout зависит от среды и SDK transport] → интеграционные проверки поставляемого CLI окружения обязательны, одной проверки DTO недостаточно.
 
 ## Migration Plan
@@ -214,3 +214,15 @@ Symfony 8.1 ArgvInput воспринимает отдельный `-` после
 Root env берётся от выбранного checkout; внешний файл — B24CLI_ENV_FILE/read-only bind. Make cli/integration передают process overrides через `--env NAME`, без значения секрета в argv. SDK NullLogger исключает credentials из request logs. Host PHP/Composer не требуются.
 
 Static advanced writable allowlist запрещает tags/userFields и relation objects по закреплённой v3 документации, даже если это поля чтения. Дополнительная portal metadata проверяет editable/type. Конечные поля select/order закреплены в FieldSchema; расширение API не принимается молча.
+
+## Portal contract corrections 2026-10-10
+
+SDK оборачивает API INTERNAL_SERVER_ERROR в TransportException. CLI различает этот конкретный код по безопасному префиксу SDK: api-error/details.apiErrorCode=INTERNAL_SERVER_ERROR, без сырых SDK messages или URL; для записи сохраняется outcomeUnknown. Общие транспортные сбои остаются transport-error. Регрессия через HTTP codec и live projection проверяет отсутствие неявного fallback/retry и фиксирует ограничение API отдельно от работоспособности CLI error boundary.
+
+EnvConnectionResolver выбирает B24CLI_ENV_FILE, иначе существующий root `.env.local`, иначе root `.env`; process webhook имеет приоритет над выбранным файлом. Это выбор одного файла, без скрытого объединения credentials разных checkout. Integration fixture settings читаются из того же выбранного файла. Оба filenames игнорируются Git; lazy resolution и read-only mount сохраняются.
+
+Дополнительная диагностика задачи 5320 установила server limitation: заполненный `auditors` возвращает INTERNAL_SERVER_ERROR также для документированных `.id`, `.name` и их комбинации. CLI не меняет версию API после отказа. Participants preflight читает только id/title: существующие role sets ему не нужны для sparse replacement. Live-тесты omission/clear читают role sets явным REST1 `tasks.task.get` через тестовый SDK provider; это отдельная проверка interoperabilty записи, не доказательство доступности заполненного v3 relation. По этой причине portal acceptance всех возможностей task:show остаётся ограниченной. Дополнительный fixture upload/delete используется только тестами для собственного маленького Disk файла, когда существующий fixture ID не задан; production task:file:attach по-прежнему не загружает файлы.
+
+Корневые select `accomplices`/`auditors` раскрываются в документированные `.id`/`.name` проекции объектов пользователей; явные dotted select сохраняются. Запрос всего заполненного `auditors` воспроизводимо возвращал INTERNAL_SERVER_ERROR на портале, тогда как документация fields v3 предписывает nested select. Раскрытие выполняется локально до credentials и используется одинаково для show/list. Тест readback участников покрывает заполнение, omission и clear.
+
+Live-прогон обнаружил различающиеся подтверждения REST1 записей. `task.elapseditem.update/delete` и `task.checklistitem.update` возвращают `result:null`, который SDK 3.7.0 нормализует в `[null]`; для этих трёх маршрутов требуется отдельная точная проверка void result. `tasks.task.update` REST1 возвращает `result.task`: participants adapter проверяет положительный `task.id`, совпадающий с выбранной TASK_ID. Boolean ACK сохраняется для REST3 и остальных IM/checklist операций; произвольный пустой/false ответ не считается успехом. Контракты сверены с документацией [time update](https://apidocs.bitrix24.ru/api-reference/tasks/elapsed-item/task-elapsed-item-update.html), [checklist update](https://apidocs.bitrix24.ru/api-reference/tasks/checklist-item/task-checklist-item-update.html), [task update REST1](https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-update.html) и диагностикой собственной временной задачи 5302, удалённой после проверки. Тесты подтверждают изменения повторным чтением.

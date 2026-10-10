@@ -26,6 +26,14 @@
 - [x] 3.5 Реализовать ChecklistGateway/Rest1ChecklistAdapter и NodeBindingVerifier; проверить Core PARENT_ID=0/explicit item parent, root/item partition, nested tree/SORT_INDEX order/Y-N normalization, чужой parent/item/root ID, циклы/неполные данные и отсутствие task lifecycle changes. В help описать subtree эффект item delete по подтверждённому API контракту.
 - [x] 3.6 Реализовать ParticipantGateway/Rest1ParticipantAdapter и TaskHistoryGateway/Rest1TaskHistoryAdapter; проверить только два role sets/explicit clear/omission, version distinction общего update имени, history filter/order allowlist и нормализацию from/to/user. Проверить navigation fixtures и partial при недоказанной полноте; записать конкретное ограничение истории в help.
 
+- [x] 3.7 Исправить method-specific REST1 подтверждения: `[null]` для elapseditem update/delete и checklistitem update, `task.id=TASK_ID` для participants update. Добавить регрессии через реальный SDK response codec, отклонение false/пустых/чужих ответов и повторить live readback/cleanup.
+
+- [x] 3.8 Раскрыть корневые select accomplices/auditors в документированные id/name проекции, сохранить явные dotted select и исключить ненужное чтение участников из preflight participants:set. Проверить live omission/clear/history; filled relation readback через тестовый REST1 get, а отказ REST3 проекций фиксировать отдельной portal limitation без production fallback.
+
+- [x] 3.9 Поддержать предоставленный пользователем root .env.local по умолчанию с fallback к .env, process precedence и явным B24CLI_ENV_FILE; синхронизировать fixture settings/docs и проверить секрет-safe диагностику/выбор файла офлайн.
+
+- [x] 3.10 Отделить SDK INTERNAL_SERVER_ERROR от сетевой ошибки: безопасный api-error с apiErrorCode, outcomeUnknown для записи и отсутствие fallback/retry; проверить через реальный SDK HTTP codec и live заполненную auditor projection.
+
 ## 4. Обработчики и 30 Command классов
 
 - [x] 4.1 Реализовать AddTask/ShowTask/DeleteTask/ListTaskFields/ShowTaskAccess handlers и соответствующие 5 Commands из карты; проверить обычный/advanced add, обязательные поля, writable metadata, read profiles, delete preview/confirmation и command help examples. Dedicated subtask class/alias не создавать; explicit parentId трактовать по текущему scope.

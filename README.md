@@ -87,8 +87,8 @@ Workflows и конфигурации адаптированы из [b24phpsdk v
 ## Подключение и команды
 
 ```sh
-cp .env.example .env
-# В .env задайте BITRIX24_WEBHOOK — полный URL входящего webhook.
+cp .env.example .env.local
+# В .env.local задайте BITRIX24_WEBHOOK — полный URL входящего webhook.
 make cli ARGS='list task'
 make cli ARGS='task:add --title "Подготовить договор" --creator 1 --responsible 2'
 make cli ARGS='task:update 123 --title "Согласовать договор"'
@@ -103,13 +103,13 @@ make cli ARGS='task:checklist:item:add 123 --checklist 10 --title "Реквиз�
 
 При установленном PHP 8.4/8.5 запускайте `bin/b24cli` напрямую; добавив `bin/` в PATH, используйте `b24cli`. `bin/console` вызывает тот же bootstrap. Справка каждой команды содержит параметры, пример и колонки вывода.
 
-ServiceBuilder создаётся перед первым API-запросом. `BITRIX24_WEBHOOK` из process environment имеет приоритет над корневым `.env`; поддерживается SDK alias `BITRIX24_PHP_SDK_PLAYGROUND_WEBHOOK`. `.env` игнорируется Git. Webhook не передаётся аргументом CLI и не добавляется в API trace. Нужны scopes `task` и `im`; действуют права пользователя webhook. Live-тесты дополнительно запрашивают `profile` для ID этого пользователя.
+ServiceBuilder создаётся перед первым API-запросом. `BITRIX24_WEBHOOK` из process environment имеет приоритет; файл выбирается через `B24CLI_ENV_FILE`, иначе используется корневой `.env.local`, при его отсутствии — `.env`. Поддерживается SDK alias `BITRIX24_PHP_SDK_PLAYGROUND_WEBHOOK`. Оба файла игнорируются Git. Webhook не передаётся аргументом CLI и не добавляется в API trace. Нужны scopes `tasks`, `task` и `im`; действуют права пользователя webhook. Live-тесты дополнительно запрашивают `profile` для ID этого пользователя.
 
 Для worktree можно указать env основного checkout. Wrapper монтирует файл read-only, PHP получает его путь:
 
 ```sh
-B24CLI_ENV_FILE=/Users/mesilov/work/Bitrix24/bitrix24-cli/.env make cli ARGS='task:show 123'
-B24CLI_ENV_FILE=/Users/mesilov/work/Bitrix24/bitrix24-cli/.env make test-integration
+B24CLI_ENV_FILE=/Users/mesilov/work/Bitrix24/bitrix24-cli/.env.local make cli ARGS='task:show 123'
+B24CLI_ENV_FILE=/Users/mesilov/work/Bitrix24/bitrix24-cli/.env.local make test-integration
 ```
 
 В [SDK integration Factory](https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/tests/Integration/Factory.php) по умолчанию используется webhook (`getServiceBuilder(false)`). `getServiceBuilder(true)` подключает OAuth-токены приложения через ApplicationBridge с сохранением обновлённых токенов. Для этой пачки выбран webhook.
@@ -148,12 +148,14 @@ Offline suite проверяет все 30 маршрутов, JSON-параме
 
 Live suite создаёт задачи с префиксом `b24cli-test-`, проверяет изменения повторным чтением и удаляет созданные задачи в tearDown. Нужен тестовый портал и пользователь с правами создавать/удалять собственные задачи и работать с их чатом. При ошибке cleanup тест сообщает IDs для ручного удаления. Неверный webhook вызывает ошибку, а не skip.
 
-Дополнительные fixtures в том же `.env`:
+Дополнительные fixtures в том же env-файле:
 
-- `B24CLI_TEST_DISK_FILE_ID`: существующий доступный файл Диска. Тест его не загружает и не удаляет. Attachment проверяется по ACK: REST 3 get возвращает `fileIds: null`, поэтому не доказывает наличие вложения.
+- `B24CLI_TEST_DISK_FILE_ID`: существующий доступный файл Диска. Предоставленный файл тест не удаляет. При отсутствии ID тест создаёт маленький временный файл в личном Диске пользователя webhook и удаляет его после проверки; нужны scope `disk`, права загрузки/удаления и ровно одно личное хранилище. Attachment проверяется по ACK: REST 3 get возвращает `fileIds: null`, поэтому не доказывает наличие вложения.
 - `B24CLI_TEST_RESTRICTED_WEBHOOK`: webhook другого, не административного пользователя без права редактировать создаваемую задачу для denied-role case.
 
-Без дополнительных fixtures эти cases пропускаются отдельно. Без основного webhook порталные сценарии не считаются пройденными; offline тесты не доказывают поведение конкретного портала.
+Без restricted webhook denied-role case пропускается отдельно. Без основного webhook порталные сценарии не считаются пройденными; offline тесты не доказывают поведение конкретного портала.
+
+Проверка 2026-10-10: портал возвращает `INTERNAL_SERVER_ERROR` на заполненный `auditors`, включая документированный `--select auditors.id`. CLI сообщает `api-error` с безопасным `apiErrorCode` и сохраняет выбранную версию API. `participants:set` работает без чтения этого поля; сохранение/очищение наборов тест проверяет явным REST1 контрольным чтением. Корневые `--select auditors/accomplices` раскрываются в `.id/.name`; доступность этих проекций зависит от API портала.
 
 ## Параллельная работа в Git worktree
 

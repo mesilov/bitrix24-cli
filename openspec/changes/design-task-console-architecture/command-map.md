@@ -58,7 +58,7 @@
 
 | Команда | Command class | Request / Handler stem | Основные API method/version | Дополнительные чтения и ограничения | Output profile |
 | --- | --- | --- | --- | --- | --- |
-| `task:participants:set` | `SetTaskParticipantsCommand` | `SetTaskParticipants` | `tasks.task.update@1.0` | `tasks.task.get@3.0` для TASK_ID/текущих ролей; полная замена только явно заданной роли, explicit clear; нет status/прочего legacy payload | mutation |
+| `task:participants:set` | `SetTaskParticipantsCommand` | `SetTaskParticipants` | `tasks.task.update@1.0` | `tasks.task.get@3.0` для TASK_ID/title; полная замена только явно заданной роли, explicit clear; нет status/прочего legacy payload | mutation |
 | `task:history:list` | `ListTaskHistoryCommand` | `ListTaskHistory` | `tasks.task.history.list@1.0` | Только typed filter.FIELD/order.createdDate; navigation/completeness acceptance; история отдельно от чата | task-history |
 
 ## Ввод и режимы

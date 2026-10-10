@@ -25,7 +25,7 @@ final readonly class SetTaskParticipantsHandler
 
     public function prepare(SetTaskParticipantsRequest $request): PreparedOperation
     {
-        $task = $this->tasks->get($request->taskId, ['title', 'accomplices', 'auditors']);
+        $task = $this->tasks->get($request->taskId, ['title']);
         $fields = [];
         if ($request->accomplices !== null) {
             $fields['ACCOMPLICES'] = $request->accomplices;

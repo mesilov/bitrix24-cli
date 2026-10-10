@@ -13,6 +13,24 @@ use PHPUnit\Framework\TestCase;
 
 final class CommandBehaviorTest extends TestCase
 {
+    public function testParticipantRelationSelectUsesDocumentedNestedFields(): void
+    {
+        foreach ([['task:show', '123'], ['task:list']] as $argv) {
+            $portal = new FixturePortal();
+            $transport = new FakeApiTransport($portal->respond(...));
+            $run = ConsoleHarness::run((new ApplicationFactory())->create(dirname(__DIR__, 2), $transport), ['--json', ...$argv, '--select', 'auditors', '--select', 'accomplices', '--select', 'auditors.id']);
+            self::assertSame(0, $run->status, $run->stdout);
+            $select = $transport->calls[0]['parameters']['select'];
+            self::assertNotContains('auditors', $select);
+            self::assertNotContains('accomplices', $select);
+            foreach (['auditors.id', 'auditors.name', 'accomplices.id', 'accomplices.name'] as $field) {
+                self::assertContains($field, $select);
+            }
+
+            self::assertSame(count(array_unique($select)), count($select));
+        }
+    }
+
     public static function invalidInput(): iterable
     {
         foreach ([

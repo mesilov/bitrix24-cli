@@ -26,9 +26,9 @@ final readonly class EnvConnectionResolver implements ConnectionResolver
             }
         }
 
-        $path = getenv('B24CLI_ENV_FILE') ?: $this->projectRoot . '/.env';
+        $path = $this->environmentFile();
         if (!is_file($path) || !is_readable($path)) {
-            throw new Failure('connection-unavailable', 'Set BITRIX24_WEBHOOK in the root .env or process environment.');
+            throw new Failure('connection-unavailable', 'Set BITRIX24_WEBHOOK in the root .env.local/.env or process environment.');
         }
 
         try {
@@ -44,5 +44,10 @@ final readonly class EnvConnectionResolver implements ConnectionResolver
         }
 
         return $value;
+    }
+
+    public function environmentFile(): string
+    {
+        return getenv('B24CLI_ENV_FILE') ?: $this->projectRoot . (is_file($this->projectRoot . '/.env.local') ? '/.env.local' : '/.env');
     }
 }

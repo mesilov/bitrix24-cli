@@ -23,6 +23,10 @@ final class TaskCommandsTest extends TestCase
     private int $userId;
     private array $createdTasks = [];
     private array $settings = [];
+    private SdkApiTransport $api;
+    private array $createdDiskFiles = [];
+    private array $ownedTaskIds = [];
+    private array $observedCommands = [];
 
     protected function setUp(): void
     {
@@ -38,13 +42,14 @@ final class TaskCommandsTest extends TestCase
             throw $failure;
         }
 
-        $path = getenv('B24CLI_ENV_FILE') ?: $root . '/.env';
+        $path = $envConnectionResolver->environmentFile();
         if (is_file($path)) {
             $this->settings = (new Dotenv())->parse(file_get_contents($path));
         }
 
-        $sdkApiTransport = new SdkApiTransport(new B24ClientProvider($envConnectionResolver, new RuntimeState()), new RuntimeState());
-        $this->userId = (int) ($sdkApiTransport->call('profile', 1, [])->result['ID'] ?? 0);
+        $runtimeState = new RuntimeState();
+        $this->api = new SdkApiTransport(new B24ClientProvider($envConnectionResolver, $runtimeState), $runtimeState);
+        $this->userId = (int) ($this->api->call('profile', 1, [])->result['ID'] ?? 0);
         self::assertGreaterThan(0, $this->userId, 'Webhook profile must return the acting user ID.');
         $this->app = (new ApplicationFactory())->create($root);
     }
@@ -59,16 +64,32 @@ final class TaskCommandsTest extends TestCase
             }
         }
 
-        if ($failed !== []) {
-            self::fail('Could not remove owned test tasks: ' . implode(', ', $failed) . '. Remove them manually.');
+        $failedFiles = [];
+        foreach ($this->createdDiskFiles as $fileId) {
+            try {
+                \Bitrix24\CLI\Infrastructure\Bitrix24\ResponseNormalizer::ack($this->api->call('disk.file.delete', 1, ['id' => $fileId], 'delete')->result);
+            } catch (Failure) {
+                $failedFiles[] = $fileId;
+            }
+        }
+
+        if (isset($this->userId)) {
+            $evidence = ['test' => $this->name(), 'actingUserId' => $this->userId, 'ownedTaskIds' => $this->ownedTaskIds, 'ownedDiskFileIds' => $this->createdDiskFiles, 'commands' => $this->observedCommands, 'cleanupFailures' => ['taskIds' => $failed, 'diskFileIds' => $failedFiles]];
+            self::assertNotFalse(file_put_contents(dirname(__DIR__, 2) . '/var/cache/portal-evidence.jsonl', json_encode($evidence, JSON_THROW_ON_ERROR) . "\n", FILE_APPEND | LOCK_EX));
+        }
+
+        if ($failed !== [] || $failedFiles !== []) {
+            self::fail('Could not remove owned test fixtures: task IDs [' . implode(', ', $failed) . '], Disk file IDs [' . implode(', ', $failedFiles) . ']. Remove them manually.');
         }
     }
 
     private function invoke(array $argv, array $statuses = [0]): array
     {
         $run = ConsoleHarness::run($this->app, ['--json', ...array_map(strval(...), $argv)]);
+        $json = $run->json();
+        $this->observedCommands[] = ['command' => $argv[0], 'status' => $run->status, 'apiCalls' => $json['meta']['apiCalls'] ?? [], 'errorCode' => $json['error']['code'] ?? null, 'apiErrorCode' => $json['error']['details']['apiErrorCode'] ?? null];
         self::assertContains($run->status, $statuses, $run->stdout . $run->stderr);
-        return $run->json();
+        return $json;
     }
 
     private function newTask(): int
@@ -77,6 +98,7 @@ final class TaskCommandsTest extends TestCase
         $id = $result['data']['operation']['resourceId'];
         self::assertIsInt($id);
         $this->createdTasks[] = $id;
+        $this->ownedTaskIds[] = $id;
         return $id;
     }
 
@@ -191,9 +213,12 @@ final class TaskCommandsTest extends TestCase
     {
         $id = $this->newTask();
         $this->invoke(['task:participants:set', $id, '--auditor', $this->userId]);
-        $before = $this->card($id, ['accomplices', 'auditors']);
+        // Filled REST3 auditor projections currently return INTERNAL_SERVER_ERROR.
+        // Explicit legacy readback verifies the legacy write; CLI has no fallback.
+        $before = $this->api->call('tasks.task.get', 1, ['taskId' => $id])->result['task'];
+        self::assertContains((string) $this->userId, $before['auditors']);
         $this->invoke(['task:participants:set', $id, '--clear-accomplices']);
-        $after = $this->card($id, ['accomplices', 'auditors']);
+        $after = $this->api->call('tasks.task.get', 1, ['taskId' => $id])->result['task'];
         self::assertSame($before['auditors'], $after['auditors']);
         self::assertSame([], $after['accomplices']);
         $this->invoke(['task:participants:set', $id, '--clear-auditors']);
@@ -211,7 +236,18 @@ final class TaskCommandsTest extends TestCase
     {
         $fileId = getenv('B24CLI_TEST_DISK_FILE_ID') ?: ($this->settings['B24CLI_TEST_DISK_FILE_ID'] ?? null);
         if ($fileId === null || $fileId === '') {
-            self::markTestSkipped('File attachment needs an existing B24CLI_TEST_DISK_FILE_ID fixture.');
+            $rows = $this->api->call('disk.storage.getlist', 1, ['filter' => ['ENTITY_TYPE' => 'user', 'ENTITY_ID' => $this->userId]])->result;
+            $owned = array_values(array_filter($rows, fn (array $row): bool => ($row['ENTITY_TYPE'] ?? null) === 'user' && (int) ($row['ENTITY_ID'] ?? 0) === $this->userId));
+            self::assertCount(1, $owned, 'Auto fixture needs exactly one storage belonging to the webhook user.');
+            $name = 'b24cli-test-' . bin2hex(random_bytes(8)) . '.txt';
+            $file = $this->api->call('disk.folder.uploadfile', 1, [
+                'id' => (int) $owned[0]['ROOT_OBJECT_ID'], 'data' => ['NAME' => $name],
+                'fileContent' => [$name, base64_encode("Disposable b24cli integration fixture\n")],
+            ], 'write')->result;
+            $fileId = (string) ($file['ID'] ?? '');
+            if (ctype_digit($fileId) && (int) $fileId > 0) {
+                $this->createdDiskFiles[] = (int) $fileId;
+            }
         }
 
         self::assertMatchesRegularExpression('/^[1-9][0-9]*$/', $fileId);
@@ -220,6 +256,20 @@ final class TaskCommandsTest extends TestCase
         self::assertSame((int) $fileId, $result['data']['items'][0]['resourceId']);
         // REST 3 get does not populate fileIds; attachment verification is ACK only.
         self::assertNull($this->card($id, ['fileIds'])['fileIds']);
+    }
+
+    public function testFilledAuditorProjectionReportsPortalCapabilityWithoutFallback(): void
+    {
+        $id = $this->newTask();
+        $this->invoke(['task:participants:set', $id, '--auditor', $this->userId]);
+        $result = $this->invoke(['task:show', $id, '--select', 'auditors.id'], [0, 1]);
+        self::assertSame(['3.0'], array_column($result['meta']['apiCalls'], 'apiVersion'));
+        if ($result['error'] === null) {
+            self::assertContains($this->userId, array_column($result['data']['task']['auditors'], 'id'));
+        } else {
+            self::assertSame('api-error', $result['error']['code']);
+            self::assertSame('INTERNAL_SERVER_ERROR', $result['error']['details']['apiErrorCode']);
+        }
     }
 
     public function testRestrictedRoleCannotEditFixtureTask(): void

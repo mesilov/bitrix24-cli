@@ -44,7 +44,7 @@ help:
 	  'lint-rector          Check Rector rules (dry run)' \
 	  'lint-all             Run all four quality checks'
 	@printf '%s\n' 'test                 Run offline command/SDK contract tests' \
-	  'test-integration     Run live portal tests using the root .env (skip without webhook)'
+	  'test-integration     Run live portal tests using .env.local/.env (skip without webhook)'
 
 worktree-info:
 	@$(COMPOSE) --info

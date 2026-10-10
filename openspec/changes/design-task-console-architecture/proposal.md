@@ -39,4 +39,6 @@
 
 ## Implementation authorization 2026-10-09
 
+Уточнение 2026-10-10: пользователь предоставил входящий webhook в root `.env.local` и разрешил прогон/исправление всех CLI-команд. Поддерживается этот filename по умолчанию: process credentials → выбранный B24CLI_ENV_FILE либо `.env.local`, при отсутствии `.env.local` — `.env`. Внешний файл выбранного checkout монтируется read-only.
+
 Пользователь разрешил реализацию согласованной пачки команд и интеграционных тестов. Credentials будут в root .env; используется входящий webhook по BITRIX24_WEBHOOK и отложенное создание ServiceBuilder. Уточнения SDK audit применены перед кодом; runtime evidence фиксируется отдельно.

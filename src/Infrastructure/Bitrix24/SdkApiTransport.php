@@ -37,6 +37,10 @@ final readonly class SdkApiTransport implements ApiTransport
 
                 $name = $cause::class;
                 $message = strtolower($cause->getMessage());
+                if (str_starts_with($message, 'internal_server_error -')) {
+                    throw new Failure('api-error', 'Bitrix24 returned an internal server error; check the selected fields and portal API support.', 1, ['apiErrorCode' => 'INTERNAL_SERVER_ERROR'], $effect !== 'read');
+                }
+
                 if (str_contains($name, 'AccessDenied') || str_contains($name, 'AuthForbidden') || array_any(['access denied', 'access_denied', 'accessdeniedexception', 'insufficient_scope', 'insufficientscopeexception'], static fn (string $code): bool => str_contains($message, $code))) {
                     throw new Failure('permission-denied', 'Bitrix24 denied this operation; check the connection permissions.');
                 }
