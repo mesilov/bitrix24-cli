@@ -171,9 +171,31 @@ chmod +x ./b24cli
 ./b24cli --help
 ```
 
-Пользователю не нужны PHP, Composer или Docker. Если macOS блокирует запуск,
-см. [issue #23](https://github.com/mesilov/bitrix24-cli/issues/23): настройка PATH
-решает поиск команды в shell, а блокировка запуска рассматривается отдельно.
+Пользователю не нужны PHP, Composer или Docker. Development artifacts имеют
+бесплатную ad-hoc подпись конечного executable, включая встроенный PHAR.
+Это проверяет целостность файла, но не удостоверяет издателя: Developer ID
+и notarization для этих artifacts не выполняются. Поэтому macOS может
+заблокировать первый запуск скачанного через браузер файла.
+
+Если checksum совпал и вы доверяете источнику, после попытки запуска откройте
+**Системные настройки → Конфиденциальность и безопасность → Всё равно открыть**
+для этого `b24cli` и подтвердите открытие. Затем повторите:
+
+```sh
+./b24cli --version
+./b24cli --help
+./b24cli list --no-ansi
+```
+
+Это штатное разрешение конкретного приложения по
+[инструкции Apple](https://support.apple.com/ru-ru/102445).
+Глобально отключать Gatekeeper или удалять quarantine для установки не требуется.
+На управляемом компьютере разрешение может быть недоступно — обратитесь к администратору.
+Если macOS сообщает о повреждении файла или команда
+`codesign --verify --strict --verbose=2 ./b24cli` завершается ошибкой,
+скачайте актуальный artifact; при повторении ошибки приложите source SHA,
+версию macOS и результат проверки к [issue #23](https://github.com/mesilov/bitrix24-cli/issues/23).
+Установка в PATH решает поиск команды в shell и выполняется после успешного запуска.
 
 После успешного первого запуска установите binary с правами на исполнение
 в пользовательский каталог. `sudo` не требуется. Сохраните внешние license notices:
@@ -238,8 +260,13 @@ Expand-Archive b24cli-windows-amd64.zip -DestinationPath b24cli
 runtime проверяется на Debian 12, build job — Ubuntu 24.04. Minimum validated
 matrix: macOS 15 arm64 и Windows Server 2022 x64. Старые OS требуют отдельного
 acceptance. Windows требует доступный для записи TEMP для временного PHAR.
-macOS/Windows используют standard OS libraries. Signing/notarization
-в первой итерации не выполняются. HTTPS использует OpenSSL trust в `/etc/ssl` на Unix и Schannel certificate store
+macOS/Windows используют standard OS libraries. macOS artifacts получают
+ad-hoc подпись после объединения runtime/PHAR; CI проверяет `codesign --verify --strict`
+и совпадение байтов payload для приложения и probe перед upload.
+Проверка runner-local smoke отдельно от приёмки первого запуска browser download
+с quarantine: результаты последней записываются в OpenSpec verification.
+Production Developer ID/notarization и Windows Authenticode в первой итерации
+не выполняются. HTTPS использует OpenSSL trust в `/etc/ssl` на Unix и Schannel certificate store
 на Windows. Для отдельного PEM bundle на Unix задайте `SSL_CERT_FILE=/absolute/path/ca.pem`
 (для каталога — `SSL_CERT_DIR`). На Windows добавьте корпоративный CA в Windows trust
 store. Fixture harness задаёт собственный CA через cURL CAINFO и проверяет как

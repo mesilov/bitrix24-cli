@@ -37,7 +37,10 @@ chmod +x ./b24cli
 `command not found`. Чтобы вызывать `b24cli` из любого каталога, выполните
 [установку для macOS/zsh](build/README.md#macos-arm64-zsh) или своей платформы.
 На Windows первый запуск — `./b24cli/b24cli.exe --version` по инструкции установки.
-Если macOS блокирует запуск `./b24cli`, см. [issue #23](https://github.com/mesilov/bitrix24-cli/issues/23).
+Для скачанного macOS development artifact может потребоваться разрешить конкретный
+`b24cli` через «Конфиденциальность и безопасность → Всё равно открыть» после первой
+попытки запуска; см. [инструкцию macOS](build/README.md#macos-arm64-zsh).
+Ad-hoc подпись проверяет целостность, но Developer ID/notarization пока не выполняются.
 
 ## CLI-команды
 
