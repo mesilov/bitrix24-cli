@@ -32,7 +32,7 @@
 
 ## GitHub issues
 
-- [#15 — Организовать петлю обратной связи: сообщить о проблеме без GitHub-аккаунта](https://github.com/mesilov/bitrix24-cli/issues/15): весь контракт `user-feedback`; milestone `0.1.0`, type `Feature`, label `enhancement`.
+- [#15 — Организовать петлю обратной связи: сообщить о проблеме без GitHub-аккаунта](https://github.com/mesilov/bitrix24-cli/issues/15): весь контракт `user-feedback`; milestone `0.1.0`, label `enhancement`. Репозиторий возвращает `issueTypes: null` в GraphQL; нативный тип Feature не назначается, хотя REST каталог показывает стандартные названия.
 - Связанная диагностика: [#12](https://github.com/mesilov/bitrix24-cli/issues/12); исходный runtime: [PR #11](https://github.com/mesilov/bitrix24-cli/pull/11).
 
 ## Research evidence
