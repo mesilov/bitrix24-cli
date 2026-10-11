@@ -1,0 +1,40 @@
+# Proposal
+
+## Why
+
+Пользователь, столкнувшийся с проблемой bitrix24-cli, должен легко передать её разработчикам без регистрации на GitHub и получить результат обработки. Для первого MVP нужен доступный канал, связывающий сообщение, triage, issue и уведомление об исправлении.
+
+## What Changes
+
+- Добавить `b24cli feedback`: локальный минимальный отчёт, ссылка на форму, явный `--open`; работа без подключения к порталу и в headless-среде.
+- Добавить внешнюю форму без GitHub-login и обязательного аккаунта, с описанием проблемы, необязательными диагностикой и email.
+- Принимать сообщения с receipt ID и приватной ссылкой на статус; после moderation публиковать безопасное содержание через GitHub App или связывать с существующим issue.
+- Организовать уточнения и ответ о решении/релизе без GitHub-аккаунта, отдельно хранить контакт и обрабатывать сбои/повторы.
+- Документировать основной и резервный каналы в README/help и `contact_links`; показывать уместную подсказку в человеческих ошибках без изменения машинного вывода.
+
+## Capabilities
+
+### New Capabilities
+
+- `user-feedback`: подготовка и передача сообщения без GitHub-аккаунта, контролируемая публикация issue и обратная связь по обращению.
+
+### Modified Capabilities
+
+Нет. Актуальные `docker-cli-environment` и `worktree-development` сохраняют требования. Подсказки в ошибках согласуются с будущим runtime из PR #11 и диагностикой из issue #12, без изменения их кодов завершения и stdout.
+
+## Impact
+
+- Symfony Console entrypoint/новая команда, help и README; будущий общий обработчик человеческих ошибок.
+- Новый внешний сервис приёма/статуса, GitHub App с `Issues: write` только для целевого репозитория, очередь и доставка email по желанию отправителя.
+- `.github/ISSUE_TEMPLATE/` для ссылки на внешний канал и стандартного GitHub пути.
+- На `dev` `5d236a0` есть только bootstrap Console; feedback и task runtime отсутствуют. Реализация интеграции с ошибками зависит от принятия PR #11/#12. Хостинг сервиса и почтовый провайдер выбираются перед apply; платный сервис не предопределён.
+- Работа сейчас ограничена исследованием и подготовкой артефактов. Реализация, установка App и live end-to-end ещё не выполнены.
+
+## GitHub issues
+
+- [#15 — Организовать петлю обратной связи: сообщить о проблеме без GitHub-аккаунта](https://github.com/mesilov/bitrix24-cli/issues/15): весь контракт `user-feedback`; milestone `0.1.0`, type `Feature`, label `enhancement`.
+- Связанная диагностика: [#12](https://github.com/mesilov/bitrix24-cli/issues/12); исходный runtime: [PR #11](https://github.com/mesilov/bitrix24-cli/pull/11).
+
+## Research evidence
+
+Проверено 2026-10-11. Анонимный запрос к `https://github.com/mesilov/bitrix24-cli/issues/new` вернул HTTP 302 на GitHub login: встроенная форма не решает требование без аккаунта. [Create issue API](https://docs.github.com/en/rest/issues/issues#create-an-issue) допускает installation token с `Issues: write`, [действия установки](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation) атрибутируются App. Поэтому внешний канал может создавать issue без аккаунта отправителя; владелец устанавливает App. Это подтверждение реализуемости по документации, не проверка работающего сервиса.
