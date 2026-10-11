@@ -69,6 +69,47 @@
 
 Каждая строка имеет собственную command contract проверку: допустимый ввод → typed Request → ожидаемый маршрут/effect/output; missing/conflicting input → usage2 без подключения. Для всех дополнительных чтений отдельно проверяются API policy и отсутствие mutation в dry-run. Общие parser/version/confirmation/scan tests перечислены в [tasks.md](tasks.md).
 
+Дополнительно для каждой строки обязателен минимум один happy-path в tests/Integration через реальный портал. PHPUnit Group `command:<имя>` связывает сценарий с командой; unit guard сверяет группы с CommandCatalog. Список вызовов без проверки данных, negative case и skip не засчитываются. Положительный workflow может покрывать несколько команд с отдельными assertions; для time/history проверяется точная документированная граница полноты, а для file attach — confirmed ACK с явным ограничением readback.
+
+## Integration happy-path coverage
+
+Все методы находятся в `tests/Integration/TaskCommandsTest.php` и связаны с командами Group `command:<имя>`. Проверка наличия — `tests/Unit/IntegrationCommandCoverageTest.php`; результат live запуска фиксируется отдельно в implementation-verification.md и sanitized evidence. В таблице указаны положительные assertions, а не вспомогательные или negative вызовы.
+
+| Команда | Метод теста | Проверка результата |
+| --- | --- | --- |
+| `task:add` | testTaskCreationAndDeletionReadBack | Положительный ID, confirmed, точные title/description/creator/responsible в новой карточке |
+| `task:show` | testTaskCreationAndDeletionReadBack | ID и поля собственной созданной задачи |
+| `task:delete` | testTaskCreationAndDeletionReadBack | Confirmed, ID, отсутствие в list по ID и отказ show после удаления |
+| `task:update` | testTaskCardSchemaAndSparseUpdates | Новое title и явное очищение description через show |
+| `task:assign` | testTaskCardSchemaAndSparseUpdates | responsibleId выбранного пользователя через show |
+| `task:deadline:set` | testTaskCardSchemaAndSparseUpdates | Timestamp deadline совпадает с заданным offset |
+| `task:list` | testTaskCardSchemaAndSparseUpdates | Список содержит ID собственной задачи |
+| `task:fields:list` | testTaskCardSchemaAndSparseUpdates | Непустой metadata список и точный name=title при выборе поля |
+| `task:access:show` | testTaskCardSchemaAndSparseUpdates | Непустые права совпадают с API, собственная задача имеет разрешённое действие |
+| `task:find` | testTaskFindReturnsMatchingTitlesAsAList | Exit0, complete=true, ровно две пары id/title по Unicode подстроке другого регистра |
+| `task:chat:send` | testTaskChatSendReadUpdateDeleteAndWrongTaskBinding | Confirmed ACK и уникальный текст в чате собственной задачи |
+| `task:chat:list` | testTaskChatSendReadUpdateDeleteAndWrongTaskBinding | Ровно одно сообщение с собственным текстом и проверяемым ID |
+| `task:chat:update` | testTaskChatSendReadUpdateDeleteAndWrongTaskBinding | Изменённый текст прочитан из того же чата |
+| `task:chat:delete` | testTaskChatSendReadUpdateDeleteAndWrongTaskBinding | Удалённое сообщение отсутствует при повторном чтении |
+| `task:time:add` | testOwnTimeEntriesReadBackSecondsAndKeepOmittedText | Собственная запись содержит 60 секунд, text и userId |
+| `task:time:list` | testOwnTimeEntriesReadBackSecondsAndKeepOmittedText | Запись доступна по ID с ожидаемыми значениями |
+| `task:time:update` | testOwnTimeEntriesReadBackSecondsAndKeepOmittedText | 120 секунд и сохранённый omitted text через list |
+| `task:time:delete` | testOwnTimeEntriesReadBackSecondsAndKeepOmittedText | Запись отсутствует при повторном list |
+| `task:time:show` | testOwnTimeEntriesReadBackSecondsAndKeepOmittedText | taskId/elapsedTime совпадают с provider, scope/historyComplete и точная причина неполноты |
+| `task:checklist:add` | testChecklistRootsNestedItemsAndStateDoNotChangeTaskStatus | Созданные roots прочитаны по ID с точными названиями |
+| `task:checklist:list` | testChecklistRootsNestedItemsAndStateDoNotChangeTaskStatus | Два независимых корня доступны по ID/title |
+| `task:checklist:item:add` | testChecklistRootsNestedItemsAndStateDoNotChangeTaskStatus | Основной и nested item доступны, parentId соответствует основному пункту |
+| `task:checklist:item:list` | testChecklistRootsNestedItemsAndStateDoNotChangeTaskStatus | Пункты выбранного root имеют ожидаемые ID/title/parent/state |
+| `task:checklist:item:update` | testChecklistRootsNestedItemsAndStateDoNotChangeTaskStatus | Новое title прочитано из выбранного root |
+| `task:checklist:item:complete` | testChecklistRootsNestedItemsAndStateDoNotChangeTaskStatus | isComplete=true через list |
+| `task:checklist:item:renew` | testChecklistRootsNestedItemsAndStateDoNotChangeTaskStatus | isComplete=false и неизменный task status |
+| `task:checklist:item:delete` | testChecklistRootsNestedItemsAndStateDoNotChangeTaskStatus | Удалённый subtree отсутствует через list |
+| `task:participants:set` | testParticipantsOmissionClearAndHistoryCompletenessBoundary | Auditor ID прочитан, omitted роль сохранена, explicit clear очищает её |
+| `task:history:list` | testParticipantsOmissionClearAndHistoryCompletenessBoundary | Собственное изменение title: точные from/to/user, ID и известная граница navigation |
+| `task:file:attach` | testAttachExistingDiskFileWithConfirmedAcknowledgement | Confirmed ACK с точными taskId/fileId; membership независимо не доказано |
+
+`testFilledParticipantsAreEnrichedThroughExplicitUserLookup` дополнительно проверяет task:show с observers/email и task:participants:set; denied-role сценарий не заменяет happy-path. Для двух read-команд с недоказанной полнотой допускается только описанная в runtime spec точная граница exit3. Смена ответственного проверена на текущего пользователя; покрытие иных ролей остаётся отдельной приёмкой.
+
 ## Output profiles
 
 Это проектные стабильные поля нормализованного результата, а не требование вернуть сырой API payload. JSON использует общий envelope. Для списков data.items всегда array. Human показывает те же существенные значения в таблице/карточке. Plain без заголовка; точный порядок TSV columns:

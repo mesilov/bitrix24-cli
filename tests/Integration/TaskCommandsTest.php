@@ -13,6 +13,7 @@ use Bitrix24\CLI\Infrastructure\Connection\B24ClientProvider;
 use Bitrix24\CLI\Infrastructure\Connection\EnvConnectionResolver;
 use Bitrix24\CLI\Infrastructure\Connection\ConnectionResolver;
 use Bitrix24\CLI\Tests\Support\ConsoleHarness;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Dotenv\Dotenv;
 
@@ -81,24 +82,49 @@ final class TaskCommandsTest extends TestCase
         if ($failed !== [] || $failedFiles !== []) {
             self::fail('Could not remove owned test fixtures: task IDs [' . implode(', ', $failed) . '], Disk file IDs [' . implode(', ', $failedFiles) . ']. Remove them manually.');
         }
+
+        if (isset($this->userId)) {
+            foreach ((new \ReflectionMethod($this, $this->name()))->getAttributes(Group::class) as $attribute) {
+                $command = substr($attribute->newInstance()->name(), strlen('command:'));
+                $expectedPartial = match ($command) {
+                    'task:time:show' => 'Selected elapsedTime was not returned.',
+                    'task:history:list' => 'history-navigation-unverified',
+                    default => null,
+                };
+                $happyCalls = array_filter($this->observedCommands, static fn (array $call): bool => $call['command'] === $command && ($call['status'] === 0 || ($expectedPartial !== null && $call['status'] === 3 && $call['errorCode'] === 'partial-result' && $call['complete'] === false && $call['reason'] === $expectedPartial)));
+                self::assertNotEmpty($happyCalls, 'The integration workflow must execute its declared happy-path command: ' . $command);
+            }
+        }
     }
 
     private function invoke(array $argv, array $statuses = [0]): array
     {
         $run = ConsoleHarness::run($this->app, ['--json', ...array_map(strval(...), $argv)]);
         $json = $run->json();
-        $this->observedCommands[] = ['command' => $argv[0], 'status' => $run->status, 'apiCalls' => $json['meta']['apiCalls'] ?? [], 'errorCode' => $json['error']['code'] ?? null, 'apiErrorCode' => $json['error']['details']['apiErrorCode'] ?? null];
+        $this->observedCommands[] = ['command' => $argv[0], 'status' => $run->status, 'apiCalls' => $json['meta']['apiCalls'] ?? [], 'complete' => $json['meta']['complete'] ?? null, 'reason' => $json['meta']['reason'] ?? null, 'errorCode' => $json['error']['code'] ?? null, 'apiErrorCode' => $json['error']['details']['apiErrorCode'] ?? null];
+        if ($argv[0] === 'task:add' && is_int($id = $json['data']['operation']['resourceId'] ?? null) && $id > 0) {
+            $this->createdTasks[] = $id;
+            $this->ownedTaskIds[] = $id;
+        }
+
         self::assertContains($run->status, $statuses, $run->stdout . $run->stderr);
+        if ($run->status === 0) {
+            self::assertNull($json['error']);
+            if (array_key_exists('complete', $json['meta'])) {
+                self::assertTrue($json['meta']['complete']);
+            }
+        }
+
         return $json;
     }
 
-    private function newTask(): int
+    private function newTask(?string $title = null): int
     {
-        $result = $this->invoke(['task:add', '--title', 'b24cli-test-' . bin2hex(random_bytes(8)), '--creator', $this->userId, '--responsible', $this->userId, '--description', 'original']);
+        $result = $this->invoke(['task:add', '--title', $title ?? 'b24cli-test-' . bin2hex(random_bytes(8)), '--creator', $this->userId, '--responsible', $this->userId, '--description', 'original']);
         $id = $result['data']['operation']['resourceId'];
         self::assertIsInt($id);
-        $this->createdTasks[] = $id;
-        $this->ownedTaskIds[] = $id;
+        self::assertGreaterThan(0, $id);
+        self::assertTrue($result['data']['operation']['confirmed']);
         return $id;
     }
 
@@ -113,7 +139,35 @@ final class TaskCommandsTest extends TestCase
         return $this->invoke($argv)['data']['task'];
     }
 
-    public function testTaskCardSchemaSearchAndSparseUpdates(): void
+    #[Group('command:task:add')]
+    #[Group('command:task:show')]
+    #[Group('command:task:delete')]
+    public function testTaskCreationAndDeletionReadBack(): void
+    {
+        $title = 'b24cli-create-' . bin2hex(random_bytes(8));
+        $id = $this->newTask($title);
+        $card = $this->card($id);
+        self::assertSame($id, $card['id']);
+        self::assertSame($title, $card['title']);
+        self::assertSame('original', $card['description']);
+        self::assertSame($this->userId, $card['creatorId']);
+        self::assertSame($this->userId, $card['responsibleId']);
+        $deleted = $this->invoke(['task:delete', $id, '--force']);
+        self::assertTrue($deleted['data']['operation']['confirmed']);
+        self::assertSame($id, $deleted['data']['operation']['taskId']);
+        $this->createdTasks = array_values(array_diff($this->createdTasks, [$id]));
+        self::assertSame([], $this->invoke(['task:list', '--id', $id])['data']['items']);
+        $run = ConsoleHarness::run($this->app, ['--json', 'task:show', (string) $id]);
+        self::assertSame(1, $run->status);
+    }
+
+    #[Group('command:task:update')]
+    #[Group('command:task:assign')]
+    #[Group('command:task:deadline:set')]
+    #[Group('command:task:list')]
+    #[Group('command:task:fields:list')]
+    #[Group('command:task:access:show')]
+    public function testTaskCardSchemaAndSparseUpdates(): void
     {
         $id = $this->newTask();
         $title = 'b24cli-ёж-' . bin2hex(random_bytes(8));
@@ -129,29 +183,41 @@ final class TaskCommandsTest extends TestCase
         self::assertSame(strtotime($at), strtotime($this->card($id)['deadline']));
         $items = $this->invoke(['task:list', '--id', $id])['data']['items'];
         self::assertContains($id, array_column($items, 'id'));
-        $search = $this->invoke(['task:find', '--title', mb_strtoupper($title), '--all'], [0, 3]);
-        // A finite scan on a large portal may not reach this task; preserve that boundary.
-        if ($search['meta']['complete']) {
-            self::assertContains($id, array_column($search['data']['items'], 'id'));
-        } else {
-            self::assertSame('partial-result', $search['error']['code']);
-        }
-
         self::assertNotEmpty($this->invoke(['task:fields:list'])['data']['items']);
         self::assertSame('title', $this->invoke(['task:fields:list', '--name', 'title'])['data']['items'][0]['name']);
-        self::assertIsArray($this->invoke(['task:access:show', $id])['data']['access']);
-        $this->invoke(['task:delete', $id, '--force']);
-        $this->createdTasks = array_values(array_diff($this->createdTasks, [$id]));
-        $run = ConsoleHarness::run($this->app, ['--json', 'task:show', (string) $id]);
-        self::assertSame(1, $run->status);
+        $access = $this->invoke(['task:access:show', $id])['data']['access'];
+        self::assertNotEmpty($access);
+        self::assertSame($this->api->call('tasks.task.access.get', 3, ['id' => $id])->result, $access);
+        self::assertContains(true, $access, 'The acting user must have access to its own editable task.');
     }
 
+    #[Group('command:task:find')]
+    public function testTaskFindReturnsMatchingTitlesAsAList(): void
+    {
+        $needle = 'b24cli-поиск-ёж-' . bin2hex(random_bytes(8));
+        $firstTitle = 'Первый ' . $needle . ' договор';
+        $secondTitle = 'Второй ' . $needle . ' договор';
+        $first = $this->newTask($firstTitle);
+        $second = $this->newTask($secondTitle);
+        $result = $this->invoke(['task:find', '--title', mb_strtoupper($needle), '--all']);
+        self::assertTrue($result['meta']['complete']);
+        self::assertSame([['id' => $first, 'title' => $firstTitle], ['id' => $second, 'title' => $secondTitle]], $result['data']['items']);
+        self::assertSame(2, $result['meta']['matched']);
+        self::assertSame(2, $result['meta']['returned']);
+        self::assertFalse($result['meta']['limitApplied']);
+    }
+
+    #[Group('command:task:chat:send')]
+    #[Group('command:task:chat:list')]
+    #[Group('command:task:chat:update')]
+    #[Group('command:task:chat:delete')]
     public function testTaskChatSendReadUpdateDeleteAndWrongTaskBinding(): void
     {
         $id = $this->newTask();
         $text = 'b24cli-message-' . bin2hex(random_bytes(8));
         $sent = $this->invoke(['task:chat:send', $id, '--text', $text]);
         self::assertNull($sent['data']['operation']['resourceId']);
+        self::assertTrue($sent['data']['operation']['confirmed']);
         $messages = $this->invoke(['task:chat:list', $id, '--all'])['data']['items'];
         $own = array_values(array_filter($messages, static fn (array $row): bool => $row['text'] === $text));
         self::assertCount(1, $own, 'Find the unique fixture message ID by reading its own task chat.');
@@ -167,30 +233,58 @@ final class TaskCommandsTest extends TestCase
         self::assertNotContains($text . '-changed', array_column($messages, 'text'));
     }
 
+    #[Group('command:task:time:add')]
+    #[Group('command:task:time:list')]
+    #[Group('command:task:time:update')]
+    #[Group('command:task:time:delete')]
+    #[Group('command:task:time:show')]
     public function testOwnTimeEntriesReadBackSecondsAndKeepOmittedText(): void
     {
         $id = $this->newTask();
         $entry = $this->invoke(['task:time:add', $id, '--seconds', '60', '--text', 'fixture'])['data']['operation']['resourceId'];
         $entries = $this->invoke(['task:time:list', $id])['data']['items'];
-        self::assertContains($entry, array_column($entries, 'id'));
+        $added = array_column($entries, null, 'id')[$entry];
+        self::assertSame(60, $added['seconds']);
+        self::assertSame('fixture', $added['text']);
+        self::assertSame($this->userId, $added['userId']);
         $other = $this->newTask();
         $this->invoke(['task:time:update', $other, '--entry', $entry, '--seconds', '120'], [4]);
         $this->invoke(['task:time:update', $id, '--entry', $entry, '--seconds', '120']);
         $rows = array_values(array_filter($this->invoke(['task:time:list', $id])['data']['items'], static fn (array $row): bool => $row['id'] === $entry));
         self::assertSame(120, $rows[0]['seconds']);
         self::assertSame('fixture', $rows[0]['text']);
-        self::assertArrayHasKey('elapsedTime', $this->invoke(['task:time:show', $id], [0, 3])['data']['time']);
+        $time = $this->invoke(['task:time:show', $id], [0, 3]);
+        $source = $this->api->call('tasks.task.get', 3, ['id' => $id, 'select' => ['id', 'elapsedTime']])->result['item'];
+        self::assertSame(['taskId' => $id, 'elapsedTime' => $source['elapsedTime'] ?? null], $time['data']['time']);
+        self::assertSame('task-elapsedTime-relation', $time['meta']['scope']);
+        self::assertNull($time['meta']['historyComplete']);
+        self::assertSame(array_key_exists('elapsedTime', $source), $time['meta']['complete']);
+        if (!$time['meta']['complete']) {
+            self::assertSame('Selected elapsedTime was not returned.', $time['meta']['reason']);
+            self::assertSame('partial-result', $time['error']['code']);
+        }
+
         $this->invoke(['task:time:delete', $id, '--entry', $entry, '--force']);
         self::assertNotContains($entry, array_column($this->invoke(['task:time:list', $id])['data']['items'], 'id'));
     }
 
+    #[Group('command:task:checklist:add')]
+    #[Group('command:task:checklist:list')]
+    #[Group('command:task:checklist:item:add')]
+    #[Group('command:task:checklist:item:list')]
+    #[Group('command:task:checklist:item:update')]
+    #[Group('command:task:checklist:item:complete')]
+    #[Group('command:task:checklist:item:renew')]
+    #[Group('command:task:checklist:item:delete')]
     public function testChecklistRootsNestedItemsAndStateDoNotChangeTaskStatus(): void
     {
         $id = $this->newTask();
         $status = $this->card($id)['status'];
         $root = $this->invoke(['task:checklist:add', $id, '--title', 'Root'])['data']['operation']['resourceId'];
         $secondRoot = $this->invoke(['task:checklist:add', $id, '--title', 'Other root'])['data']['operation']['resourceId'];
-        self::assertContains($root, array_column($this->invoke(['task:checklist:list', $id])['data']['items'], 'id'));
+        $roots = array_column($this->invoke(['task:checklist:list', $id])['data']['items'], null, 'id');
+        self::assertSame('Root', $roots[$root]['title']);
+        self::assertSame('Other root', $roots[$secondRoot]['title']);
         $item = $this->invoke(['task:checklist:item:add', $id, '--checklist', $root, '--title', 'Item'])['data']['operation']['resourceId'];
         $nested = $this->invoke(['task:checklist:item:add', $id, '--checklist', $root, '--parent', $item, '--title', 'Nested'])['data']['operation']['resourceId'];
         $this->invoke(['task:checklist:item:add', $id, '--checklist', $secondRoot, '--parent', $item, '--title', 'Wrong parent'], [4]);
@@ -209,6 +303,8 @@ final class TaskCommandsTest extends TestCase
         self::assertSame([], $this->invoke(['task:checklist:item:list', $id, '--checklist', $root])['data']['items']);
     }
 
+    #[Group('command:task:participants:set')]
+    #[Group('command:task:history:list')]
     public function testParticipantsOmissionClearAndHistoryCompletenessBoundary(): void
     {
         $id = $this->newTask();
@@ -223,16 +319,24 @@ final class TaskCommandsTest extends TestCase
         self::assertSame([], $after['accomplices']);
         $this->invoke(['task:participants:set', $id, '--clear-auditors']);
         self::assertSame([], $this->card($id, ['auditors'])['auditors']);
-        $this->invoke(['task:update', $id, '--title', 'history-fixture']);
+        $beforeTitle = $this->card($id)['title'];
+        $title = 'history-fixture-' . bin2hex(random_bytes(8));
+        $this->invoke(['task:update', $id, '--title', $title]);
         $history = $this->invoke(['task:history:list', $id, '--params', '{"filter":{"FIELD":"TITLE"},"order":{"createdDate":"asc"}}'], [0, 3]);
-        self::assertIsArray($history['data']['items']);
-        self::assertNotEmpty($history['data']['items']);
+        $changes = array_values(array_filter($history['data']['items'], static fn (array $row): bool => $row['field'] === 'TITLE' && $row['to'] === $title));
+        self::assertCount(1, $changes);
+        self::assertSame($beforeTitle, $changes[0]['from']);
+        self::assertSame($this->userId, (int) $changes[0]['userId']);
+        self::assertGreaterThan(0, $changes[0]['id']);
+        self::assertSame('visible-task-change-history', $history['meta']['scope']);
         if (!$history['meta']['complete']) {
+            self::assertSame('history-navigation-unverified', $history['meta']['reason']);
             self::assertSame('partial-result', $history['error']['code']);
         }
     }
 
-    public function testAttachExistingDiskFileWhenFixtureIsConfigured(): void
+    #[Group('command:task:file:attach')]
+    public function testAttachExistingDiskFileWithConfirmedAcknowledgement(): void
     {
         $fileId = getenv('B24CLI_TEST_DISK_FILE_ID') ?: ($this->settings['B24CLI_TEST_DISK_FILE_ID'] ?? null);
         if ($fileId === null || $fileId === '') {
@@ -254,6 +358,8 @@ final class TaskCommandsTest extends TestCase
         $id = $this->newTask();
         $result = $this->invoke(['task:file:attach', $id, '--file-id', $fileId]);
         self::assertSame((int) $fileId, $result['data']['items'][0]['resourceId']);
+        self::assertSame($id, $result['data']['items'][0]['taskId']);
+        self::assertTrue($result['data']['items'][0]['confirmed']);
         // REST 3 get does not populate fileIds; attachment verification is ACK only.
         self::assertNull($this->card($id, ['fileIds'])['fileIds']);
     }

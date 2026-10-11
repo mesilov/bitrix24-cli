@@ -68,3 +68,9 @@
 - [x] 6.4 Убрать повтор имени/effect из execute: CommandRunner получает Command и использует каталог, без общего REST-интерпретатора; проверить deletion/policy/dry-run/cancellation.
 - [x] 6.5 Исправить оба review threads MR #11: tests/Unit и suite unit-tests, отдельные make unit/make integration и integration-tests, явный unit запуск в CI, совместимые старые Make aliases.
 - [x] 6.6 Прогнать unit/live integration/quality/OpenSpec проверки, зафиксировать фактические результаты и remaining portal limits, актуализировать verification для MR.
+
+## 7. Happy-path integration для каждой команды — 2026-10-11
+
+- [x] 7.1 Сверить все 30 команд с live happy-path assertions, добавить явные command-группы и unit guard полноты CommandCatalog; обновить карту покрытия без зачёта negative/skipped cases.
+- [x] 7.2 Добавить недостающие содержательные проверки: create/delete readback, title search со списком двух Unicode совпадений, точные access/time/history контракты и confirmed file attachment; сохранить fixtures cleanup и границы полноты API.
+- [x] 7.3 Прогнать unit/integration/quality/OpenSpec, сохранить отдельное sanitized evidence и результаты покрытия всех команд; прежние открытые portal cases 5.2–5.4 не закрывать без соответствующего доказательства.

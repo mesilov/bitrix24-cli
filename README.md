@@ -141,12 +141,16 @@ Update отправляет только явный патч; `--description=""`
 
 ```sh
 make unit                 # unit-tests: Console + DI + SDK Core с контролируемым HTTP
-make integration     # живой портал; явный skip без webhook
+make integration          # живой портал; явный skip без webhook
 ```
 
 Unit suite (`tests/Unit`, PHPUnit `unit-tests`) проверяет все 30 маршрутов, JSON-параметры, поиск/пагинацию, patches, binding, dry-run, API policy, вывод, env precedence, SDK ошибки, timeout и SIGINT в subprocess. GitHub Actions запускает только `make unit` без секретов. `make integration` запускается отдельно с реальным webhook. Прежние `make test`/`make test-integration` и `make make-unit`/`make make-integration` остаются aliases соответствующих запусков.
 
-Integration suite (`integration-tests`) создаёт задачи с префиксом `b24cli-test-`, проверяет изменения повторным чтением и удаляет созданные задачи в tearDown. Нужен тестовый портал и пользователь с правами создавать/удалять собственные задачи и работать с их чатом. При ошибке cleanup тест сообщает IDs для ручного удаления. Неверный webhook вызывает ошибку, а не skip.
+Для каждой прикладной CLI-команды обязателен минимум один live happy-path тест. Методы integration-tests помечены PHPUnit Group `command:<имя>`; unit guard сравнивает их с CommandCatalog и отклоняет команду без сценария. Один workflow может покрывать несколько команд с отдельными проверками результата. [Карта покрытия](openspec/changes/design-task-console-architecture/command-map.md#integration-happy-path-coverage) перечисляет команды, методы тестов и assertions. Для отдельной команды PHPUnit поддерживает `--testsuite integration-tests --group command:task:find`.
+
+Integration suite (`integration-tests`) создаёт собственные задачи с уникальным `b24cli-` маркером, проверяет изменения повторным чтением и удаляет созданные задачи в tearDown. ID созданной задачи регистрируется до assertions, чтобы очистка выполнялась и при ошибке проверки. Нужен тестовый портал и пользователь с правами создавать/удалять собственные задачи и работать с их чатом. При ошибке cleanup тест сообщает IDs для ручного удаления. Неверный webhook вызывает ошибку, а не skip.
+
+Happy-path требует ожидаемые данные и exit0. Документированные read-границы `task:time:show` (отсутствующее elapsedTime) и `task:history:list` (недоказанная navigation) проверяются с точной причиной partial-result/exit3; это не доказывает полную историю или сумму времени. Для `task:file:attach` проверяется confirmed ACK; независимое membership readback остаётся ограничением API.
 
 Дополнительные fixtures в том же env-файле:
 

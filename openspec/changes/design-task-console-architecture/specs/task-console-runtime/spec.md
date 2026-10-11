@@ -28,6 +28,33 @@ Runtime SHALL проверять синтаксис и локальные огр
 - **WHEN** пользователь открывает справку и затем выполняет команду с недостаточными правами
 - **THEN** справка доступна офлайн, а отказ сервера при выполнении возвращается как permission-denied с кодом 1
 
+### Requirement: Integration happy-path coverage for every CLI command
+Каждая прикладная команда CommandCatalog SHALL иметь минимум один happy-path интеграционный тест через реальный Console input, production bootstrap/provider и Bitrix24 портал. Тест SHALL проверять данные либо confirmed mutation с доступным readback и удалять собственные fixtures. Unit, mock, negative case, факт вызова и skip не SHALL заменять live happy-path. Встроенные help/list/version/completion проверяются отдельно офлайн.
+
+#### Scenario: A new command has no integration happy-path test
+- **WHEN** unit-suite сравнивает CommandCatalog с PHPUnit Group `command:<имя>` методов live-сценариев
+- **THEN** отсутствующее или неизвестное имя команды вызывает отказ проверки покрытия; release verification не объявляется полной
+
+#### Scenario: A workflow declares several happy-path commands
+- **WHEN** один интеграционный метод имеет command-группы для нескольких команд
+- **THEN** у каждой команды проверяются фактический happy-path вызов, exit0/error=null и ожидаемые данные; одна группа без выполнения, negative case либо skip не считается успешной интеграцией
+
+#### Scenario: Successful command with a disposable portal fixture
+- **WHEN** интеграционный тест создаёт собственную задачу и выполняет покрываемую команду
+- **THEN** тест проверяет содержимое read-результата либо confirmed mutation и доступный readback, явно связан с именем команды и удаляет собственные fixtures без вывода credentials
+
+#### Scenario: An API method has no independent readback
+- **WHEN** для task:file:attach сервер возвращает успешный ACK, а REST3 карточка не доказывает file membership
+- **THEN** тест проверяет confirmed/taskId/fileId и явно фиксирует ограничение; этот результат не объявляется независимым доказательством membership
+
+#### Scenario: Title search happy-path returns a list of matches
+- **WHEN** две собственные задачи имеют уникальную Unicode подстроку title и task:find вызывается с этой подстрокой в другом регистре
+- **THEN** тест требует exit0, complete=true и data.items с обеими ожидаемыми парами id/title; неполная выборка без найденных задач не засчитывается
+
+#### Scenario: Documented read completeness boundary
+- **WHEN** портал не возвращает выбранное elapsedTime либо history navigation не доказывает полноту полученной записи изменения
+- **THEN** интеграционный тест проверяет данные, точную причину, complete=false и partial-result/exit3; произвольный partial/API error не принимается за happy-path, полная история или суммарное время не объявляются доказанными
+
 ### Requirement: Consistent application error boundary
 Ошибки выбора команды, разбора аргументов и опций SHALL следовать cli-experience так же, как ошибки выполнения. Неизвестное или неоднозначное имя SHALL возвращать код 2 без запуска предложенной альтернативы. При --json и обычной verbosity SHALL выводиться ровно один envelope, в том числе при ошибке до начала операции; текст ввода после -- не SHALL интерпретироваться как глобальные опции.
 
