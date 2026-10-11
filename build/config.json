@@ -1,0 +1,8 @@
+{
+  "php_version": "8.5.11",
+  "static_php_cli_ref": "5b5861c366a0d94bc84002db7b3f46144b388fbb",
+  "micro_ref": "fb6d497b6f4cf138ee3851a30c905d64b7b19aed",
+  "extensions": ["bcmath", "ctype", "curl", "filter", "iconv", "intl", "mbstring", "openssl", "phar", "tokenizer", "zlib"],
+  "application_paths": ["bin/console", "src", "LICENSE", "composer.json", "composer.lock"],
+  "optional_resource_paths": ["config", "resources"]
+}

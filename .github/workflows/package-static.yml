@@ -1,0 +1,21 @@
+name: Package standalone binaries
+
+on:
+  pull_request:
+    branches: [dev, main]
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: package-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  packages:
+    uses: ./.github/workflows/package-platforms.yml
+    with:
+      source_sha: ${{ github.event.pull_request.head.sha || github.sha }}
