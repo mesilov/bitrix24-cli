@@ -13,6 +13,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import tempfile
+import time
 
 
 def main():
@@ -51,16 +52,31 @@ def main():
             env['PSModuleAnalysisCachePath'] = str(temp / 'powershell-module-cache')
 
         def ps(script, extra=None):
-            return subprocess.run([str(powershell), '-NoProfile', '-NonInteractive', '-Command', script],
+            started = time.monotonic()
+            result = subprocess.run([str(powershell), '-NoProfile', '-NonInteractive', '-Command', script],
                                   env={**env, 'B24CLI_TEST_PATH': str(binaries), **(extra or {})},
-                                  text=True, capture_output=True, timeout=30, check=True).stdout
+                                  text=True, capture_output=True, timeout=30, check=True)
+            print(json.dumps({'windows_acl_helper_seconds': round(time.monotonic() - started, 2)}), flush=True)
+            return result.stdout
 
         def run(command, expected=0, stdin=None, extra=None, fixture=False):
             name = 'runtime-probe' if fixture else 'b24cli'
             argv = ['connection-fixture', *command] if fixture else command
-            result = subprocess.run(prefix + [str(binaries / (name + suffix)), *argv], cwd=root,
-                                    env={**env, **(extra or {})}, text=True, encoding='utf-8',
-                                    capture_output=True, input=stdin, timeout=90)
+            started = time.monotonic()
+            try:
+                result = subprocess.run(prefix + [str(binaries / (name + suffix)), *argv], cwd=root,
+                                        env={**env, **(extra or {})}, text=True, encoding='utf-8',
+                                        capture_output=True, input=stdin, timeout=90)
+            except subprocess.TimeoutExpired:
+                if os.name == 'nt':
+                    # Log process metadata and names only; never credential contents or environment.
+                    diagnostic = subprocess.run([str(powershell), '-NoProfile', '-NonInteractive', '-Command',
+                        "Get-Process b24cli,runtime-probe,powershell -ErrorAction SilentlyContinue | Select-Object Id,ProcessName,CPU,StartTime | ConvertTo-Json -Compress"],
+                        capture_output=True, text=True, timeout=30)
+                    print(diagnostic.stdout, flush=True)
+                    print(json.dumps({'managed_paths_at_timeout': [str(p.relative_to(home)) for p in home.rglob('*')]}), flush=True)
+                raise
+            print(json.dumps({'native_command': command[0], 'seconds': round(time.monotonic() - started, 2)}), flush=True)
             assert secret not in result.stdout + result.stderr, 'Credential leaked in native output'
             assert result.returncode == expected, f'{command}: exit {result.returncode}\n{result.stdout}\n{result.stderr}'
             return result.stdout
