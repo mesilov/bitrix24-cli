@@ -19,6 +19,12 @@
     "tokenizer",
     "zlib"
   ],
+  "target_extensions": {
+    "linux-amd64": ["pcntl"],
+    "macos-arm64": ["pcntl"],
+    "windows-amd64": [],
+    "phar": ["pcntl"]
+  },
   "application_paths": [
     "bin/b24cli",
     "bin/console",

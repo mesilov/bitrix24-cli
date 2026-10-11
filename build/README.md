@@ -81,6 +81,11 @@ extensions, BCMath/ICU, trusted HTTPS и отказ на чужой CA. Smoke к
 в temp directory, убирает build tools из PATH и использует whitelist environment
 без portal credentials и PHP/LD/DYLD конфигурации.
 
+Linux/macOS также включают `pcntl` и проверяют реальный SIGINT на offline
+`task:file:attach`: подтверждённый шаг остаётся в JSON, последующие шаги не
+выполняются, exit code — 130. Windows не поддерживает PHP pcntl; POSIX signal
+сценарий для этой платформы не заявляется. Actual target extensions записаны в metadata.
+
 `runtime-probe` — отдельный тестовый executable с тем же micro runtime и production
 payload. Он не входит в public archive; в основном CLI нет test/debug command.
 

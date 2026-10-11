@@ -57,7 +57,10 @@ make php-cli-bash
 
 Для постоянно работающего контейнера доступны `make docker-up`, `make docker-down` и `make docker-restart`.
 
-Точка входа — `bin/console`, пространство имён будущих команд — `Bitrix24\CLI\` в `src/`. Сейчас доступны стандартные команды Symfony Console (`list`, `help`, `completion`). Команды задач и подключение к порталу ещё не добавлены.
+Точка входа — `bin/b24cli`; `bin/console` остаётся совместимым launcher.
+Команды находятся в пространстве имён `Bitrix24\CLI\` в `src/`.
+Доступны стандартные команды Symfony Console (`list`, `help`, `completion`)
+и 30 команд задач; настройка подключения и примеры приведены ниже.
 
 ## Проверки качества
 

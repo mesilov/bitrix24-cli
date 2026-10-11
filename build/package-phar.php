@@ -62,6 +62,7 @@ foreach ($iterator as $file) {
 $entry = 'bin/b24cli';
 if ($argv[3] === 'probe') {
     $files['packaging/runtime-probe.php'] = __DIR__ . '/tests/runtime-probe.php';
+    $files['packaging/task-signal.php'] = __DIR__ . '/tests/task-signal.php';
     $entry = 'packaging/runtime-probe.php';
 }
 $phar->buildFromIterator(new ArrayIterator($files));

@@ -18,6 +18,10 @@ ROOT = Path(__file__).resolve().parent.parent
 CONFIG = json.loads((ROOT / "build/config.json").read_text())
 
 
+def extensions_for(target):
+    return CONFIG['extensions'] + CONFIG['target_extensions'][target]
+
+
 def sanitize_logs(directory, env):
     token = env.get("GITHUB_TOKEN")
     if not token:
@@ -141,7 +145,7 @@ def build_runtime(spc, env, target):
     marker = spc / "b24cli-runtime-key"
     micro = spc / "buildroot/bin/micro.sfx"
     if not micro.exists() or not marker.exists() or marker.read_text() != runtime_key:
-        run(["php", "bin/spc", "download", "--for-extensions=" + ",".join(CONFIG["extensions"]),
+        run(["php", "bin/spc", "download", "--for-extensions=" + ",".join(extensions_for(target)),
              "--with-php=" + CONFIG["php_version"], "--without-suggestions", "--no-alt",
              "--retry=2", "--ignore-cache-sources=micro"], spc, env)
         lock = json.loads((spc / "downloads/.lock.json").read_text())
@@ -149,7 +153,7 @@ def build_runtime(spc, env, target):
             raise RuntimeError("PHP micro source differs from the pinned commit")
         patch_micro_archive(spc, target)
         run(["php", "bin/spc", "doctor", "--auto-fix"], spc, env)
-        run(["php", "bin/spc", "build", ",".join(CONFIG["extensions"]), "--build-micro", "--with-micro-fake-cli"], spc, env)
+        run(["php", "bin/spc", "build", ",".join(extensions_for(target)), "--build-micro", "--with-micro-fake-cli"], spc, env)
         sanitize_logs(spc, env)
         marker.write_text(runtime_key)
 

@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 autoconf automake bison build-essential ca-certificates cmake curl \
     file flex git gzip libtool musl-tools patch pkgconf re2c tar unzip xz-utils \
     libicu-dev autopoint \
-    && docker-php-ext-install bcmath intl \
+    && docker-php-ext-install bcmath intl pcntl \
     && rm -rf /var/lib/apt/lists/*
 ENV PATH="/usr/local/musl/bin:${PATH}"
 WORKDIR /app

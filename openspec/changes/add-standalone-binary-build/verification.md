@@ -2,71 +2,127 @@
 
 Date: 2026-10-11. Issue: [#14](https://github.com/mesilov/bitrix24-cli/issues/14).
 PR: [#17](https://github.com/mesilov/bitrix24-cli/pull/17), target `dev`.
-Base: `5d236a084f67b9de2ef99fa99ad3fc586582c20b`; remote `dev` was refreshed before completion and still matches.
-Verified implementation SHA: `20625918e15240159214c385126d40d4847da72c`.
+Verified core source/publication SHA: `d47b30f0cbedfaf3b63181214660540a113fb9d7`.
+Integrated bases: `main` `998644aad5de8ced858a70a45b557947367cc98a`,
+`dev` `09c598e1eb085a125d689b1d35c1fe700d9b410a`. Both are ancestors of HEAD.
 
-## Summary
+## Review follow-up status
 
 | Dimension | Result |
 | --- | --- |
-| Completeness | 17/17 implementation tasks, 8 added requirements reviewed |
-| Correctness | 8/8 requirements mapped; all 12 scenarios have implementation and acceptance coverage; publication scenarios checked by workflow inspection/negative runs, without publishing a Release |
-| Coherence | Design decisions and repository code patterns reviewed; isolated staging, common builders and version policy preserved |
+| Completeness | 20/22 tasks complete; 8 modified requirements reviewed; native source identity/acceptance and final archive tasks await CI |
+| Correctness | All 8 requirements and 15 scenarios mapped below; native task acceptance is pending |
+| Coherence | Common staging/source policy, checkout isolation, pinned toolchain and existing launcher/DI/task contracts preserved |
 
-No critical issues, warnings or suggestions remain. Implementation verification is complete and the change is ready for spec sync/archive. Actual tag publication and live portal testing are outside this implementation's required checks, as stated in design; neither is claimed as performed.
+Native verification is in progress; archive readiness is not yet claimed.
+A subsequent Unix runtime review found missing pcntl for the merged SIGINT contract.
+The target-specific pcntl build and controlled task interruption fixture are implemented
+and require a fresh PHAR/native acceptance run before completing this report.
 
 ## Actual native CI
 
-[Run 38142687381](https://github.com/mesilov/bitrix24-cli/actions/runs/38142687381) completed **success** for the verified implementation SHA:
+[Run 38146040105](https://github.com/mesilov/bitrix24-cli/actions/runs/38146040105)
+builds the current implementation from the exact source SHA above. Native
+Linux amd64, macOS arm64 and Windows amd64 jobs and the final archives gate must
+all finish successfully before task completion and archive. Current quality,
+unit and worktree CI checks passed; native compilation is still in progress.
 
-| Native target / gate | Job | Result |
-| --- | --- | --- |
-| Linux amd64, Ubuntu 24.04 builder + clean Debian 12 runtime | 114479605563 | Success |
-| macOS arm64, macOS 15 | 114479605385 | Success |
-| Windows amd64, Windows Server 2022 | 114479605597 | Success |
-| Complete release archive set | 114480550570 | Success |
+The updated harness copies only `b24cli` and its separate diagnostic probe into
+a clean temporary directory. PATH and environment exclude build tools and portal
+credentials. It checks exact `b24cli dev-<full SHA>` version, help/list, registration
+and help for all 30 task commands, JSON usage exit 2, UTF-8 arguments in the real
+`task:add --dry-run` plan, and `task:show` connection-unavailable exit 1 with no API
+calls. It also checks SDK autoload, required extensions, BCMath/ICU, Unicode,
+trusted HTTPS, rejection of an untrusted CA (errno 60), and temporary PHAR cleanup.
+Linux executes in the pinned Python-only Debian 12 image without PHP or checkout.
 
-Each native target passed exact `dev-20625918e15240159214c385126d40d4847da72c` version, help/list with no ANSI, Cyrillic command arguments and usage exit 1, SDK autoload, required production extensions, BCMath/ICU, UTF-8, zlib round-trip, trusted HTTPS and rejection of an untrusted certificate (cURL errno 60). The harness copies only the executable and its separate probe into a clean temporary directory, whitelists OS environment and removes build tools/credentials from PATH. Linux runs in a pinned Python-only container with artifact/fixture mounts and no application checkout or PHP installation.
+Each target then checks linkage, wrong-version/missing-executable rejection and
+checksum → unpack → executable permissions → clean PATH installation. The common
+assets job checks all three final archive names, SHA256SUMS, ZIP CRC, notices,
+Unix mode 0755, excluded diagnostic files and rejection of corrupted archive bytes.
+The next matrix must additionally pass real Unix SIGINT/confirmed-step retention
+through production application handlers in the separate offline diagnostic probe.
 
-Linkage inspection passed: Linux has no dynamic interpreter or NEEDED library; macOS imports only system libraries; Windows imports only system/API-contract DLLs and no external PHP, VC runtime or compiler libraries. Every target also passed wrong-version/missing-executable rejection and checksum → unpack → clean PATH installation/version check. Windows temporary PHAR cleanup passed after each command.
+## Local checks completed
 
-Verified artifacts: `b24cli-linux-amd64` (11703527760), `b24cli-macos-arm64` (11702359583), `b24cli-windows-amd64` (11703656189) and `b24cli-release-assets` (11703965831). The common assets job checked the exact three archive names and SHA256SUMS against final bytes, Unix executable mode 0755, ZIP CRC, license notices, exclusion of probe/PHAR/vendor directories and rejection of corrupted archive bytes.
+- `make check` passed: strict Composer validation, PHP syntax, startup and registration.
+- `make lint-all` passed: allowed licenses, PHP-CS-Fixer (170 files), PHPStan and Rector.
+- `make unit` passed: **193 tests / 1157 assertions** for Console, DI, SDK controlled HTTP, timeout and SIGINT. No live portal requests.
+- `make test-worktree` passed with fresh concurrent checkouts, matching basenames/spaces, separate image/vendor/cache/config, UID/GID checks, shutdown/restart and injected-failure cleanup. The unrelated dirty primary checkout was preserved.
+- `make package-phar` built locked production dependencies using PHP 8.5.11 / Composer 2.10.3 and reported `b24cli dev-d47b30f0cbedfaf3b63181214660540a113fb9d7`. PHAR acceptance passed all updated task/Unicode/TLS checks outside the checkout using an explicitly supplied PHP runtime; this diagnostic result is separate from standalone proof.
+- `B24CLI_RELEASE_VERSION=v0.1.0 make package-phar` reported exact `b24cli v0.1.0`. This local identity check created neither a Git tag nor a GitHub Release. Wrong-version and missing-PHAR rejection passed.
+- Production PHAR inspection includes `bin/b24cli`, compatible `bin/console`, `config/services.php`, source, production autoload/lock/manifest, BuildVersion, metadata and licenses. Installed package names match production lock exactly with dev=false; dev tools, environment files, vendor tests and build caches are excluded.
+- **12 source regression tests** use isolated real Git histories: tagless feature commit, older detached commit, dirty tracked/staged/untracked files, allowed ignored build outputs, rejected ignored application inputs, invalid/mismatched SHA, lightweight and annotated main tags, rejected feature/non-version tags. Python entry points for all 4 package targets and the Linux Docker wrapper reject dirty/mismatched identity before staging or Docker submission.
+- **7 publication regression tests**, including create/upload/edit interruption subcases, verify one-time draft creation, repairing partial uploads, complete upload before publication, public-release preservation, fail-closed lookup errors, missing asset rejection and archive-verification gating. The GitHub CLI is modeled with recorded commands/state; no real Release is created, edited or uploaded.
+- Python helpers compile; actionlint 1.7.12 passes all workflows; `git diff --check` passes. `openspec validate --all --strict` passed all 10 current changes/specs before sync.
 
-Existing GitHub license, PHP-CS-Fixer, PHPStan, Rector and worktree-isolation jobs also passed on this SHA. The PR remains subject to another complete CI run after the spec/archive-only finishing commit.
+## Production and developer source policy
 
-## Local checks
+Production CI is triggered by a concrete version tag. `validate-tag` checks out
+that tag with full history, resolves an annotated/lightweight tag to the exact
+commit and requires `git merge-base --is-ancestor <sha> origin/main` before any
+platform build. Older main commits may be rebuilt; a feature-only tag fails.
+All builders receive that resolved SHA and the exact tag name; publishing is
+dependent on the complete verified matrix and archive set.
 
-- `make check`, `make lint-all` and `make test-worktree` passed. The worktree test covers parallel build/install/startup, vendor/cache/config/image isolation, shutdown/restart and injected-failure cleanup. The user's dirty primary checkout was preserved.
-- `make package-phar` executed successfully using the pinned PHP 8.5.11 / Composer 2.10.3 Docker builder. Diagnostic PHAR smoke passed full version/help/list/autoload/extensions/Unicode/HTTPS checks with an explicitly supplied external PHP runtime; this is separate from standalone proof above.
-- Production installed package names matched the lock's production set exactly with `dev=false`. Application entry, BuildVersion, autoload, Composer manifest/lock, LICENSE and metadata are present; dev tools, vendor tests and local `.env` are excluded. Application `.env` and directory-symlink staging fixtures were rejected. Runtime notices include PHP/micro/C libraries; Linux also carries actual musl COPYRIGHT and GCC 13.2.0 GPLv3 / Runtime Library Exception texts.
-- A separate staging PHAR reported exact release identity `Bitrix24 CLI v0.1.0`; invalid SHA/version fixtures failed before staging. Source files were not rewritten. Source and PHAR `list --raw --no-ansi` matched; Cyrillic unknown-command stderr/exit code matched.
-- All Python helpers passed compilation, PHP packaging/probe/stub scripts passed syntax/style checks, and actionlint 1.7.12 passed all three packaging workflows. Unsupported Linux/Windows native targets were rejected on the local macOS arm64 host.
-- Archive fixtures passed exact names, checksums, permissions and notices; corruption and missing target fixtures failed. These preliminary fixtures are distinct from the actual native archive job above.
-- The actual `b24cli-release-assets` artifact was downloaded locally; archive checks passed again on its exact bytes. All three build-info/source-lock files matched the source/PHP/SPC/micro and physical lock/patch identities. Windows checkout uses CRLF, so its recorded file hashes match the CRLF representation of those same Git files. The downloaded macOS archive was extracted into another temporary directory and its native binary reported the exact full-SHA version with a clean PATH.
-- A downloaded earlier genuine Linux binary also passed the strengthened Unicode/HTTPS harness in clean Debian 12 and the revised PATH installation checker locally. These local executions used amd64 emulation; current native CI provides the platform evidence.
-- Exact-match Windows patches were checked against the pinned SPC/micro sources. Micro archive reserialization preserved the original SHA-1 in runtime-sources and recorded the patched hash; patch SHA-256 values are in build-info/cache keys. Token/base64-log redaction fixtures passed without retaining real credentials.
+Developer Make commands work at any clean checked-out commit on any branch,
+including detached HEAD, without a tag/main requirement. They record `dev-<full
+SHA>`. Native builders validate HEAD equality before staging; Linux Make/CI
+validates before submitting the Docker context. Ignored runtime/dist/vendor state
+is allowed, while ignored application/resource inputs are rejected. A supplied
+SHA cannot identify another commit's payload.
 
-## Inputs and compatibility decisions
-
-PHP: `8.5.11`; static-php-cli: `5b5861c366a0d94bc84002db7b3f46144b388fbb`; micro: `fb6d497b6f4cf138ee3851a30c905d64b7b19aed`. Build metadata records source SHA, Composer lock SHA-256, these pins, extensions, payload strategy/compression and compatibility patch hashes. Source lock records actual downloaded libraries and micro archive hashes. Build inputs are repeatable; byte-for-byte reproducibility is not asserted.
-
-Windows native acceptance exposed an upstream nmake quote error, non-UTF-8 argv and corrupted direct micro PHAR reads. Exact source patches address quoting/argv; bootstrap copies embedded gzip PHAR through the raw micro stream into a unique writable TEMP file and uses the normal PHAR wrapper, then removes it. Linux/macOS retain in-place PHAR. These decisions are reflected in design and installation prerequisites. Minimum validated systems are Debian 12 / macOS 15 arm64 / Windows Server 2022 x64; older systems and signing/notarization need separate acceptance.
+Publication uses `gh release view --json isDraft`, which can find a draft by its
+pending tag ([official GitHub CLI implementation](https://github.com/cli/cli/blob/trunk/pkg/cmd/release/shared/fetch.go)).
+Only the explicit release-not-found result permits draft creation; other lookup
+errors stop. All verified assets are uploaded with clobber before changing draft
+state. Reruns resume drafts left by creation, partial upload or failed publication;
+already public releases remain unchanged. Release concurrency serializes the tag.
 
 ## Requirement and scenario mapping
 
-| Added requirement | Implementation | Scenario evidence |
+| Modified requirement | Implementation | Scenario evidence |
 | --- | --- | --- |
-| Standalone platform packages | `build/package.py:52`, native wrappers, `docker/package/Dockerfile` | Execute outside checkout: all three native smoke/linkage jobs |
-| Production package contents | `build/package.py:31`, `build/package-phar.php:20`, config manifest and runtime license export | Inspect packaged application: exact locked production set, mandatory PHAR entries, staging exclusions, archive notice checks |
-| Runtime compatibility | `build/tests/runtime-probe.php`, `build/tests/smoke.py:47`, Windows argv patch | Offline compatibility: source/PHAR comparison and native Unicode/exit checks; HTTPS trust: success + errno 60 on all targets |
-| Repeatable build inputs and isolation | `build/runtime.py:134`, `build/config.json`, Make/wrappers, checkout-local runtime/dist | Clean rebuild: actual clean GitHub checkouts and pinned builders; isolation: existing worktree regression and preserved primary checkout |
-| Package version identity | `build/package.py:17`, `src/BuildVersion.php`, generated staging build-info | Release version: local exact v0.1.0 PHAR and tag-input workflow review; development revision: full SHA checked on all native binaries, wrong-version rejection |
-| CI artifact verification | `.github/workflows/package-static.yml`, `package-platforms.yml` | PR packaging: actual successful four-job run; upload follows acceptance; prior failed Windows runs skipped the dependent assets job; PR has read-only permissions and no publish job |
-| Release assets and publication gate | `build/release-assets.py`, `build/tests/archive-check.py`, `.github/workflows/release.yml` | Verified release preparation: actual three-archive set/checksums; incomplete release rejection: missing target/corruption fixtures, observed failed-matrix dependency skip and inspected publish `needs: packages` |
-| Installation and evidence documentation | `build/README.md`, `build/tests/install-check.py`, this report | Verified archive install: all three native install checks; readiness report: local/CI/static-release/live-portal facts separated |
+| Standalone platform packages | `build/package.py`, native wrappers, `docker/package/Dockerfile` | Execute outside checkout: native clean-PATH smoke and linkage; current matrix pending |
+| Production package contents | `build/config.json`, `build/package-phar.php`, staging and license export | Inspect application: mandatory entry/config, exact production lock, exclusions and archive notices |
+| Runtime compatibility | `build/tests/smoke.py`, `runtime-probe.php`, Windows patches | Offline commands: 30 command help/DI, UTF-8 real task plan, usage/connection JSON and unit contracts; HTTPS: trusted + rejected CA |
+| Repeatable build inputs and isolation | `build/runtime.py`, config, Make/wrappers | Clean rebuild: exact checkout/pins; isolated staging; actual concurrent worktree regression |
+| Package version identity | `build/source.py`, `package.py`, `src/BuildVersion.php` | Release version: exact local v0.1.0; development revision: full SHA; reject mismatched source: real Git fixtures and pre-staging CLI tests |
+| CI artifact verification | `package-static.yml`, `package-platforms.yml` | PR build/upload follows smoke; current native run pending; PR workflow has read-only permissions and no publish step |
+| Release assets and publication gate | `release.yml`, `publish-release.py`, `release-assets.py`, `archive-check.py` | Verified assets and incomplete-set gate; reject tag outside main via real Git fixtures; resume draft via 7 modeled interruption/error checks |
+| Installation and evidence documentation | `build/README.md`, `install-check.py`, this report | Native checksum/unpack/PATH check; readiness records local, CI, modeled publication and live-provider boundaries separately |
 
-All 12 scenario conditions were reviewed against code and the evidence above. Release publication behavior was checked statically (tag convention, exact version input, complete-matrix dependency, archive re-verification, draft-before-public publication) and with preparation/rejection fixtures. No actual publication run is represented as successful.
+All 15 scenario conditions have implementation/test coverage. The actual native
+acceptance gates must finish before declaring this report complete. Tag-trigger
+routing and publication dependency are actionlint/static validated; main/tag
+provenance is exercised using real Git fixtures and draft retry logic is modeled.
+Actual GitHub release publication is not represented as successful.
 
-## Evidence boundaries
+## Inputs and compatibility
 
-No merge, version tag, GitHub Release, deployment, live Bitrix24 portal request or signing/notarization was performed. PR/push/manual event routing and the version-tag publication dependency were inspected and actionlint-validated; actual execution in this session is the PR event. The current `dev` application is a Symfony Console skeleton; task commands from unmerged feature branches are not present and cannot be claimed as packaged portal/business-command acceptance.
+PHP `8.5.11`; static-php-cli `5b5861c366a0d94bc84002db7b3f46144b388fbb`;
+micro `fb6d497b6f4cf138ee3851a30c905d64b7b19aed`. Unix checkout Composer lock
+SHA-256 `fca97d6ebd4b108c3869709b0a6745d7a657447b5bf011a5a8b233d9946b8ee7`.
+Metadata records source, lock, toolchain pins, extensions, payload strategy/gzip
+compression and patch hashes; source lock records actual downloaded archives.
+Repeatable inputs do not assert byte-for-byte reproducibility.
+
+Windows uses documented exact-source compatibility patches for nmake quoting,
+UTF-8 argv and temporary embedded PHAR reading/cleanup. Writable TEMP is required.
+Linux/macOS retain in-place PHAR. Runtime/license and OS dependency policies are
+unchanged. Minimum validation: Debian 12 / macOS 15 arm64 / Windows Server 2022 x64;
+older systems and signing/notarization need separate acceptance.
+
+## Historical evidence and boundaries
+
+Initial implementation and archive-only CI passed
+[run 38143343522](https://github.com/mesilov/bitrix24-cli/actions/runs/38143343522)
+at `c9e79d79fc74d94736eb787ea7c5b35f086fa6cf`, before dev merged task commands.
+That evidence explains the original 17 completed tasks; it does not replace the
+current native acceptance for the updated task runtime. Earlier packaging/licensing
+and corruption investigations remain in Git history.
+
+No PR merge, real version tag, GitHub Release, deployment, signing/notarization
+or live Bitrix24 portal request was performed in this follow-up. Branch main/dev
+integration is distinct from merging PR #17. Release/main routing has offline
+and static coverage; the actual CI event used for native acceptance is pull_request.

@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
+if (($argv[1] ?? '') === 'task-signal') {
+    require __DIR__ . '/task-signal.php';
+    exit(1);
+}
+
 if (($argv[1] ?? '') === 'certificate') {
     $directory = $argv[2];
     $options = ['config' => $directory . '/openssl.cnf', 'private_key_bits' => 2048, 'private_key_type' => OPENSSL_KEYTYPE_RSA, 'digest_alg' => 'sha256'];
@@ -41,6 +46,8 @@ if (($argv[1] ?? '') === 'https') {
 
 $lock = json_decode(file_get_contents(dirname(__DIR__) . '/composer.lock'), true, flags: JSON_THROW_ON_ERROR);
 $required = ['phar', 'zlib', 'openssl', 'mbstring'];
+$info = json_decode(file_get_contents(dirname(__DIR__) . '/build-info.json'), true, flags: JSON_THROW_ON_ERROR);
+$required = [...$required, ...$info['extensions']];
 foreach ($lock['packages'] as $package) {
     foreach ($package['require'] ?? [] as $name => $constraint) {
         if (str_starts_with($name, 'ext-')) {

@@ -11,11 +11,11 @@ import shutil
 import subprocess
 import sys
 
-from runtime import ROOT, CONFIG, run, composer, toolchain, build_runtime
+from runtime import ROOT, CONFIG, run, composer, toolchain, build_runtime, extensions_for
 from source import validate_sha, verify_checkout
 
 
-def identity(source_sha, version):
+def identity(source_sha, version, target):
     # Docker consumes the SHA validated before submitting its context; native
     # builders validate the actual Git checkout before creating any staging.
     sha = verify_checkout(ROOT, source_sha) if (ROOT / '.git').exists() else validate_sha(source_sha or '')
@@ -23,7 +23,7 @@ def identity(source_sha, version):
         raise ValueError("Release version must be a version tag, e.g. 0.1.0 or v0.1.0")
     return {"version": version or "dev-" + sha, "source_sha": sha,
             "php_version": CONFIG["php_version"], "static_php_cli_ref": CONFIG["static_php_cli_ref"],
-            "micro_ref": CONFIG["micro_ref"], "extensions": CONFIG["extensions"],
+            "micro_ref": CONFIG["micro_ref"], "extensions": extensions_for(target),
             "toolchain_patches": {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
                                   for name in CONFIG["toolchain_patches"]},
             "composer_lock_sha256": hashlib.sha256((ROOT / "composer.lock").read_bytes()).hexdigest()}
@@ -57,7 +57,7 @@ def main():
     parser.add_argument("--version", default=os.environ.get("B24CLI_RELEASE_VERSION"))
     parser.add_argument("--runtime-only", action="store_true")
     args = parser.parse_args()
-    info = identity(args.source_sha, args.version) if not args.runtime_only else None
+    info = identity(args.source_sha, args.version, args.target) if not args.runtime_only else None
     if args.target != "phar":
         expected = {"linux-amd64": ("Linux", "x86_64"), "macos-arm64": ("Darwin", "arm64"),
                     "windows-amd64": ("Windows", "AMD64")}[args.target]

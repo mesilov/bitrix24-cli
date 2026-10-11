@@ -6,11 +6,13 @@ import json
 import os
 from pathlib import Path
 import shutil
+import signal
 import ssl
 import subprocess
 import sys
 import tempfile
 import threading
+from concurrent.futures import ThreadPoolExecutor
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -107,6 +109,31 @@ def main():
             check(probe["php"] == json.loads((dist / "build-info.json").read_text())["php_version"],
                   "Runtime PHP version differs from pinned input")
         check(probe["unicode"] == "Привет, Битрикс24", "Unicode/autoload fixture differs")
+        if os.name != 'nt':
+            check('pcntl' in probe['extensions'], 'Unix package lacks task cancellation support')
+            process = subprocess.Popen(prefix + [str(clean / ('runtime-probe' + suffix)), 'task-signal'],
+                                       cwd=clean, env=env, text=True, encoding='utf-8',
+                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            try:
+                # Bound readiness even when a malformed runtime exits or fails to initialize.
+                with ThreadPoolExecutor(max_workers=1) as reader:
+                    ready = reader.submit(process.stderr.readline)
+                    try:
+                        check(ready.result(timeout=10) == 'READY\n', 'Task signal fixture never became ready')
+                    except BaseException:
+                        process.kill()
+                        raise
+                process.send_signal(signal.SIGINT)
+                stdout, stderr = process.communicate(timeout=10)
+                check(process.returncode == 130, 'Task SIGINT exit differs: ' + stdout + stderr)
+                interrupted = json.loads(stdout)
+                check([item['resourceId'] for item in interrupted['data']['items']] == [50]
+                      and [step['status'] for step in interrupted['meta']['ledger']] == ['confirmed', 'failed', 'skipped']
+                      and interrupted['error']['code'] == 'interrupted', 'Task SIGINT lost confirmed output')
+            finally:
+                if process.poll() is None:
+                    process.kill()
+                process.wait()
 
         trusted, untrusted = clean / "trusted", clean / "untrusted"
         for path in [trusted, untrusted]:
@@ -133,7 +160,8 @@ def main():
               "Temporary application PHAR was not removed")
         print(json.dumps({"status": "passed", "version": args.expected_version, "runtime": probe,
                           "checks": ["version", "help", "list", "usage-exit", "30-task-commands", "task-dry-run",
-                                     "missing-connection", "autoload", "extensions", "unicode",
+                                     "missing-connection", *( ["task-SIGINT"] if os.name != 'nt' else [] ),
+                                     "autoload", "extensions", "unicode",
                                      "trusted-https", "rejected-certificate", "clean-PATH", "temporary-phar-cleanup"]}, ensure_ascii=False))
 
 
