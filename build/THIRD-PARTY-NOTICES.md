@@ -12,3 +12,7 @@ the platform archives under `runtime-licenses/`.
 
 static-php-cli: https://github.com/crazywhalecc/static-php-cli (MIT).
 PHP micro: https://github.com/static-php/phpmicro (see runtime license dump).
+
+The pinned static-php-cli WindowsBuilder receives the reviewed fake-CLI quoting
+patch in `build/patches/windows-micro-fake-cli.json`; its SHA-256 is recorded in
+build-info.json. The upstream tool remains under its original license.

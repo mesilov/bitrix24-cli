@@ -13,6 +13,7 @@ WORKDIR /app
 
 FROM base AS runtime-builder
 COPY build/config.json build/package.py /app/build/
+COPY build/patches/ /app/build/patches/
 RUN python3 build/package.py linux-amd64 --runtime-only
 
 FROM base AS builder

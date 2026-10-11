@@ -19,7 +19,15 @@ CONFIG = json.loads((ROOT / "build/config.json").read_text())
 
 def run(args, cwd=ROOT, env=None):
     print("+ " + " ".join(map(str, args)), flush=True)
-    subprocess.run(list(map(str, args)), cwd=cwd, env=env, check=True)
+    try:
+        subprocess.run(list(map(str, args)), cwd=cwd, env=env, check=True)
+    except subprocess.CalledProcessError:
+        for name in ["spc.shell.log", "spc.output.log"]:
+            log = Path(cwd) / "log" / name
+            if log.is_file():
+                print("Compiler diagnostics: " + name, file=sys.stderr)
+                print("\n".join(log.read_text(errors="replace").splitlines()[-100:]), file=sys.stderr)
+        raise
 
 
 def composer(args, cwd, env):
@@ -44,6 +52,8 @@ def identity(source_sha, version):
     return {"version": version or "dev-" + sha, "source_sha": sha,
             "php_version": CONFIG["php_version"], "static_php_cli_ref": CONFIG["static_php_cli_ref"],
             "micro_ref": CONFIG["micro_ref"], "extensions": CONFIG["extensions"],
+            "toolchain_patches": {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
+                                  for name in CONFIG["toolchain_patches"]},
             "composer_lock_sha256": hashlib.sha256((ROOT / "composer.lock").read_bytes()).hexdigest()}
 
 
@@ -94,6 +104,14 @@ def toolchain(work, env):
                             "filename": "phpmicro-" + CONFIG["micro_ref"] + ".tar.gz"})
     source["micro"].pop("rev", None)
     (spc / "config/source.json").write_text(json.dumps(source, indent=4) + "\n")
+    for name in CONFIG["toolchain_patches"]:
+        patch = json.loads((ROOT / name).read_text())
+        path = spc / patch["file"]
+        content = path.read_text()
+        if content.count(patch["before"]) == 1:
+            path.write_text(content.replace(patch["before"], patch["after"]))
+        elif content.count(patch["after"]) != 1:
+            raise RuntimeError("Toolchain patch does not match the pinned source: " + name)
     composer(["install", "--no-dev", "--no-interaction", "--no-progress", "--classmap-authoritative"], spc, env)
     return spc
 
@@ -103,7 +121,8 @@ def build_runtime(spc, env, target):
         env["SPC_TOOLCHAIN"] = "SPC\\toolchain\\MuslToolchain"
         env["SPC_TARGET"] = "x86_64-linux-musl"
     runtime_key = hashlib.sha256((ROOT / "build/config.json").read_bytes()
-                                 + Path(__file__).read_bytes() + target.encode()).hexdigest()
+                                 + Path(__file__).read_bytes() + target.encode()
+                                 + b"".join((ROOT / name).read_bytes() for name in CONFIG["toolchain_patches"])).hexdigest()
     marker = spc / "b24cli-runtime-key"
     micro = spc / "buildroot/bin/micro.sfx"
     if not micro.exists() or not marker.exists() or marker.read_text() != runtime_key:

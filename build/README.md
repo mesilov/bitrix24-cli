@@ -3,6 +3,10 @@
 Пайплайн: production Composer install по lock → PHAR → PHP micro → бинарник.
 Обвязка адаптирована из [YiiPress](https://github.com/yiipress/engine/tree/e61459fc788a74b91188d5d41a5fca59a02a229e).
 PHP, static-php-cli, PHP micro и extensions закреплены в [config.json](config.json).
+PHP micro скачивается как архив точного commit; alternate-source fallback отключён,
+а source lock проверяется до компиляции. Compatibility patches лежат в
+`build/patches/`; их SHA входят в build-info.json и cache key. Windows fake-CLI
+patch исправляет лишнюю кавычку в nmake wrapper закреплённого SPC.
 
 ## Сборка
 
@@ -78,6 +82,8 @@ Failure блокирует публикацию; на PR Release не созда
 - `SHA256SUMS`
 
 В archive входят executable, build-info.json, runtime-sources.json и licenses.
+После smoke CI также проверяет linkage и отказы на неверную версию/отсутствующий
+executable. Проверка установки выполняет checksum → unpack → запуск через чистый PATH.
 Версии C libraries выбираются закреплённой конфигурацией static-php-cli, actual
 sources записаны в runtime-sources.json. Побитовая reproducibility не заявляется.
 Первый compile может быть долгим. Native cache key учитывает target/config/builder/

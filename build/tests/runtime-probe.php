@@ -6,7 +6,7 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 
 if (($argv[1] ?? '') === 'certificate') {
     $directory = $argv[2];
-    $options = ['config' => $directory . '/openssl.cnf', 'private_key_bits' => 2048, 'private_key_type' => OPENSSL_KEYTYPE_RSA];
+    $options = ['config' => $directory . '/openssl.cnf', 'private_key_bits' => 2048, 'private_key_type' => OPENSSL_KEYTYPE_RSA, 'digest_alg' => 'sha256'];
     $key = openssl_pkey_new($options);
     $csr = openssl_csr_new(['commonName' => 'localhost'], $key, $options);
     $certificate = openssl_csr_sign($csr, null, $key, 1, $options + ['x509_extensions' => 'server']);
@@ -32,6 +32,9 @@ if (($argv[1] ?? '') === 'https') {
         CURLOPT_NOPROXY => '*',
     ]);
     $body = curl_exec($curl);
+    if ($body === false) {
+        fwrite(STDERR, curl_error($curl) . PHP_EOL);
+    }
     echo json_encode(['body' => $body, 'errno' => curl_errno($curl)], JSON_THROW_ON_ERROR) . PHP_EOL;
     exit($body === false ? 1 : 0);
 }

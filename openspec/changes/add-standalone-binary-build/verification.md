@@ -3,8 +3,8 @@
 Issue: https://github.com/mesilov/bitrix24-cli/issues/14
 PR: https://github.com/mesilov/bitrix24-cli/pull/17
 Base: `5d236a084f67b9de2ef99fa99ad3fc586582c20b` (`dev`).
-Current native acceptance run: https://github.com/mesilov/bitrix24-cli/actions/runs/38135985985
-Source for this run: `34dfe43ac969c7033ef7014bf6ea5346039cc26b`.
+Current native acceptance run: https://github.com/mesilov/bitrix24-cli/actions/runs/38136687489
+Source for this run: `1db973b834d4f9325c0d49795306ae7d4adb473a`.
 
 ## Local checks completed
 
@@ -24,6 +24,10 @@ Source for this run: `34dfe43ac969c7033ef7014bf6ea5346039cc26b`.
 Pending the actual platform jobs and final artifact inspection. No task requiring native acceptance is marked complete yet.
 
 First run `38135599370` exposed an old Debian Python extraction API and an outdated macOS setup-php action. Both were corrected. Windows was cancelled by the next source push. This run did not upload verified platform artifacts or publish a Release.
+
+Second run `38135985985` compiled and combined the macOS runtime but failed on the `download`/`downloads` metadata path. Its source log revealed that SPC treats a git rev as a branch and falls back to a mirror. The builder now fetches the pinned micro commit archive, disables alternate-source fallback and validates its lock entry. Linux/Windows were cancelled for this correction; no acceptance is claimed for that run.
+
+Third run `38136687489` compiled and combined Linux/macOS binaries using the pinned micro archive. Both reached trusted HTTPS and rejected the fixture response with cURL receive error 56. The fixture server now supplies HTTP/1.1 framing and Content-Length, and the probe prints cURL diagnostics on failure. Windows nmake failed immediately; source review found an unmatched quote in the upstream fake-CLI wrapper. A reviewed exact-match compatibility patch is recorded in build-info and cache keys. No platform upload or release archive job passed in that run.
 
 ## Requirement mapping and final assessment
 
