@@ -10,7 +10,9 @@ export LOCAL_GID ?= $(shell id -g)
 
 COMPOSE := sh ./scripts/compose.sh
 RUN := $(COMPOSE) run --rm -T php-cli
+CLI_RUN := $(COMPOSE) run --rm -T --env BITRIX24_WEBHOOK --env BITRIX24_PHP_SDK_PLAYGROUND_WEBHOOK --env B24CLI_TIMEOUT --env B24CLI_API_POLICY --env B24CLI_TEST_DISK_FILE_ID --env B24CLI_TEST_RESTRICTED_WEBHOOK php-cli
 ARGS ?=
+TEST_ARGS ?=
 
 .PHONY: package-phar package package-macos package-windows test-package
 
@@ -32,7 +34,7 @@ test-package:
 .PHONY: help docker-init docker-build docker-up docker-down docker-restart \
         composer-install composer-update composer-dumpautoload composer \
         composer-validate php-cli-bash cli lint check worktree-info test-worktree \
-        lint-allowed-licenses lint-cs-fixer lint-phpstan lint-rector lint-all
+        lint-allowed-licenses lint-cs-fixer lint-phpstan lint-rector lint-all test test-unit test-integration unit integration make-unit make-integration
 
 help:
 	@printf '%s\n' \
@@ -49,7 +51,7 @@ help:
 	  'composer ARGS="..."  Run Composer with arguments' \
 	  'composer-validate    Validate composer.json and composer.lock' \
 	  'php-cli-bash         Open a shell in the PHP container' \
-	  'cli ARGS="..."       Run bin/console (default: command list)' \
+	  'cli ARGS="..."       Run bin/b24cli (default: command list)' \
 	  'package-phar         Build the locked production PHAR in Docker' \
 	  'package              Build the standalone Linux amd64 binary in Docker' \
 	  'package-macos        Build the native macOS arm64 binary' \
@@ -64,6 +66,11 @@ help:
 	  'lint-phpstan         Run PHPStan static analysis' \
 	  'lint-rector          Check Rector rules (dry run)' \
 	  'lint-all             Run all four quality checks'
+	@printf '%s\n' 'unit                 Run unit-tests (no external portal)' \
+	  'integration          Run integration-tests against the real portal' \
+	  'TEST_ARGS="..."      PHPUnit filters, e.g. --group command:task:find' \
+	  'test                 Alias for unit' \
+	  'test-integration     Alias for integration (.env.local/.env; skip without webhook)'
 
 worktree-info:
 	@$(COMPOSE) --info
@@ -107,10 +114,10 @@ php-cli-bash:
 	$(COMPOSE) run --rm php-cli sh
 
 cli:
-	$(RUN) php bin/console $(ARGS)
+	$(CLI_RUN) php bin/b24cli $(ARGS)
 
 lint:
-	$(RUN) php -l bin/console
+	$(RUN) sh -c 'find src config tests -name "*.php" -exec php -l {} + && php -l bin/console && php -l bin/b24cli'
 
 check: composer-validate lint
 	$(RUN) composer check-platform-reqs
@@ -129,3 +136,13 @@ lint-rector:
 	$(RUN) vendor/bin/rector process --dry-run
 
 lint-all: lint-allowed-licenses lint-cs-fixer lint-phpstan lint-rector
+
+test test-unit make-unit: unit
+
+test-integration make-integration: integration
+
+unit:
+	$(RUN) vendor/bin/phpunit --testsuite unit-tests $(TEST_ARGS)
+
+integration:
+	$(CLI_RUN) vendor/bin/phpunit --testsuite integration-tests $(TEST_ARGS)
