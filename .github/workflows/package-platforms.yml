@@ -64,6 +64,9 @@ jobs:
           docker run --rm --mount "type=bind,src=${PWD}/dist/linux-amd64,dst=/artifacts,readonly" \
             --mount "type=bind,src=${PWD}/build/tests,dst=/tests,readonly" \
             python:3.13-slim-bookworm@sha256:a1165e272e578941b84abc79e4ab38a0305cd12803a5c4247979ac7655f4d641 python /tests/rejection-check.py /artifacts
+          docker run --rm --user 65532:65532 --mount "type=bind,src=${PWD}/dist/linux-amd64,dst=/artifacts,readonly" \
+            --mount "type=bind,src=${PWD}/build/tests,dst=/tests,readonly" \
+            python:3.13-slim-bookworm@sha256:a1165e272e578941b84abc79e4ab38a0305cd12803a5c4247979ac7655f4d641 python /tests/connection-smoke.py /artifacts
           python3 build/tests/linkage-check.py dist/linux-amd64/b24cli
           python3 build/tests/install-check.py dist/linux-amd64
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
@@ -135,6 +138,7 @@ jobs:
           python3 build/tests/linkage-check.py dist/macos-arm64/uncompressed/b24cli
           python3 build/tests/smoke.py dist/macos-arm64/uncompressed --expected-version "${RELEASE_VERSION:-dev-${SOURCE_SHA}}"
           python3 build/tests/smoke.py dist/macos-arm64 --expected-version "${RELEASE_VERSION:-dev-${SOURCE_SHA}}"
+          python3 build/tests/connection-smoke.py dist/macos-arm64
           python3 build/tests/rejection-check.py dist/macos-arm64
           python3 build/tests/linkage-check.py dist/macos-arm64/b24cli
           python3 build/tests/install-check.py dist/macos-arm64
@@ -200,6 +204,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Windows original linkage check failed' }
           python build/tests/smoke.py dist/windows-amd64 --expected-version $expected
           if ($LASTEXITCODE -ne 0) { throw 'Windows smoke test failed' }
+          python build/tests/connection-smoke.py dist/windows-amd64
+          if ($LASTEXITCODE -ne 0) { throw 'Windows connection acceptance failed' }
           python build/tests/rejection-check.py dist/windows-amd64
           if ($LASTEXITCODE -ne 0) { throw 'Windows rejection checks failed' }
           python build/tests/linkage-check.py dist/windows-amd64/b24cli.exe

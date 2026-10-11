@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/mesilov/bitrix24-cli/main/docs/config.schema.json",
+  "title": "Bitrix24 CLI connection configuration, version 1",
+  "description": "Non-secret user configuration. Credentials remain in managed dotenv files. See configuration.md for selection and additional runtime checks.",
+  "$comment": "CLI additionally verifies defaultProfile exists, credential references are unique, exact JSON integer literals, permissions/ownership/symlinks, credential file existence and matching HTTPS hostname. The default keyword is an annotation and does not write values.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "defaultProfile",
+    "profiles"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1,
+      "description": "Only schema version 1 is supported. CLI requires the literal integer 1."
+    },
+    "defaultProfile": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/profileAlias"
+        }
+      ],
+      "default": null,
+      "description": "Saved profile alias or null. Runtime verifies that a non-null alias exists in profiles."
+    },
+    "profiles": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/profileAlias"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/profile"
+      },
+      "description": "Independent portal profiles. An empty object is valid; an array is not."
+    }
+  },
+  "$defs": {
+    "profileAlias": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}(?![\\s\\S])",
+      "description": "Case-sensitive alias used by --profile and connection:use."
+    },
+    "hostname": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 253,
+      "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*(?![\\s\\S])",
+      "description": "Bare ASCII hostname with labels of 1..63 characters, without scheme, port, slash, userinfo, query, whitespace or a trailing dot."
+    },
+    "credentialFile": {
+      "type": "string",
+      "pattern": "^credentials/[a-f0-9]{8,64}\\.env(?![\\s\\S])",
+      "description": "Managed relative reference beneath the configuration directory, with forward slashes. CLI currently generates a 32-character lowercase hexadecimal ID."
+    },
+    "positiveId": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9223372036854775807,
+      "description": "Positive ID within signed 64-bit PHP_INT_MAX. CLI additionally requires JSON integer literal syntax (not 1.0 or 1e0)."
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "connection"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/hostname",
+          "description": "Descriptive portal domain; never used for DNS/HTTP. May differ from connection.hostname."
+        },
+        "connection": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "hostname",
+            "credentialFile"
+          ],
+          "properties": {
+            "hostname": {
+              "$ref": "#/$defs/hostname",
+              "description": "HTTPS transport hostname; must match the hostname of the secret webhook at runtime."
+            },
+            "credentialFile": {
+              "$ref": "#/$defs/credentialFile"
+            }
+          }
+        },
+        "default": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "task": {
+              "$ref": "#/$defs/taskDefaults"
+            }
+          },
+          "description": "Optional operation defaults for this profile; only task creation consumes task defaults."
+        }
+      }
+    },
+    "taskDefaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "groupId": {
+          "$ref": "#/$defs/positiveId",
+          "description": "Default group/project ID, used only when task:add has no explicit groupId."
+        },
+        "creatorId": {
+          "$ref": "#/$defs/positiveId",
+          "description": "Default task creator (author). Uses the REST 3.0 field name."
+        },
+        "responsibleId": {
+          "$ref": "#/$defs/positiveId",
+          "description": "Default task assignee."
+        },
+        "allowsTimeTracking": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether task time tracking is enabled. Explicit task input wins, then profile value, then built-in false."
+        }
+      },
+      "description": "Optional defaults. Missing participant IDs still require explicit creatorId/responsibleId at task creation; the webhook user is not inferred."
+    }
+  }
+}

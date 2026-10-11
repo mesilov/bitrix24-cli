@@ -23,11 +23,18 @@ case "${1:-}" in
     --root) printf '%s\n' "$root" ;;
     --info) printf 'project=%s\ncheckout=%s\n' "$project" "$root" ;;
     *)
+        set -- --project-name "$project" --project-directory "$root" --file "$root/docker-compose.yaml" "$@"
         if [ -n "${B24CLI_ENV_FILE:-}" ]; then
-            exec docker compose --project-name "$project" \
-                --project-directory "$root" --file "$root/docker-compose.yaml" \
-                --file "$root/docker-compose.env.yaml" "$@"
+            set -- --file "$root/docker-compose.env.yaml" "$@"
         fi
-        exec docker compose --project-name "$project" \
-            --project-directory "$root" --file "$root/docker-compose.yaml" "$@" ;;
+        if [ -n "${B24CLI_CONFIG_DIR:-}" ]; then
+            if [ "${B24CLI_CONFIG_WRITE:-0}" = '1' ]; then
+                B24CLI_CONFIG_READ_ONLY=false
+            else
+                B24CLI_CONFIG_READ_ONLY=true
+            fi
+            export B24CLI_CONFIG_READ_ONLY
+            set -- --file "$root/docker-compose.config.yaml" "$@"
+        fi
+        exec docker compose "$@" ;;
 esac
