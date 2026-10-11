@@ -104,13 +104,14 @@ def toolchain(work, env):
 
 
 def patch_micro_archive(spc, target):
-    if target != "windows-amd64":
+    patches = [json.loads((ROOT / name).read_text()) for name in CONFIG["toolchain_patches"]]
+    patches = [patch for patch in patches if patch.get("phase") == "micro-source"
+               and target in patch.get("targets", ["windows-amd64"])]
+    if not patches:
         return
     lock_path = spc / "downloads/.lock.json"
     lock = json.loads(lock_path.read_text())
     archive = spc / "downloads" / lock["micro"]["filename"]
-    patches = [json.loads((ROOT / name).read_text()) for name in CONFIG["toolchain_patches"]
-               if json.loads((ROOT / name).read_text()).get("phase") == "micro-source"]
     original_hash = hashlib.sha1(archive.read_bytes()).hexdigest()
     changed = set()
     with tarfile.open(archive, "r:gz") as source, tarfile.open(archive.with_suffix(".patched"), "w:gz") as dest:

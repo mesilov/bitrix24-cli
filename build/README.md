@@ -148,7 +148,9 @@ macOS/Windows, ограничения текущей предварительн�
 
 Откройте в README блок **macOS arm64 — установка, первый запуск и PATH (zsh)**.
 `./b24cli` запускает файл из текущего каталога; `b24cli` требует установки в PATH.
-Известный отказ ОС рассматривается в [#23](https://github.com/mesilov/bitrix24-cli/issues/23).
+В этом блоке описаны ad-hoc подпись готового executable, её strict-проверка
+и штатное разрешение конкретного файла. Диагностику отказа запуска собираем
+в [#23](https://github.com/mesilov/bitrix24-cli/issues/23).
 
 ### Windows amd64 (PowerShell)
 
@@ -158,8 +160,13 @@ macOS/Windows, ограничения текущей предварительн�
 runtime проверяется на Debian 12, build job — Ubuntu 24.04. Minimum validated
 matrix: macOS 15 arm64 и Windows Server 2022 x64. Старые OS требуют отдельного
 acceptance. Windows требует доступный для записи TEMP для временного PHAR.
-macOS/Windows используют standard OS libraries. Signing/notarization
-в первой итерации не выполняются. HTTPS использует OpenSSL trust в `/etc/ssl` на Unix и Schannel certificate store
+macOS/Windows используют standard OS libraries. macOS artifacts получают
+ad-hoc подпись после объединения runtime/PHAR; CI проверяет `codesign --verify --strict`
+и совпадение байтов payload для приложения и probe перед upload.
+Проверка runner-local smoke отдельно от приёмки первого запуска browser download
+с quarantine: результаты последней записываются в OpenSpec verification.
+Production Developer ID/notarization и Windows Authenticode в первой итерации
+не выполняются. HTTPS использует OpenSSL trust в `/etc/ssl` на Unix и Schannel certificate store
 на Windows. Для отдельного PEM bundle на Unix задайте `SSL_CERT_FILE=/absolute/path/ca.pem`
 (для каталога — `SSL_CERT_DIR`). На Windows добавьте корпоративный CA в Windows trust
 store. Fixture harness задаёт собственный CA через cURL CAINFO и проверяет как
