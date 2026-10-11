@@ -8,6 +8,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import struct
 import tarfile
 import urllib.request
 import zipfile
@@ -101,6 +102,9 @@ def install_wrappe(work, env):
                         "--version", config["version"], "--root", str(root), "wrappe"],
                        env=cargo_env, check=True)
     check_version(tool, config["version"], cargo_env)
+    notices = root / "wrappe-notices"
+    if not notices.is_dir():
+        collect_wrappe_notices(root, notices)
     return tool
 
 
@@ -109,17 +113,44 @@ def require_reduction(original, compressed):
         raise RuntimeError("Compression did not produce a smaller executable")
 
 
+def finalize_upx_elf(binary):
+    """Follow SPC's Linux micro fix: discard data beyond PT_LOAD file bounds."""
+    binary = Path(binary)
+    data = binary.read_bytes()
+    if len(data) < 64 or data[:6] != b'\x7fELF\x02\x01':
+        raise ValueError('Expected a 64-bit little-endian UPX ELF')
+    offset = struct.unpack_from('<Q', data, 32)[0]
+    entry_size, count = struct.unpack_from('<HH', data, 54)
+    if entry_size != 56 or not count or offset < 64 or offset + count * entry_size > len(data):
+        raise ValueError('Invalid UPX ELF program headers')
+    end = 0
+    for i in range(count):
+        entry = offset + i * entry_size
+        if struct.unpack_from('<I', data, entry)[0] != 1:
+            continue
+        file_offset, file_size = struct.unpack_from('<Q', data, entry + 8)[0], struct.unpack_from('<Q', data, entry + 32)[0]
+        if file_offset + file_size > len(data):
+            raise ValueError('UPX ELF load segment exceeds file bounds')
+        end = max(end, file_offset + file_size)
+    if not end:
+        raise ValueError('UPX ELF has no file-backed load segment')
+    binary.write_bytes(data[:end])
+
+
 def compress_micro(target, work, runtime):
     tool = install_upx(target, work)
     result = Path(work) / "packers/micro.sfx"
     shutil.copy2(runtime, result)
     subprocess.run([str(tool), CONFIG["upx"]["level"], str(result)], check=True)
     subprocess.run([str(tool), "--test", str(result)], check=True)
+    if target == "linux-amd64":
+        finalize_upx_elf(result)
     require_reduction(runtime, result)
     return result
 
 
 def pack_macos(work, binary, env):
+    from macos import finalize_overlay
     tool = install_wrappe(work, env)
     binary = Path(binary)
     root = Path(work) / ("wrappe-input-" + binary.name)
@@ -132,10 +163,26 @@ def pack_macos(work, binary, env):
     subprocess.run([str(tool), "--compression", str(CONFIG["wrappe"]["compression"]),
                     "--show-information", "none", str(root), binary.name, str(packed)], env=env, check=True)
     packed.chmod(0o755)
-    subprocess.run(["codesign", "--force", "--sign", "-", "--identifier", "b24cli", str(packed)], check=True)
-    subprocess.run(["codesign", "--verify", "--strict", str(packed)], check=True)
+    finalize_overlay(packed)
     require_reduction(binary, packed)
     packed.replace(binary)
+
+
+def collect_wrappe_notices(root, destination):
+    # wrappe's nested runner build clears CARGO_HOME; keep notices from both
+    # registries beside the cached tool so a cache hit remains self-contained.
+    registries = [Path(root) / "cargo-home/registry/src", Path.home() / ".cargo/registry/src"]
+    count = 0
+    for registry in registries:
+        for crate in registry.glob("*/*"):
+            for source in crate.rglob("*"):
+                if source.is_file() and source.name.upper().startswith(("LICENSE", "COPYING", "NOTICE")):
+                    dest = Path(destination) / crate.name / source.relative_to(crate)
+                    dest.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(source, dest)
+                    count += 1
+    if not count:
+        raise RuntimeError("wrappe dependency notices are missing")
 
 
 def export_notices(target, work, destination):
@@ -143,19 +190,10 @@ def export_notices(target, work, destination):
     destination.mkdir(exist_ok=True)
     if target == "macos-arm64":
         shutil.copy2(ROOT / "build/licenses/wrappe-LICENSE.txt", destination / "wrappe-LICENSE.txt")
-        # Preserve the copyright/license files from the exact locked crates used
-        # to build the embedded runner (also includes packer-only dependencies).
-        registry = Path(work) / "packers/cargo-home/registry/src"
-        count = 0
-        for crate in registry.glob("*/*"):
-            for source in crate.rglob("*"):
-                if source.is_file() and source.name.upper().startswith(("LICENSE", "COPYING", "NOTICE")):
-                    dest = destination / "wrappe-dependencies" / crate.name / source.relative_to(crate)
-                    dest.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(source, dest)
-                    count += 1
-        if not count:
-            raise RuntimeError("Locked wrappe dependency notices are missing")
+        notices = Path(work) / "packers/wrappe-notices"
+        if not notices.is_dir() or not any(notices.rglob("*")):
+            raise RuntimeError("wrappe dependency notices are missing")
+        shutil.copytree(notices, destination / "wrappe-dependencies", dirs_exist_ok=True)
     else:
         for source in (Path(work) / "packers/upx-notices").iterdir():
             shutil.copy2(source, destination / ("upx-" + source.name))

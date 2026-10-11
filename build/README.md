@@ -182,11 +182,14 @@ Local checks, actual CI, actual Release publication и live portal verification
 сжимают executable. Linux/Windows: UPX 5.2.1 (`--best`) сжимает копию PHP micro
 до добавления gzip PHAR. Официальные UPX archives проверяются по SHA256 из
 `build/compression.json`; ранее скомпилированный runtime остаётся без изменений.
+На Linux удаляется служебный UPX trailer за последним PT_LOAD, как в SPC: PHAR
+должен начинаться на границе, которую вычисляет micro loader.
 
 macOS: wrappe 1.0.4 собирается через `cargo +1.90.0 install --locked` в
 checkout-local prefix и упаковывает готовый executable с Zstandard level 16.
 Исходный inner executable сначала проходит PHAR bounds check и ad-hoc signature;
-затем подписывается итоговый launcher. Это техническая ad-hoc подпись:
+Затем исправляются Mach-O bounds итогового launcher и выполняется его подпись.
+Служебный вывод wrappe отключён для сохранения CLI/JSON stdout. Это техническая ad-hoc подпись:
 Developer ID/notarization остаются отдельной задачей.
 
 При первом запуске macOS launcher распаковывает программу в доступный для записи
@@ -212,5 +215,7 @@ SHA256/version или отсутствие уменьшения размера �
 Исходные executable находятся в `dist/<target>/uncompressed/` только для
 диагностики CI. Public archive содержит compressed executable, compression
 report и `compression-licenses/`; исходный executable, probe и PHAR не входят.
-Уведомления UPX и wrappe, включая license files locked Rust dependencies
-встроенного launcher, поставляются вместе с архивом.
+Уведомления UPX и wrappe, включая license files Rust dependencies
+встроенного launcher, поставляются вместе с архивом. У upstream wrappe внешний
+packer использует Cargo.lock, а вложенный runner разрешает зависимости отдельно;
+notices из обоих Cargo registry trees сохраняются вместе с cached tool.

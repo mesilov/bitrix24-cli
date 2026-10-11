@@ -10,7 +10,7 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from macos import finalize, layout, verify
+from macos import finalize, finalize_overlay, layout, verify
 
 
 @unittest.skipUnless(platform.system() == 'Darwin' and platform.machine() == 'arm64',
@@ -105,6 +105,28 @@ int main(int argc, char **argv) {
                 with self.assertRaises(ValueError):
                     finalize(self.binary, self.payload)
                 self.assertEqual(self.binary.read_bytes(), data)
+
+    def test_launcher_overlay_keeps_offsets_and_passes_strict_signature(self):
+        before = self.binary.read_bytes()
+        runtime_end = len(self.runtime.read_bytes())
+        finalize_overlay(self.binary)
+        after = self.binary.read_bytes()
+        self.assertEqual(after[runtime_end:len(before)], self.payload.read_bytes())
+        self.assertEqual(subprocess.check_output([str(self.binary)]), b'runtime placeholder\n')
+        signature = layout(after, require_metadata=False)[2]
+        self.assertEqual(signature[1] + signature[2], len(after))
+        data = bytearray(after)
+        data[runtime_end] ^= 1
+        self.binary.write_bytes(data)
+        result = subprocess.run(['codesign', '--verify', '--strict', str(self.binary)], capture_output=True)
+        self.assertNotEqual(result.returncode, 0)
+
+    def test_launcher_without_overlay_is_rejected_without_modification(self):
+        self.binary.write_bytes(self.runtime.read_bytes())
+        before = self.binary.read_bytes()
+        with self.assertRaisesRegex(ValueError, 'no appended payload'):
+            finalize_overlay(self.binary)
+        self.assertEqual(self.binary.read_bytes(), before)
 
     def test_data_appended_after_final_signature_is_rejected(self):
         finalize(self.binary, self.payload)

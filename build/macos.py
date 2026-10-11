@@ -10,7 +10,7 @@ LC_CODE_SIGNATURE = 0x1d
 PAGE_SIZE = 0x4000
 
 
-def layout(data):
+def layout(data, require_metadata=True):
     if len(data) < 32 or struct.unpack_from('<II', data) != (0xfeedfacf, 0x100000c):
         raise ValueError('Expected a thin arm64 Mach-O executable')
     if struct.unpack_from('<I', data, 12)[0] != 2:
@@ -59,12 +59,12 @@ def layout(data):
                 raise ValueError('Unexpected Mach-O signature command')
             signature = (offset, *struct.unpack_from('<II', data, offset + 8))
         offset += length
-    if offset != end or linkedit is None or signature is None or metadata is None:
+    if offset != end or linkedit is None or signature is None or (require_metadata and metadata is None):
         raise ValueError('Missing or inconsistent Mach-O payload/signature layout')
     _, start, length = signature
     if length == 0 or start < linkedit[1] or start + length != linkedit[1] + linkedit[2]:
         raise ValueError('Code signature must terminate __LINKEDIT')
-    if metadata < end or metadata + 16 > linkedit[1]:
+    if metadata is not None and (metadata < end or metadata + 16 > linkedit[1]):
         raise ValueError('Metadata overlaps Mach-O headers or __LINKEDIT')
     return commands, linkedit, signature, metadata
 
@@ -108,6 +108,37 @@ def finalize(binary, payload):
     binary.write_bytes(data)
     subprocess.run(['codesign', '--force', '--sign', '-', '--identifier', 'b24cli', str(binary)], check=True)
     verify(binary, payload)
+
+
+def finalize_overlay(binary):
+    """Cover a wrappe runner's appended data before creating its final signature."""
+    binary = Path(binary)
+    data = bytearray(binary.read_bytes())
+    commands, linkedit, signature, _ = layout(data, require_metadata=False)
+    command_offset, signature_start, signature_size = signature
+    overlay_start, overlay_end = signature_start + signature_size, len(data)
+    if overlay_start >= overlay_end:
+        raise ValueError('Launcher has no appended payload to sign')
+    overlay = bytes(data[overlay_start:overlay_end])
+    # Keep the runner and all packed-data offsets stable. Replace the obsolete
+    # linker signature with padding and make the overlay part of __LINKEDIT.
+    data[signature_start:overlay_start] = bytes(signature_size)
+    load_commands = b''.join(data[offset:offset + size] for offset, size in commands
+                             if offset != command_offset)
+    old_commands_size = struct.unpack_from('<I', data, 20)[0]
+    data[32:32 + old_commands_size] = load_commands + bytes(16)
+    struct.pack_into('<II', data, 16, len(commands) - 1, len(load_commands))
+    new_linkedit = linkedit[0] - (16 if command_offset < linkedit[0] else 0)
+    file_size = overlay_end - linkedit[1]
+    struct.pack_into('<Q', data, new_linkedit + 32, (file_size + PAGE_SIZE - 1) // PAGE_SIZE * PAGE_SIZE)
+    struct.pack_into('<Q', data, new_linkedit + 48, file_size)
+    binary.write_bytes(data)
+    subprocess.run(['codesign', '--force', '--sign', '-', '--identifier', 'b24cli', str(binary)], check=True)
+    final = binary.read_bytes()
+    _, _, final_signature, _ = layout(final, require_metadata=False)
+    if final[overlay_start:overlay_end] != overlay or final_signature[1] + final_signature[2] != len(final):
+        raise ValueError('Signed launcher changed packed bytes or leaves unsigned trailing data')
+    subprocess.run(['codesign', '--verify', '--strict', str(binary)], check=True)
 
 
 if __name__ == '__main__':

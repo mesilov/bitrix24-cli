@@ -7,6 +7,7 @@ import tarfile
 import zipfile
 from pathlib import Path
 import subprocess
+import struct
 import sys
 import tempfile
 import unittest
@@ -87,10 +88,49 @@ class CompressionChecks(unittest.TestCase):
                 Path(args[-1]).write_bytes(b"packed runtime")
         with patch("compress.install_upx", return_value=self.root / "upx"), \
              patch("compress.subprocess.run", side_effect=run):
-            result = compression.compress_micro("linux-amd64", self.root, original)
+            result = compression.compress_micro("windows-amd64", self.root, original)
         self.assertEqual(original.read_bytes(), b"runtime" * 100)
         self.assertEqual(result.read_bytes(), b"packed runtime")
         self.assertEqual([args[1] for args in commands], ["--best", "--test"])
+
+    def test_linux_upx_trailer_is_removed_at_load_segment_end(self):
+        binary = self.root / "micro.sfx"
+        data = bytearray(440)
+        data[:6] = b'\x7fELF\x02\x01'
+        struct.pack_into('<Q', data, 32, 64)
+        struct.pack_into('<HH', data, 54, 56, 2)
+        struct.pack_into('<IIQQQQQQ', data, 64, 1, 6, 0, 0, 0, 0, 1024, 4096)
+        struct.pack_into('<IIQQQQQQ', data, 120, 1, 5, 0, 0, 0, 400, 400, 4096)
+        data[400:] = b'UPX trailer' * 3 + b'padding'
+        binary.write_bytes(data)
+        compression.finalize_upx_elf(binary)
+        self.assertEqual(binary.read_bytes(), data[:400])
+
+    def test_invalid_linux_upx_layout_is_rejected_without_modification(self):
+        binary = self.root / "micro.sfx"
+        binary.write_bytes(b'wrong ELF')
+        before = binary.read_bytes()
+        with self.assertRaisesRegex(ValueError, 'UPX ELF'):
+            compression.finalize_upx_elf(binary)
+        self.assertEqual(binary.read_bytes(), before)
+
+    def test_runner_notices_survive_cache_without_host_registry(self):
+        packers = self.root / 'packers'
+        host = self.root / 'host'
+        for path in [packers / 'cargo-home/registry/src/index/packer-1/LICENSE',
+                     host / '.cargo/registry/src/index/runner-1/LICENSE']:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(path.parent.name + ' license')
+        notices = packers / 'wrappe-notices'
+        with patch('compress.Path.home', return_value=host):
+            compression.collect_wrappe_notices(packers, notices)
+        self.assertEqual((notices / 'runner-1/LICENSE').read_text(), 'runner-1 license')
+        self.assertEqual((notices / 'packer-1/LICENSE').read_text(), 'packer-1 license')
+        import shutil
+        shutil.rmtree(host)
+        output = self.root / 'licenses'
+        compression.export_notices('macos-arm64', self.root, output)
+        self.assertTrue((output / 'wrappe-dependencies/runner-1/LICENSE').is_file())
 
     def fixture_report(self):
         (self.root / "uncompressed").mkdir()
@@ -132,12 +172,12 @@ class CompressionChecks(unittest.TestCase):
                 self.assertEqual((self.root / "wrappe-input-b24cli/b24cli").read_bytes(), original)
                 Path(args[-1]).write_bytes(b"compressed signed launcher")
         with patch("compress.install_wrappe", return_value=self.root / "wrappe"), \
-             patch("compress.subprocess.run", side_effect=run):
+             patch("compress.subprocess.run", side_effect=run), \
+             patch("macos.finalize_overlay") as finalize:
             compression.pack_macos(self.root, binary, {})
         self.assertEqual(binary.read_bytes(), b"compressed signed launcher")
         self.assertEqual(calls[0][calls[0].index("--show-information") + 1], "none")
-        self.assertIn("--sign", calls[1])
-        self.assertIn("--verify", calls[2])
+        finalize.assert_called_once_with(binary.with_name("b24cli.packed"))
         self.assertFalse(any("--cleanup" in args for args in calls))
 
     def test_release_archives_contain_final_bytes_and_not_diagnostic_originals(self):
