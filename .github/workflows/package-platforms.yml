@@ -107,10 +107,11 @@ jobs:
             runtime/package-macos-arm64/static-php-cli-*
             runtime/package-macos-arm64/composer-cache
           key: b24cli-macos-arm64-${{ hashFiles('build/config.json', 'build/runtime.py', 'build/patches/**', 'composer.lock') }}
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        id: packer-cache
         with:
           path: runtime/package-macos-arm64/packers
-          key: b24cli-wrappe-macos-arm64-${{ hashFiles('build/compression.json') }}
+          key: b24cli-wrappe-notices-macos-arm64-${{ hashFiles('build/compression.json') }}
       - name: Build native macOS package
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -118,13 +119,19 @@ jobs:
           B24CLI_RELEASE_VERSION: ${{ inputs.release_version }}
         run: bash build/package-macos.sh
       - name: Save compiled runtime before acceptance
-        if: steps.runtime-cache.outputs.cache-hit != 'true'
+        if: always() && !cancelled() && steps.runtime-cache.outputs.cache-hit != 'true' && hashFiles('runtime/package-macos-arm64/static-php-cli-*/b24cli-runtime-key') != ''
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: |
             runtime/package-macos-arm64/static-php-cli-*
             runtime/package-macos-arm64/composer-cache
           key: ${{ steps.runtime-cache.outputs.cache-primary-key }}
+      - name: Save verified compressor and notices
+        if: always() && !cancelled() && steps.packer-cache.outputs.cache-hit != 'true' && hashFiles('runtime/package-macos-arm64/packers/bin/wrappe') != '' && hashFiles('runtime/package-macos-arm64/packers/wrappe-notices/**') != ''
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: runtime/package-macos-arm64/packers
+          key: ${{ steps.packer-cache.outputs.cache-primary-key }}
       - name: Verify copied package with clean PATH
         env:
           SOURCE_SHA: ${{ inputs.source_sha }}
@@ -183,7 +190,7 @@ jobs:
           B24CLI_RELEASE_VERSION: ${{ inputs.release_version }}
         run: ./build/package-windows.ps1
       - name: Save compiled runtime before acceptance
-        if: steps.runtime-cache.outputs.cache-hit != 'true'
+        if: always() && !cancelled() && steps.runtime-cache.outputs.cache-hit != 'true' && hashFiles('runtime/package-windows-amd64/static-php-cli-*/b24cli-runtime-key') != ''
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: |
