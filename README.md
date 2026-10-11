@@ -9,15 +9,15 @@ CLI для работы с задачами Битрикс24.
 
 ## Скачать
 
-Публичного релиза пока нет. Ниже — предварительные бинарники [CI-сборки `a7024b1` от 11.10.2026](https://github.com/mesilov/bitrix24-cli/actions/runs/38148884407).
+Публичного релиза пока нет. Ниже — предварительные бинарники [CI-сборки `f627f34` от 11.10.2026](https://github.com/mesilov/bitrix24-cli/actions/runs/38169460319), включая исправление подписи macOS. Возможности этой сборки соответствуют указанному SHA.
 
 | Платформа | Архитектура | Скачать архив CI |
 | --- | --- | --- |
-| Linux | amd64 | [Скачать](https://github.com/mesilov/bitrix24-cli/actions/runs/38148884407/artifacts/11706600824) |
-| macOS | arm64 | [Скачать](https://github.com/mesilov/bitrix24-cli/actions/runs/38148884407/artifacts/11706535808) |
-| Windows | amd64 | [Скачать](https://github.com/mesilov/bitrix24-cli/actions/runs/38148884407/artifacts/11706070836) |
+| Linux | amd64 | [Скачать](https://github.com/mesilov/bitrix24-cli/actions/runs/38169460319/artifacts/11713332663) |
+| macOS | arm64 | [Скачать](https://github.com/mesilov/bitrix24-cli/actions/runs/38169460319/artifacts/11713796805) |
+| Windows | amd64 | [Скачать](https://github.com/mesilov/bitrix24-cli/actions/runs/38169460319/artifacts/11713073118) |
 
-[Установочные архивы `.tar.gz` / `.zip` и `SHA256SUMS`](https://github.com/mesilov/bitrix24-cli/actions/runs/38148884407/artifacts/11706590395).
+[Установочные архивы `.tar.gz` / `.zip` и `SHA256SUMS`](https://github.com/mesilov/bitrix24-cli/actions/runs/38169460319/artifacts/11713199531).
 Для скачивания CI artifacts нужен вход в GitHub; срок хранения — 90 дней (эти сборки доступны до 09.01.2027).
 [Новые сборки](https://github.com/mesilov/bitrix24-cli/actions/workflows/package-static.yml?query=branch%3Adev).
 
@@ -30,7 +30,7 @@ Windows Server 2022 amd64. Windows 10/11 и более старые macOS тре
 для записи `%TEMP%`. Архивы для Linux arm64 и Mac Intel пока не предоставляются.
 
 Скачайте архив своей платформы и `SHA256SUMS` **из одного Release или CI run**.
-Для текущих CI-сборок удобнее скачать [общий artifact с установочными архивами](https://github.com/mesilov/bitrix24-cli/actions/runs/38148884407/artifacts/11706590395)
+Для текущих CI-сборок удобнее скачать [общий artifact с установочными архивами](https://github.com/mesilov/bitrix24-cli/actions/runs/38169460319/artifacts/11713199531)
 и распаковать его внешний ZIP: внутри находятся `.tar.gz`/`.zip` и `SHA256SUMS`.
 Откройте терминал в каталоге с этими файлами. Продолжайте только при успешной
 проверке checksum; при несовпадении скачайте архив заново из того же источника.
@@ -119,8 +119,9 @@ chmod +x ./b24cli
 
 macOS executable получает ad-hoc подпись после добавления PHAR payload.
 Она защищает целостность готового файла; Developer ID и notarization пока не выполняются.
-Если macOS сообщает о неизвестном разработчике и предлагает разрешение, после
-попытки запуска откройте **Системные настройки → Конфиденциальность и безопасность →
+При первом запуске macOS может заблокировать файл как непроверенный; в терминале
+это также может выглядеть как `zsh: killed`. Если checksum и подпись прошли проверку,
+после заблокированной попытки запуска откройте **Системные настройки → Конфиденциальность и безопасность →
 Всё равно открыть**, подтвердите **Открыть** и повторите команду.
 Это [штатное разрешение конкретного файла](https://support.apple.com/ru-ru/102445),
 которое может быть недоступно на управляемом Mac. Оно не исправляет повреждённую подпись.
@@ -311,6 +312,6 @@ b24cli task:find --title "договор" --group-id 42 --json
 `--limit` — число результатов. `task:find` совмещает `--group-id` с поиском
 по заголовку без учёта регистра; без флага ищет во всех доступных группах.
 Значения по умолчанию из профилей разрабатываются отдельно в [#19](https://github.com/mesilov/bitrix24-cli/issues/19).
-Предварительные бинарники выше собраны до этой миграции; новое имя доступно после пересборки CLI.
+Предварительные бинарники выше поддерживают `--group-id`.
 
 Разработка, подключение и сборка: [руководство](docs/development.md).
