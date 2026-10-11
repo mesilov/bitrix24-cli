@@ -7,9 +7,14 @@ use Bitrix24\CLI\Console\B24Application;
 use Bitrix24\CLI\Infrastructure\Connection\EnvConnectionResolver;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-return static function (ContainerBuilder $container, string $root): void {
+return static function (ContainerBuilder $container, string $root, bool $packaged = false): void {
     $services = [
         Bitrix24\CLI\Application\RuntimeState::class,
+        Bitrix24\CLI\Infrastructure\Connection\ConfigDirectoryResolver::class,
+        Bitrix24\CLI\Infrastructure\Connection\FileProtection::class,
+        Bitrix24\CLI\Infrastructure\Connection\FileCredentialStore::class,
+        Bitrix24\CLI\Infrastructure\Connection\ProfileRepository::class,
+        Bitrix24\CLI\Console\ConnectionCommandRunner::class,
         Bitrix24\CLI\Console\InputSourceReader::class,
         Bitrix24\CLI\Console\TaskInputMapper::class,
         Bitrix24\CLI\Console\ApiPolicyGuard::class,
@@ -33,8 +38,9 @@ return static function (ContainerBuilder $container, string $root): void {
         $container->register($service)->setAutowired(true);
     }
 
-    $container->register(EnvConnectionResolver::class)->setArgument('$projectRoot', $root);
-    $container->setAlias(Bitrix24\CLI\Infrastructure\Connection\ConnectionResolver::class, EnvConnectionResolver::class);
+    $container->register(Bitrix24\CLI\Infrastructure\Connection\ConnectionManager::class)->setAutowired(true)->setArgument('$projectRoot', $root)->setArgument('$packaged', $packaged);
+    $container->setAlias(Bitrix24\CLI\Infrastructure\Connection\CredentialStore::class, Bitrix24\CLI\Infrastructure\Connection\FileCredentialStore::class);
+    $container->setAlias(Bitrix24\CLI\Infrastructure\Connection\ConnectionResolver::class, Bitrix24\CLI\Infrastructure\Connection\ConnectionManager::class);
     $container->setAlias(Bitrix24\CLI\Infrastructure\Bitrix24\ApiTransport::class, Bitrix24\CLI\Infrastructure\Bitrix24\SdkApiTransport::class);
     foreach ([
         'TaskGateway' => 'Rest3TaskAdapter', 'TaskChatGateway' => 'TaskChatAdapter', 'ChecklistGateway' => 'Rest1ChecklistAdapter',
@@ -52,7 +58,7 @@ return static function (ContainerBuilder $container, string $root): void {
         $container->register('Bitrix24\\CLI\\Application\\Task\\Handler\\' . $handler . 'Handler')->setAutowired(true);
     }
 
-    foreach (CommandCatalog::COMMANDS as $command) {
+    foreach (CommandCatalog::all() as $command) {
         $container->register($command['class'])->setAutowired(true)->setPublic(true);
     }
 

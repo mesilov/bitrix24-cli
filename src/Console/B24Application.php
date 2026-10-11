@@ -35,7 +35,9 @@ final class B24Application extends Application
         $definition->addOptions([
             new InputOption('json', null, InputOption::VALUE_NONE, 'One JSON envelope on stdout.'),
             new InputOption('plain', null, InputOption::VALUE_NONE, 'TSV without headers or decoration.'),
-            new InputOption('profile', null, InputOption::VALUE_REQUIRED, 'Connection profile (default only).'),
+            new InputOption('profile', null, InputOption::VALUE_REQUIRED, 'Saved connection profile; overrides ambient credentials.'),
+            new InputOption('env-file', null, InputOption::VALUE_REQUIRED, 'Explicit credential dotenv; conflicts with --profile.'),
+            new InputOption('config-dir', null, InputOption::VALUE_REQUIRED, 'User configuration directory.'),
             new InputOption('config', null, InputOption::VALUE_REQUIRED, 'Non-secret JSON runtime config.'),
             new InputOption('timeout', null, InputOption::VALUE_REQUIRED, 'HTTP timeout in seconds (default 30, maximum 300).'),
             new InputOption('api-policy', null, InputOption::VALUE_REQUIRED, 'task-v3 (default) or strict-rest3.'),

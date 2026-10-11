@@ -1,0 +1,658 @@
+{
+  "description": "One corpus for JSON Schema and the actual CLI repository. Deliberate schema/runtime differences have explicit reasons; no credentials are read.",
+  "cases": [
+    {
+      "name": "complete profile with API-named task defaults",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": true,
+      "runtimeValid": true
+    },
+    {
+      "name": "empty object profiles",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{}}",
+      "schemaValid": true,
+      "runtimeValid": true
+    },
+    {
+      "name": "no default profile",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": true,
+      "runtimeValid": true
+    },
+    {
+      "name": "omitted defaults",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"}}}}",
+      "schemaValid": true,
+      "runtimeValid": true
+    },
+    {
+      "name": "empty default object",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{}}}}",
+      "schemaValid": true,
+      "runtimeValid": true
+    },
+    {
+      "name": "empty task object",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{}}}}}",
+      "schemaValid": true,
+      "runtimeValid": true
+    },
+    {
+      "name": "omitted time tracking",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2}}}}}",
+      "schemaValid": true,
+      "runtimeValid": true
+    },
+    {
+      "name": "enabled time tracking",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":true}}}}}",
+      "schemaValid": true,
+      "runtimeValid": true
+    },
+    {
+      "name": "four independent portals",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}},\"pet\":{\"name\":\"pet.example\",\"connection\":{\"hostname\":\"pet.example\",\"credentialFile\":\"credentials/1234abcd.env\"},\"default\":{\"task\":{\"allowsTimeTracking\":false}}},\"clientA\":{\"name\":\"clienta.example\",\"connection\":{\"hostname\":\"clienta.example\",\"credentialFile\":\"credentials/1234abce.env\"},\"default\":{\"task\":{\"allowsTimeTracking\":false}}},\"clientB\":{\"name\":\"clientb.example\",\"connection\":{\"hostname\":\"clientb.example\",\"credentialFile\":\"credentials/1234abcf.env\"},\"default\":{\"task\":{\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": true,
+      "runtimeValid": true
+    },
+    {
+      "name": "descriptor domain differs from transport",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"another.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": true,
+      "runtimeValid": true
+    },
+    {
+      "name": "punycode domain",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"xn--e1afmkfd.xn--p1ai\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": true,
+      "runtimeValid": true
+    },
+    {
+      "name": "maximum hostname length",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": true,
+      "runtimeValid": true
+    },
+    {
+      "name": "maximum alias length",
+      "json": "{\"version\":1,\"defaultProfile\":\"wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww\",\"profiles\":{\"wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": true,
+      "runtimeValid": true
+    },
+    {
+      "name": "missing root version",
+      "json": "{\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "missing root defaultProfile",
+      "json": "{\"version\":1,\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "missing root profiles",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\"}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "unsupported version",
+      "json": "{\"version\":2,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "unknown root field",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}},\"webhook\":\"https://secret.invalid\"}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "inline schema annotation forbidden",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}},\"$schema\":\"config.schema.json\"}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "profiles array",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":[]}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "profile array",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":[]}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "profile null",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":null}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "missing profile name",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "missing profile connection",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid bare domain \"\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid bare domain \"https://portal.example\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"https://portal.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid bare domain \"portal.example/path\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"portal.example/path\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid bare domain \"portal.example:443\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"portal.example:443\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid bare domain \"user@portal.example\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"user@portal.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid bare domain \"portal.example?token=x\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"portal.example?token=x\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid bare domain \"portal.example.\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"portal.example.\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid bare domain \"portal.example\\n\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"portal.example\\n\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid bare domain \"портал.example\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"портал.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid bare domain \"-portal.example\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"-portal.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid bare domain \"portal-.example\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"portal-.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid bare domain \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.example\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "hostname above 253 characters",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "connection array",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":[],\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "unknown connection secret field",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\",\"token\":\"fixture-token\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "missing connection hostname",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "missing connection credentialFile",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "unsafe credential reference \"/credentials/1234abcd.env\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"/credentials/1234abcd.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "unsafe credential reference \"../credentials/1234abcd.env\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"../credentials/1234abcd.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "unsafe credential reference \"credentials/../1234abcd.env\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/../1234abcd.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "unsafe credential reference \"credentials\\\\1234abcd.env\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials\\\\1234abcd.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "unsafe credential reference \"credentials/ABCDEF12.env\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/ABCDEF12.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "unsafe credential reference \"credentials/1234abc.env\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/1234abc.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "unsafe credential reference \"credentials/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.env\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "unsafe credential reference \"credentials/1234abcd.env\\n\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/1234abcd.env\\n\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid alias \"1work\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"1work\",\"profiles\":{\"1work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid alias \"work space\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work space\",\"profiles\":{\"work space\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid alias \"work/../../evil\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work/../../evil\",\"profiles\":{\"work/../../evil\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid alias \"équipe\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"équipe\",\"profiles\":{\"équipe\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid alias \"wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww\",\"profiles\":{\"wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid alias \"work\\n\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\\n\",\"profiles\":{\"work\\n\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid default object null",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":null}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid task object null",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":null}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid default object []",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":[]}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid task object []",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":[]}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid default object true",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":true}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid task object true",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":true}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid default object \"x\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":\"x\"}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid task object \"x\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":\"x\"}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid default object 1",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":1}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid task object 1",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":1}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "unknown default scope",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false},\"other\":{}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "legacy root groupId",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}},\"groupId\":42}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "alternative authorId",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false,\"authorId\":1}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "wrong groupId spelling",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false,\"GroupId\":42}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid groupId null",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":null,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid groupId 0",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":0,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid groupId -1",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":-1,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid groupId \"42\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":\"42\",\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid groupId true",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":true,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid groupId 1.5",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":1.5,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid groupId []",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":[],\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid groupId {}",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":{},\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid creatorId null",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":null,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid creatorId 0",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":0,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid creatorId -1",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":-1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid creatorId \"42\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":\"42\",\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid creatorId true",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":true,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid creatorId 1.5",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1.5,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid creatorId []",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":[],\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid creatorId {}",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":{},\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid responsibleId null",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":null,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid responsibleId 0",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":0,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid responsibleId -1",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":-1,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid responsibleId \"42\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":\"42\",\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid responsibleId true",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":true,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid responsibleId 1.5",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":1.5,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid responsibleId []",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":[],\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid responsibleId {}",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":{},\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid allowsTimeTracking null",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":null}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid allowsTimeTracking 0",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":0}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid allowsTimeTracking 1",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":1}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid allowsTimeTracking \"false\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":\"false\"}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid allowsTimeTracking \"Y\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":\"Y\"}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid allowsTimeTracking \"N\"",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":\"N\"}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid allowsTimeTracking []",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":[]}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "invalid allowsTimeTracking {}",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":{}}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "maximum signed 64-bit ID",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":9223372036854775807,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": true,
+      "runtimeValid": true
+    },
+    {
+      "name": "overflow ID",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":9223372036854775808,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "integral decimal JSON notation",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1.0,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": true,
+      "runtimeValid": false,
+      "reason": "CLI requires an integer literal and does not coerce floating-point JSON numbers."
+    },
+    {
+      "name": "integral exponent JSON notation",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1e0,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": true,
+      "runtimeValid": false,
+      "reason": "CLI requires an integer literal and does not coerce exponent JSON numbers."
+    },
+    {
+      "name": "version requires an integer literal",
+      "json": "{\"version\":1.0,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": true,
+      "runtimeValid": false,
+      "reason": "Version is parsed as a literal integer by the CLI; JSON Schema compares abstract numeric values."
+    },
+    {
+      "name": "defaultProfile references missing alias",
+      "json": "{\"version\":1,\"defaultProfile\":\"absent\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": true,
+      "runtimeValid": false,
+      "reason": "Membership in the dynamic profiles dictionary is an additional runtime check."
+    },
+    {
+      "name": "two profiles share one managed credential file",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}},\"pet\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false}}}}}",
+      "schemaValid": true,
+      "runtimeValid": false,
+      "reason": "Runtime rejects duplicate credential references so removal cannot delete another profile's secret."
+    }
+  ]
+}

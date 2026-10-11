@@ -11,11 +11,11 @@ use Symfony\Component\Console\CommandLoader\ContainerCommandLoader;
 
 final class ApplicationFactory
 {
-    public function create(string $root, ?ApiTransport $transport = null, ?ConnectionResolver $resolver = null): B24Application
+    public function create(string $root, ?ApiTransport $transport = null, ?ConnectionResolver $resolver = null, bool $packaged = false, ?\Symfony\Contracts\HttpClient\HttpClientInterface $httpClient = null): B24Application
     {
-        $container = (new ContainerFactory())->create($root, $transport, $resolver);
+        $container = (new ContainerFactory())->create($root, $transport, $resolver, $packaged, $httpClient);
         $application = $container->get(B24Application::class);
-        $application->setCommandLoader(new ContainerCommandLoader($container, array_map(static fn (array $command): string => $command['class'], CommandCatalog::COMMANDS)));
+        $application->setCommandLoader(new ContainerCommandLoader($container, array_map(static fn (array $command): string => $command['class'], CommandCatalog::all())));
         return $application;
     }
 }

@@ -39,6 +39,19 @@ final class CommandCatalog
         'task:history:list' => ['class' => \Bitrix24\CLI\Console\Command\Task\ListTaskHistoryCommand::class, 'effect' => 'read'],
     ];
 
+    public const LOCAL_COMMANDS = [
+        'connection:add' => ['class' => \Bitrix24\CLI\Console\Command\Connection\AddConnectionCommand::class, 'effect' => 'local'],
+        'connection:list' => ['class' => \Bitrix24\CLI\Console\Command\Connection\ListConnectionsCommand::class, 'effect' => 'local'],
+        'connection:show' => ['class' => \Bitrix24\CLI\Console\Command\Connection\ShowConnectionCommand::class, 'effect' => 'local'],
+        'connection:use' => ['class' => \Bitrix24\CLI\Console\Command\Connection\UseConnectionCommand::class, 'effect' => 'local'],
+        'connection:remove' => ['class' => \Bitrix24\CLI\Console\Command\Connection\RemoveConnectionCommand::class, 'effect' => 'local'],
+    ];
+
+    public static function all(): array
+    {
+        return [...self::COMMANDS, ...self::LOCAL_COMMANDS];
+    }
+
     public const ROUTES = [
         'task:add' => [['tasks.task.add', 3], ['tasks.task.field.list', 3]],
         'task:show' => [['tasks.task.get', 3], ['tasks.task.get', 1], ['user.get', 1]],

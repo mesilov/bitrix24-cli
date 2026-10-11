@@ -124,11 +124,13 @@ final class CommandBehaviorTest extends TestCase
 
     public function testAdvancedCreateUsesWritableSchemaThenExplicitFields(): void
     {
-        $fields = ['title' => 'fixture', 'creatorId' => 1, 'responsibleId' => 2];
+        $fields = ['title' => 'fixture', 'creatorId' => 1, 'responsibleId' => 2, 'allowsTimeTracking' => false];
         $fixturePortal = new FixturePortal();
         $fakeApiTransport = new FakeApiTransport(static function ($method, int $version, array $params) use ($fields, $fixturePortal): \Bitrix24\CLI\Infrastructure\Bitrix24\ApiResponse {
             if ($method === 'tasks.task.field.list') {
-                return new \Bitrix24\CLI\Infrastructure\Bitrix24\ApiResponse(['items' => array_map(static fn ($name): array => ['name' => $name, 'type' => $name === 'title' ? 'string' : 'integer', 'editable' => true], array_keys($fields))]);
+                return new \Bitrix24\CLI\Infrastructure\Bitrix24\ApiResponse(['items' => array_map(static fn ($name): array => ['name' => $name, 'type' => match ($name) {
+                    'title' => 'string', 'allowsTimeTracking' => 'boolean', default => 'integer'
+                }, 'editable' => true], array_keys($fields))]);
             }
 
             return $fixturePortal->respond($method, $version, $params);

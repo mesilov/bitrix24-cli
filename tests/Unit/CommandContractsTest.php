@@ -17,7 +17,7 @@ final class CommandContractsTest extends TestCase
 {
     public static function cases(): iterable
     {
-        yield 'add' => [['task:add', '--title', 'New task', '--creator', '1', '--responsible', '2'], 'tasks.task.add', 3, ['fields' => ['title' => 'New task', 'creatorId' => 1, 'responsibleId' => 2]]];
+        yield 'add' => [['task:add', '--title', 'New task', '--creator', '1', '--responsible', '2'], 'tasks.task.add', 3, ['fields' => ['title' => 'New task', 'creatorId' => 1, 'responsibleId' => 2, 'allowsTimeTracking' => false]]];
         yield 'show' => [['task:show', '123'], 'tasks.task.get', 3, null];
         yield 'list' => [['task:list', '--responsible', '2'], 'tasks.task.list', 3, null];
         yield 'find' => [['task:find', '--title', 'ДОГОВОР'], 'tasks.task.list', 3, null];
