@@ -258,18 +258,29 @@ final class TaskCommandsTest extends TestCase
         self::assertNull($this->card($id, ['fileIds'])['fileIds']);
     }
 
-    public function testFilledAuditorProjectionReportsPortalCapabilityWithoutFallback(): void
+    public function testFilledParticipantsAreEnrichedThroughExplicitUserLookup(): void
     {
         $id = $this->newTask();
-        $this->invoke(['task:participants:set', $id, '--auditor', $this->userId]);
-        $result = $this->invoke(['task:show', $id, '--select', 'auditors.id'], [0, 1]);
-        self::assertSame(['3.0'], array_column($result['meta']['apiCalls'], 'apiVersion'));
-        if ($result['error'] === null) {
-            self::assertContains($this->userId, array_column($result['data']['task']['auditors'], 'id'));
-        } else {
-            self::assertSame('api-error', $result['error']['code']);
-            self::assertSame('INTERNAL_SERVER_ERROR', $result['error']['details']['apiErrorCode']);
-        }
+        $this->invoke(['task:participants:set', $id, '--auditor', $this->userId, '--accomplice', $this->userId]);
+        $result = $this->invoke(['task:show', $id, '--select', 'title', '--select', 'auditors', '--select', 'auditors.email', '--select', 'accomplices']);
+        self::assertTrue($result['meta']['complete']);
+        self::assertSame(['tasks.task.get', 'tasks.task.get', 'user.get'], array_column($result['meta']['apiCalls'], 'method'));
+        self::assertSame(['3.0', '1.0', '1.0'], array_column($result['meta']['apiCalls'], 'apiVersion'));
+        self::assertSame([['id' => $this->userId]], array_map(static fn (array $row): array => ['id' => $row['id']], $result['data']['task']['auditors']));
+        self::assertSame(array_intersect_key($result['data']['task']['auditors'][0], ['id' => true, 'name' => true]), $result['data']['task']['accomplices'][0]);
+        self::assertArrayNotHasKey('email', $result['data']['task']['accomplices'][0]);
+        $expected = $this->api->call('user.get', 1, ['filter' => ['@ID' => [$this->userId]], 'select' => ['ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'EMAIL']])->result[0];
+        self::assertArrayHasKey('email', $result['data']['task']['auditors'][0]);
+        self::assertTrue($expected['EMAIL'] === $result['data']['task']['auditors'][0]['email'], 'Observer email must match the selected profile field.');
+        self::assertSame(trim(implode(' ', array_filter(array_map(trim(...), [$expected['NAME'], $expected['SECOND_NAME'], $expected['LAST_NAME']]), static fn ($value): bool => $value !== ''))), $result['data']['task']['auditors'][0]['name']);
+        $ids = $this->invoke(['task:show', $id, '--select', 'auditors.id']);
+        self::assertSame([['id' => $this->userId]], $ids['data']['task']['auditors']);
+        self::assertSame(['3.0', '1.0'], array_column($ids['meta']['apiCalls'], 'apiVersion'));
+        $this->invoke(['task:participants:set', $id, '--clear-auditors', '--clear-accomplices']);
+        $empty = $this->invoke(['task:show', $id, '--select', 'auditors', '--select', 'accomplices']);
+        self::assertSame([], $empty['data']['task']['auditors']);
+        self::assertSame([], $empty['data']['task']['accomplices']);
+        self::assertCount(2, $empty['meta']['apiCalls']);
     }
 
     public function testRestrictedRoleCannotEditFixtureTask(): void

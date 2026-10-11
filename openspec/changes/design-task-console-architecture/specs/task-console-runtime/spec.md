@@ -51,15 +51,35 @@ Runtime SHALL различать пропущенное поле, явное п�
 - **THEN** ввод отклоняется до mutating request; допуск REST1 для участников не превращается в общий legacy update
 
 ### Requirement: Participant relation select projections
-Runtime SHALL раскрывать корневые select пользовательских списков в документированные nested проекции без неявного перехода на другую версию API.
+Runtime SHALL раскрывать корневые participant selects в id/name. task:list SHALL использовать REST3 projections. task:show SHALL обогащать выбранные auditors/accomplices через заранее объявленные REST1 role IDs и user.get, сохраняя остальные поля карточки из REST3. IDs SHALL относиться к выбранной TASK_ID; lookup SHALL быть ограниченным и сохранять порядок ролей.
 
 #### Scenario: Participant relation select projections
-- **WHEN** task:show или task:list получает --select accomplices либо --select auditors
+- **WHEN** task:list получает --select accomplices либо --select auditors
 - **THEN** runtime локально раскрывает корень в соответствующие `.id` и `.name` проекции документированного user object; явно указанные nested select сохраняются
+
+#### Scenario: Task card enriched with participant users
+- **WHEN** task:show получает --select auditors либо accomplices, включая поддержанные nested поля id/name/email/gender/externalAuthId
+- **THEN** карточка читается через REST3 без этих relations, ID выбранных ролей читаются через REST1 выбранной задачи, уникальные ID обогащаются user.get с минимальным select; все использованные версии отражены в meta, root name собирается из NAME/SECOND_NAME/LAST_NAME
+
+#### Scenario: ID-only and empty participant roles
+- **WHEN** выбран только auditors.id/accomplices.id либо обе выбранные роли пусты
+- **THEN** user.get не вызывается; пустая подтверждённая роль возвращается как [], а ID-only объект содержит только нормализованный id
+
+#### Scenario: Incomplete user enrichment
+- **WHEN** после успешного чтения карточки отсутствуют user rows/selected fields либо companion read завершается ошибкой
+- **THEN** доступная карточка сохраняется с complete=false, причиной и exit3; известные ID сохраняются, неизвестные данные обозначены null, непроверенный состав роли не подменяется пустым списком; interrupted остаётся exit130, повторов нет
+
+#### Scenario: Bounded and validated user lookup
+- **WHEN** требуется несколько пользователей либо API возвращает чужой/повторный ID или неверную форму ответа
+- **THEN** user.get фильтруется только по выбранным ID порциями до 50 и общим budget 10000; чужие rows не добавляются к карточке, недоказанная полнота обозначается partial; неподдержанные projections отклоняются до credentials
 
 ### Requirement: Policy covers the complete route plan
 
-Runtime SHALL заранее проверять все потенциальные маршруты операции, включая preflight, по паре method/API version и разрешённым полям. task-v3 SHALL допускать выбранные REST3, IM companion и 14 согласованных REST1 команд; strict-rest3 SHALL отклонять любой non-v3 план до первого запроса. Совпадение имени метода не SHALL означать взаимозаменяемость версий или скрытый fallback.
+Runtime SHALL заранее проверять все потенциальные маршруты операции, включая preflight, по паре method/API version и разрешённым полям. task-v3 SHALL допускать выбранные REST3, IM companion, 14 согласованных REST1 команд и выбранное обогащение участников task:show; strict-rest3 SHALL отклонять любой non-v3 план до первого запроса. Совпадение имени метода не SHALL означать взаимозаменяемость версий или скрытый fallback.
+
+#### Scenario: Strict policy with participant enrichment
+- **WHEN** task:show с auditors/accomplices выбран при strict-rest3
+- **THEN** возвращается policy-denied с кодом 4 до credentials/API calls; task:show без этих relations сохраняет маршрут только REST3
 
 #### Scenario: Strict policy before a mixed route plan
 - **WHEN** task:chat:update, task:time:update или task:participants:set выбраны при strict-rest3

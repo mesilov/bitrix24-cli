@@ -9,6 +9,7 @@
 - Спроектировать и реализовать standalone приложение на Symfony Console и Symfony DependencyInjection: bootstrap, явную регистрацию 30 команд, ленивое создание подключения и общий вывод/ошибки.
 - Разделить Console-команды, прикладные запросы/обработчики и API-порты с адаптерами. `task:update`, `task:assign` и `task:deadline:set` используют один обработчик изменения полей с разными ограничениями ввода.
 - Описать маршрут каждой команды, проверки task/chat/message/checklist/time IDs, dry-run, подтверждение удаления, пагинацию, API policy и неопределённый результат записи.
+- Уточнение пользователя 2026-10-11: для выбранных auditors/accomplices в task:show читать карточку через REST3 без этих relations, отдельно получать ID через REST1 tasks.task.get и обогащать их через user.get. Маршруты объявляются заранее; это разрешённая композиция чтений, без переключения после ошибки.
 - Реализовать карту команд, standalone bootstrap/DI, API adapters/handlers, offline и отдельные live integration tests. Пользователь разрешил apply 2026-10-09. Live приёмка требует предоставленного webhook и фиксируется отдельно.
 - Зафиксировать отсутствие `task:subtask:add` в регистрации MVP. Это исключение уже отражено в `define-task-jtbd` и `task-mvp-scope`; изменение не возвращает 29 исключённых операций через aliases или скрытые шаги.
 
@@ -20,7 +21,7 @@
 
 ### Modified Capabilities
 
-Нет. `cli-experience`, `task-mvp-scope` и `task-workflows` остаются входными контрактами; пользовательское исключение отдельной подзадачи оформлено в существующем `define-task-jtbd`.
+- `task-mvp-scope`: уточнить явный API admission для выбранного обогащения участников task:show (решение 2026-10-11). Число команд и исключения MVP сохраняются. `cli-experience` и `task-workflows` остаются входными контрактами; исключение отдельной подзадачи оформлено в `define-task-jtbd`.
 
 ## Impact
 

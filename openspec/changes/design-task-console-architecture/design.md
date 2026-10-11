@@ -16,6 +16,14 @@
 
 ## Decisions
 
+### Уточнение 2026-10-11: отдельное user enrichment в task:show
+
+Пользователь разрешил отдельный запрос пользователей. Диагностика на предоставленном webhook: user scopes уже есть, user.get работает, REST3 auditors.id по-прежнему возвращает INTERNAL_SERVER_ERROR, а basic card не содержит ID наблюдателей. Поэтому TaskParticipantEnricher выполняет заранее выбранные чтения REST3 base card → REST1 tasks.task.get с ID выбранных ролей → user.get. Это уточняет прежнее ограничение relation readback, без fallback после ошибки. Обычная карточка остаётся одним REST3 запросом; task:list сохраняет native REST3 select.
+
+Enricher зависит от ParticipantGateway и отдельного UserGateway. ParticipantAdapter возвращает только подтверждённые ID выбранной TASK_ID, не копирует legacy поля карточки или auditorsData. UserAdapter получает только выбранные ID порциями 50 (budget 10000), нормализует id/name/email/gender/externalAuthId; name составляется из NAME/SECOND_NAME/LAST_NAME. Корневые selects означают id/name; неподдержанные nested поля отклоняются до credentials. ID-only и пустые роли обходятся без user.get. Отсутствующий пользователь/поле или ошибка companion read сохраняют карточку и известные ID, null для недоступных данных, complete=false и partial3. Прерывание остаётся 130; retries отсутствуют.
+
+ShowTaskHandler объявляет conditional routes по валидированному select. strict-rest3 отклоняет enriched plan целиком до первого запроса/credentials; default task-v3 допускает явно выбранные companion reads. Для обогащения имён достаточно user_brief; email зависит от user_basic/user. Дополнительные scopes не обещают успех relations REST3, поскольку текущий webhook уже имеет user.
+
 ### 1. Console и DI как самостоятельные компоненты
 
 Используем `symfony/console:^8.0` и `symfony/dependency-injection:^8.0`. Нам нужны разбор CLI и сборка объектов; полноценный framework lifecycle не требуется. DI поддерживает standalone контейнер и compiler passes; Console поддерживает загрузку команд из PSR-11 контейнера ([DI](https://symfony.com/doc/current/service_container.html), [compiler passes](https://symfony.com/doc/current/service_container/compiler_passes.html), [lazy commands](https://symfony.com/doc/current/console/lazy_commands.html)).
@@ -115,7 +123,8 @@ Runner получает конкретные typed prepare/execute callbacks han
 | `TaskChatGateway` | `TaskChatAdapter` | REST3 send; task→chat v3 lookup; history/update/delete через выбранные IM REST1 companions |
 | `ChecklistGateway` | `Rest1ChecklistAdapter` | 8 root/item команд, дерево, явный PARENT_ID |
 | `TimeEntryGateway` | `Rest1TimeEntryAdapter` | 4 elapseditem команды и проверка ENTRY_ID внутри TASK_ID |
-| `ParticipantGateway` | `Rest1ParticipantAdapter` | Только accomplice/auditor replacement/clear, без общего update payload |
+| `ParticipantGateway` | `Rest1ParticipantAdapter` | Accomplice/auditor replacement/clear и отдельное чтение только role IDs выбранной TASK_ID |
+| `UserGateway` | `Rest1UserAdapter` | user.get только нужных полей и выбранных ID, порции до 50, общий budget 10000 |
 | `TaskHistoryGateway` | `Rest1TaskHistoryAdapter` | Доступная история изменений задачи, отдельно от IM |
 | `ConnectionResolver` | EnvConnectionResolver (webhook, выбран пользователем) | Profile/config selector → secret-safe connection; фиктивное подключение в offline tests |
 

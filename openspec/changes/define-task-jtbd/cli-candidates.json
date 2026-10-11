@@ -49,17 +49,20 @@
       "syntax": "TASK_ID [--select FIELD ...]",
       "route": "rest3",
       "methods": [
-        "tasks.task.get"
+        "tasks.task.get",
+        "user.get"
       ],
       "sources": [
-        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-get-rest-v3.md"
+        "https://github.com/bitrix24/b24restdocs/blob/b4d3dc81619625c2bf21c28dd0227116f36c8743/api-reference/tasks/tasks-task-get-rest-v3.md",
+        "https://apidocs.bitrix24.com/api-reference/tasks/tasks-task-get.html",
+        "https://apidocs.bitrix24.com/api-reference/user/user-get.html"
       ],
       "jtbd": [
         "PM-01",
         "AM-01",
         "EMP-02"
       ],
-      "note": "Для связей select: responsible.id, creator.id, group.id, chat.id; не рассчитывать на responsibleId/groupId в get.",
+      "note": "Для связей select: responsible.id, creator.id, group.id, chat.id; не рассчитывать на responsibleId/groupId в get. Уточнение 2026-10-11: выбранные auditors/accomplices в task:show читаются через заранее объявленные REST3 base card, REST1 tasks.task.get только ID выбранных ролей и user.get с минимальным select. Default остаётся REST3; strict-rest3 отклоняет enriched plan до credentials; missing users/fields дают partial.",
       "kind": "candidate",
       "effect": "read",
       "method_routes": [
@@ -74,6 +77,18 @@
               "source": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
             }
           ]
+        },
+        {
+          "method": "tasks.task.get",
+          "api_version": "1.0",
+          "sdk": "core",
+          "when": "Only selected auditors/accomplices IDs; explicit composition, not error fallback."
+        },
+        {
+          "method": "user.get",
+          "api_version": "1.0",
+          "sdk": "core",
+          "when": "Selected participant profile fields beyond id, nonempty IDs; batch <=50, budget 10000."
         }
       ],
       "previous_proposal_name": "tasks:show",

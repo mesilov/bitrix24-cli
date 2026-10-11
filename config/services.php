@@ -22,6 +22,7 @@ return static function (ContainerBuilder $container, string $root): void {
         Bitrix24\CLI\Application\Task\TimeSupport::class,
         Bitrix24\CLI\Application\Task\ChecklistSupport::class,
         Bitrix24\CLI\Application\Task\HistoryScanner::class,
+        Bitrix24\CLI\Application\Task\TaskParticipantEnricher::class,
     ];
     foreach ($services as $service) {
         $container->register($service)->setAutowired(true);
@@ -32,7 +33,7 @@ return static function (ContainerBuilder $container, string $root): void {
     $container->setAlias(Bitrix24\CLI\Infrastructure\Bitrix24\ApiTransport::class, Bitrix24\CLI\Infrastructure\Bitrix24\SdkApiTransport::class);
     foreach ([
         'TaskGateway' => 'Rest3TaskAdapter', 'TaskChatGateway' => 'TaskChatAdapter', 'ChecklistGateway' => 'Rest1ChecklistAdapter',
-        'TimeEntryGateway' => 'Rest1TimeEntryAdapter', 'ParticipantGateway' => 'Rest1ParticipantAdapter', 'TaskHistoryGateway' => 'Rest1TaskHistoryAdapter',
+        'TimeEntryGateway' => 'Rest1TimeEntryAdapter', 'ParticipantGateway' => 'Rest1ParticipantAdapter', 'TaskHistoryGateway' => 'Rest1TaskHistoryAdapter', 'UserGateway' => 'Rest1UserAdapter',
     ] as $port => $adapter) {
         $class = 'Bitrix24\\CLI\\Infrastructure\\Bitrix24\\' . $adapter;
         $container->register($class)->setAutowired(true);

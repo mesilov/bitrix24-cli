@@ -1,6 +1,6 @@
 # Карта команд Console для MVP
 
-Дата: 2026-10-09. **Проектирование, не реализованные классы.** Исходный scope/API evidence — [cli-candidates.json](../define-task-jtbd/cli-candidates.json); требования — [UX](../../specs/cli-experience/spec.md), [scope](../../specs/task-mvp-scope/spec.md), [runtime delta](specs/task-console-runtime/spec.md). Цикл и ограничения — [design.md](design.md).
+Проектирование: 2026-10-09; реализация и уточнение task:show: 2026-10-11. Исходный scope/API evidence — [cli-candidates.json](../define-task-jtbd/cli-candidates.json); требования — [UX](../../specs/cli-experience/spec.md), [scope](../../specs/task-mvp-scope/spec.md), [runtime delta](specs/task-console-runtime/spec.md). Цикл и ограничения — [design.md](design.md); результаты проверок — [implementation-verification.md](implementation-verification.md).
 
 30 имён ниже — полный набор прикладных команд MVP; встроенные Symfony help/list/completion считаются отдельно. Команда `task:subtask:add` и остальные 28 post-MVP операции не регистрируются. Колонка API сохраняет основные catalog method_routes, включая штатный preflight. Колонка дополнительных чтений описывает проектные проверки внутри выбранных API семейств; она не означает проверку на реальном портале.
 
@@ -11,7 +11,7 @@
 | Команда | Command class | Request / Handler stem | Основные API method/version | Дополнительные чтения и ограничения | Output profile |
 | --- | --- | --- | --- | --- | --- |
 | `task:add` | `AddTaskCommand` | `AddTask` | `tasks.task.add@3.0` | Advanced: `tasks.task.field.list@3.0` для writable validation; title/creator/responsible обязательны; обычный/advanced ввод раздельны | mutation |
-| `task:show` | `ShowTaskCommand` | `ShowTask` | `tasks.task.get@3.0` | Select validation; relation IDs нормализуются; карточка выбранной TASK_ID | task-card |
+| `task:show` | `ShowTaskCommand` | `ShowTask` | `tasks.task.get@3.0`; для выбранных auditors/accomplices также `tasks.task.get@1.0`, `user.get@1.0` | Карточка из REST3, role IDs выбранной TASK_ID отдельно, минимальное bounded user enrichment; strict-rest3 отклоняет enriched plan заранее | task-card |
 | `task:list` | `ListTaskCommand` | `ListTasks` | `tasks.task.list@3.0` | Server filter только id; local predicates/where; selected fields включают поля фильтра; finite scan/limit/all | task-list |
 | `task:find` | `FindTaskCommand` | `FindTasks` | `tasks.task.list@3.0` | Literal Unicode substring title, trim, id ASC; zero/one/many всегда items array; finite scan | title-matches |
 | `task:update` | `UpdateTaskCommand` | `UpdateTask` | `tasks.task.update@3.0` | Advanced: `tasks.task.field.list@3.0`; nonempty explicit patch; status/read-only запрещены; поля отсутствия сохраняются | mutation |

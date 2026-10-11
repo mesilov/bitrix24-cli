@@ -15,7 +15,7 @@ final class CommandBehaviorTest extends TestCase
 {
     public function testParticipantRelationSelectUsesDocumentedNestedFields(): void
     {
-        foreach ([['task:show', '123'], ['task:list']] as $argv) {
+        foreach ([['task:list']] as $argv) {
             $portal = new FixturePortal();
             $transport = new FakeApiTransport($portal->respond(...));
             $run = ConsoleHarness::run((new ApplicationFactory())->create(dirname(__DIR__, 2), $transport), ['--json', ...$argv, '--select', 'auditors', '--select', 'accomplices', '--select', 'auditors.id']);

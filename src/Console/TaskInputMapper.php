@@ -90,7 +90,9 @@ final readonly class TaskInputMapper
 
     public function showTask(InputInterface $input): Request\ShowTaskRequest
     {
-        return new Request\ShowTaskRequest($this->taskId($input), FieldSchema::select($input->getOption('select') ?: FieldSchema::CARD));
+        $select = FieldSchema::select($input->getOption('select') ?: FieldSchema::CARD);
+        \Bitrix24\CLI\Application\Task\TaskParticipantEnricher::projections($select);
+        return new Request\ShowTaskRequest($this->taskId($input), $select);
     }
 
     public function updateTask(InputInterface $input): Request\UpdateTaskRequest

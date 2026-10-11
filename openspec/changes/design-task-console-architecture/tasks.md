@@ -34,6 +34,8 @@
 
 - [x] 3.10 Отделить SDK INTERNAL_SERVER_ERROR от сетевой ошибки: безопасный api-error с apiErrorCode, outcomeUnknown для записи и отсутствие fallback/retry; проверить через реальный SDK HTTP codec и live заполненную auditor projection.
 
+- [x] 3.11 Реализовать согласованное 2026-10-11 обогащение auditors/accomplices для task:show: REST3 base card → REST1 role IDs → bounded user.get, нормализация id/name и поддержанных projections, минимальный select/dedup, пустые роли и ID-only без user lookup, complete/partial и отсутствие retries. Сохранить v3-only default, local validation и strict-rest3 zero-call gate; покрыть malformed/foreign/missing/denied responses офлайн и заполненные роли live с cleanup.
+
 ## 4. Обработчики и 30 Command классов
 
 - [x] 4.1 Реализовать AddTask/ShowTask/DeleteTask/ListTaskFields/ShowTaskAccess handlers и соответствующие 5 Commands из карты; проверить обычный/advanced add, обязательные поля, writable metadata, read profiles, delete preview/confirmation и command help examples. Dedicated subtask class/alias не создавать; explicit parentId трактовать по текущему scope.

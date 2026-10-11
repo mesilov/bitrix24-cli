@@ -5,7 +5,7 @@
 [![PHPStan](https://github.com/mesilov/bitrix24-cli/actions/workflows/phpstan.yml/badge.svg?branch=dev&event=push)](https://github.com/mesilov/bitrix24-cli/actions/workflows/phpstan.yml?query=branch%3Adev+event%3Apush)
 [![Rector](https://github.com/mesilov/bitrix24-cli/actions/workflows/rector.yml/badge.svg?branch=dev&event=push)](https://github.com/mesilov/bitrix24-cli/actions/workflows/rector.yml?query=branch%3Adev+event%3Apush)
 
-CLI для REST API портала Битрикс24: 30 MVP-команд задач на Symfony Console и standalone DI. Карточка и отправка сообщения используют REST 3.0; IM, чек-листы, записи времени, участники и история — согласованные REST 1.0 маршруты.
+CLI для REST API портала Битрикс24: 30 MVP-команд задач на Symfony Console и standalone DI. Карточка и отправка сообщения используют REST 3.0; IM, чек-листы, записи времени, участники и история — согласованные REST 1.0 маршруты. Выбранные наблюдатели/соисполнители карточки обогащаются отдельным `user.get` после чтения их ID через REST 1.0.
 
 ## Окружение
 
@@ -155,7 +155,15 @@ Live suite создаёт задачи с префиксом `b24cli-test-`, п�
 
 Без restricted webhook denied-role case пропускается отдельно. Без основного webhook порталные сценарии не считаются пройденными; offline тесты не доказывают поведение конкретного портала.
 
-Проверка 2026-10-10: портал возвращает `INTERNAL_SERVER_ERROR` на заполненный `auditors`, включая документированный `--select auditors.id`. CLI сообщает `api-error` с безопасным `apiErrorCode` и сохраняет выбранную версию API. `participants:set` работает без чтения этого поля; сохранение/очищение наборов тест проверяет явным REST1 контрольным чтением. Корневые `--select auditors/accomplices` раскрываются в `.id/.name`; доступность этих проекций зависит от API портала.
+Проверка 2026-10-11: REST 3.0 на этом портале по-прежнему возвращает `INTERNAL_SERVER_ERROR` даже на заполненный `auditors.id`, хотя webhook уже имеет scope `user`. В `task:show` выбранные `auditors/accomplices` теперь читаются по заранее объявленной схеме: REST3 карточка без этих relations → REST1 `tasks.task.get` только ID нужных ролей → `user.get` по уникальным ID. Остальные поля карточки остаются из REST3. `task:list` сохраняет native REST3 projections; fallback/retry после ошибки отсутствует.
+
+```sh
+b24cli task:show 123 --select title --select auditors --select accomplices --json
+b24cli task:show 123 --select auditors.id --json
+b24cli task:show 123 --select auditors.name --select auditors.email --json
+```
+
+Корневые participant selects означают `id/name`; name составляется из NAME/SECOND_NAME/LAST_NAME. Дополнительно поддержаны `.email`, `.gender`, `.externalAuthId`; неподдержанные projections отклоняются до подключения. Для имён достаточно scope `user_brief`, для email нужен `user_basic` или `user` ([user scopes](https://apidocs.bitrix24.com/api-reference/user/user-scope.html), [user.get](https://apidocs.bitrix24.com/api-reference/user/user-get.html)). Запрашиваются только выбранные поля, порциями до 50 ID, budget 10000. Для ID-only и пустых списков user.get не вызывается. Недоступные users/поля сохраняют карточку и известные ID, null и partial/exit3. `strict-rest3` отклоняет enriched plan до первого запроса; обычная карточка остаётся одним REST3 чтением.
 
 ## Параллельная работа в Git worktree
 
