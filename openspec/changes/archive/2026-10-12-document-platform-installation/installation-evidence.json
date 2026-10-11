@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-12",
+  "gfm_details": [
+    {
+      "open": false,
+      "summary": "Linux amd64 — установка и PATH (Bash)",
+      "code_blocks": 5
+    },
+    {
+      "open": false,
+      "summary": "macOS arm64 — установка, первый запуск и PATH (zsh)",
+      "code_blocks": 5
+    },
+    {
+      "open": false,
+      "summary": "Windows amd64 — установка и PATH (PowerShell)",
+      "code_blocks": 5
+    }
+  ],
+  "local_file_anchor_links": 7,
+  "shell_blocks_syntax_checked": 11,
+  "shells": [
+    "bash",
+    "zsh"
+  ],
+  "fixtures": [
+    {
+      "target": "linux-amd64",
+      "valid_checksum_unpack": true,
+      "corrupt_archive_rejected_before_unpack": true,
+      "missing_checksum_rejected_before_unpack": true,
+      "path_with_spaces": true,
+      "metadata_notices_preserved": true,
+      "rc_preserved_and_idempotent": true,
+      "fresh_rc_path": true
+    },
+    {
+      "target": "macos-arm64",
+      "valid_checksum_unpack": true,
+      "corrupt_archive_rejected_before_unpack": true,
+      "missing_checksum_rejected_before_unpack": true,
+      "path_with_spaces": true,
+      "metadata_notices_preserved": true,
+      "rc_preserved_and_idempotent": true,
+      "fresh_rc_path": true
+    }
+  ],
+  "fixture_runtime": "shell stub only; not b24cli native acceptance",
+  "home_environment_overridden": false,
+  "powershell_native": "not run; pwsh unavailable",
+  "dev_command_catalog_preserved": true
+}
