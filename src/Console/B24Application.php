@@ -6,6 +6,7 @@ namespace Bitrix24\CLI\Console;
 
 use Bitrix24\CLI\Application\Failure;
 use Bitrix24\CLI\Application\RuntimeState;
+use Bitrix24\CLI\BuildVersion;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
@@ -22,7 +23,7 @@ final class B24Application extends Application
 {
     public function __construct(private readonly ResultPresenter $presenter, private readonly RuntimeState $state)
     {
-        parent::__construct('b24cli', '0.1.0');
+        parent::__construct('b24cli', BuildVersion::version());
         $this->setAutoExit(false);
         $this->setCatchExceptions(false);
         $this->setCatchErrors(false);

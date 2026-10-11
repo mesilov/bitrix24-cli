@@ -1,5 +1,7 @@
 # bitrix24-cli
 
+Сборка и установка standalone-бинарников: [build/README.md](build/README.md).
+
 [![Allowed licenses](https://github.com/mesilov/bitrix24-cli/actions/workflows/license-check.yml/badge.svg?branch=dev&event=push)](https://github.com/mesilov/bitrix24-cli/actions/workflows/license-check.yml?query=branch%3Adev+event%3Apush)
 [![PHP-CS-Fixer](https://github.com/mesilov/bitrix24-cli/actions/workflows/php-cs-fixer.yml/badge.svg?branch=dev&event=push)](https://github.com/mesilov/bitrix24-cli/actions/workflows/php-cs-fixer.yml?query=branch%3Adev+event%3Apush)
 [![PHPStan](https://github.com/mesilov/bitrix24-cli/actions/workflows/phpstan.yml/badge.svg?branch=dev&event=push)](https://github.com/mesilov/bitrix24-cli/actions/workflows/phpstan.yml?query=branch%3Adev+event%3Apush)
@@ -55,7 +57,10 @@ make php-cli-bash
 
 Для постоянно работающего контейнера доступны `make docker-up`, `make docker-down` и `make docker-restart`.
 
-Точка входа — `bin/console`, пространство имён будущих команд — `Bitrix24\CLI\` в `src/`. Сейчас доступны стандартные команды Symfony Console (`list`, `help`, `completion`). Команды задач и подключение к порталу ещё не добавлены.
+Точка входа — `bin/b24cli`; `bin/console` остаётся совместимым launcher.
+Команды находятся в пространстве имён `Bitrix24\CLI\` в `src/`.
+Доступны стандартные команды Symfony Console (`list`, `help`, `completion`)
+и 30 команд задач; настройка подключения и примеры приведены ниже.
 
 ## Проверки качества
 

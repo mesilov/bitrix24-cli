@@ -14,6 +14,23 @@ CLI_RUN := $(COMPOSE) run --rm -T --env BITRIX24_WEBHOOK --env BITRIX24_PHP_SDK_
 ARGS ?=
 TEST_ARGS ?=
 
+.PHONY: package-phar package package-macos package-windows test-package
+
+package-phar:
+	bash build/package-linux.sh phar
+
+package:
+	bash build/package-linux.sh linux
+
+package-macos:
+	bash build/package-macos.sh $(ARGS)
+
+package-windows:
+	pwsh -File build/package-windows.ps1 $(ARGS)
+
+test-package:
+	python3 build/tests/smoke.py $(ARGS)
+
 .PHONY: help docker-init docker-build docker-up docker-down docker-restart \
         composer-install composer-update composer-dumpautoload composer \
         composer-validate php-cli-bash cli lint check worktree-info test-worktree \
@@ -35,6 +52,11 @@ help:
 	  'composer-validate    Validate composer.json and composer.lock' \
 	  'php-cli-bash         Open a shell in the PHP container' \
 	  'cli ARGS="..."       Run bin/b24cli (default: command list)' \
+	  'package-phar         Build the locked production PHAR in Docker' \
+	  'package              Build a test Linux binary from any clean checkout commit (Docker)' \
+	  'package-macos        Build the native macOS arm64 binary' \
+	  'package-windows      Build the native Windows amd64 binary' \
+	  'test-package ARGS="..." Run the copied-artifact acceptance harness' \
 	  'lint                 Check PHP syntax' \
 	  'check                Validate Composer, PHP syntax and CLI startup' \
 	  'worktree-info        Show this checkout and its Compose project' \

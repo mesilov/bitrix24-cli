@@ -1,0 +1,210 @@
+name: Package platforms
+
+on:
+  workflow_call:
+    inputs:
+      source_sha:
+        required: true
+        type: string
+      release_version:
+        default: ''
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    name: Linux amd64 package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - uses: docker/setup-buildx-action@594f3bf4285d9ea8dc53c9a0c9c4092420091003
+      - name: Verify source and release contracts
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+        run: |
+          python3 build/tests/source-check.py
+          python3 build/tests/publish-check.py
+          python3 build/source.py --source-sha "$SOURCE_SHA"
+      - name: Build locked Linux runtime and PHAR
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc
+        with:
+          context: .
+          file: docker/package/Dockerfile
+          target: linux-artifacts
+          platforms: linux/amd64
+          outputs: type=local,dest=dist/linux-amd64
+          cache-from: type=gha,scope=b24cli-linux-amd64
+          cache-to: type=gha,scope=b24cli-linux-amd64,mode=max
+          secrets: |
+            github_token=${{ github.token }}
+          build-args: |
+            B24CLI_SOURCE_SHA=${{ inputs.source_sha }}
+            B24CLI_RELEASE_VERSION=${{ inputs.release_version }}
+      - name: Test without PHP or checkout dependencies
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          RELEASE_VERSION: ${{ inputs.release_version }}
+        run: |
+          expected="${RELEASE_VERSION:-dev-${SOURCE_SHA}}"
+          docker run --rm --mount "type=bind,src=${PWD}/dist/linux-amd64,dst=/artifacts,readonly" \
+            --mount "type=bind,src=${PWD}/build/tests,dst=/tests,readonly" \
+            python:3.13-slim-bookworm@sha256:a1165e272e578941b84abc79e4ab38a0305cd12803a5c4247979ac7655f4d641 python /tests/smoke.py /artifacts --expected-version "$expected"
+          docker run --rm --mount "type=bind,src=${PWD}/dist/linux-amd64,dst=/artifacts,readonly" \
+            --mount "type=bind,src=${PWD}/build/tests,dst=/tests,readonly" \
+            python:3.13-slim-bookworm@sha256:a1165e272e578941b84abc79e4ab38a0305cd12803a5c4247979ac7655f4d641 python /tests/rejection-check.py /artifacts
+          python3 build/tests/linkage-check.py dist/linux-amd64/b24cli
+          python3 build/tests/install-check.py dist/linux-amd64
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: b24cli-linux-amd64
+          path: dist/linux-amd64/
+          if-no-files-found: error
+
+  macos:
+    name: macOS arm64 package
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962
+        with:
+          php-version: '8.5.11'
+          extensions: bcmath, intl, curl, mbstring, openssl, phar
+          tools: composer:2.10.3
+          coverage: none
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.13'
+      - name: Install compiler prerequisites
+        run: |
+          brew install autoconf automake bison re2c pkgconf cmake
+          echo "$(brew --prefix bison)/bin" >> "$GITHUB_PATH"
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        id: runtime-cache
+        with:
+          path: |
+            runtime/package-macos-arm64/static-php-cli-*
+            runtime/package-macos-arm64/composer-cache
+          key: b24cli-macos-arm64-${{ hashFiles('build/config.json', 'build/runtime.py', 'build/patches/**', 'composer.lock') }}
+      - name: Build native macOS package
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          B24CLI_SOURCE_SHA: ${{ inputs.source_sha }}
+          B24CLI_RELEASE_VERSION: ${{ inputs.release_version }}
+        run: bash build/package-macos.sh
+      - name: Save compiled runtime before acceptance
+        if: steps.runtime-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: |
+            runtime/package-macos-arm64/static-php-cli-*
+            runtime/package-macos-arm64/composer-cache
+          key: ${{ steps.runtime-cache.outputs.cache-primary-key }}
+      - name: Verify copied package with clean PATH
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          RELEASE_VERSION: ${{ inputs.release_version }}
+        run: |
+          python3 build/tests/smoke.py dist/macos-arm64 --expected-version "${RELEASE_VERSION:-dev-${SOURCE_SHA}}"
+          python3 build/tests/rejection-check.py dist/macos-arm64
+          python3 build/tests/linkage-check.py dist/macos-arm64/b24cli
+          python3 build/tests/install-check.py dist/macos-arm64
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: b24cli-macos-arm64
+          path: dist/macos-arm64/
+          if-no-files-found: error
+
+  windows:
+    name: Windows amd64 package
+    runs-on: windows-2022
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962
+        with:
+          php-version: '8.5.11'
+          extensions: bcmath, intl, curl, mbstring, openssl, phar
+          tools: composer:2.10.3
+          coverage: none
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.13'
+      - uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756
+        with:
+          arch: x64
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        id: runtime-cache
+        with:
+          path: |
+            runtime/package-windows-amd64/static-php-cli-*
+            runtime/package-windows-amd64/composer-cache
+          key: b24cli-windows-amd64-${{ hashFiles('build/config.json', 'build/runtime.py', 'build/patches/**', 'composer.lock') }}
+      - name: Build native Windows package
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          B24CLI_SOURCE_SHA: ${{ inputs.source_sha }}
+          B24CLI_RELEASE_VERSION: ${{ inputs.release_version }}
+        run: ./build/package-windows.ps1
+      - name: Save compiled runtime before acceptance
+        if: steps.runtime-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: |
+            runtime/package-windows-amd64/static-php-cli-*
+            runtime/package-windows-amd64/composer-cache
+          key: ${{ steps.runtime-cache.outputs.cache-primary-key }}
+      - name: Verify copied package with clean PATH
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          RELEASE_VERSION: ${{ inputs.release_version }}
+        run: |
+          $expected = if ($env:RELEASE_VERSION) { $env:RELEASE_VERSION } else { "dev-$env:SOURCE_SHA" }
+          python build/tests/smoke.py dist/windows-amd64 --expected-version $expected
+          if ($LASTEXITCODE -ne 0) { throw 'Windows smoke test failed' }
+          python build/tests/rejection-check.py dist/windows-amd64
+          if ($LASTEXITCODE -ne 0) { throw 'Windows rejection checks failed' }
+          python build/tests/linkage-check.py dist/windows-amd64/b24cli.exe
+          if ($LASTEXITCODE -ne 0) { throw 'Windows linkage checks failed' }
+          python build/tests/install-check.py dist/windows-amd64
+          if ($LASTEXITCODE -ne 0) { throw 'Windows archive installation check failed' }
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: b24cli-windows-amd64
+          path: dist/windows-amd64/
+          if-no-files-found: error
+
+  assets:
+    name: Verify release archive set
+    needs: [linux, macos, windows]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          pattern: b24cli-*
+          path: dist/downloaded
+      - name: Pack and verify final archives
+        run: |
+          python3 build/release-assets.py dist/downloaded dist/assets
+          python3 build/tests/archive-check.py dist/assets
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: b24cli-release-assets
+          path: dist/assets/
+          if-no-files-found: error
