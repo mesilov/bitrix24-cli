@@ -87,7 +87,12 @@ def toolchain(work, env):
         shutil.rmtree(unpack)
         archive.unlink()
     source = json.loads((spc / "config/source.json").read_text())
-    source["micro"]["rev"] = CONFIG["micro_ref"]
+    # SPC's git downloader treats rev as a branch and otherwise falls back to master.
+    # Use the commit archive and disable alternate sources to enforce the actual pin.
+    source["micro"].update({"type": "url",
+                            "url": "https://codeload.github.com/static-php/phpmicro/tar.gz/" + CONFIG["micro_ref"],
+                            "filename": "phpmicro-" + CONFIG["micro_ref"] + ".tar.gz"})
+    source["micro"].pop("rev", None)
     (spc / "config/source.json").write_text(json.dumps(source, indent=4) + "\n")
     composer(["install", "--no-dev", "--no-interaction", "--no-progress", "--classmap-authoritative"], spc, env)
     return spc
@@ -103,7 +108,11 @@ def build_runtime(spc, env, target):
     micro = spc / "buildroot/bin/micro.sfx"
     if not micro.exists() or not marker.exists() or marker.read_text() != runtime_key:
         run(["php", "bin/spc", "download", "--for-extensions=" + ",".join(CONFIG["extensions"]),
-             "--with-php=" + CONFIG["php_version"], "--without-suggestions"], spc, env)
+             "--with-php=" + CONFIG["php_version"], "--without-suggestions", "--no-alt",
+             "--retry=2", "--ignore-cache-sources=micro"], spc, env)
+        lock = json.loads((spc / "downloads/.lock.json").read_text())
+        if lock["micro"].get("filename") != "phpmicro-" + CONFIG["micro_ref"] + ".tar.gz":
+            raise RuntimeError("PHP micro source differs from the pinned commit")
         run(["php", "bin/spc", "doctor", "--auto-fix"], spc, env)
         run(["php", "bin/spc", "build", ",".join(CONFIG["extensions"]), "--build-micro", "--with-micro-fake-cli"], spc, env)
         marker.write_text(runtime_key)
@@ -159,7 +168,7 @@ def main():
         shutil.rmtree(dest)
     shutil.copytree(licenses, dest)
     shutil.copy2(spc / "source/php-src/sapi/micro/LICENSE", dest / "phpmicro-LICENSE.txt")
-    shutil.copy2(spc / "download/.lock.json", dist / "runtime-sources.json")
+    shutil.copy2(spc / "downloads/.lock.json", dist / "runtime-sources.json")
 
 
 if __name__ == "__main__":

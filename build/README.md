@@ -117,9 +117,11 @@ Expand-Archive b24cli-windows-amd64.zip -DestinationPath b24cli
 runtime проверяется на Debian 12, build job — Ubuntu 24.04. Minimum validated
 matrix: macOS 15 arm64 и Windows Server 2022 x64. Старые OS требуют отдельного
 acceptance. macOS/Windows используют standard OS libraries. Signing/notarization
-в первой итерации не выполняются. HTTPS требует CA trust configuration системы/
-HTTP backend; собственный CA нужно явно добавить в trust, certificate verification
-не отключается.
+в первой итерации не выполняются. HTTPS использует OpenSSL trust в `/etc/ssl` на Unix и Schannel certificate store
+на Windows. Для отдельного PEM bundle на Unix задайте `SSL_CERT_FILE=/absolute/path/ca.pem`
+(для каталога — `SSL_CERT_DIR`). На Windows добавьте корпоративный CA в Windows trust
+store. Fixture harness задаёт собственный CA через cURL CAINFO и проверяет как
+успешный запрос, так и отказ на чужом CA; certificate verification не отключается.
 
 Local checks, actual CI, actual Release publication и live portal verification
 фиксируются отдельно в OpenSpec verification. Packaging fixtures не обращаются

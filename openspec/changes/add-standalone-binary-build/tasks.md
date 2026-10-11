@@ -2,9 +2,9 @@
 
 ## 1. Production payload и build identity
 
-- [ ] 1.1 Добавить staging и PHAR builder с явным manifest актуальной точки входа, исходников, production vendor/resources и license notices; проверить сборку по `composer.lock --no-dev` и inspection обязательных файлов, исключённых dev tools, `.env`, credentials и cache.
-- [ ] 1.2 Добавить generated staging version metadata для release tag и development full SHA; проверить `--version` PHAR для обеих identity и failure при неверной build identity без изменения исходников checkout.
-- [ ] 1.3 Добавить `package-phar` и checkout-local output/cache paths; документировать запуск и проверить autoload, resources, `list`, `--help` из отдельного каталога, а также отсутствие изменений в соседнем worktree.
+- [x] 1.1 Добавить staging и PHAR builder с явным manifest актуальной точки входа, исходников, production vendor/resources и license notices; проверить сборку по `composer.lock --no-dev` и inspection обязательных файлов, исключённых dev tools, `.env`, credentials и cache.
+- [x] 1.2 Добавить generated staging version metadata для release tag и development full SHA; проверить `--version` PHAR для обеих identity и failure при неверной build identity без изменения исходников checkout.
+- [x] 1.3 Добавить `package-phar` и checkout-local output/cache paths; документировать запуск и проверить autoload, resources, `list`, `--help` из отдельного каталога, а также отсутствие изменений в соседнем worktree.
 
 ## 2. Linux runtime и acceptance fixtures
 

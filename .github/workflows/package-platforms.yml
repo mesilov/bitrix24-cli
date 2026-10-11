@@ -49,10 +49,7 @@ jobs:
           docker run --rm --mount "type=bind,src=${PWD}/dist/linux-amd64,dst=/artifacts,readonly" \
             --mount "type=bind,src=${PWD}/build/tests,dst=/tests,readonly" \
             python:3.13-slim python /tests/rejection-check.py /artifacts
-          file dist/linux-amd64/b24cli
-          if readelf -l dist/linux-amd64/b24cli | grep -q INTERP; then
-            echo 'Linux binary requires a dynamic linker' >&2; exit 1
-          fi
+          python3 build/tests/linkage-check.py dist/linux-amd64/b24cli
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: b24cli-linux-amd64
@@ -99,7 +96,7 @@ jobs:
         run: |
           python3 build/tests/smoke.py dist/macos-arm64 --expected-version "${RELEASE_VERSION:-dev-${SOURCE_SHA}}"
           python3 build/tests/rejection-check.py dist/macos-arm64
-          otool -L dist/macos-arm64/b24cli
+          python3 build/tests/linkage-check.py dist/macos-arm64/b24cli
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: b24cli-macos-arm64
@@ -148,7 +145,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Windows smoke test failed' }
           python build/tests/rejection-check.py dist/windows-amd64
           if ($LASTEXITCODE -ne 0) { throw 'Windows rejection checks failed' }
-          dumpbin /dependents dist/windows-amd64/b24cli.exe
+          python build/tests/linkage-check.py dist/windows-amd64/b24cli.exe
+          if ($LASTEXITCODE -ne 0) { throw 'Windows linkage checks failed' }
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: b24cli-windows-amd64
