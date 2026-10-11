@@ -6,7 +6,7 @@ Issue: [#10](https://github.com/mesilov/bitrix24-cli/issues/10). PR: [#11 → de
 
 | Dimension | Evidence and boundary |
 | --- | --- |
-| Completeness | 42/45 tasks complete; 5.2–5.4 remain partially verified. All 30 MVP commands have a dedicated integration class and own live happy-path method with result assertions. 30 Command classes / 23 request-reference DTO / 11 handlers + 4 services; 29 post-MVP operations excluded |
+| Completeness | 42/42 retained 0.1.0 tasks complete; unverified parts of legacy 5.2–5.4 transferred to #42/0.2.0, not executed by this decision. All 30 MVP commands have a dedicated integration class and own live happy-path method with result assertions. 30 Command classes / 23 request-reference DTO / 11 handlers + 4 services; 29 post-MVP operations excluded |
 | Correctness | 15 runtime requirements and the revised scope admission have implementation/offline coverage. Live suite: 41 passed, 1 restricted-role case skipped, 395 assertions across 30 per-command classes. Filled participant enrichment succeeds through explicitly selected companion reads; native REST3 auditors remains broken on this portal. Time/history retain their precisely asserted completeness boundaries |
 | Coherence | Standalone Symfony Console + DI, explicit API versions/ports, deferred SDK provider. Conditional enrichment routes are checked before credentials. PHPStan, Rector, code style and licenses passed; no error-triggered API fallback/retry |
 
@@ -58,14 +58,22 @@ Final checks: 193 unit tests / 1157 assertions; 42 live tests / 395 assertions; 
 
 ## Remaining verification
 
-O1 — **Critical for archive: task5.2 is partially verified.** Allowed-role card/schema/list/search/chat cases pass, but denied-role chat behavior needs B24CLI_TEST_RESTRICTED_WEBHOOK and specific portal cases.
+O1 — **Deferred to #42/0.2.0: legacy task5.2 is partially verified.** Allowed-role card/schema/list/search/chat cases pass, but denied-role chat behavior needs B24CLI_TEST_RESTRICTED_WEBHOOK and specific portal cases.
 
-O2 — **Critical for archive: task5.3 is partially verified.** Own time/checklist operations and wrong-task gates pass; denied-role time/checklist cases remain unverified without a second webhook.
+O2 — **Deferred to #42/0.2.0: legacy task5.3 is partially verified.** Own time/checklist operations and wrong-task gates pass; denied-role time/checklist cases remain unverified without a second webhook.
 
-O3 — **Critical for archive: task5.4 is partially verified.** Participant omission/clear, nonempty history and offline strict gates pass. Denied-role participants and history navigation/fullness remain unproven. Provide restricted fixtures before checking off the task.
+O3 — **Deferred to #42/0.2.0: legacy task5.4 is partially verified.** Participant omission/clear, nonempty history and offline strict gates pass. Denied-role participants and history navigation/fullness remain unproven. Complete the future #42 tasks using restricted fixtures; no deferred case is checked off by the scope transfer.
 
 O4 — **Native API limitation retained, CLI enrichment verified.** Native REST3 filled auditors projections still fail despite user scope. task:show now reads those selected roles through the user-authorized composition; task:list native projections retain the limitation. No silent fallback is used.
 
 O5 — **Bounded evidence.** History/elapsedTime completeness remains partial, attachment is ACK-only because REST3 get returns fileIds=null, and assignment uses the current user rather than proving transfer to a second user. Multi-request enrichment is not an atomic task/user snapshot.
 
-No new spec/design or code-pattern divergence was found. Three incomplete portal acceptance tasks prevent archive. Publication/CI is tracked for the exact pushed head on PR11, separately from these local/live checks. No merge is performed.
+No new spec/design or code-pattern divergence was found. The three remaining portal acceptance groups are excluded from mandatory RC 0.1.0 acceptance by the user decision of 12.10.2026 and remain unverified in #42/0.2.0. Publication/CI is tracked for the exact pushed head on PR11, separately from these local/live checks. No merge is performed.
+
+## Решение о приёмке RC 0.1.0 — 12.10.2026
+
+По явному решению пользователя непроверенные части portal tasks 5.2–5.4 и связанного `define-task-jtbd` task 2.3 перенесены в milestone **0.2.0**, [#42](https://github.com/mesilov/bitrix24-cli/issues/42), change `complete-task-portal-acceptance` (`openspec/changes/complete-task-portal-acceptance/`). Они исключены из обязательной приёмки RC 0.1.0; перенос не является новым runtime proof. Уже выполненные 30 собственных happy-path и исходные records сохраняются.
+
+Границы RC: denied-role matrix не подтверждена; history/elapsedTime completeness частична; file attachment ACK без независимого membership; reassignment только на текущего пользователя; native REST3 filled auditors limitation сохраняется для task:list, task:show использует заранее выбранную композицию чтений без error-triggered fallback/retry. Binding/policy/partial/outcomeUnknown/cancellation и 29 post-MVP исключений сохраняются. #19/#23/native packaging остаются критериями RC. [Полный список ограничений](../../../docs/rc-0.1.0.md).
+
+Исходные JSON/live counts и ограничения не изменены. Архивирование в этом изменении не выполняется.

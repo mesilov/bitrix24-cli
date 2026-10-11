@@ -49,9 +49,6 @@
 ## 5. Интеграция и приёмка
 
 - [x] 5.1 Сверить фактический command inventory и DI wiring со всеми 30 строками карты: 30 уникальных имен/classes, согласованные handlers/services, ни одной из 29 post-MVP операций/aliases; проверить offline list/help/completion обоих launcher, common options/output/error cases и отсутствие API/credentials. Выполнить project lint/check и статический анализ в Docker.
-- [ ] 5.2 На тестовом портале с согласованным connection provider проверить v3 карточку/schema/выборки/title search, task/chat association и message update/delete под допустимой и запрещённой ролью; сохранить role/API version/targets/observed results, отдельную полноту и отсутствующие cases в evidence без secrets.
-- [ ] 5.3 На тестовом портале проверить 4 time и 8 checklist/root/item REST1 команды: create/list/update/delete собственных time entries, wrong-task/rights rejection, root/nested item/tree state и item complete/renew без смены task status. Сохранить runtime evidence отдельно от fixtures и scope admission.
-- [ ] 5.4 На тестовом портале проверить participants REST1 в новой карточке, omitted/cleared roles, отказ прав и history navigation/completeness; проверить strict-rest3 zero-call rejection всех non-v3 планов. Недоказанную completeness показать как partial и зафиксировать ограничение.
 - [x] 5.5 Проверить пользовательские terminal workflows и HTTP/signal behavior поставляемого окружения, выполнить openspec validate --specs --strict и validate change --strict, подготовить verification artifact с раздельным local/portal evidence. Открытые условия не отмечать выполненными; проверить issue↔change и MR target dev.
 
 ## Workflow follow-up
@@ -81,3 +78,14 @@
 - [x] 8.2 Вынести SDK fixtures/readback/cleanup/evidence в общий LiveTaskCommandTestCase; разрешать invoke только команды текущего класса, создавать независимые fixtures для каждого case и сохранять cleanup при отказе assertions.
 - [x] 8.3 Усилить unit guard: класс соответствует CommandCatalog, ровно одна command-группа и минимум один отдельный happy-path метод; обновить карту покрытия/README и проверить выборочный запуск команды.
 - [x] 8.4 Прогнать unit/live/quality/OpenSpec, сохранить отдельное sanitized per-command evidence и обновить verification/трассировку issue/MR; прежние portal limits 5.2–5.4 сохранить.
+
+## Перенесённая проверка — 0.2.0
+
+По решению пользователя от 12.10.2026 непроверенный остаток следующих исходных задач исключён из tracked scope RC 0.1.0 и перенесён в [#42](https://github.com/mesilov/bitrix24-cli/issues/42), [complete-task-portal-acceptance/tasks.md](../complete-task-portal-acceptance/tasks.md). Ни одна перенесённая проверка не отмечается выполненной; уже подтверждённые cases сохраняются.
+
+- Исходная 5.2 На тестовом портале с согласованным connection provider проверить v3 карточку/schema/выборки/title search, task/chat association и message update/delete под допустимой и запрещённой ролью; сохранить role/API version/targets/observed results, отдельную полноту и отсутствующие cases в evidence без secrets.
+- Исходная 5.3 На тестовом портале проверить 4 time и 8 checklist/root/item REST1 команды: create/list/update/delete собственных time entries, wrong-task/rights rejection, root/nested item/tree state и item complete/renew без смены task status. Сохранить runtime evidence отдельно от fixtures и scope admission.
+- Исходная 5.4 На тестовом портале проверить participants REST1 в новой карточке, omitted/cleared roles, отказ прав и history navigation/completeness; проверить strict-rest3 zero-call rejection всех non-v3 планов. Недоказанную completeness показать как partial и зафиксировать ограничение.
+
+- Дополнительные границы того же evidence: independent file membership и reassignment второму пользователю также проверяются в #42. Native auditors limitation фиксируется отдельно.
+- Для define-task-jtbd задачи 2.1/2.2 остаются открытым проектированием после MVP; перенос дополнительных portal checks не подтверждает полное продуктовое JTBD покрытие и не возвращает исключённые функции в RC.

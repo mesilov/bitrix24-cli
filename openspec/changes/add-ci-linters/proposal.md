@@ -40,3 +40,9 @@
 ## GitHub issues
 
 - [#4 — Добавить CI-линтеры на базе b24phpsdk v3: лицензии, PHP-CS-Fixer, PHPStan, Rector](https://github.com/mesilov/bitrix24-cli/issues/4): change покрывает четыре workflows, их инструменты/конфиги, локальный Make workflow и проверку работы в Actions. Milestone: `0.1.0`; label: `enhancement`.
+
+## Решение о приёмке RC 0.1.0 — 12.10.2026
+
+По явному решению пользователя внешняя fork-часть task 2.2 перенесена в milestone **0.2.0**, [#41](https://github.com/mesilov/bitrix24-cli/issues/41), change `verify-external-fork-ci` (`openspec/changes/verify-external-fork-ci/`). Реальные push и внутренние PR checks остаются подтверждённой областью #4/0.1.0. Fork-сценарий остаётся целевым контрактом, но его живая проверка исключена из обязательной приёмки RC 0.1.0 и не считается выполненной. Конфигурация и permissions не изменяются. [Ограничения RC](../../../docs/rc-0.1.0.md).
+
+Связанный issue перенесённой проверки: [#41](https://github.com/mesilov/bitrix24-cli/issues/41); milestone 0.2.0, change `verify-external-fork-ci`. Исходный #4 сохраняет milestone 0.1.0.

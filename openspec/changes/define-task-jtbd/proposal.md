@@ -42,3 +42,11 @@
 - [#10 — Исследовать готовые CLI/MCP Bitrix24 и спроектировать поверхность команд задач](https://github.com/mesilov/bitrix24-cli/issues/10): продолжение определения поверхности через согласованные JTBD и проверку MCP tools. Milestone 0.1.0, label documentation. Предыдущее исследование сохраняется в archive/2026-10-08-research-task-command-surface; этот change добавляется отдельно, архив не редактируется.
 
 Исключение result-команд не включает task:file:attach. Все семь lifecycle команд также вынесены после MVP; будущая реализация сохраняет requireResult и не получает скрытой операции создания result.
+
+## Решение о приёмке RC 0.1.0 — 12.10.2026
+
+По явному решению пользователя непроверенные части portal tasks 5.2–5.4 и связанного `define-task-jtbd` task 2.3 перенесены в milestone **0.2.0**, [#42](https://github.com/mesilov/bitrix24-cli/issues/42), change `complete-task-portal-acceptance` (`openspec/changes/complete-task-portal-acceptance/`). Они исключены из обязательной приёмки RC 0.1.0; перенос не является новым runtime proof. Уже выполненные 30 собственных happy-path и исходные records сохраняются.
+
+Границы RC: denied-role matrix не подтверждена; history/elapsedTime completeness частична; file attachment ACK без независимого membership; reassignment только на текущего пользователя; native REST3 filled auditors limitation сохраняется для task:list, task:show использует заранее выбранную композицию чтений без error-triggered fallback/retry. Binding/policy/partial/outcomeUnknown/cancellation и 29 post-MVP исключений сохраняются. #19/#23/native packaging остаются критериями RC. [Полный список ограничений](../../../docs/rc-0.1.0.md).
+
+Связанный issue перенесённой проверки: [#42](https://github.com/mesilov/bitrix24-cli/issues/42); milestone 0.2.0, change `complete-task-portal-acceptance`. Исходный #10 сохраняет milestone 0.1.0.
