@@ -1,0 +1,2052 @@
+{
+  "status": "proposal-not-implemented",
+  "checked_on": "2026-10-08",
+  "issue": "https://github.com/mesilov/bitrix24-cli/issues/10",
+  "sdk": {
+    "version": "3.7.0",
+    "commit": "8ebd4c154d5557db949b0196825f347a3a6c5bf0",
+    "inspection": "literal Core calls in installed Task service sources; source reference matches worktree composer.lock"
+  },
+  "docs_commit": "2b00d6bd3a845f4169ccb1ff6f0755f156903f4b",
+  "operations": [
+    {
+      "method": "tasks.task.add",
+      "path": "tasks-task-add.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-add.md",
+      "kind": "compatibility",
+      "command": "tasks:create",
+      "syntax": "--title TEXT --creator ID --responsible ID [--fields @file.json] --api-version 1",
+      "priority": "P2",
+      "effect": "write",
+      "note": "Карточка; v3 требует creatorId; legacy TITLE/RESPONSIBLE_ID.",
+      "group": "Карточка и диагностика",
+      "sdk": {
+        "status": "legacy-batch",
+        "path": "Services/Task/Service/Batch.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Batch.php",
+        "remark": "Legacy batch-обёртка; не прямой service-метод REST 3.0."
+      }
+    },
+    {
+      "method": "tasks.task.add",
+      "path": "tasks-task-add-rest-v3.md",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-add-rest-v3.md",
+      "kind": "candidate",
+      "command": "tasks:create",
+      "syntax": "--title TEXT --creator ID --responsible ID [--fields @file.json]",
+      "priority": "P0",
+      "effect": "write",
+      "note": "Карточка; v3 требует creatorId; legacy TITLE/RESPONSIBLE_ID.",
+      "group": "Карточка и диагностика",
+      "sdk": {
+        "status": "wrapper",
+        "function": "add",
+        "path": "Services/Task/Service/Task.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+      }
+    },
+    {
+      "method": "tasks.task.update",
+      "path": "tasks-task-update.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-update.md",
+      "kind": "compatibility",
+      "command": "tasks:update",
+      "syntax": "ID --fields @file.json --api-version 1",
+      "priority": "P2",
+      "effect": "write",
+      "note": "Частичное обновление. Поля только выбранной версии API; статус менять специальной командой.",
+      "group": "Карточка и диагностика",
+      "sdk": {
+        "status": "legacy-batch",
+        "path": "Services/Task/Service/Batch.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Batch.php",
+        "remark": "Legacy batch-обёртка; не прямой service-метод REST 3.0."
+      }
+    },
+    {
+      "method": "tasks.task.update",
+      "path": "tasks-task-update-rest-v3.md",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-update-rest-v3.md",
+      "kind": "candidate",
+      "command": "tasks:update",
+      "syntax": "ID --fields @file.json",
+      "priority": "P0",
+      "effect": "write",
+      "note": "Частичное обновление. Поля только выбранной версии API; статус менять специальной командой.",
+      "group": "Карточка и диагностика",
+      "sdk": {
+        "status": "wrapper",
+        "function": "update",
+        "path": "Services/Task/Service/Task.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+      }
+    },
+    {
+      "method": "tasks.task.get",
+      "path": "tasks-task-get.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-get.md",
+      "kind": "compatibility",
+      "command": "tasks:get",
+      "syntax": "ID [--select JSON] --api-version 1",
+      "priority": "P2",
+      "effect": "read",
+      "note": "В v3 связанные объекты выбираются через select, например chat.id.",
+      "group": "Карточка и диагностика",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.get",
+      "path": "tasks-task-get-rest-v3.md",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-get-rest-v3.md",
+      "kind": "candidate",
+      "command": "tasks:get",
+      "syntax": "ID [--select JSON]",
+      "priority": "P0",
+      "effect": "read",
+      "note": "В v3 связанные объекты выбираются через select, например chat.id.",
+      "group": "Карточка и диагностика",
+      "sdk": {
+        "status": "wrapper",
+        "function": "get",
+        "path": "Services/Task/Service/Task.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+      }
+    },
+    {
+      "method": "tasks.task.list",
+      "path": "tasks-task-list.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-list.md",
+      "kind": "candidate",
+      "command": "tasks:list",
+      "syntax": "[--filter JSON] [--order JSON] [--select JSON] [--limit N] [--all]",
+      "priority": "P0",
+      "effect": "read",
+      "note": "Основная версия для фильтров исполнителя/проекта/статуса — legacy; v3 filter документирует только id.",
+      "group": "Карточка и диагностика",
+      "sdk": {
+        "status": "legacy-batch",
+        "path": "Services/Task/Service/Batch.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Batch.php",
+        "remark": "Legacy batch-обёртка; не прямой service-метод REST 3.0."
+      }
+    },
+    {
+      "method": "tasks.task.list",
+      "path": "tasks-task-list-rest-v3.md",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-list-rest-v3.md",
+      "kind": "candidate",
+      "command": "tasks:list",
+      "syntax": "[--filter JSON] [--order JSON] [--select JSON] [--limit N] [--all] --api-version 3",
+      "priority": "P1",
+      "effect": "read",
+      "note": "Основная версия для фильтров исполнителя/проекта/статуса — legacy; v3 filter документирует только id.",
+      "group": "Карточка и диагностика",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "3.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.gantt.link.list",
+      "path": "tasks-task-gantt-link-list.md",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-gantt-link-list.md",
+      "kind": "candidate",
+      "command": "tasks:dependency:list",
+      "syntax": "ID [--limit N --offset N]",
+      "priority": "P1",
+      "effect": "read",
+      "note": "REST 3.0; filter=[taskId,ID]. Не список подзадач.",
+      "group": "Зависимости",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "3.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.delete",
+      "path": "tasks-task-delete.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-delete.md",
+      "kind": "compatibility",
+      "command": "tasks:delete",
+      "syntax": "ID --yes --api-version 1",
+      "priority": "P2",
+      "effect": "delete",
+      "note": "Удаление задачи, без массового удаления в MVP.",
+      "group": "Карточка и диагностика",
+      "sdk": {
+        "status": "legacy-batch",
+        "path": "Services/Task/Service/Batch.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Batch.php",
+        "remark": "Legacy batch-обёртка; не прямой service-метод REST 3.0."
+      }
+    },
+    {
+      "method": "tasks.task.delete",
+      "path": "tasks-task-delete-rest-v3.md",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-delete-rest-v3.md",
+      "kind": "candidate",
+      "command": "tasks:delete",
+      "syntax": "ID --yes",
+      "priority": "P1",
+      "effect": "delete",
+      "note": "Удаление задачи, без массового удаления в MVP.",
+      "group": "Карточка и диагностика",
+      "sdk": {
+        "status": "wrapper",
+        "function": "delete",
+        "path": "Services/Task/Service/Task.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+      }
+    },
+    {
+      "method": "tasks.task.getFields",
+      "path": "tasks-task-get-fields.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-get-fields.md",
+      "kind": "candidate",
+      "command": "tasks:fields",
+      "syntax": "--api-version 1",
+      "priority": "P1",
+      "effect": "read",
+      "note": "Legacy схема полей; не заменяет схему v3.",
+      "group": "Карточка и диагностика",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.field.list",
+      "path": "tasks-task-field-list.md",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-field-list.md",
+      "kind": "candidate",
+      "command": "tasks:fields",
+      "syntax": "[--select JSON]",
+      "priority": "P0",
+      "effect": "read",
+      "note": "Современная схема.",
+      "group": "Карточка и диагностика",
+      "sdk": {
+        "status": "wrapper",
+        "function": "list",
+        "path": "Services/Task/TaskField/Service/TaskField.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/TaskField/Service/TaskField.php"
+      }
+    },
+    {
+      "method": "tasks.task.field.get",
+      "path": "tasks-task-field-get.md",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-field-get.md",
+      "kind": "candidate",
+      "command": "tasks:field:get",
+      "syntax": "NAME",
+      "priority": "P1",
+      "effect": "read",
+      "note": "Описание конкретного поля.",
+      "group": "Карточка и диагностика",
+      "sdk": {
+        "status": "wrapper",
+        "function": "get",
+        "path": "Services/Task/TaskField/Service/TaskField.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/TaskField/Service/TaskField.php"
+      }
+    },
+    {
+      "method": "tasks.task.getaccess",
+      "path": "tasks-task-get-access.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-get-access.md",
+      "kind": "candidate",
+      "command": "tasks:access",
+      "syntax": "ID --api-version 1",
+      "priority": "P1",
+      "effect": "read",
+      "note": "Legacy права.",
+      "group": "Карточка и диагностика",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.access.get",
+      "path": "tasks-task-access-get.md",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-access-get.md",
+      "kind": "candidate",
+      "command": "tasks:access",
+      "syntax": "ID",
+      "priority": "P0",
+      "effect": "read",
+      "note": "Права задачи v3; серверная проверка всё равно обязательна.",
+      "group": "Карточка и диагностика",
+      "sdk": {
+        "status": "wrapper",
+        "function": "get",
+        "path": "Services/Task/Service/TaskAccess.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/TaskAccess.php"
+      }
+    },
+    {
+      "method": "tasks.task.access.field.list",
+      "path": "tasks-task-access-field-list.md",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-access-field-list.md",
+      "kind": "candidate",
+      "command": "tasks:access:fields",
+      "syntax": null,
+      "priority": "P2",
+      "effect": "read",
+      "note": "Схема объекта прав.",
+      "group": "Карточка и диагностика",
+      "sdk": {
+        "status": "wrapper",
+        "function": "list",
+        "path": "Services/Task/AccessField/Service/AccessField.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/AccessField/Service/AccessField.php"
+      }
+    },
+    {
+      "method": "tasks.task.access.field.get",
+      "path": "tasks-task-access-field-get.md",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-access-field-get.md",
+      "kind": "candidate",
+      "command": "tasks:access:field:get",
+      "syntax": "NAME",
+      "priority": "P2",
+      "effect": "read",
+      "note": "Одно поле схемы прав.",
+      "group": "Карточка и диагностика",
+      "sdk": {
+        "status": "wrapper",
+        "function": "get",
+        "path": "Services/Task/AccessField/Service/AccessField.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/AccessField/Service/AccessField.php"
+      }
+    },
+    {
+      "method": "tasks.task.files.attach",
+      "path": "tasks-task-files-attach.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-files-attach.md",
+      "kind": "candidate",
+      "command": "tasks:file:attach",
+      "syntax": "ID --file-ids JSON --api-version 1",
+      "priority": "P2",
+      "effect": "write",
+      "note": "Legacy путь; IDs уже загруженных файлов.",
+      "group": "Файлы",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.file.attach",
+      "path": "tasks-task-file-attach.md",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-file-attach.md",
+      "kind": "candidate",
+      "command": "tasks:file:attach",
+      "syntax": "ID --file-ids JSON",
+      "priority": "P1",
+      "effect": "write",
+      "note": "taskId + fileIds; загрузка локального файла — отдельный Disk workflow.",
+      "group": "Файлы",
+      "sdk": {
+        "status": "wrapper",
+        "function": "attachExists",
+        "path": "Services/Task/Service/TaskFile.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/TaskFile.php"
+      }
+    },
+    {
+      "method": "tasks.task.file.field.list",
+      "path": "tasks-task-file-field-list.md",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-file-field-list.md",
+      "kind": "candidate",
+      "command": "tasks:file:fields",
+      "syntax": null,
+      "priority": "P2",
+      "effect": "read",
+      "note": "Схема файлов.",
+      "group": "Файлы",
+      "sdk": {
+        "status": "wrapper",
+        "function": "list",
+        "path": "Services/Task/FileField/Service/FileField.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/FileField/Service/FileField.php"
+      }
+    },
+    {
+      "method": "tasks.task.file.field.get",
+      "path": "tasks-task-file-field-get.md",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-file-field-get.md",
+      "kind": "candidate",
+      "command": "tasks:file:field:get",
+      "syntax": "NAME",
+      "priority": "P2",
+      "effect": "read",
+      "note": "Одно поле файлов.",
+      "group": "Файлы",
+      "sdk": {
+        "status": "wrapper",
+        "function": "get",
+        "path": "Services/Task/FileField/Service/FileField.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/FileField/Service/FileField.php"
+      }
+    },
+    {
+      "method": "tasks.task.chat.message.send",
+      "path": "tasks-task-chat-message-send.md",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-chat-message-send.md",
+      "kind": "candidate",
+      "command": "tasks:chat:send",
+      "syntax": "ID --text TEXT или --text-file PATH",
+      "priority": "P0",
+      "effect": "write",
+      "note": "fields={taskId,text}; новая карточка.",
+      "group": "Чат задачи",
+      "sdk": {
+        "status": "wrapper",
+        "function": "sendMessage",
+        "path": "Services/Task/Service/TaskChat.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/TaskChat.php"
+      }
+    },
+    {
+      "method": "tasks.task.chat.message.field.list",
+      "path": "tasks-task-chat-message-field-list.md",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-chat-message-field-list.md",
+      "kind": "candidate",
+      "command": "tasks:chat:fields",
+      "syntax": null,
+      "priority": "P2",
+      "effect": "read",
+      "note": "Схема сообщения task chat.",
+      "group": "Чат задачи",
+      "sdk": {
+        "status": "wrapper",
+        "function": "list",
+        "path": "Services/Task/ChatMessageField/Service/ChatMessageField.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/ChatMessageField/Service/ChatMessageField.php"
+      }
+    },
+    {
+      "method": "tasks.task.chat.message.field.get",
+      "path": "tasks-task-chat-message-field-get.md",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-chat-message-field-get.md",
+      "kind": "candidate",
+      "command": "tasks:chat:field:get",
+      "syntax": "NAME",
+      "priority": "P2",
+      "effect": "read",
+      "note": "Одно поле сообщения.",
+      "group": "Чат задачи",
+      "sdk": {
+        "status": "wrapper",
+        "function": "get",
+        "path": "Services/Task/ChatMessageField/Service/ChatMessageField.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/ChatMessageField/Service/ChatMessageField.php"
+      }
+    },
+    {
+      "method": "tasks.task.delegate",
+      "path": "tasks-task-delegate.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-delegate.md",
+      "kind": "candidate",
+      "command": "tasks:delegate",
+      "syntax": "ID --responsible USER_ID",
+      "priority": "P1",
+      "effect": "write",
+      "note": "taskId,userId; не подмена делегирования прямым UPDATE.",
+      "group": "Карточка и диагностика",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.counters.get",
+      "path": "tasks-task-counters-get.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-counters-get.md",
+      "kind": "candidate",
+      "command": "tasks:counters",
+      "syntax": "[--params @file.json]",
+      "priority": "P1",
+      "effect": "read",
+      "note": "Счётчики пользователя; точную схему сверить отдельной страницей.",
+      "group": "Карточка и диагностика",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.approve",
+      "path": "tasks-task-approve.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-approve.md",
+      "kind": "candidate",
+      "command": "tasks:approve",
+      "syntax": "ID",
+      "priority": "P0",
+      "effect": "write",
+      "note": "Контроль постановщика; не синоним complete.",
+      "group": "Жизненный цикл",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.disapprove",
+      "path": "tasks-task-disapprove.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-disapprove.md",
+      "kind": "candidate",
+      "command": "tasks:disapprove",
+      "syntax": "ID",
+      "priority": "P0",
+      "effect": "write",
+      "note": "Отклонение результата постановщиком.",
+      "group": "Жизненный цикл",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.history.list",
+      "path": "tasks-task-history-list.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-task-history-list.md",
+      "kind": "candidate",
+      "command": "tasks:history",
+      "syntax": "ID [--filter JSON --order JSON]",
+      "priority": "P1",
+      "effect": "read",
+      "note": "История; taskId, filter, order.",
+      "group": "Карточка и диагностика",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "task.dependence.add",
+      "path": "task-dependence-add.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/task-dependence-add.md",
+      "kind": "candidate",
+      "command": "tasks:dependency:add",
+      "syntax": "FROM_ID TO_ID --type INTEGER",
+      "priority": "P1",
+      "effect": "write",
+      "note": "0/1/2/3; направление FROM → TO; отдельная связь от parentId.",
+      "group": "Зависимости",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "task.dependence.delete",
+      "path": "task-dependence-delete.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/task-dependence-delete.md",
+      "kind": "candidate",
+      "command": "tasks:dependency:delete",
+      "syntax": "FROM_ID TO_ID --yes",
+      "priority": "P1",
+      "effect": "delete",
+      "note": "Удаление связи, а не связанных задач.",
+      "group": "Зависимости",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "OnTaskAdd",
+      "path": "events-tasks/on-task-add.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/events-tasks/on-task-add.md",
+      "kind": "deferred",
+      "command": null,
+      "syntax": null,
+      "priority": "deferred",
+      "effect": "event",
+      "note": "События: подписки и входящий обработчик вне синхронного CLI",
+      "group": "Смежные области",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "OnTaskUpdate",
+      "path": "events-tasks/on-task-update.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/events-tasks/on-task-update.md",
+      "kind": "deferred",
+      "command": null,
+      "syntax": null,
+      "priority": "deferred",
+      "effect": "event",
+      "note": "События: подписки и входящий обработчик вне синхронного CLI",
+      "group": "Смежные области",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "OnTaskDelete",
+      "path": "events-tasks/on-task-delete.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/events-tasks/on-task-delete.md",
+      "kind": "deferred",
+      "command": null,
+      "syntax": null,
+      "priority": "deferred",
+      "effect": "event",
+      "note": "События: подписки и входящий обработчик вне синхронного CLI",
+      "group": "Смежные области",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.start",
+      "path": "status/tasks-task-start.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/status/tasks-task-start.md",
+      "kind": "candidate",
+      "command": "tasks:start",
+      "syntax": "ID",
+      "priority": "P0",
+      "effect": "write",
+      "note": "Начать выполнение.",
+      "group": "Жизненный цикл",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.pause",
+      "path": "status/tasks-task-pause.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/status/tasks-task-pause.md",
+      "kind": "candidate",
+      "command": "tasks:pause",
+      "syntax": "ID",
+      "priority": "P0",
+      "effect": "write",
+      "note": "Приостановить выполнение.",
+      "group": "Жизненный цикл",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.defer",
+      "path": "status/tasks-task-defer.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/status/tasks-task-defer.md",
+      "kind": "candidate",
+      "command": "tasks:defer",
+      "syntax": "ID",
+      "priority": "P0",
+      "effect": "write",
+      "note": "Отложить.",
+      "group": "Жизненный цикл",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.complete",
+      "path": "status/tasks-task-complete.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/status/tasks-task-complete.md",
+      "kind": "candidate",
+      "command": "tasks:complete",
+      "syntax": "ID",
+      "priority": "P0",
+      "effect": "write",
+      "note": "Может отправить на контроль; вернуть фактическое состояние.",
+      "group": "Жизненный цикл",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.renew",
+      "path": "status/tasks-task-renew.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/status/tasks-task-renew.md",
+      "kind": "candidate",
+      "command": "tasks:renew",
+      "syntax": "ID",
+      "priority": "P0",
+      "effect": "write",
+      "note": "Возобновить; не равнозначно повторной попытке start.",
+      "group": "Жизненный цикл",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.startwatch",
+      "path": "user-actions/tasks-task-start-watch.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/user-actions/tasks-task-start-watch.md",
+      "kind": "candidate",
+      "command": "tasks:watch",
+      "syntax": "ID",
+      "priority": "P1",
+      "effect": "write",
+      "note": "Наблюдение текущего пользователя; не запуск таймера.",
+      "group": "Личные действия",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.stopwatch",
+      "path": "user-actions/tasks-task-stop-watch.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/user-actions/tasks-task-stop-watch.md",
+      "kind": "candidate",
+      "command": "tasks:unwatch",
+      "syntax": "ID",
+      "priority": "P1",
+      "effect": "write",
+      "note": "Отключить наблюдение; stopwatch не секундомер.",
+      "group": "Личные действия",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.favorite.add",
+      "path": "user-actions/tasks-task-favorite-add.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/user-actions/tasks-task-favorite-add.md",
+      "kind": "candidate",
+      "command": "tasks:favorite:add",
+      "syntax": "ID",
+      "priority": "P2",
+      "effect": "write",
+      "note": "Избранное текущего пользователя.",
+      "group": "Личные действия",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.favorite.remove",
+      "path": "user-actions/tasks-task-favorite-remove.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/user-actions/tasks-task-favorite-remove.md",
+      "kind": "candidate",
+      "command": "tasks:favorite:remove",
+      "syntax": "ID",
+      "priority": "P2",
+      "effect": "write",
+      "note": "Убрать из избранного.",
+      "group": "Личные действия",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.pin",
+      "path": "user-actions/tasks-task-pin.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/user-actions/tasks-task-pin.md",
+      "kind": "candidate",
+      "command": "tasks:pin",
+      "syntax": "ID",
+      "priority": "P2",
+      "effect": "write",
+      "note": "Закрепление списка.",
+      "group": "Личные действия",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.unpin",
+      "path": "user-actions/tasks-task-unpin.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/user-actions/tasks-task-unpin.md",
+      "kind": "candidate",
+      "command": "tasks:unpin",
+      "syntax": "ID",
+      "priority": "P2",
+      "effect": "write",
+      "note": "Снять закрепление.",
+      "group": "Личные действия",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.mute",
+      "path": "user-actions/tasks-task-mute.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/user-actions/tasks-task-mute.md",
+      "kind": "candidate",
+      "command": "tasks:mute",
+      "syntax": "ID",
+      "priority": "P2",
+      "effect": "write",
+      "note": "Без звука.",
+      "group": "Личные действия",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.unmute",
+      "path": "user-actions/tasks-task-unmute.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/user-actions/tasks-task-unmute.md",
+      "kind": "candidate",
+      "command": "tasks:unmute",
+      "syntax": "ID",
+      "priority": "P2",
+      "effect": "write",
+      "note": "Вернуть уведомления.",
+      "group": "Личные действия",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.result.addFromComment",
+      "path": "result/tasks-task-result-add-from-comment.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/result/tasks-task-result-add-from-comment.md",
+      "kind": "candidate",
+      "command": "tasks:legacy-result:from-comment",
+      "syntax": "COMMENT_ID",
+      "priority": "P2",
+      "effect": "write",
+      "note": "Только старая карточка; в новой не работает.",
+      "group": "Результат",
+      "sdk": {
+        "status": "wrapper",
+        "function": "addFromComment",
+        "path": "Services/Task/TaskResult/Service/Result.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/TaskResult/Service/Result.php"
+      }
+    },
+    {
+      "method": "tasks.task.result.list",
+      "path": "result/tasks-task-result-list.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/result/tasks-task-result-list.md",
+      "kind": "compatibility",
+      "command": "tasks:result:list",
+      "syntax": "ID [--params @file.json] --api-version 1",
+      "priority": "P2",
+      "effect": "read",
+      "note": "Предпочтительна v3; SDK result()->list() — legacy.",
+      "group": "Результат",
+      "sdk": {
+        "status": "wrapper",
+        "function": "list",
+        "path": "Services/Task/TaskResult/Service/Result.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/TaskResult/Service/Result.php"
+      }
+    },
+    {
+      "method": "tasks.task.result.deleteFromComment",
+      "path": "result/tasks-task-result-delete-from-comment.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/result/tasks-task-result-delete-from-comment.md",
+      "kind": "candidate",
+      "command": "tasks:legacy-result:unlink-comment",
+      "syntax": "COMMENT_ID --yes",
+      "priority": "P2",
+      "effect": "delete",
+      "note": "Не работает для результата новой карточки.",
+      "group": "Результат",
+      "sdk": {
+        "status": "wrapper",
+        "function": "deleteFromComment",
+        "path": "Services/Task/TaskResult/Service/Result.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/TaskResult/Service/Result.php"
+      }
+    },
+    {
+      "method": "tasks.task.result.add",
+      "path": "result/tasks-task-result-add.md",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/result/tasks-task-result-add.md",
+      "kind": "candidate",
+      "command": "tasks:result:add",
+      "syntax": "ID --text TEXT или --text-file PATH",
+      "priority": "P0",
+      "effect": "write",
+      "note": "fields={taskId,text}; не комментарий и не complete.",
+      "group": "Результат",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "3.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.result.addfromchatmessage",
+      "path": "result/tasks-task-result-addfromchatmessage.md",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/result/tasks-task-result-addfromchatmessage.md",
+      "kind": "candidate",
+      "command": "tasks:result:from-message",
+      "syntax": "MESSAGE_ID",
+      "priority": "P1",
+      "effect": "write",
+      "note": "fields={messageId}; сообщение именно task chat.",
+      "group": "Чат задачи",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "3.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.result.update",
+      "path": "result/tasks-task-result-update.md",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/result/tasks-task-result-update.md",
+      "kind": "candidate",
+      "command": "tasks:result:update",
+      "syntax": "RESULT_ID --text TEXT",
+      "priority": "P1",
+      "effect": "write",
+      "note": "Сервер проверяет автора/права.",
+      "group": "Результат",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "3.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.result.list",
+      "path": "result/tasks-task-result-list-rest-v3.md",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/result/tasks-task-result-list-rest-v3.md",
+      "kind": "candidate",
+      "command": "tasks:result:list",
+      "syntax": "ID [--params @file.json]",
+      "priority": "P0",
+      "effect": "read",
+      "note": "Предпочтительна v3; SDK result()->list() — legacy.",
+      "group": "Результат",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "3.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "tasks.task.result.delete",
+      "path": "result/tasks-task-result-delete.md",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/result/tasks-task-result-delete.md",
+      "kind": "candidate",
+      "command": "tasks:result:delete",
+      "syntax": "RESULT_ID --yes",
+      "priority": "P1",
+      "effect": "delete",
+      "note": "Удаляет результат, а не задачу.",
+      "group": "Результат",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "3.0",
+        "remark": "Нет отдельной Task service-обёртки; нужен CoreInterface::call с явной ApiVersion."
+      }
+    },
+    {
+      "method": "task.checklistitem.add",
+      "path": "checklist-item/task-checklist-item-add.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/checklist-item/task-checklist-item-add.md",
+      "kind": "candidate",
+      "command": "tasks:checklist:add",
+      "syntax": "ID --fields @file.json",
+      "priority": "P0",
+      "effect": "write",
+      "note": "Дерево checklist; ID задачи отдельно от item ID.",
+      "group": "Чек-листы",
+      "sdk": {
+        "status": "wrapper",
+        "function": "add",
+        "path": "Services/Task/Checklistitem/Service/Checklistitem.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+      }
+    },
+    {
+      "method": "task.checklistitem.update",
+      "path": "checklist-item/task-checklist-item-update.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/checklist-item/task-checklist-item-update.md",
+      "kind": "candidate",
+      "command": "tasks:checklist:update",
+      "syntax": "ID ITEM_ID --fields @file.json",
+      "priority": "P1",
+      "effect": "write",
+      "note": "Редактирование пункта.",
+      "group": "Чек-листы",
+      "sdk": {
+        "status": "wrapper",
+        "function": "update",
+        "path": "Services/Task/Checklistitem/Service/Checklistitem.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+      }
+    },
+    {
+      "method": "task.checklistitem.get",
+      "path": "checklist-item/task-checklist-item-get.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/checklist-item/task-checklist-item-get.md",
+      "kind": "candidate",
+      "command": "tasks:checklist:get",
+      "syntax": "ID ITEM_ID",
+      "priority": "P1",
+      "effect": "read",
+      "note": "Один пункт.",
+      "group": "Чек-листы",
+      "sdk": {
+        "status": "wrapper",
+        "function": "get",
+        "path": "Services/Task/Checklistitem/Service/Checklistitem.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+      }
+    },
+    {
+      "method": "task.checklistitem.getlist",
+      "path": "checklist-item/task-checklist-item-get-list.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/checklist-item/task-checklist-item-get-list.md",
+      "kind": "candidate",
+      "command": "tasks:checklist:list",
+      "syntax": "ID [--params @file.json]",
+      "priority": "P0",
+      "effect": "read",
+      "note": "Пункты с иерархией; не терять parent ID.",
+      "group": "Чек-листы",
+      "sdk": {
+        "status": "wrapper",
+        "function": "getList",
+        "path": "Services/Task/Checklistitem/Service/Checklistitem.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+      }
+    },
+    {
+      "method": "task.checklistitem.moveafteritem",
+      "path": "checklist-item/task-checklist-item-move-after-item.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/checklist-item/task-checklist-item-move-after-item.md",
+      "kind": "candidate",
+      "command": "tasks:checklist:move",
+      "syntax": "ID ITEM_ID AFTER_ITEM_ID",
+      "priority": "P1",
+      "effect": "write",
+      "note": "Изменение порядка.",
+      "group": "Чек-листы",
+      "sdk": {
+        "status": "wrapper",
+        "function": "moveAfterItem",
+        "path": "Services/Task/Checklistitem/Service/Checklistitem.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+      }
+    },
+    {
+      "method": "task.checklistitem.complete",
+      "path": "checklist-item/task-checklist-item-complete.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/checklist-item/task-checklist-item-complete.md",
+      "kind": "candidate",
+      "command": "tasks:checklist:complete",
+      "syntax": "ID ITEM_ID",
+      "priority": "P0",
+      "effect": "write",
+      "note": "Отметить пункт выполненным.",
+      "group": "Чек-листы",
+      "sdk": {
+        "status": "wrapper",
+        "function": "complete",
+        "path": "Services/Task/Checklistitem/Service/Checklistitem.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+      }
+    },
+    {
+      "method": "task.checklistitem.renew",
+      "path": "checklist-item/task-checklist-item-renew.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/checklist-item/task-checklist-item-renew.md",
+      "kind": "candidate",
+      "command": "tasks:checklist:renew",
+      "syntax": "ID ITEM_ID",
+      "priority": "P1",
+      "effect": "write",
+      "note": "Снять выполнение пункта.",
+      "group": "Чек-листы",
+      "sdk": {
+        "status": "wrapper",
+        "function": "renew",
+        "path": "Services/Task/Checklistitem/Service/Checklistitem.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+      }
+    },
+    {
+      "method": "task.checklistitem.delete",
+      "path": "checklist-item/task-checklist-item-delete.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/checklist-item/task-checklist-item-delete.md",
+      "kind": "candidate",
+      "command": "tasks:checklist:delete",
+      "syntax": "ID ITEM_ID --yes",
+      "priority": "P1",
+      "effect": "delete",
+      "note": "Удаление заголовка может удалить дерево; предусмотреть preview.",
+      "group": "Чек-листы",
+      "sdk": {
+        "status": "wrapper",
+        "function": "delete",
+        "path": "Services/Task/Checklistitem/Service/Checklistitem.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+      }
+    },
+    {
+      "method": "task.checklistitem.isactionallowed",
+      "path": "checklist-item/task-checklist-item-is-action-allowed.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/checklist-item/task-checklist-item-is-action-allowed.md",
+      "kind": "candidate",
+      "command": "tasks:checklist:access",
+      "syntax": "ID ITEM_ID --action ACTION",
+      "priority": "P2",
+      "effect": "read",
+      "note": "Права конкретного действия.",
+      "group": "Чек-листы",
+      "sdk": {
+        "status": "wrapper",
+        "function": "isActionAllowed",
+        "path": "Services/Task/Checklistitem/Service/Checklistitem.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+      }
+    },
+    {
+      "method": "task.checklistitem.getmanifest",
+      "path": "checklist-item/task-checklist-item-get-manifest.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/checklist-item/task-checklist-item-get-manifest.md",
+      "kind": "candidate",
+      "command": "tasks:checklist:manifest",
+      "syntax": null,
+      "priority": "P2",
+      "effect": "read",
+      "note": "Диагностика схемы методов.",
+      "group": "Чек-листы",
+      "sdk": {
+        "status": "wrapper",
+        "function": "getManifest",
+        "path": "Services/Task/Checklistitem/Service/Checklistitem.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Checklistitem/Service/Checklistitem.php"
+      }
+    },
+    {
+      "method": "task.commentitem.add",
+      "path": "comment-item/task-comment-item-add.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/comment-item/task-comment-item-add.md",
+      "kind": "candidate",
+      "command": "tasks:legacy-comment:add",
+      "syntax": "ID --text TEXT",
+      "priority": "P2",
+      "effect": "write",
+      "note": "Старая модель; миграционная таблица допускает add в новой, но новый CLI использует chat.",
+      "group": "Legacy-комментарии",
+      "sdk": {
+        "status": "wrapper",
+        "function": "add",
+        "path": "Services/Task/Commentitem/Service/Commentitem.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Commentitem/Service/Commentitem.php"
+      }
+    },
+    {
+      "method": "task.commentitem.update",
+      "path": "comment-item/task-comment-item-update.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/comment-item/task-comment-item-update.md",
+      "kind": "candidate",
+      "command": "tasks:legacy-comment:update",
+      "syntax": "ID COMMENT_ID --fields @file.json",
+      "priority": "P2",
+      "effect": "write",
+      "note": "Только старая карточка; не работает в новой.",
+      "group": "Legacy-комментарии",
+      "sdk": {
+        "status": "wrapper",
+        "function": "update",
+        "path": "Services/Task/Commentitem/Service/Commentitem.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Commentitem/Service/Commentitem.php"
+      }
+    },
+    {
+      "method": "task.commentitem.get",
+      "path": "comment-item/task-comment-item-get.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/comment-item/task-comment-item-get.md",
+      "kind": "candidate",
+      "command": "tasks:legacy-comment:get",
+      "syntax": "ID COMMENT_ID",
+      "priority": "P2",
+      "effect": "read",
+      "note": "Не обещать поддержку новой карточки.",
+      "group": "Legacy-комментарии",
+      "sdk": {
+        "status": "wrapper",
+        "function": "get",
+        "path": "Services/Task/Commentitem/Service/Commentitem.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Commentitem/Service/Commentitem.php"
+      }
+    },
+    {
+      "method": "task.commentitem.getlist",
+      "path": "comment-item/task-comment-item-get-list.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/comment-item/task-comment-item-get-list.md",
+      "kind": "candidate",
+      "command": "tasks:legacy-comment:list",
+      "syntax": "ID [--params @file.json]",
+      "priority": "P2",
+      "effect": "read",
+      "note": "В новой использовать chat:list.",
+      "group": "Legacy-комментарии",
+      "sdk": {
+        "status": "wrapper",
+        "function": "getList",
+        "path": "Services/Task/Commentitem/Service/Commentitem.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Commentitem/Service/Commentitem.php"
+      }
+    },
+    {
+      "method": "task.commentitem.delete",
+      "path": "comment-item/task-comment-item-delete.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/comment-item/task-comment-item-delete.md",
+      "kind": "candidate",
+      "command": "tasks:legacy-comment:delete",
+      "syntax": "ID COMMENT_ID --yes",
+      "priority": "P2",
+      "effect": "delete",
+      "note": "Только старая карточка.",
+      "group": "Legacy-комментарии",
+      "sdk": {
+        "status": "wrapper",
+        "function": "delete",
+        "path": "Services/Task/Commentitem/Service/Commentitem.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Commentitem/Service/Commentitem.php"
+      }
+    },
+    {
+      "method": "task.elapseditem.add",
+      "path": "elapsed-item/task-elapsed-item-add.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/elapsed-item/task-elapsed-item-add.md",
+      "kind": "candidate",
+      "command": "tasks:time:add",
+      "syntax": "ID --seconds N [--text TEXT]",
+      "priority": "P0",
+      "effect": "write",
+      "note": "TASKID,ARFIELDS.SECONDS; ручной учёт, не таймер; USER_ID другого пользователя не разрешён.",
+      "group": "Затраченное время",
+      "sdk": {
+        "status": "wrapper",
+        "function": "add",
+        "path": "Services/Task/Elapseditem/Service/Elapseditem.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Elapseditem/Service/Elapseditem.php"
+      }
+    },
+    {
+      "method": "task.elapseditem.update",
+      "path": "elapsed-item/task-elapsed-item-update.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/elapsed-item/task-elapsed-item-update.md",
+      "kind": "candidate",
+      "command": "tasks:time:update",
+      "syntax": "ID ENTRY_ID --fields @file.json",
+      "priority": "P1",
+      "effect": "write",
+      "note": "Исправление существующей записи.",
+      "group": "Затраченное время",
+      "sdk": {
+        "status": "wrapper",
+        "function": "update",
+        "path": "Services/Task/Elapseditem/Service/Elapseditem.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Elapseditem/Service/Elapseditem.php"
+      }
+    },
+    {
+      "method": "task.elapseditem.get",
+      "path": "elapsed-item/task-elapsed-item-get.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/elapsed-item/task-elapsed-item-get.md",
+      "kind": "candidate",
+      "command": "tasks:time:get",
+      "syntax": "ID ENTRY_ID",
+      "priority": "P1",
+      "effect": "read",
+      "note": "Одна запись.",
+      "group": "Затраченное время",
+      "sdk": {
+        "status": "wrapper",
+        "function": "get",
+        "path": "Services/Task/Elapseditem/Service/Elapseditem.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Elapseditem/Service/Elapseditem.php"
+      }
+    },
+    {
+      "method": "task.elapseditem.getlist",
+      "path": "elapsed-item/task-elapsed-item-get-list.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/elapsed-item/task-elapsed-item-get-list.md",
+      "kind": "candidate",
+      "command": "tasks:time:list",
+      "syntax": "ID [--params @file.json]",
+      "priority": "P0",
+      "effect": "read",
+      "note": "Не путать со сводным elapsedTime карточки.",
+      "group": "Затраченное время",
+      "sdk": {
+        "status": "wrapper",
+        "function": "getList",
+        "path": "Services/Task/Elapseditem/Service/Elapseditem.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Elapseditem/Service/Elapseditem.php"
+      }
+    },
+    {
+      "method": "task.elapseditem.delete",
+      "path": "elapsed-item/task-elapsed-item-delete.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/elapsed-item/task-elapsed-item-delete.md",
+      "kind": "candidate",
+      "command": "tasks:time:delete",
+      "syntax": "ID ENTRY_ID --yes",
+      "priority": "P1",
+      "effect": "delete",
+      "note": "Удалить запись времени.",
+      "group": "Затраченное время",
+      "sdk": {
+        "status": "wrapper",
+        "function": "delete",
+        "path": "Services/Task/Elapseditem/Service/Elapseditem.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Elapseditem/Service/Elapseditem.php"
+      }
+    },
+    {
+      "method": "task.elapseditem.isactionallowed",
+      "path": "elapsed-item/task-elapsed-item-is-action-allowed.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/elapsed-item/task-elapsed-item-is-action-allowed.md",
+      "kind": "candidate",
+      "command": "tasks:time:access",
+      "syntax": "ID ENTRY_ID --action ACTION",
+      "priority": "P2",
+      "effect": "read",
+      "note": "Права конкретного действия.",
+      "group": "Затраченное время",
+      "sdk": {
+        "status": "wrapper",
+        "function": "isActionAllowed",
+        "path": "Services/Task/Elapseditem/Service/Elapseditem.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Elapseditem/Service/Elapseditem.php"
+      }
+    },
+    {
+      "method": "task.elapseditem.getmanifest",
+      "path": "elapsed-item/task-elapsed-item-get-manifest.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/elapsed-item/task-elapsed-item-get-manifest.md",
+      "kind": "candidate",
+      "command": "tasks:time:manifest",
+      "syntax": null,
+      "priority": "P2",
+      "effect": "read",
+      "note": "Диагностика схемы методов.",
+      "group": "Затраченное время",
+      "sdk": {
+        "status": "wrapper",
+        "function": "getManifest",
+        "path": "Services/Task/Elapseditem/Service/Elapseditem.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Elapseditem/Service/Elapseditem.php"
+      }
+    },
+    {
+      "method": "task.item.userfield.add",
+      "path": "user-field/task-item-user-field-add.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/user-field/task-item-user-field-add.md",
+      "kind": "deferred",
+      "command": null,
+      "syntax": null,
+      "priority": "deferred",
+      "effect": "mixed",
+      "note": "Пользовательские поля: управление схемой, отдельный будущий change",
+      "group": "Смежные области",
+      "sdk": {
+        "status": "wrapper",
+        "function": "add",
+        "path": "Services/Task/Userfield/Service/Userfield.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Userfield/Service/Userfield.php"
+      }
+    },
+    {
+      "method": "task.item.userfield.update",
+      "path": "user-field/task-item-user-field-update.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/user-field/task-item-user-field-update.md",
+      "kind": "deferred",
+      "command": null,
+      "syntax": null,
+      "priority": "deferred",
+      "effect": "mixed",
+      "note": "Пользовательские поля: управление схемой, отдельный будущий change",
+      "group": "Смежные области",
+      "sdk": {
+        "status": "wrapper",
+        "function": "update",
+        "path": "Services/Task/Userfield/Service/Userfield.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Userfield/Service/Userfield.php"
+      }
+    },
+    {
+      "method": "task.item.userfield.get",
+      "path": "user-field/task-item-user-field-get.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/user-field/task-item-user-field-get.md",
+      "kind": "deferred",
+      "command": null,
+      "syntax": null,
+      "priority": "deferred",
+      "effect": "mixed",
+      "note": "Пользовательские поля: управление схемой, отдельный будущий change",
+      "group": "Смежные области",
+      "sdk": {
+        "status": "wrapper",
+        "function": "get",
+        "path": "Services/Task/Userfield/Service/Userfield.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Userfield/Service/Userfield.php"
+      }
+    },
+    {
+      "method": "task.item.userfield.getlist",
+      "path": "user-field/task-item-user-field-get-list.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/user-field/task-item-user-field-get-list.md",
+      "kind": "deferred",
+      "command": null,
+      "syntax": null,
+      "priority": "deferred",
+      "effect": "mixed",
+      "note": "Пользовательские поля: управление схемой, отдельный будущий change",
+      "group": "Смежные области",
+      "sdk": {
+        "status": "wrapper",
+        "function": "getList",
+        "path": "Services/Task/Userfield/Service/Userfield.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Userfield/Service/Userfield.php"
+      }
+    },
+    {
+      "method": "task.item.userfield.delete",
+      "path": "user-field/task-item-user-field-delete.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/user-field/task-item-user-field-delete.md",
+      "kind": "deferred",
+      "command": null,
+      "syntax": null,
+      "priority": "deferred",
+      "effect": "mixed",
+      "note": "Пользовательские поля: управление схемой, отдельный будущий change",
+      "group": "Смежные области",
+      "sdk": {
+        "status": "wrapper",
+        "function": "delete",
+        "path": "Services/Task/Userfield/Service/Userfield.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Userfield/Service/Userfield.php"
+      }
+    },
+    {
+      "method": "task.item.userfield.gettypes",
+      "path": "user-field/task-item-user-field-get-types.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/user-field/task-item-user-field-get-types.md",
+      "kind": "deferred",
+      "command": null,
+      "syntax": null,
+      "priority": "deferred",
+      "effect": "mixed",
+      "note": "Пользовательские поля: управление схемой, отдельный будущий change",
+      "group": "Смежные области",
+      "sdk": {
+        "status": "wrapper",
+        "function": "getTypes",
+        "path": "Services/Task/Userfield/Service/Userfield.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Userfield/Service/Userfield.php"
+      }
+    },
+    {
+      "method": "task.item.userfield.getfields",
+      "path": "user-field/task-item-user-field-get-fields.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/user-field/task-item-user-field-get-fields.md",
+      "kind": "deferred",
+      "command": null,
+      "syntax": null,
+      "priority": "deferred",
+      "effect": "mixed",
+      "note": "Пользовательские поля: управление схемой, отдельный будущий change",
+      "group": "Смежные области",
+      "sdk": {
+        "status": "wrapper",
+        "function": "getFields",
+        "path": "Services/Task/Userfield/Service/Userfield.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Userfield/Service/Userfield.php"
+      }
+    },
+    {
+      "method": "task.stages.add",
+      "path": "stages/task-stages-add.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/stages/task-stages-add.md",
+      "kind": "candidate",
+      "command": "tasks:stage:add",
+      "syntax": "--fields @file.json",
+      "priority": "P2",
+      "effect": "write",
+      "note": "Создание стадии канбана/Моего плана.",
+      "group": "Канбан",
+      "sdk": {
+        "status": "wrapper",
+        "function": "add",
+        "path": "Services/Task/Stage/Service/Stage.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Stage/Service/Stage.php"
+      }
+    },
+    {
+      "method": "task.stages.update",
+      "path": "stages/task-stages-update.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/stages/task-stages-update.md",
+      "kind": "candidate",
+      "command": "tasks:stage:update",
+      "syntax": "STAGE_ID --fields @file.json",
+      "priority": "P2",
+      "effect": "write",
+      "note": "Изменение стадии.",
+      "group": "Канбан",
+      "sdk": {
+        "status": "wrapper",
+        "function": "update",
+        "path": "Services/Task/Stage/Service/Stage.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Stage/Service/Stage.php"
+      }
+    },
+    {
+      "method": "task.stages.get",
+      "path": "stages/task-stages-get.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/stages/task-stages-get.md",
+      "kind": "candidate",
+      "command": "tasks:stage:list",
+      "syntax": "--params @file.json",
+      "priority": "P1",
+      "effect": "read",
+      "note": "Указать объект: проект или Мой план; не угадывать контекст.",
+      "group": "Канбан",
+      "sdk": {
+        "status": "wrapper",
+        "function": "get",
+        "path": "Services/Task/Stage/Service/Stage.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Stage/Service/Stage.php"
+      }
+    },
+    {
+      "method": "task.stages.canmovetask",
+      "path": "stages/task-stages-can-move-task.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/stages/task-stages-can-move-task.md",
+      "kind": "candidate",
+      "command": "tasks:stage:access",
+      "syntax": "--params @file.json",
+      "priority": "P1",
+      "effect": "read",
+      "note": "Проверка прав перемещения в объекте.",
+      "group": "Канбан",
+      "sdk": {
+        "status": "wrapper",
+        "function": "canMoveTask",
+        "path": "Services/Task/Stage/Service/Stage.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Stage/Service/Stage.php"
+      }
+    },
+    {
+      "method": "task.stages.movetask",
+      "path": "stages/task-stages-move-task.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/stages/task-stages-move-task.md",
+      "kind": "candidate",
+      "command": "tasks:stage:move",
+      "syntax": "ID STAGE_ID [--before ID или --after ID]",
+      "priority": "P1",
+      "effect": "write",
+      "note": "before/after взаимоисключающие; stage ≠ status; Scrum — отдельный API.",
+      "group": "Канбан",
+      "sdk": {
+        "status": "wrapper",
+        "function": "moveTask",
+        "path": "Services/Task/Stage/Service/Stage.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Stage/Service/Stage.php"
+      }
+    },
+    {
+      "method": "task.stages.delete",
+      "path": "stages/task-stages-delete.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/stages/task-stages-delete.md",
+      "kind": "candidate",
+      "command": "tasks:stage:delete",
+      "syntax": "STAGE_ID --yes",
+      "priority": "P2",
+      "effect": "delete",
+      "note": "Удаление стадии.",
+      "group": "Канбан",
+      "sdk": {
+        "status": "wrapper",
+        "function": "delete",
+        "path": "Services/Task/Stage/Service/Stage.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Stage/Service/Stage.php"
+      }
+    },
+    {
+      "method": "task.planner.getList",
+      "path": "planner/task-planner-get-list.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/planner/task-planner-get-list.md",
+      "kind": "candidate",
+      "command": "tasks:planner:list",
+      "syntax": "[--params @file.json]",
+      "priority": "P2",
+      "effect": "read",
+      "note": "Смежная область: План на день. Индекс пишет getList, actual SDK call — getlist.",
+      "group": "Карточка и диагностика",
+      "sdk": {
+        "status": "wrapper",
+        "function": "getList",
+        "path": "Services/Task/Planner/Service/Planner.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Planner/Service/Planner.php",
+        "core_method": "task.planner.getlist"
+      }
+    },
+    {
+      "method": "tasks.flow.Flow.create",
+      "path": "flow/tasks-flow-flow-create.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/flow/tasks-flow-flow-create.md",
+      "kind": "deferred",
+      "command": null,
+      "syntax": null,
+      "priority": "deferred",
+      "effect": "mixed",
+      "note": "Потоки: распределение задач, отдельный будущий change",
+      "group": "Смежные области",
+      "sdk": {
+        "status": "wrapper",
+        "function": "create",
+        "path": "Services/Task/Flow/Service/Flow.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Flow/Service/Flow.php"
+      }
+    },
+    {
+      "method": "tasks.flow.Flow.get",
+      "path": "flow/tasks-flow-flow-get.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/flow/tasks-flow-flow-get.md",
+      "kind": "deferred",
+      "command": null,
+      "syntax": null,
+      "priority": "deferred",
+      "effect": "mixed",
+      "note": "Потоки: распределение задач, отдельный будущий change",
+      "group": "Смежные области",
+      "sdk": {
+        "status": "wrapper",
+        "function": "get",
+        "path": "Services/Task/Flow/Service/Flow.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Flow/Service/Flow.php"
+      }
+    },
+    {
+      "method": "tasks.flow.Flow.update",
+      "path": "flow/tasks-flow-flow-update.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/flow/tasks-flow-flow-update.md",
+      "kind": "deferred",
+      "command": null,
+      "syntax": null,
+      "priority": "deferred",
+      "effect": "mixed",
+      "note": "Потоки: распределение задач, отдельный будущий change",
+      "group": "Смежные области",
+      "sdk": {
+        "status": "wrapper",
+        "function": "update",
+        "path": "Services/Task/Flow/Service/Flow.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Flow/Service/Flow.php"
+      }
+    },
+    {
+      "method": "tasks.flow.Flow.delete",
+      "path": "flow/tasks-flow-flow-delete.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/flow/tasks-flow-flow-delete.md",
+      "kind": "deferred",
+      "command": null,
+      "syntax": null,
+      "priority": "deferred",
+      "effect": "mixed",
+      "note": "Потоки: распределение задач, отдельный будущий change",
+      "group": "Смежные области",
+      "sdk": {
+        "status": "wrapper",
+        "function": "delete",
+        "path": "Services/Task/Flow/Service/Flow.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Flow/Service/Flow.php"
+      }
+    },
+    {
+      "method": "tasks.flow.Flow.isExists",
+      "path": "flow/tasks-flow-flow-is-exists.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/flow/tasks-flow-flow-is-exists.md",
+      "kind": "deferred",
+      "command": null,
+      "syntax": null,
+      "priority": "deferred",
+      "effect": "mixed",
+      "note": "Потоки: распределение задач, отдельный будущий change",
+      "group": "Смежные области",
+      "sdk": {
+        "status": "wrapper",
+        "function": "isExists",
+        "path": "Services/Task/Flow/Service/Flow.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Flow/Service/Flow.php"
+      }
+    },
+    {
+      "method": "tasks.flow.Flow.activate",
+      "path": "flow/tasks-flow-flow-activate.md",
+      "api_version": "1.0",
+      "scope": "task",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/flow/tasks-flow-flow-activate.md",
+      "kind": "deferred",
+      "command": null,
+      "syntax": null,
+      "priority": "deferred",
+      "effect": "mixed",
+      "note": "Потоки: распределение задач, отдельный будущий change",
+      "group": "Смежные области",
+      "sdk": {
+        "status": "wrapper",
+        "function": "activate",
+        "path": "Services/Task/Flow/Service/Flow.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Flow/Service/Flow.php"
+      }
+    }
+  ],
+  "supplemental": [
+    {
+      "command": "tasks:participants:set",
+      "syntax": "ID [--accomplices JSON] [--auditors JSON]",
+      "method": "tasks.task.update",
+      "api_version": "1.0",
+      "scope": "task",
+      "priority": "P1",
+      "effect": "write",
+      "note": "V3 не принимает accomplices/auditors при add/update; legacy ACCOMPLICES/AUDITORS. Отдельная операция может частично завершиться после create.",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/fields-rest-v3.md",
+      "sdk": {
+        "status": "core-gap",
+        "api_version": "1.0"
+      },
+      "group": "Участники"
+    },
+    {
+      "command": "tasks:parent:set",
+      "syntax": "ID --parent ID",
+      "method": "tasks.task.update",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "priority": "P1",
+      "effect": "write",
+      "note": "fields.parentId; иерархия подзадач отдельно от связей Ганта.",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/fields-rest-v3.md",
+      "sdk": {
+        "status": "wrapper",
+        "function": "update",
+        "path": "Services/Task/Service/Task.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+      },
+      "group": "Участники"
+    },
+    {
+      "command": "tasks:rate",
+      "syntax": "ID --mark positive|negative|none",
+      "method": "tasks.task.update",
+      "api_version": "3.0",
+      "scope": "tasks",
+      "priority": "P2",
+      "effect": "write",
+      "note": "fields.mark; не lifecycle/status.",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/fields-rest-v3.md",
+      "sdk": {
+        "status": "wrapper",
+        "function": "update",
+        "path": "Services/Task/Service/Task.php",
+        "url": "https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/src/Services/Task/Service/Task.php"
+      },
+      "group": "Личные действия"
+    },
+    {
+      "command": "tasks:chat:list",
+      "syntax": "ID [--params @file.json]",
+      "method": "tasks.task.get + im.dialog.messages.get",
+      "api_version": "mixed",
+      "scope": "tasks + im",
+      "priority": "P0",
+      "effect": "read",
+      "note": "Получить chat.id; DIALOG_ID=chat{chat.id}. Пагинация messenger, не tasks.list.",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/tasks/tasks-new.md",
+      "sdk": {
+        "status": "composite",
+        "remark": "Task::get() плюс IM-метод; единой task-wrapper нет, проверить конкретный IM service при реализации."
+      },
+      "group": "Чат задачи"
+    },
+    {
+      "command": "tasks:chat:update",
+      "syntax": "ID MESSAGE_ID --text TEXT",
+      "method": "im.message.update",
+      "api_version": "1.0",
+      "scope": "im",
+      "priority": "P1",
+      "effect": "write",
+      "note": "Проверить принадлежность сообщения чату задачи; MESSAGE_ID ≠ COMMENT_ID.",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/chats/messages/im-message-update.md",
+      "sdk": {
+        "status": "outside-task",
+        "remark": "IM service вне inventory Task; отдельно проверить сигнатуру SDK."
+      },
+      "group": "Чат задачи"
+    },
+    {
+      "command": "tasks:chat:delete",
+      "syntax": "ID MESSAGE_ID --yes",
+      "method": "im.message.delete",
+      "api_version": "1.0",
+      "scope": "im",
+      "priority": "P1",
+      "effect": "delete",
+      "note": "Проверить принадлежность сообщения task chat и права автора.",
+      "source": "https://github.com/bitrix24/b24restdocs/blob/2b00d6bd3a845f4169ccb1ff6f0755f156903f4b/api-reference/chats/messages/im-message-delete.md",
+      "sdk": {
+        "status": "outside-task",
+        "remark": "IM service вне inventory Task; отдельно проверить сигнатуру SDK."
+      },
+      "group": "Чат задачи"
+    }
+  ],
+  "adjacent": [
+    "Scrum и спринты",
+    "Шаблоны и повторяющиеся задачи",
+    "Потоки",
+    "Управление пользовательскими полями",
+    "События и webhooks",
+    "Загрузка локальных файлов через Disk",
+    "Массовые операции и таймеры",
+    "Собственный MCP server"
+  ]
+}

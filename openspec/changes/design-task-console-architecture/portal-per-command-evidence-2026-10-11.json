@@ -1,0 +1,2064 @@
+{
+  "date": "2026-10-11",
+  "scope": "per-command integration classes with independent SDK fixtures and own happy-path methods",
+  "baseCommit": "d60a81baa796ee877e9fa23f88719d93717a77be",
+  "unit": {
+    "suite": "unit-tests",
+    "tests": 193,
+    "assertions": 1157,
+    "status": "passed"
+  },
+  "integration": {
+    "suite": "integration-tests",
+    "classes": 30,
+    "tests": 42,
+    "happyPathMethods": 30,
+    "additionalMethods": 12,
+    "assertions": 395,
+    "passed": 41,
+    "skipped": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipReason": "Restricted-role webhook not provided"
+  },
+  "selectiveRun": {
+    "filter": "--group command:task:update",
+    "classes": 1,
+    "tests": 3,
+    "passed": 2,
+    "skipped": 1,
+    "assertions": 18
+  },
+  "guardProbe": {
+    "missingHappyPath": "task:find",
+    "expectedFailureObserved": true,
+    "sourceBytesRestored": true,
+    "crossCommandInvocationRejectedBeforeConsole": true
+  },
+  "coverage": [
+    {
+      "command": "task:access:show",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ShowTaskAccessCommandTest",
+      "test": "testHappyPathReturnsCurrentConnectionPermissions",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:add",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AddTaskCommandTest",
+      "test": "testHappyPathCreatesTaskWithRequestedFields",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:assign",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AssignTaskCommandTest",
+      "test": "testHappyPathSetsResponsibleUser",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:chat:delete",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\DeleteTaskChatMessageCommandTest",
+      "test": "testHappyPathDeletesOwnTaskMessage",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:chat:list",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskChatCommandTest",
+      "test": "testHappyPathListsMessagesOfSelectedTask",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:chat:send",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\SendTaskChatMessageCommandTest",
+      "test": "testHappyPathSendsMessageToTaskChat",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:chat:update",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\UpdateTaskChatMessageCommandTest",
+      "test": "testHappyPathUpdatesOwnTaskMessage",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:checklist:add",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AddTaskChecklistCommandTest",
+      "test": "testHappyPathCreatesChecklistRoot",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:checklist:item:add",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AddTaskChecklistItemCommandTest",
+      "test": "testHappyPathAddsItemToSelectedChecklist",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:checklist:item:complete",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\CompleteTaskChecklistItemCommandTest",
+      "test": "testHappyPathCompletesItemWithoutChangingTaskStatus",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:checklist:item:delete",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\DeleteTaskChecklistItemCommandTest",
+      "test": "testHappyPathDeletesItemAndItsSubtree",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:checklist:item:list",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskChecklistItemsCommandTest",
+      "test": "testHappyPathListsItemsInsideSelectedChecklist",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:checklist:item:renew",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\RenewTaskChecklistItemCommandTest",
+      "test": "testHappyPathRenewsItemWithoutChangingTaskStatus",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:checklist:item:update",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\UpdateTaskChecklistItemCommandTest",
+      "test": "testHappyPathChangesItemTitle",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:checklist:list",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskChecklistsCommandTest",
+      "test": "testHappyPathListsOnlyChecklistRoots",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:deadline:set",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\SetTaskDeadlineCommandTest",
+      "test": "testHappyPathSetsDeadlineWithOffset",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:delete",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\DeleteTaskCommandTest",
+      "test": "testHappyPathDeletesTask",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:fields:list",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskFieldsCommandTest",
+      "test": "testHappyPathListsFieldMetadata",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:file:attach",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AttachTaskFilesCommandTest",
+      "test": "testHappyPathConfirmsDiskFileAttachment",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:find",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\FindTaskCommandTest",
+      "test": "testHappyPathReturnsTwoUnicodeTitleMatches",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:history:list",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskHistoryCommandTest",
+      "test": "testHappyPathReturnsTitleChangeWithItsCompletenessBoundary",
+      "observedExitCodes": [
+        3
+      ],
+      "verification": "passed-with-precisely-asserted-partial-boundary"
+    },
+    {
+      "command": "task:list",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskCommandTest",
+      "test": "testHappyPathListsSelectedTask",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:participants:set",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\SetTaskParticipantsCommandTest",
+      "test": "testHappyPathSetsSelectedParticipantRoles",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:show",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ShowTaskCommandTest",
+      "test": "testHappyPathReturnsTaskCard",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:time:add",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AddTaskTimeEntryCommandTest",
+      "test": "testHappyPathCreatesOwnTimeEntry",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:time:delete",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\DeleteTaskTimeEntryCommandTest",
+      "test": "testHappyPathDeletesOwnTimeEntry",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:time:list",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskTimeEntriesCommandTest",
+      "test": "testHappyPathListsOwnTimeEntry",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:time:show",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ShowTaskTimeCommandTest",
+      "test": "testHappyPathReturnsTimeContextWithItsCompletenessBoundary",
+      "observedExitCodes": [
+        3
+      ],
+      "verification": "passed-with-precisely-asserted-partial-boundary"
+    },
+    {
+      "command": "task:time:update",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\UpdateTaskTimeEntryCommandTest",
+      "test": "testHappyPathUpdatesSecondsAndKeepsOmittedText",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    },
+    {
+      "command": "task:update",
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\UpdateTaskCommandTest",
+      "test": "testHappyPathChangesTitleAndKeepsOmittedDescription",
+      "observedExitCodes": [
+        0
+      ],
+      "verification": "passed"
+    }
+  ],
+  "fixtures": {
+    "actingUserId": 1,
+    "currentTaskIds": [
+      5558,
+      5560,
+      5562,
+      5564,
+      5566,
+      5568,
+      5570,
+      5572,
+      5574,
+      5576,
+      5578,
+      5580,
+      5582,
+      5584,
+      5586,
+      5588,
+      5590,
+      5592,
+      5594,
+      5596,
+      5598,
+      5600,
+      5602,
+      5604,
+      5606,
+      5608,
+      5610,
+      5612,
+      5614,
+      5616,
+      5618,
+      5620,
+      5622,
+      5624,
+      5626,
+      5628,
+      5630,
+      5632,
+      5634,
+      5636,
+      5638,
+      5640
+    ],
+    "currentDiskFileIds": [
+      1406
+    ],
+    "allPerCommandRunTaskIds": [
+      5464,
+      5466,
+      5468,
+      5470,
+      5472,
+      5474,
+      5476,
+      5478,
+      5480,
+      5482,
+      5484,
+      5486,
+      5488,
+      5490,
+      5492,
+      5494,
+      5496,
+      5498,
+      5500,
+      5502,
+      5504,
+      5506,
+      5508,
+      5510,
+      5512,
+      5514,
+      5516,
+      5518,
+      5520,
+      5522,
+      5524,
+      5526,
+      5528,
+      5530,
+      5532,
+      5534,
+      5536,
+      5538,
+      5540,
+      5542,
+      5544,
+      5546,
+      5548,
+      5550,
+      5552,
+      5554,
+      5556,
+      5558,
+      5560,
+      5562,
+      5564,
+      5566,
+      5568,
+      5570,
+      5572,
+      5574,
+      5576,
+      5578,
+      5580,
+      5582,
+      5584,
+      5586,
+      5588,
+      5590,
+      5592,
+      5594,
+      5596,
+      5598,
+      5600,
+      5602,
+      5604,
+      5606,
+      5608,
+      5610,
+      5612,
+      5614,
+      5616,
+      5618,
+      5620,
+      5622,
+      5624,
+      5626,
+      5628,
+      5630,
+      5632,
+      5634,
+      5636,
+      5638,
+      5640
+    ],
+    "allPerCommandRunDiskFileIds": [
+      1400,
+      1406
+    ],
+    "cleanupFailures": {
+      "taskIds": [],
+      "diskFileIds": []
+    },
+    "independentTaskAbsenceReadback": {
+      "command": "task:list",
+      "apiVersion": "3.0",
+      "checkedIds": [
+        5464,
+        5466,
+        5468,
+        5470,
+        5472,
+        5474,
+        5476,
+        5478,
+        5480,
+        5482,
+        5484,
+        5486,
+        5488,
+        5490,
+        5492,
+        5494,
+        5496,
+        5498,
+        5500,
+        5502,
+        5504,
+        5506,
+        5508,
+        5510,
+        5512,
+        5514,
+        5516,
+        5518,
+        5520,
+        5522,
+        5524,
+        5526,
+        5528,
+        5530,
+        5532,
+        5534,
+        5536,
+        5538,
+        5540,
+        5542,
+        5544,
+        5546,
+        5548,
+        5550,
+        5552,
+        5554,
+        5556,
+        5558,
+        5560,
+        5562,
+        5564,
+        5566,
+        5568,
+        5570,
+        5572,
+        5574,
+        5576,
+        5578,
+        5580,
+        5582,
+        5584,
+        5586,
+        5588,
+        5590,
+        5592,
+        5594,
+        5596,
+        5598,
+        5600,
+        5602,
+        5604,
+        5606,
+        5608,
+        5610,
+        5612,
+        5614,
+        5616,
+        5618,
+        5620,
+        5622,
+        5624,
+        5626,
+        5628,
+        5630,
+        5632,
+        5634,
+        5636,
+        5638,
+        5640
+      ],
+      "returned": 0,
+      "complete": true,
+      "exitCode": 0
+    }
+  },
+  "initialRun": {
+    "tests": 42,
+    "passed": 40,
+    "skipped": 1,
+    "failures": 1,
+    "reason": "Deletion assertion incorrectly required message ID absence; provider retains localized tombstone. Original-text absence and confirmed ACK are now asserted.",
+    "cleanupFailures": 0
+  },
+  "boundaries": [
+    "Restricted-role webhook missing; skip does not count as happy-path success.",
+    "Time/history retain precise completeness limits and partial exit3.",
+    "Attachment confirms ACK; independent file membership remains unverified.",
+    "Assignment uses the current webhook user.",
+    "SDK fixture/readback routes do not count as CLI coverage.",
+    "No credentials, request parameters, names, emails or chat text are included."
+  ],
+  "records": [
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AddTaskChecklistCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5558
+      ],
+      "commands": [
+        {
+          "command": "task:checklist:add",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.add",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:checklist:add",
+      "test": "testHappyPathCreatesChecklistRoot",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AddTaskChecklistItemCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5560
+      ],
+      "commands": [
+        {
+          "command": "task:checklist:item:add",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "task.checklistitem.add",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:checklist:item:add",
+      "test": "testHappyPathAddsItemToSelectedChecklist",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AddTaskChecklistItemCommandTest",
+      "happyPath": false,
+      "ownedTaskIds": [
+        5562
+      ],
+      "commands": [
+        {
+          "command": "task:checklist:item:add",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "task.checklistitem.add",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:checklist:item:add",
+      "test": "testNestedItemBelongsToChosenParent",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AddTaskChecklistItemCommandTest",
+      "happyPath": false,
+      "ownedTaskIds": [
+        5564
+      ],
+      "commands": [
+        {
+          "command": "task:checklist:item:add",
+          "status": 4,
+          "complete": null,
+          "reason": null,
+          "errorCode": "resource-binding-unverified",
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:checklist:item:add",
+      "test": "testParentFromOtherChecklistIsRejected",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AddTaskCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5566
+      ],
+      "commands": [
+        {
+          "command": "task:add",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.add",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:add",
+      "test": "testHappyPathCreatesTaskWithRequestedFields",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AddTaskTimeEntryCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5568
+      ],
+      "commands": [
+        {
+          "command": "task:time:add",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "task.elapseditem.add",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:time:add",
+      "test": "testHappyPathCreatesOwnTimeEntry",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AssignTaskCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5570
+      ],
+      "commands": [
+        {
+          "command": "task:assign",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:assign",
+      "test": "testHappyPathSetsResponsibleUser",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AttachTaskFilesCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5572
+      ],
+      "commands": [
+        {
+          "command": "task:file:attach",
+          "status": 0,
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.file.attach",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:file:attach",
+      "test": "testHappyPathConfirmsDiskFileAttachment",
+      "ownedDiskFileIds": [
+        1406
+      ],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\CompleteTaskChecklistItemCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5574
+      ],
+      "commands": [
+        {
+          "command": "task:checklist:item:complete",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "task.checklistitem.complete",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:checklist:item:complete",
+      "test": "testHappyPathCompletesItemWithoutChangingTaskStatus",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\DeleteTaskChatMessageCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5576
+      ],
+      "commands": [
+        {
+          "command": "task:chat:delete",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "im.dialog.messages.get",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "im.message.delete",
+              "apiVersion": "1.0",
+              "effect": "delete"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:chat:delete",
+      "test": "testHappyPathDeletesOwnTaskMessage",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\DeleteTaskChecklistItemCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5578
+      ],
+      "commands": [
+        {
+          "command": "task:checklist:item:delete",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "task.checklistitem.delete",
+              "apiVersion": "1.0",
+              "effect": "delete"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:checklist:item:delete",
+      "test": "testHappyPathDeletesItemAndItsSubtree",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\DeleteTaskCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5580
+      ],
+      "commands": [
+        {
+          "command": "task:delete",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.delete",
+              "apiVersion": "3.0",
+              "effect": "delete"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:delete",
+      "test": "testHappyPathDeletesTask",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\DeleteTaskTimeEntryCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5582
+      ],
+      "commands": [
+        {
+          "command": "task:time:delete",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "task.elapseditem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "task.elapseditem.delete",
+              "apiVersion": "1.0",
+              "effect": "delete"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:time:delete",
+      "test": "testHappyPathDeletesOwnTimeEntry",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\FindTaskCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5584,
+        5586
+      ],
+      "commands": [
+        {
+          "command": "task:find",
+          "status": 0,
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:find",
+      "test": "testHappyPathReturnsTwoUnicodeTitleMatches",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskChatCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5588
+      ],
+      "commands": [
+        {
+          "command": "task:chat:list",
+          "status": 0,
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "im.dialog.messages.get",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:chat:list",
+      "test": "testHappyPathListsMessagesOfSelectedTask",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskChecklistItemsCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5590
+      ],
+      "commands": [
+        {
+          "command": "task:checklist:item:list",
+          "status": 0,
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:checklist:item:list",
+      "test": "testHappyPathListsItemsInsideSelectedChecklist",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskChecklistsCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5592
+      ],
+      "commands": [
+        {
+          "command": "task:checklist:list",
+          "status": 0,
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:checklist:list",
+      "test": "testHappyPathListsOnlyChecklistRoots",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5594
+      ],
+      "commands": [
+        {
+          "command": "task:list",
+          "status": 0,
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:list",
+      "test": "testHappyPathListsSelectedTask",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskFieldsCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [],
+      "commands": [
+        {
+          "command": "task:fields:list",
+          "status": 0,
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.field.list",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:fields:list",
+      "test": "testHappyPathListsFieldMetadata",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskFieldsCommandTest",
+      "happyPath": false,
+      "ownedTaskIds": [],
+      "commands": [
+        {
+          "command": "task:fields:list",
+          "status": 0,
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.field.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:fields:list",
+      "test": "testSingleFieldSelectionReturnsTitle",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskHistoryCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5596
+      ],
+      "commands": [
+        {
+          "command": "task:history:list",
+          "status": 3,
+          "complete": false,
+          "reason": "history-navigation-unverified",
+          "errorCode": "partial-result",
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.history.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:history:list",
+      "test": "testHappyPathReturnsTitleChangeWithItsCompletenessBoundary",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskTimeEntriesCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5598
+      ],
+      "commands": [
+        {
+          "command": "task:time:list",
+          "status": 0,
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "task.elapseditem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:time:list",
+      "test": "testHappyPathListsOwnTimeEntry",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\RenewTaskChecklistItemCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5600
+      ],
+      "commands": [
+        {
+          "command": "task:checklist:item:renew",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "task.checklistitem.renew",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:checklist:item:renew",
+      "test": "testHappyPathRenewsItemWithoutChangingTaskStatus",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\SendTaskChatMessageCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5602
+      ],
+      "commands": [
+        {
+          "command": "task:chat:send",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.chat.message.send",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:chat:send",
+      "test": "testHappyPathSendsMessageToTaskChat",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\SetTaskDeadlineCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5604
+      ],
+      "commands": [
+        {
+          "command": "task:deadline:set",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:deadline:set",
+      "test": "testHappyPathSetsDeadlineWithOffset",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\SetTaskParticipantsCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5606
+      ],
+      "commands": [
+        {
+          "command": "task:participants:set",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:participants:set",
+      "test": "testHappyPathSetsSelectedParticipantRoles",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\SetTaskParticipantsCommandTest",
+      "happyPath": false,
+      "ownedTaskIds": [
+        5608
+      ],
+      "commands": [
+        {
+          "command": "task:participants:set",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:participants:set",
+      "test": "testOmittedRoleStaysUntouchedWhenClearingAccomplices",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\SetTaskParticipantsCommandTest",
+      "happyPath": false,
+      "ownedTaskIds": [
+        5610
+      ],
+      "commands": [
+        {
+          "command": "task:participants:set",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:participants:set",
+      "test": "testExplicitClearRemovesAuditorsAndKeepsAccomplices",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ShowTaskAccessCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5612
+      ],
+      "commands": [
+        {
+          "command": "task:access:show",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.access.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:access:show",
+      "test": "testHappyPathReturnsCurrentConnectionPermissions",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ShowTaskCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5614
+      ],
+      "commands": [
+        {
+          "command": "task:show",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:show",
+      "test": "testHappyPathReturnsTaskCard",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ShowTaskCommandTest",
+      "happyPath": false,
+      "ownedTaskIds": [
+        5616
+      ],
+      "commands": [
+        {
+          "command": "task:show",
+          "status": 0,
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "user.get",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:show",
+      "test": "testSelectedParticipantsAreEnrichedWithEmail",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ShowTaskCommandTest",
+      "happyPath": false,
+      "ownedTaskIds": [
+        5618
+      ],
+      "commands": [
+        {
+          "command": "task:show",
+          "status": 0,
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:show",
+      "test": "testParticipantIdsDoNotNeedUserLookup",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ShowTaskCommandTest",
+      "happyPath": false,
+      "ownedTaskIds": [
+        5620
+      ],
+      "commands": [
+        {
+          "command": "task:show",
+          "status": 0,
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:show",
+      "test": "testEmptyParticipantsSkipUserLookup",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ShowTaskTimeCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5622
+      ],
+      "commands": [
+        {
+          "command": "task:time:show",
+          "status": 3,
+          "complete": false,
+          "reason": "Selected elapsedTime was not returned.",
+          "errorCode": "partial-result",
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:time:show",
+      "test": "testHappyPathReturnsTimeContextWithItsCompletenessBoundary",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\UpdateTaskChatMessageCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5624
+      ],
+      "commands": [
+        {
+          "command": "task:chat:update",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "im.dialog.messages.get",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "im.message.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:chat:update",
+      "test": "testHappyPathUpdatesOwnTaskMessage",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\UpdateTaskChatMessageCommandTest",
+      "happyPath": false,
+      "ownedTaskIds": [
+        5626,
+        5628
+      ],
+      "commands": [
+        {
+          "command": "task:chat:update",
+          "status": 4,
+          "complete": null,
+          "reason": null,
+          "errorCode": "message-binding-unverified",
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "im.dialog.messages.get",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:chat:update",
+      "test": "testMessageFromOtherTaskIsRejected",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\UpdateTaskChecklistItemCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5630
+      ],
+      "commands": [
+        {
+          "command": "task:checklist:item:update",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "task.checklistitem.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:checklist:item:update",
+      "test": "testHappyPathChangesItemTitle",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\UpdateTaskCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5632
+      ],
+      "commands": [
+        {
+          "command": "task:update",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:update",
+      "test": "testHappyPathChangesTitleAndKeepsOmittedDescription",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\UpdateTaskCommandTest",
+      "happyPath": false,
+      "ownedTaskIds": [
+        5634
+      ],
+      "commands": [
+        {
+          "command": "task:update",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:update",
+      "test": "testEmptyDescriptionClearsWithoutChangingTitle",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\UpdateTaskCommandTest",
+      "happyPath": false,
+      "ownedTaskIds": [],
+      "commands": [],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:update",
+      "test": "testRestrictedRoleCannotEditTask",
+      "ownedDiskFileIds": [],
+      "verification": "skipped"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\UpdateTaskTimeEntryCommandTest",
+      "happyPath": true,
+      "ownedTaskIds": [
+        5636
+      ],
+      "commands": [
+        {
+          "command": "task:time:update",
+          "status": 0,
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "task.elapseditem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "task.elapseditem.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:time:update",
+      "test": "testHappyPathUpdatesSecondsAndKeepsOmittedText",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    },
+    {
+      "actingUserId": 1,
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\UpdateTaskTimeEntryCommandTest",
+      "happyPath": false,
+      "ownedTaskIds": [
+        5638,
+        5640
+      ],
+      "commands": [
+        {
+          "command": "task:time:update",
+          "status": 4,
+          "complete": null,
+          "reason": null,
+          "errorCode": "resource-binding-unverified",
+          "apiErrorCode": null,
+          "apiCalls": [
+            {
+              "method": "task.elapseditem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "command": "task:time:update",
+      "test": "testEntryFromOtherTaskIsRejected",
+      "ownedDiskFileIds": [],
+      "verification": "passed"
+    }
+  ]
+}

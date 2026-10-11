@@ -1,0 +1,10 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Bitrix24\CLI\Bootstrap\Launcher;
+
+require __DIR__ . '/../vendor/autoload.php';
+
+exit(Launcher::run(dirname(__DIR__)));

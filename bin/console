@@ -3,9 +3,8 @@
 
 declare(strict_types=1);
 
-use Symfony\Component\Console\Application;
+use Bitrix24\CLI\Bootstrap\Launcher;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$application = new Application('Bitrix24 CLI', '0.1.0');
-$application->run();
+exit(Launcher::run(dirname(__DIR__)));

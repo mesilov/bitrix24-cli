@@ -1,0 +1,10 @@
+.git
+.env
+.env.*
+vendor
+runtime
+dist
+.worktree
+.worktree-test-results
+var
+__pycache__

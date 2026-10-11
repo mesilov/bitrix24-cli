@@ -3,4 +3,9 @@ parameters:
     paths:
         - src/
         - bin/console
+        - bin/b24cli
+        - config/
+        - tests/Unit/
+        - tests/Integration/
+        - tests/Support/
     tmpDir: var/cache/phpstan

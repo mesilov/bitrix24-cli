@@ -6,3 +6,6 @@
 /.worktree-test-results/
 
 /var/cache/
+/dist/
+/runtime/
+__pycache__/
