@@ -70,3 +70,9 @@ Release `--version` содержит tag version; development build — full sou
 ## Migration Plan
 
 Добавить packaging как новый distribution path, выполнить quality gates и platform acceptance, подготовить документацию. Source/Docker запуск продолжает работать. После принятия изменений release создаётся существующим релизным процессом с явным version tag; при дефекте упаковки можно исправить packaging в следующей версии, сохраняя source/Docker installation. В verification записывать отдельно выполненные local checks, CI runs и actual release publication.
+
+## Review follow-up — 2026-10-11
+
+PR #17 reviews identify two violations of the existing provenance/publication contracts: dirty working-tree payloads can report the clean HEAD SHA, and a publication retry cannot reuse a draft left by a previous interrupted attempt. Build entry points must verify clean Git inputs and HEAD equality before staging or passing the SHA into the Docker context. Ignored runtime/dist/vendor state remains allowed. Draft creation, asset upload and final publication must support resuming a previously created draft, retain failure gating and avoid changing an already public release.
+
+Update the branch from main as requested and also the current dev target: dev has merged the task runtime since initial acceptance. Resolve the launcher/version/config/resource manifest integration and extend offline package acceptance to task command registration and controlled usage/preflight behavior. Existing task unit tests stay separate from packaged standalone evidence; no live portal or actual release operation is authorized by this review follow-up.

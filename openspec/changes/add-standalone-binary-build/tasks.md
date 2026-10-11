@@ -35,6 +35,13 @@
 - [x] 6.1 Выполнить existing quality gates и packaging regression checks; подтвердить, что source/Docker запуск и worktree isolation проходят, а принятые к тому времени команды задач проходят соответствующие offline packaged-runtime fixtures.
 - [x] 6.2 Проверить implementation against `binary-distribution`, выполнить `openspec validate add-standalone-binary-build --strict`, двустороннюю issue trace и подготовить verification с отдельными фактами local/platform/CI/release/portal checks и явными unperformed boundaries.
 
+## 7. Review follow-up — PR #17
+
+- [ ] 7.1 Влить актуальные main и dev в feature branch, разрешить конфликты точки входа/Makefile/README, сохранить новые task commands и packaged BuildVersion; проверить ancestry и startup/config registration.
+- [ ] 7.2 Отклонять dirty Git inputs и явный SHA, не совпадающий с HEAD, до staging/Docker build; проверить clean/dirty/staged/untracked/ignored fixtures и metadata identity на всех builders.
+- [ ] 7.3 Сделать публикацию возобновляемой: создать или переиспользовать draft, загрузить полный verified asset set и публиковать после успеха; проверить retries после create/upload/edit failure без настоящего Release.
+- [ ] 7.4 Проверить offline task commands в production PHAR/native package без portal credentials, unit/quality/worktree gates и полную native CI matrix; обновить verification, issue trace и архивировать change.
+
 ## Workflow follow-up
 
 - После реализации, проверки соответствия и выполнения repository review workflow архивировать change через `openspec-archive-change`.
