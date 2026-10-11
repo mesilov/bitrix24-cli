@@ -65,7 +65,16 @@ if ($argv[3] === 'probe') {
     $entry = 'packaging/runtime-probe.php';
 }
 $phar->buildFromIterator(new ArrayIterator($files));
-$phar->setStub("#!/usr/bin/env php\n<?php\nPhar::mapPhar('b24cli.phar');\nrequire 'phar://b24cli.phar/" . $entry . "';\n__HALT_COMPILER();\n");
+$strategy = getenv('B24CLI_PAYLOAD_STRATEGY') ?: 'in-place';
+if (!in_array($strategy, ['in-place', 'temporary-phar'], true)) {
+    throw new RuntimeException('Unsupported PHAR payload strategy.');
+}
+$stub = str_replace(
+    ['__B24CLI_ENTRY__', '__B24CLI_PAYLOAD_STRATEGY__'],
+    [$entry, $strategy],
+    file_get_contents(__DIR__ . '/phar-stub.php')
+);
+$phar->setStub($stub);
 $phar->setSignatureAlgorithm(Phar::SHA256);
 $compression = getenv('B24CLI_PHAR_COMPRESSION') ?: 'gzip';
 if (!in_array($compression, ['gzip', 'none'], true)) {

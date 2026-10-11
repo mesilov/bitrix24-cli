@@ -76,10 +76,10 @@ def main():
         build_runtime(toolchain(work, env), env, args.target)
         return
     env["COMPOSER_ROOT_VERSION"] = info["version"] if args.version else "dev-dev"
-    # The pinned Windows micro runtime fails when reading gzip-compressed PHAR entries.
-    # The release ZIP still compresses the payload; keep the embedded PHAR plain there.
-    info["phar_compression"] = "none" if os.name == "nt" else "gzip"
+    info["phar_compression"] = "gzip"
+    info["payload_strategy"] = "temporary-phar" if os.name == "nt" else "in-place"
     env["B24CLI_PHAR_COMPRESSION"] = info["phar_compression"]
+    env["B24CLI_PAYLOAD_STRATEGY"] = info["payload_strategy"]
     app = stage(work, info, env)
     for name, mode in [("b24cli.phar", "application"), ("runtime-probe.phar", "probe")]:
         run(["php", "-d", "phar.readonly=0", ROOT / "build/package-phar.php", app, dist / name, mode], env=env)

@@ -13,4 +13,5 @@ args=(buildx build --file docker/package/Dockerfile --target "$stage"
     --build-arg "B24CLI_RELEASE_VERSION=${B24CLI_RELEASE_VERSION:-}"
     --output "type=local,dest=$output")
 if [ -n "$platform" ]; then args+=(--platform "$platform"); fi
+if [ -n "${GITHUB_TOKEN:-}" ]; then args+=(--secret id=github_token,env=GITHUB_TOKEN); fi
 exec docker "${args[@]}" .

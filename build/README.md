@@ -10,9 +10,10 @@ patch исправляет лишнюю кавычку в nmake wrapper закр
 Windows argv patch использует преобразование wide command line из PHP CLI,
 чтобы кириллица не заменялась знаками вопроса. Original и patched SHA-1 micro
 архива записываются в runtime-sources.json; patch SHA-256 — в build-info.json.
-Windows использует несжатый embedded PHAR: закреплённый micro runtime выдаёт
-`zlib: data error` на gzip entries. Сжатие Windows archive выполняет ZIP;
-Linux/macOS сохраняют gzip PHAR. Режим записан в build-info.json.
+На Windows bootstrap копирует embedded PHAR во временный файл и читает его
+обычным PHAR wrapper: прямые micro hooks повреждают чтение payload entries.
+После завершения команды временный PHAR удаляется. Все platforms используют gzip
+PHAR; payload strategy и compression записаны в build-info.json.
 
 ## Сборка
 
@@ -132,7 +133,8 @@ Expand-Archive b24cli-windows-amd64.zip -DestinationPath b24cli
 Пользователю не нужны PHP/Composer/Docker. Linux использует static musl; clean
 runtime проверяется на Debian 12, build job — Ubuntu 24.04. Minimum validated
 matrix: macOS 15 arm64 и Windows Server 2022 x64. Старые OS требуют отдельного
-acceptance. macOS/Windows используют standard OS libraries. Signing/notarization
+acceptance. Windows требует доступный для записи TEMP для временного PHAR.
+macOS/Windows используют standard OS libraries. Signing/notarization
 в первой итерации не выполняются. HTTPS использует OpenSSL trust в `/etc/ssl` на Unix и Schannel certificate store
 на Windows. Для отдельного PEM bundle на Unix задайте `SSL_CERT_FILE=/absolute/path/ca.pem`
 (для каталога — `SSL_CERT_DIR`). На Windows добавьте корпоративный CA в Windows trust

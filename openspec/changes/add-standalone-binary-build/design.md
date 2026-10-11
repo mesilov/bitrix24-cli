@@ -24,6 +24,8 @@
 
 PHAR может оставаться диагностическим build artifact; public release первой итерации содержит три бинарных архива и checksum manifest.
 
+Compatibility runs закрепили PHP 8.5.11 и PHP micro `fb6d497b6f4cf138ee3851a30c905d64b7b19aed`. Windows требует точного SPC fake-CLI quote patch и преобразования wide argv по PHP CLI; patch hashes входят в metadata. PHAR проходит preflight на build PHP отдельно от standalone acceptance. На Windows micro hooks неверно читают entries даже несжатого PHAR: host PHP читает тот же payload успешно, а embedded runtime выводит бинарные bytes и не загружает Symfony Application. Bootstrap копирует gzip PHAR через raw `micro_open_self` со смещением `micro_get_sfxsize` в уникальный TEMP файл, использует обычный PHAR wrapper и удаляет archive при завершении. Linux/macOS выполняют PHAR внутри binary. TEMP является явной системной предпосылкой Windows, external PHP/vendor/checkout остаются не нужны.
+
 ### 2. Минимальный проверенный runtime
 
 На первом compatibility run выбрать точную PHP 8.4 или 8.5 patch-version из текущего допустимого диапазона и записать в build configuration. `static-php-cli` pin образца — `5b5861c366a0d94bc84002db7b3f46144b388fbb`; это стартовая точка проверки, а не доказательство поддержки нашего `intl`/ICU и `bcmath` на всех платформах. Обновление pin допускается после конкретной compatibility проверки и фиксируется вместе с причиной.

@@ -20,6 +20,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", "text/plain; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
+        self.send_header("Connection", "close")
         self.end_headers()
         self.wfile.write(body)
 
@@ -60,7 +61,8 @@ def main():
         # Whitelist OS essentials; no portal credentials, PHP_INI_SCAN_DIR, LD/DYLD paths or build PATH.
         env = {key: value for key, value in os.environ.items()
                if key.upper() in {"SYSTEMROOT", "WINDIR", "TMP", "TEMP", "LANG", "LC_ALL"}}
-        env.update({"PATH": str(clean), "NO_COLOR": "1", "TERM": "dumb"})
+        env.update({"PATH": str(clean), "NO_COLOR": "1", "TERM": "dumb",
+                    "TMPDIR": str(clean), "TMP": str(clean), "TEMP": str(clean)})
 
         def invoke(name, command, expected=0, stderr_contains=None):
             result = subprocess.run(prefix + [str(clean / (name + suffix)), *command],
@@ -105,9 +107,12 @@ def main():
         finally:
             server.shutdown()
             server.server_close()
+        allowed_phars = {"b24cli.phar", "runtime-probe.phar"} if args.phar else set()
+        check(all(path.name in allowed_phars for path in clean.glob("*.phar")),
+              "Temporary application PHAR was not removed")
         print(json.dumps({"status": "passed", "version": args.expected_version, "runtime": probe,
                           "checks": ["version", "help", "list", "usage-exit", "autoload", "extensions", "unicode",
-                                     "trusted-https", "rejected-certificate", "clean-PATH"]}, ensure_ascii=False))
+                                     "trusted-https", "rejected-certificate", "clean-PATH", "temporary-phar-cleanup"]}, ensure_ascii=False))
 
 
 if __name__ == "__main__":
