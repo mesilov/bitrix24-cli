@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import shutil
 import subprocess
 import sys
 import tarfile
@@ -38,7 +39,13 @@ with tempfile.TemporaryDirectory(prefix='b24cli-install-') as directory:
     env = {key: value for key, value in os.environ.items()
            if key.upper() in {'SYSTEMROOT', 'WINDIR', 'TMP', 'TEMP', 'LANG', 'LC_ALL'}}
     env.update({'PATH': str(install), 'NO_COLOR': '1', 'TERM': 'dumb'})
-    version = subprocess.check_output([executable, '--version', '--no-ansi'], cwd=root, env=env, text=True).strip()
+    # Windows CreateProcess searches the parent PATH, ignoring env['PATH'].
+    # Resolve the command against the installation PATH before starting it.
+    command = shutil.which(executable, path=env['PATH'])
+    if command is None or Path(command).resolve() != (install / executable).resolve():
+        raise AssertionError('Installed binary was not found in the installation PATH')
+    version = subprocess.check_output([command, '--version', '--no-ansi'], cwd=root,
+                                      env=env, text=True, encoding='utf-8').strip()
     expected = 'Bitrix24 CLI ' + json.loads((dist / 'build-info.json').read_text())['version']
     if version != expected:
         raise AssertionError('Installed binary version differs: ' + version)
