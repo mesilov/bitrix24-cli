@@ -3,7 +3,7 @@
 ## 1. Исследование и контракт
 
 - [x] 1.1 Сравнить шесть CLI по официальным источникам и проверить текущий код; результат — research.md с датой, baseline, ссылками и границами доказательств.
-- [ ] 1.2 Уточнить технический OS ACL механизм для Windows без скачиваемого helper, зафиксировать права/atomic replace и failure behavior; проверить маленьким native fixture с тестовым файлом и обновить design без ослабления контракта.
+- [ ] 1.2 Уточнить технический OS ACL механизм для Windows без скачиваемого helper, зафиксировать права/atomic replace и failure behavior; проверить маленьким native fixture с тестовым файлом и обновить design без ослабления контракта; использовать прямые .NET ACL API внутри inbox PowerShell без module-discovery cmdlets.
 - [x] 1.3 Уточнить четыре окружения с name/connection/default.task; проверить REST 3.0 groupId/creatorId/responsibleId/allowsTimeTracking и текущий mapper, использовать одинаковые имена полей API в config без переименований; согласовать defaults, builtin false, explicit priority и поставленный отдельно #27 в issue/proposal/design/spec/tasks/research. Проверка по документации и коду 12.10.2026, без live создания задачи.
 
 ## 2. Каталог и хранение

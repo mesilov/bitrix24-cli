@@ -394,15 +394,19 @@ SystemRoot/System32/WindowsPowerShell/v1.0/powershell.exe. Статически�
 WindowsIdentity.GetCurrent().User даёт SID; FileSecurity/DirectorySecurity задают
 owner SID, SetAccessRuleProtection(true,false) исключает inherited grants,
 FileSystemAccessRule допускает FullControl только этому SID. Каталоги наследуют
-ContainerInherit/ObjectInherit для приватного создания новых файлов. Get-Acl
-повторно проверяет owner, protected DACL и отсутствие чужих grants; любые failures
+ContainerInherit/ObjectInherit для приватного создания новых файлов. Прямые методы
+.NET Framework Directory/File.GetAccessControl и SetAccessControl устанавливают и
+повторно проверяют owner, protected DACL и отсутствие чужих grants; любые failures
 останавливают persistence. Файл создаётся пустым, ACL устанавливается до записи webhook.
 
 Metadata: private temporary file → flush/fsync → close → rename(config.json) под flock.
 Native connection-smoke проверяет замену через use/remove и многопроцессные добавления.
+PowerShell script использует .NET constructors/методы, без New-Object/Get-Acl/Set-Acl:
+это исключает module discovery в headless окружении, не меняя owner/DACL policy.
 Windows native CI остаётся обязательным подтверждением; локальные Linux unit tests
 не доказывают Windows ACL. Файловый backend не является keyring или шифрованием.
 
-Первичные API references: [Set-Acl](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/set-acl?view=powershell-5.1),
+Первичные API references: [File.GetAccessControl](https://learn.microsoft.com/en-us/dotnet/api/system.io.file.getaccesscontrol),
+[Directory.SetAccessControl](https://learn.microsoft.com/en-us/dotnet/api/system.io.directory.setaccesscontrol),
 [FileSystemAccessRule](https://learn.microsoft.com/en-us/dotnet/api/system.security.accesscontrol.filesystemaccessrule),
 [SetAccessRuleProtection](https://learn.microsoft.com/en-us/dotnet/api/system.security.accesscontrol.objectsecurity.setaccessruleprotection).

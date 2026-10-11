@@ -14,6 +14,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import tempfile
+import time
 
 
 def main():
@@ -50,9 +51,12 @@ def main():
 
         def ps(script, extra=None):
             encoded = base64.b64encode(script.encode('utf-16le')).decode('ascii')
-            return subprocess.run([str(powershell), '-NoProfile', '-NonInteractive', '-EncodedCommand', encoded],
+            started = time.monotonic()
+            result = subprocess.run([str(powershell), '-NoProfile', '-NonInteractive', '-EncodedCommand', encoded],
                                   env={**env, 'B24CLI_TEST_PATH': str(binaries), **(extra or {})},
-                                  stdin=subprocess.DEVNULL, text=True, capture_output=True, timeout=30, check=True).stdout
+                                  stdin=subprocess.DEVNULL, text=True, capture_output=True, timeout=30, check=True)
+            print(json.dumps({'stage': 'Windows inbox ACL fixture', 'seconds': round(time.monotonic() - started, 2)}), flush=True)
+            return result.stdout
 
         def run(command, expected=0, stdin=None, extra=None, fixture=False):
             name = 'runtime-probe' if fixture else 'b24cli'
@@ -73,8 +77,8 @@ def main():
                 binaries.chmod(0o500)
             else:
                 print('Native connection stage: Windows inbox ACL setup', flush=True)
-                executable_acl = ps("(Get-Acl -LiteralPath $env:B24CLI_TEST_PATH).Sddl")
-                ps("$sid=[System.Security.Principal.WindowsIdentity]::GetCurrent().User; $a=New-Object System.Security.AccessControl.DirectorySecurity; $a.SetOwner($sid); $a.SetAccessRuleProtection($true,$false); $a.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($sid,'ReadAndExecute','ContainerInherit,ObjectInherit','None','Allow'))); Set-Acl -LiteralPath $env:B24CLI_TEST_PATH -AclObject $a")
+                executable_acl = ps("[System.IO.Directory]::GetAccessControl($env:B24CLI_TEST_PATH).GetSecurityDescriptorSddlForm([System.Security.AccessControl.AccessControlSections]'Owner,Group,Access')")
+                ps("$sid=[System.Security.Principal.WindowsIdentity]::GetCurrent().User; $a=[System.Security.AccessControl.DirectorySecurity]::new(); $a.SetOwner($sid); $a.SetAccessRuleProtection($true,$false); $a.AddAccessRule([System.Security.AccessControl.FileSystemAccessRule]::new($sid,'ReadAndExecute','ContainerInherit,ObjectInherit','None','Allow')); [System.IO.Directory]::SetAccessControl($env:B24CLI_TEST_PATH,$a)")
             print('Native connection stage: offline surfaces', flush=True)
             for command in [['--help'], ['--version'], ['list'], ['completion', 'bash'],
                             ['task:add', '--title', 'Offline', '--creator', '1', '--responsible', '2', '--dry-run', '--json']]:
@@ -166,7 +170,16 @@ def main():
                 if os.name != 'nt':
                     assert p.stat().st_mode & 0o777 == (0o700 if p.is_dir() else 0o600)
                 else:
-                    ps("$sid=[System.Security.Principal.WindowsIdentity]::GetCurrent().User; $a=Get-Acl -LiteralPath $env:B24CLI_MANAGED; if(!$a.AreAccessRulesProtected -or $a.GetOwner([System.Security.Principal.SecurityIdentifier]).Value -ne $sid.Value){exit 1}; foreach($r in $a.GetAccessRules($true,$true,[System.Security.Principal.SecurityIdentifier])){if($r.IdentityReference.Value -ne $sid.Value){exit 1}}", {'B24CLI_MANAGED': str(p)})
+                    ps("$sid=[System.Security.Principal.WindowsIdentity]::GetCurrent().User; if([System.IO.Directory]::Exists($env:B24CLI_MANAGED)){$a=[System.IO.Directory]::GetAccessControl($env:B24CLI_MANAGED)}else{$a=[System.IO.File]::GetAccessControl($env:B24CLI_MANAGED)}; if(!$a.AreAccessRulesProtected -or $a.GetOwner([System.Security.Principal.SecurityIdentifier]).Value -ne $sid.Value){exit 1}; foreach($r in $a.GetAccessRules($true,$true,[System.Security.Principal.SecurityIdentifier])){if($r.IdentityReference.Value -ne $sid.Value){exit 1}}", {'B24CLI_MANAGED': str(p)})
+            if os.name == 'nt':
+                managed = config / saved['profiles']['work']['connection']['credentialFile']
+                original = ps("[System.IO.File]::GetAccessControl($env:B24CLI_MANAGED).GetSecurityDescriptorSddlForm([System.Security.AccessControl.AccessControlSections]'Owner,Group,Access')", {'B24CLI_MANAGED': str(managed)})
+                try:
+                    ps("$a=[System.IO.File]::GetAccessControl($env:B24CLI_MANAGED); $a.AddAccessRule([System.Security.AccessControl.FileSystemAccessRule]::new([System.Security.Principal.SecurityIdentifier]::new('S-1-1-0'),'Read','Allow')); [System.IO.File]::SetAccessControl($env:B24CLI_MANAGED,$a)", {'B24CLI_MANAGED': str(managed)})
+                    rejected = json.loads(run(['task:list', '--profile', 'work', '--json'], 1, fixture=True, extra={'B24CLI_FIXTURE_EXPECTED_HOST': 'fixture.invalid'}))
+                    assert rejected['error']['code'] == 'configuration-error' and rejected['meta']['apiCalls'] == []
+                finally:
+                    ps("$a=[System.IO.File]::GetAccessControl($env:B24CLI_MANAGED); $a.SetSecurityDescriptorSddlForm($env:B24CLI_ORIGINAL_ACL,[System.Security.AccessControl.AccessControlSections]'Owner,Group,Access'); [System.IO.File]::SetAccessControl($env:B24CLI_MANAGED,$a)", {'B24CLI_MANAGED': str(managed), 'B24CLI_ORIGINAL_ACL': original.strip()})
             # Explicit Unicode paths work independently of executable/cwd/default paths.
             other = root / 'Профили space'
             run(['--config-dir', str(other), 'connection:add', 'work', '--webhook-stdin', '--json'], stdin=webhook)
@@ -175,14 +188,14 @@ def main():
                 assert secret not in path.read_text(), 'Secret in metadata'
             assert all(hashlib.sha256((binaries / name).read_bytes()).hexdigest() == digest for name, digest in hashes.items())
             assert not list(binaries.glob('credentials')), 'Configuration was written beside binary'
-            print(json.dumps({'status': 'passed', 'checks': ['private-storage', 'Windows-ACL' if os.name == 'nt' else 'Unix-modes',
+            print(json.dumps({'status': 'passed', 'checks': ['private-storage', 'Windows-ACL-and-unsafe-grant-rejection' if os.name == 'nt' else 'Unix-modes',
                 'concurrent-writers', 'profile-defaults', 'source-precedence', 'full-SDK-controlled-transport',
                 'CRLF', 'documented-native-shells', 'Unicode-space-paths', 'read-only-executable-dir', 'no-cwd-dotenv', 'missing-user-home', 'raw-URL-controls', 'filesystem-only-env-file', 'no-secret-output', 'no-binary-mutation']}))
         finally:
             if os.name != 'nt':
                 binaries.chmod(0o700)
             elif executable_acl:
-                ps("$a=Get-Acl -LiteralPath $env:B24CLI_TEST_PATH; $a.SetSecurityDescriptorSddlForm($env:B24CLI_ORIGINAL_ACL); Set-Acl -LiteralPath $env:B24CLI_TEST_PATH -AclObject $a", {'B24CLI_ORIGINAL_ACL': executable_acl.strip()})
+                ps("$a=[System.IO.Directory]::GetAccessControl($env:B24CLI_TEST_PATH); $a.SetSecurityDescriptorSddlForm($env:B24CLI_ORIGINAL_ACL,[System.Security.AccessControl.AccessControlSections]'Owner,Group,Access'); [System.IO.Directory]::SetAccessControl($env:B24CLI_TEST_PATH,$a)", {'B24CLI_ORIGINAL_ACL': executable_acl.strip()})
 
 
 if __name__ == '__main__':
