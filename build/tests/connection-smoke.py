@@ -5,6 +5,7 @@ No real portal, PHP CLI or downloaded credential helper is used. Windows ACL
 checks invoke the inbox Windows PowerShell through its absolute SystemRoot path.
 """
 import argparse
+import base64
 from concurrent.futures import ThreadPoolExecutor
 import hashlib
 import json
@@ -34,7 +35,9 @@ def main():
         config = home / '.config' / 'b24cli' if os.name != 'nt' else home / 'Roaming' / 'b24cli'
         temp = root / 'temporary'
         temp.mkdir()
-        env = {k: v for k, v in os.environ.items() if k.upper() in {'SYSTEMROOT', 'WINDIR', 'LANG', 'LC_ALL'}}
+        env = {k: v for k, v in os.environ.items() if k.upper() in {'SYSTEMROOT', 'WINDIR', 'SYSTEMDRIVE', 'COMSPEC', 'PROGRAMFILES',
+                    'PROGRAMFILES(X86)', 'PROGRAMW6432', 'PROGRAMDATA', 'USERPROFILE', 'LOCALAPPDATA',
+                    'LANG', 'LC_ALL'}}
         env.update({'HOME': str(home), 'APPDATA': str(home / 'Roaming'), 'PATH': str(binaries),
                     'TMPDIR': str(temp), 'TMP': str(temp), 'TEMP': str(temp), 'NO_COLOR': '1', 'TERM': 'dumb'})
         secret = 'RecognizableFixtureSecret'
@@ -46,9 +49,10 @@ def main():
         powershell = Path(env.get('SystemRoot', env.get('SYSTEMROOT', 'C:\\Windows'))) / 'System32/WindowsPowerShell/v1.0/powershell.exe'
 
         def ps(script, extra=None):
-            return subprocess.run([str(powershell), '-NoProfile', '-NonInteractive', '-Command', script],
+            encoded = base64.b64encode(script.encode('utf-16le')).decode('ascii')
+            return subprocess.run([str(powershell), '-NoProfile', '-NonInteractive', '-EncodedCommand', encoded],
                                   env={**env, 'B24CLI_TEST_PATH': str(binaries), **(extra or {})},
-                                  text=True, capture_output=True, timeout=30, check=True).stdout
+                                  stdin=subprocess.DEVNULL, text=True, capture_output=True, timeout=30, check=True).stdout
 
         def run(command, expected=0, stdin=None, extra=None, fixture=False):
             name = 'runtime-probe' if fixture else 'b24cli'
@@ -68,14 +72,17 @@ def main():
             if os.name != 'nt':
                 binaries.chmod(0o500)
             else:
+                print('Native connection stage: Windows inbox ACL setup', flush=True)
                 executable_acl = ps("(Get-Acl -LiteralPath $env:B24CLI_TEST_PATH).Sddl")
                 ps("$sid=[System.Security.Principal.WindowsIdentity]::GetCurrent().User; $a=New-Object System.Security.AccessControl.DirectorySecurity; $a.SetOwner($sid); $a.SetAccessRuleProtection($true,$false); $a.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($sid,'ReadAndExecute','ContainerInherit,ObjectInherit','None','Allow'))); Set-Acl -LiteralPath $env:B24CLI_TEST_PATH -AclObject $a")
+            print('Native connection stage: offline surfaces', flush=True)
             for command in [['--help'], ['--version'], ['list'], ['completion', 'bash'],
                             ['task:add', '--title', 'Offline', '--creator', '1', '--responsible', '2', '--dry-run', '--json']]:
                 run(command)
             assert not home.exists(), 'Offline surfaces wrote user configuration'
             missing = json.loads(run(['task:list', '--json'], 1))
             assert missing['error']['code'] == 'connection-unavailable' and missing['meta']['apiCalls'] == []
+            print('Native connection stage: first profile and SDK sources', flush=True)
             run(['connection:add', 'work', '--webhook-stdin', '--portal-domain', 'description.invalid',
                  '--group-id', '42', '--creator-id', '1', '--responsible-id', '2', '--json'], stdin=webhook+'\r\n')
             saved = json.loads((config / 'config.json').read_text())
@@ -109,6 +116,7 @@ def main():
             secret_file.write_text(webhook + '\n')
             shell_env = {**env, 'B24CLI_BINARY': str(binaries / ('b24cli' + suffix)), 'B24CLI_SECRET_FILE': str(secret_file), 'B24CLI_SHELL_CONFIG': str(root / 'shell profiles')}
             if not args.phar:
+                print('Native connection stage: documented shells', flush=True)
                 if os.name == 'nt':
                     shell_result = subprocess.run([str(powershell), '-NoProfile', '-NonInteractive', '-Command', "Get-Content -Raw $env:B24CLI_SECRET_FILE | & $env:B24CLI_BINARY connection:add work --webhook-stdin -n --config-dir $env:B24CLI_SHELL_CONFIG --json; if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}; & $env:B24CLI_BINARY connection:use work --config-dir $env:B24CLI_SHELL_CONFIG --json"], env=shell_env, cwd=root, capture_output=True, text=True, timeout=90)
                     check_shell(shell_result, 'PowerShell setup')
@@ -146,6 +154,7 @@ def main():
                 command = ['task:add', '--title', 'Offline filesystem selection', '--creator', '1', '--responsible', '2', '--dry-run', '--json']
                 run([*command, '--env-file', source], 1)
                 run(command, 1, extra={'B24CLI_ENV_FILE': source})
+            print('Native connection stage: concurrent writers and private permissions', flush=True)
             # Concurrent writers must preserve all independent profiles.
             def add(alias):
                 run(['connection:add', alias, '--webhook-stdin', '--json'], stdin=webhook)

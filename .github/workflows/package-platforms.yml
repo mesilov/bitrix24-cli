@@ -52,6 +52,9 @@ jobs:
           RELEASE_VERSION: ${{ inputs.release_version }}
         run: |
           expected="${RELEASE_VERSION:-dev-${SOURCE_SHA}}"
+          # BuildKit creates a new local-export root as 0700; these are public package artifacts.
+          chmod 0755 dist/linux-amd64
+          stat -c '%a %u:%g %n' dist/linux-amd64 dist/linux-amd64/b24cli dist/linux-amd64/runtime-probe
           docker run --rm --mount "type=bind,src=${PWD}/dist/linux-amd64,dst=/artifacts,readonly" \
             --mount "type=bind,src=${PWD}/build/tests,dst=/tests,readonly" \
             python:3.13-slim-bookworm@sha256:a1165e272e578941b84abc79e4ab38a0305cd12803a5c4247979ac7655f4d641 python /tests/smoke.py /artifacts --expected-version "$expected"

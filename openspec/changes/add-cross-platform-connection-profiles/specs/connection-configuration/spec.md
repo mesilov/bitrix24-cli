@@ -221,7 +221,7 @@ A packaged invocation SHALL obtain credentials only from process environment, an
 #### Scenario: Native platform execution
 - **WHEN** a platform binary runs outside a checkout with profile, explicit file or process env
 - **THEN** each documented source works on Linux amd64, macOS arm64 and Windows amd64 without installed PHP, Composer, Docker or an additional credential helper
-- **AND** Unix package executables have mode 0755 before archive creation and can be copied by an ordinary user
+- **AND** Unix package executables have mode 0755 before archive creation and the public local-export directory permits ordinary-user traversal, so the package can be copied by an ordinary user
 
 ### Requirement: Safe connection diagnostics
 Every output mode and error path SHALL redact the full webhook and secret parts of URLs, including debug output and parsing errors. Effective connection metadata MUST identify the chosen source truthfully without claiming a profile supplied credentials when env actually did.
