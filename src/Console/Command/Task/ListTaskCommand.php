@@ -26,7 +26,7 @@ final class ListTaskCommand extends Command
     {
         $this->addOption('id', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'ID для серверной выборки; флаг можно повторять.');
         $this->addOption('responsible', null, InputOption::VALUE_REQUIRED, 'ID ответственного.');
-        $this->addOption('project', null, InputOption::VALUE_REQUIRED, 'ID проекта.');
+        $this->addOption('group-id', null, InputOption::VALUE_REQUIRED, 'Положительный ID группы/проекта (groupId).');
         $this->addOption('status', null, InputOption::VALUE_REQUIRED, 'Локальный фильтр статуса.');
         $this->addOption('due-before', null, InputOption::VALUE_REQUIRED, 'Локальный фильтр срока, ISO8601 с часовым поясом.');
         $this->addOption('where', null, InputOption::VALUE_REQUIRED, 'Локальный фильтр равенств JSON object.');
@@ -36,7 +36,7 @@ final class ListTaskCommand extends Command
         $this->addOption('limit', null, InputOption::VALUE_REQUIRED, 'Лимит вывода; не заменяет бюджет обхода.');
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Снять только лимит вывода; бюджет остаётся конечным.');
         $this->addOption('max-scan', null, InputOption::VALUE_REQUIRED, 'Максимум просмотренных задач (default 10000).');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: id, title, responsibleId, groupId, status, deadline. REST 3.0.   Пример: b24cli task:list --responsible 2 --all');
+        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: id, title, responsibleId, groupId, status, deadline. REST 3.0.   Пример: b24cli task:list --responsible 2 --group-id 42 --all');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

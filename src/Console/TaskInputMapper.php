@@ -60,7 +60,7 @@ final readonly class TaskInputMapper
     {
         $advanced = $this->json($input, 'fields');
         $fields = [];
-        foreach (['title' => 'title', 'description' => 'description', 'creator' => 'creatorId', 'responsible' => 'responsibleId', 'project' => 'groupId', 'deadline' => 'deadline'] as $flag => $field) {
+        foreach (['title' => 'title', 'description' => 'description', 'creator' => 'creatorId', 'responsible' => 'responsibleId', 'group-id' => 'groupId', 'deadline' => 'deadline'] as $flag => $field) {
             if (!$input->hasOption($flag)) {
                 continue;
             }
@@ -74,7 +74,7 @@ final readonly class TaskInputMapper
                 throw Failure::usage('Advanced --fields cannot be mixed with field flags.');
             }
 
-            $fields[$field] = in_array($flag, ['creator', 'responsible', 'project'], true) ? $this->id($value, '--' . $flag) : $value;
+            $fields[$field] = in_array($flag, ['creator', 'responsible', 'group-id'], true) ? $this->id($value, '--' . $flag) : $value;
         }
 
         $fields = $advanced ?? $fields;
@@ -124,8 +124,12 @@ final readonly class TaskInputMapper
     {
         $where = $find ? [] : $this->json($input, 'where');
         $predicates = [];
+        if ($find && $input->getOption('group-id') !== null) {
+            $predicates['groupId'] = $this->id($input->getOption('group-id'), '--group-id');
+        }
+
         if (!$find) {
-            foreach (['responsible' => 'responsibleId', 'project' => 'groupId', 'status' => 'status'] as $flag => $field) {
+            foreach (['responsible' => 'responsibleId', 'group-id' => 'groupId', 'status' => 'status'] as $flag => $field) {
                 $value = $input->getOption($flag);
                 if ($value !== null) {
                     $predicates[$field] = $flag === 'status' ? $value : $this->id($value, '--' . $flag);
@@ -164,7 +168,7 @@ final readonly class TaskInputMapper
 
         return new TaskQuery(
             $find ? [] : array_map(fn ($id): int => $this->id($id, '--id'), $input->getOption('id')),
-            $where ?? $predicates,
+            $find ? $predicates : ($where ?? $predicates),
             !$find && $input->getOption('due-before') !== null ? FieldSchema::date($input->getOption('due-before')) : null,
             $find ? ['id', 'title'] : FieldSchema::select($input->getOption('select')),
             $order,

@@ -25,10 +25,11 @@ final class FindTaskCommand extends Command
     protected function configure(): void
     {
         $this->addOption('title', null, InputOption::VALUE_REQUIRED, 'Название.');
+        $this->addOption('group-id', null, InputOption::VALUE_REQUIRED, 'Положительный ID группы/проекта (groupId); локальный фильтр.');
         $this->addOption('limit', null, InputOption::VALUE_REQUIRED, 'Лимит вывода; не заменяет бюджет обхода.');
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Снять только лимит вывода; бюджет остаётся конечным.');
         $this->addOption('max-scan', null, InputOption::VALUE_REQUIRED, 'Максимум просмотренных задач (default 10000).');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: id, title. REST 3.0. Поиск title без регистра Unicode; scan budget независим от лимита вывода.  Пример: b24cli task:find --title "договор" --json');
+        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: id, title. REST 3.0. Поиск title без регистра Unicode; --group-id ограничивает поиск группой/проектом локально. scan budget независим от лимита вывода.  Пример: b24cli task:find --title "договор" --group-id 42 --json');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
