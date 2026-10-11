@@ -14,7 +14,7 @@
 
 - [x] 2.4 Передать non-secret default.task фактически выбранного профиля в подготовку task:add; подстановка одноимённых API fields groupId/creatorId/responsibleId/allowsTimeTracking, затем builtin false и required-field validation. Проверить basic/advanced field-wise priority, explicit false против profile true, строгие boolean types, optional ID absence, missing required participants/title и invalid explicit value без fallback, dry-run с источником каждого значения без secret read, отсутствие чужих defaults для env/file/другого профиля и остальных task-команд; обновить help и примеры.
 
-- [ ] 2.5 Добавить docs/configuration.md и docs/config.schema.json Draft 2020-12; проверить общие positive/negative structural fixtures через runtime ProfileRepository и JSON Schema, JSON-примеры документации и схему в CI; описать default annotations и дополнительные runtime/filesystem проверки без расширения API-полей.
+- [x] 2.5 Добавить docs/configuration.md и docs/config.schema.json Draft 2020-12; проверить общие positive/negative structural fixtures через runtime ProfileRepository и JSON Schema, JSON-примеры документации и схему в CI; описать default annotations и дополнительные runtime/filesystem проверки без расширения API-полей.
 
 ## 3. Выбор подключения и совместимость
 

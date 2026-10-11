@@ -88,7 +88,7 @@
           "properties": {
             "hostname": {
               "$ref": "#/$defs/hostname",
-              "description": "HTTPS transport hostname; must match the secret webhook authority at runtime."
+              "description": "HTTPS transport hostname; must match the hostname of the secret webhook at runtime."
             },
             "credentialFile": {
               "$ref": "#/$defs/credentialFile"
