@@ -2,7 +2,7 @@
 
 Date: 12.10.2026. Issue: https://github.com/mesilov/bitrix24-cli/issues/19.
 PR: https://github.com/mesilov/bitrix24-cli/pull/36 (merged into dev at ae7bd81b5ce00f8767c5c35ee4715ba20ede58c4).
-Follow-up: strict raw webhook control validation, source-only dotenv regression, native negative cases and maintainer API terminology rule; local verification below, delivery pending.
+Follow-up https://github.com/mesilov/bitrix24-cli/pull/38: strict raw webhook control validation, source-only dotenv regression, native negative cases and maintainer API terminology rule; merged into dev at ed0957182b235079f99f04648346c484ae9b3479.
 Implementation commit: 6d319e1a6ebf073103a6bf5d1a534e498854b2ad.
 Updated dev integration: ce9c6c23a8ea2d6380404b54c5bc79f966fcc2cd.
 
@@ -35,17 +35,18 @@ Updated dev integration: ce9c6c23a8ea2d6380404b54c5bc79f966fcc2cd.
 - openspec validate add-cross-platform-connection-profiles --strict: PASS.
 - build/tests/compose-connection-check.py: PASS (4 argument fixtures and readonly overlays).
 - build/tests/source-check.py: PASS (12 checks); build/tests/publish-check.py: PASS (7 checks).
-- Production PHAR built from 6d319e1 using PHP 8.5.11 and locked no-dev dependencies: PASS.
+- Production PHAR built from 1130acf4962ef8734ae277cd4eebfcccd0966322 using PHP 8.5.11 and locked no-dev dependencies: PASS.
 - PHAR smoke (unprivileged packaging image, outside checkout): PASS (version/help/list/30 task commands, UTF-8, task dry-run, no credentials, SIGINT, trusted TLS and rejected certificate).
-- PHAR connection-smoke: PASS (private storage, concurrent writers, defaults, full SDK controlled transport, CRLF, Unicode/space paths, readonly executable directory, no cwd dotenv, no secret output or binary mutation).
+- PHAR connection-smoke: PASS (private storage, concurrent writers, defaults, full SDK controlled transport, CRLF, Unicode/space paths, readonly executable directory, no cwd dotenv, no secret output or binary mutation, missing HOME and raw URL controls).
 
 ## CI
 
 - Initial source 6d319e1: unit/schema/license/style/PHPStan/Rector passed.
 - Configuration Schema job: https://github.com/mesilov/bitrix24-cli/actions/runs/38169916829/job/114560177486.
 - Initial macOS job stopped before build because merge workflow referenced macos-signing-check.py absent from the older head. Updated feature branch from current dev; this does not establish native acceptance.
-- Updated head ce9c6c2: command tests, schema, all linters and worktree isolation passed. Native run https://github.com/mesilov/bitrix24-cli/actions/runs/38170127812 remains pending.
-- Merged dev ae7bd81: command tests, schema, all linters and worktree isolation passed. Native run https://github.com/mesilov/bitrix24-cli/actions/runs/38170322978 remains pending.
+- Updated head ce9c6c2: command tests, schema, all linters and worktree isolation passed. Native run https://github.com/mesilov/bitrix24-cli/actions/runs/38170127812 built and signed macOS binaries, then general smoke failed: temporary HOME used the /var symlink alias, correctly rejected by the managed-storage protection. Local controlled symlink fixture reproduces configuration-error and passes with the physical path; smoke now resolves its own temporary root, retaining runtime link rejection. Native acceptance awaits this fixture correction.
+- Merged dev ae7bd81: command tests, schema, all linters and worktree isolation passed. Native run 38170322978 cancelled when dev advanced.
+- Follow-up 1130acf: all unit/schema/linters/worktree checks passed in CI; native run https://github.com/mesilov/bitrix24-cli/actions/runs/38170833832 remains pending and needs the same smoke fixture correction.
 
 ## Boundaries and final assessment
 
