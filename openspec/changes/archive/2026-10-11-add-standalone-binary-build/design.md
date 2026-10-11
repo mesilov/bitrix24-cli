@@ -28,7 +28,7 @@ Compatibility runs закрепили PHP 8.5.11 и PHP micro `fb6d497b6f4cf138e
 
 ### 2. Минимальный проверенный runtime
 
-На первом compatibility run выбрать точную PHP 8.4 или 8.5 patch-version из текущего допустимого диапазона и записать в build configuration. `static-php-cli` pin образца — `5b5861c366a0d94bc84002db7b3f46144b388fbb`; это стартовая точка проверки, а не доказательство поддержки нашего `intl`/ICU и `bcmath` на всех платформах. Обновление pin допускается после конкретной compatibility проверки и фиксируется вместе с причиной.
+Compatibility runs выбрали PHP 8.5.11 из допустимого диапазона и закрепили его в build configuration. `static-php-cli` pin образца — `5b5861c366a0d94bc84002db7b3f46144b388fbb`; поддержка нашего `intl`/ICU и `bcmath` проверяется общими native fixtures на каждой платформе. Обновление pin допускается после конкретной compatibility проверки и фиксируется вместе с причиной.
 
 Extensions выводятся из актуального production lock; дополнительно проверяются PHAR/compression, HTTPS/cURL/OpenSSL, CA trust и Unicode runtime paths. Нельзя переносить `--ignore-platform-reqs` из wrappers YiiPress как замену проверке итогового runtime. Fixtures проверяют и действительный HTTPS certificate, и отказ на недоверенном. CA configuration и minimum OS/library dependencies документируются по фактическим сборкам.
 
@@ -56,7 +56,7 @@ Release workflow запускается по documented semver tag convention, �
 
 ### 5. Идентичность и документация
 
-Release `--version` содержит tag version; development build — full source SHA. Build invocation передаёт эту identity явно и не наследует случайные локальные values. Документация показывает unpack → checksum → PATH → version check, prerequisites builders и ограничения платформ. Attribution адаптированных файлов сохраняет BSD-3-Clause notices YiiPress; package включает license notices production dependencies.
+Release `--version` содержит tag version; development build — full source SHA. Build invocation передаёт эту identity явно и не наследует случайные локальные values. Документация показывает checksum → unpack → PATH → version check, prerequisites builders и ограничения платформ. Attribution адаптированных файлов сохраняет BSD-3-Clause notices YiiPress; package включает license notices production dependencies.
 
 ## Risks / Trade-offs
 
