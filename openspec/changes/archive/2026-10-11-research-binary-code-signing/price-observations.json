@@ -1,0 +1,47 @@
+[
+  {
+    "url": "https://shop.certum.eu/open-source-code-signing-on-simplysign.html",
+    "checked_date": "2026-10-11",
+    "sha256_html": "2bdcaaa3233ddacfdad224e1f9d6e1b7c0602d1fa4a2a0e0503f6a3140acf02d",
+    "duration_text": [],
+    "listed_start_price_eur": 49
+  },
+  {
+    "url": "https://shop.certum.eu/standard-code-signing-in-the-cloud.html",
+    "checked_date": "2026-10-11",
+    "sha256_html": "9d17391a3cc2711ad841b9a6378b106591de5b527b7ea4cc2080722d425c25ed",
+    "options": [
+      {
+        "label": "1 year",
+        "price_eur": 209
+      },
+      {
+        "label": "2 years",
+        "price_eur": 319
+      },
+      {
+        "label": "3 years",
+        "price_eur": 419
+      }
+    ]
+  },
+  {
+    "url": "https://shop.certum.eu/ev-code-signing-in-the-cloud.html",
+    "checked_date": "2026-10-11",
+    "sha256_html": "88d768f3e50aee920d547fd0b360a7da03857443643abcd08cf99d20295c853a",
+    "options": [
+      {
+        "label": "1 year",
+        "price_eur": 379
+      },
+      {
+        "label": "2 years",
+        "price_eur": 599
+      },
+      {
+        "label": "3 years",
+        "price_eur": 825
+      }
+    ]
+  }
+]

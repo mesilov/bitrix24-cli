@@ -96,6 +96,9 @@ def main():
     suffix = ".exe" if os.name == "nt" else ""
     for name in ["b24cli", "runtime-probe"]:
         run(["php", "bin/spc", "micro:combine", dist / (name + ".phar"), "-O", dist / (name + suffix)], spc, env)
+        if args.target == "macos-arm64":
+            from macos import finalize
+            finalize(dist / name, dist / (name + ".phar"))
     licenses = spc / "buildroot/license"
     if not licenses.exists():
         licenses = spc / "buildroot/licenses"
