@@ -60,7 +60,8 @@ def main():
     suffix = ".phar" if args.phar else (".exe" if os.name == "nt" else "")
     prefix = [str(Path(shutil.which(args.php)).resolve())] if args.phar else []
     with tempfile.TemporaryDirectory(prefix="b24cli-smoke-") as directory:
-        clean = Path(directory)
+        # macOS temp roots use /var -> /private/var; managed storage rejects link ancestors.
+        clean = Path(directory).resolve()
         for name in ["b24cli", "runtime-probe"]:
             shutil.copy2(dist / (name + suffix), clean / (name + suffix))
         # Whitelist OS essentials; no portal credentials, PHP_INI_SCAN_DIR, LD/DYLD paths or build PATH.
