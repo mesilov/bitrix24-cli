@@ -27,9 +27,21 @@ final readonly class FileCredentialStore implements CredentialStore
         return strtolower($url['host']);
     }
 
+    public static function assertEnvironmentPath(string $path): void
+    {
+        if (preg_match('~^([a-zA-Z][a-zA-Z0-9+.-]*):/{2}~', $path, $matches) === 1 && strtolower($matches[1]) !== 'file') {
+            throw new Failure('configuration-error', 'Select a filesystem dotenv file for --env-file or B24CLI_ENV_FILE.');
+        }
+    }
+
     public static function environmentFile(string $path): string
     {
+        self::assertEnvironmentPath($path);
         try {
+            if (!is_file($path)) {
+                throw new \RuntimeException();
+            }
+
             $content = @file_get_contents($path);
             if ($content === false || strlen($content) > 1048576 || str_contains($content, '$')) {
                 throw new \RuntimeException();

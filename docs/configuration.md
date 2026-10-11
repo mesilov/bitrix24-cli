@@ -27,7 +27,7 @@ b24cli/
 
 `credentialFile` отсчитывается **от каталога конфигурации**, а не от cwd. Имя файла генерирует CLI: в schema v1 допустим `credentials/<8..64 lowercase hex characters>.env`, текущий writer использует 32 символа. В JSON используется `/` также на Windows. Абсолютные пути, `..`, произвольные имена и обратные слеши в этой ссылке не допускаются.
 
-Credential file содержит `BITRIX24_WEBHOOK` с полным входящим HTTPS webhook. Managed storage — plaintext с ограниченным доступом: Unix directories 0700/files 0600; Windows — проверяемый ACL текущего пользователя. Права не являются шифрованием и не защищают от администратора. `--env-file` читает внешний файл; CLI не изменяет его права и содержимое.
+Credential file содержит `BITRIX24_WEBHOOK` с полным входящим HTTPS webhook. Managed storage — plaintext с ограниченным доступом: Unix directories 0700/files 0600; Windows — проверяемый ACL текущего пользователя. Права не являются шифрованием и не защищают от администратора. `--env-file` читает внешний файл; CLI не изменяет его права и содержимое. `--env-file` и `B24CLI_ENV_FILE` принимают путь к обычному файлу или локальный `file://` URI. HTTP URL и виртуальные потоки отклоняются до чтения, включая dry-run.
 
 ## Пример schema v1
 

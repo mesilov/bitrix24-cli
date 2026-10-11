@@ -135,6 +135,10 @@ def main():
                 run(['task:list', '--env-file', str(external), '--json'], 1)
                 if control != '\x00':
                     run(['task:list', '--json'], 1, extra={'BITRIX24_WEBHOOK': invalid})
+            for source in ['https://fixture.invalid/credential.env', 'data://text/plain;base64,VGVzdA==']:
+                command = ['task:add', '--title', 'Offline filesystem selection', '--creator', '1', '--responsible', '2', '--dry-run', '--json']
+                run([*command, '--env-file', source], 1)
+                run(command, 1, extra={'B24CLI_ENV_FILE': source})
             # Concurrent writers must preserve all independent profiles.
             def add(alias):
                 run(['connection:add', alias, '--webhook-stdin', '--json'], stdin=webhook)
@@ -157,7 +161,7 @@ def main():
             assert not list(binaries.glob('credentials')), 'Configuration was written beside binary'
             print(json.dumps({'status': 'passed', 'checks': ['private-storage', 'Windows-ACL' if os.name == 'nt' else 'Unix-modes',
                 'concurrent-writers', 'profile-defaults', 'source-precedence', 'full-SDK-controlled-transport',
-                'CRLF', 'documented-native-shells', 'Unicode-space-paths', 'read-only-executable-dir', 'no-cwd-dotenv', 'missing-user-home', 'raw-URL-controls', 'no-secret-output', 'no-binary-mutation']}))
+                'CRLF', 'documented-native-shells', 'Unicode-space-paths', 'read-only-executable-dir', 'no-cwd-dotenv', 'missing-user-home', 'raw-URL-controls', 'filesystem-only-env-file', 'no-secret-output', 'no-binary-mutation']}))
         finally:
             if os.name != 'nt':
                 binaries.chmod(0o700)

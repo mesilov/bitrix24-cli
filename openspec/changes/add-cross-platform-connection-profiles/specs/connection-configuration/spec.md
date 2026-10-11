@@ -165,6 +165,11 @@ An unavailable, malformed or empty selected source and an unknown selected profi
 - **THEN** a safe configuration-error/exit1 identifies the corrective action and zero API calls occur
 - **AND** valid ambient credentials do not hide the error
 
+#### Scenario: Non-filesystem environment sources are rejected
+- **WHEN** --env-file or B24CLI_ENV_FILE selects an HTTP URL or virtual stream instead of a filesystem file
+- **THEN** configuration-error occurs before opening that source or making network/API calls, including for offline dry-run
+- **AND** regular filesystem paths and local file URIs remain readable without rewriting the source
+
 #### Scenario: Broken default or selected environment file
 - **WHEN** a stored default references missing credentials or the selected B24CLI_ENV_FILE lacks a webhook
 - **THEN** configuration-error/exit1 occurs without consulting lower-priority sources
