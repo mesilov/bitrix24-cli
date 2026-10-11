@@ -2,6 +2,7 @@
 """Check exact release contents, checksums, permissions and negative fixtures."""
 import hashlib
 import io
+import json
 from pathlib import Path
 import sys
 import tarfile
@@ -26,11 +27,21 @@ for line in lines:
             names = archive.namelist()
             assert archive.testzip() is None
             assert "b24cli.exe" in names
+            executable = archive.read("b24cli.exe")
+            compression = json.loads(archive.read("compression-info.json"))
+            executable_name = "b24cli.exe"
     else:
         with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as archive:
             names = archive.getnames()
             assert archive.getmember("b24cli").mode == 0o755
+            executable = archive.extractfile("b24cli").read()
+            compression = json.loads(archive.extractfile("compression-info.json").read())
+            executable_name = "b24cli"
+    item = compression["executables"][executable_name]
+    assert len(executable) == item["compressed_bytes"] < item["original_bytes"]
+    assert matches(executable, item["compressed_sha256"]), "Final executable differs from compression report"
     assert "build-info.json" in names and "YIIPRESS-LICENSE.txt" in names
+    assert any(item.startswith("compression-licenses/") for item in names)
     assert any(item.startswith("runtime-licenses/") for item in names)
-    assert not any("runtime-probe" in item or item.endswith(".phar") or item.startswith("vendor/") for item in names)
+    assert not any("runtime-probe" in item or item.endswith(".phar") or item.startswith(("vendor/", "uncompressed/")) for item in names)
 print("Verified three archives, executable permissions, notices and corruption rejection")
