@@ -4,12 +4,12 @@
 
 ## 1. Подготовка внешнего сервиса
 
-- [ ] 1.1 Зафиксировать владельца triage, URL/support email, hosting/storage/email adapters и срок хранения в операционной документации; проверить, что основной и резервный канал доступны без GitHub-аккаунта и provider выбор сохраняет receipt/publication/status контракт.
+- [ ] 1.1 Получить URL основной feedback-формы от владельца (он сообщит позже), зафиксировать владельца triage, support email, hosting/storage/email adapters и срок хранения; после получения адреса проверить доступность каналов без GitHub-аккаунта и сохранение receipt/publication/status контракта. Не подменять URL выдуманной рабочей ссылкой.
 - [ ] 1.2 Подготовить deployable `feedback-service/`, durable receipt/contact storage и outbox с раздельной конфигурацией секретов; проверить транзакционную запись, restart/recovery и отсутствие secrets в репозитории/логах, документировать запуск.
 
 ## 2. Локальный CLI и диагностический отчёт
 
-- [ ] 2.1 Добавить независимую команду `feedback`, allowlist report и URL/file output; проверить Docker/headless запуск без portal credentials и отсутствие portal/feedback HTTP calls при подготовке, обновить help.
+- [ ] 2.1 Добавить независимую команду `feedback`, allowlist report и URL/file output; проверить Docker/headless запуск без portal credentials, отсутствие portal/feedback HTTP calls и общего GitHub token в CLI; при отсутствующем URL проверить сохранение отчёта, понятное сообщение и отсутствие открытия placeholder ссылки, обновить help.
 - [ ] 2.2 Добавить явный `--open` и fallback при недоступном браузере; проверить, что отчёт/URL сохраняются в этом случае и default запуск не открывает браузер, документировать передачу отчёта через форму.
 - [ ] 2.3 Проверить исключение raw argv/env/webhook/token/REST payload/task data и возможность просмотра/редактирования перед передачей; добавить проверки с синтетическими секретами и документировать поля отчёта.
 
@@ -31,7 +31,7 @@
 - [ ] 5.1 Реализовать статусы triage/уточнений/решения, moderated clarification response и отдельное подтверждение release/version; проверить полный цикл без email/GitHub-login, duplicate/rejection и закрытие issue до релиза, документировать значения статусов.
 - [ ] 5.2 Реализовать optional verified email, confirmation/resolution/release outbox notifications; проверить сбои почты, повтор обработки без дубля доставленного уведомления и отмену queued уведомлений при contact deletion, документировать opt-in/unsubscribe.
 - [ ] 5.3 После появления базы PR #11/#12 в dev интегрировать человеческий TTY stderr hint; проверить JSON/plain/stdout/exit codes, quiet/non-TTY, help/version и отсутствие передачи данных после ошибки, обновить примеры диагностики.
-- [ ] 5.4 Добавить README/help, резервный email, GitHub bug form и внешний `contact_links`; проверить внутренние ссылки, доступность формы без login и работу примеров в Docker; после появления standalone #14 проверить и описать этот формат отдельно.
+- [ ] 5.4 Добавить README/help, резервный email, GitHub bug form и внешний `contact_links` с единым URL формы, предоставленным владельцем; проверить совпадение адресов, доступность формы без login и работу примеров в Docker; после появления standalone #14 проверить и описать этот формат отдельно.
 
 ## 6. Сквозная приёмка
 

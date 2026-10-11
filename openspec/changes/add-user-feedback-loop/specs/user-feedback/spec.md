@@ -6,11 +6,22 @@
 
 ## ADDED Requirements
 
+### Requirement: Owner-supplied feedback form address
+Основным каналом SHALL быть внешняя feedback-форма по URL, предоставленному владельцем. CLI, help, README и `contact_links` MUST использовать этот адрес. До настройки URL система MUST явно сообщать о его отсутствии, сохранять локальный отчёт и не открывать placeholder ссылку; внешний канал SHALL считаться готовым только после проверки реального адреса.
+
+#### Scenario: Form URL is not yet supplied
+- **WHEN** URL ещё не предоставлен, а пользователь запускает `feedback` с `--open`
+- **THEN** локальный отчёт сохраняется, сообщается об отсутствии URL и браузер с выдуманной ссылкой не запускается
+
+#### Scenario: Owner supplies the form URL
+- **WHEN** владелец предоставляет рабочий URL и канал настроен
+- **THEN** CLI, help, README и `contact_links` ведут на эту форму, доступную отправителю без GitHub-login
+
 ### Requirement: Discoverable feedback entry points
-Система SHALL предоставлять команду `b24cli feedback` и ссылку на внешнюю форму в README/help. Команда MUST работать без подключения к порталу, сохранять локальный отчёт и показывать способ его передачи. Браузер SHALL запускаться только при явном `--open`.
+Система SHALL предоставлять команду `b24cli feedback` и ссылку на настроенную внешнюю форму в README/help. Команда MUST работать без подключения к порталу, сохранять локальный отчёт и показывать способ его передачи. Браузер SHALL запускаться только при явном `--open` и наличии URL.
 
 #### Scenario: Headless feedback preparation
-- **WHEN** пользователь запускает `feedback` без credentials портала в среде без браузера
+- **WHEN** пользователь запускает `feedback` с настроенным URL без credentials портала в среде без браузера
 - **THEN** он получает локальный отчёт, URL формы и инструкции, без portal/network requests и обязательной авторизации
 
 #### Scenario: Browser unavailable
