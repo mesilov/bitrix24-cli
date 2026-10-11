@@ -59,6 +59,9 @@ if (!class_exists(Bitrix24\SDK\Core\ApiClient::class)) {
 if (bcadd('0.1', '0.2', 1) !== '0.3' || Normalizer::normalize("е\u{0308}") !== 'ё') {
     throw new RuntimeException('BCMath/ICU fixture failed.');
 }
+if (gzuncompress(gzcompress('Привет, Битрикс24')) !== 'Привет, Битрикс24') {
+    throw new RuntimeException('zlib round-trip fixture failed.');
+}
 $unicode = new Symfony\Component\String\UnicodeString('Привет, Битрикс24');
 if ($unicode->upper()->toString() !== 'ПРИВЕТ, БИТРИКС24') {
     throw new RuntimeException('Unicode fixture failed.');

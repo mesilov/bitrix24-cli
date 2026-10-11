@@ -7,6 +7,9 @@ PHP micro скачивается как архив точного commit; altern
 а source lock проверяется до компиляции. Compatibility patches лежат в
 `build/patches/`; их SHA входят в build-info.json и cache key. Windows fake-CLI
 patch исправляет лишнюю кавычку в nmake wrapper закреплённого SPC.
+Windows использует несжатый embedded PHAR: закреплённый micro runtime выдаёт
+`zlib: data error` на gzip entries. Сжатие Windows archive выполняет ZIP;
+Linux/macOS сохраняют gzip PHAR. Режим записан в build-info.json.
 
 ## Сборка
 
@@ -88,6 +91,10 @@ executable. Проверка установки выполняет checksum → 
 sources записаны в runtime-sources.json. Побитовая reproducibility не заявляется.
 Первый compile может быть долгим. Native cache key учитывает target/config/builder/
 lock. Диагностика: CI logs и `runtime/package-*/static-php-cli-*/log/`.
+Компилятор вынесен в `build/runtime.py`, поэтому изменения приложения и smoke
+не требуют повторной компиляции C runtime. CI передаёт read-only GitHub token
+для скачивания sources через API; token не сохраняется в Docker layers или logs.
+При локальном API rate limit задайте свой `GITHUB_TOKEN` в окружении native builder.
 
 ## Установка
 

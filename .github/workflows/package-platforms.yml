@@ -34,6 +34,8 @@ jobs:
           outputs: type=local,dest=dist/linux-amd64
           cache-from: type=gha,scope=b24cli-linux-amd64
           cache-to: type=gha,scope=b24cli-linux-amd64,mode=max
+          secrets: |
+            github_token=${{ github.token }}
           build-args: |
             B24CLI_SOURCE_SHA=${{ inputs.source_sha }}
             B24CLI_RELEASE_VERSION=${{ inputs.release_version }}
@@ -85,9 +87,10 @@ jobs:
           path: |
             runtime/package-macos-arm64/static-php-cli-*
             runtime/package-macos-arm64/composer-cache
-          key: b24cli-macos-arm64-${{ hashFiles('build/config.json', 'build/package.py', 'build/patches/**', 'composer.lock') }}
+          key: b24cli-macos-arm64-${{ hashFiles('build/config.json', 'build/runtime.py', 'build/patches/**', 'composer.lock') }}
       - name: Build native macOS package
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           B24CLI_SOURCE_SHA: ${{ inputs.source_sha }}
           B24CLI_RELEASE_VERSION: ${{ inputs.release_version }}
         run: bash build/package-macos.sh
@@ -141,9 +144,10 @@ jobs:
           path: |
             runtime/package-windows-amd64/static-php-cli-*
             runtime/package-windows-amd64/composer-cache
-          key: b24cli-windows-amd64-${{ hashFiles('build/config.json', 'build/package.py', 'build/patches/**', 'composer.lock') }}
+          key: b24cli-windows-amd64-${{ hashFiles('build/config.json', 'build/runtime.py', 'build/patches/**', 'composer.lock') }}
       - name: Build native Windows package
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           B24CLI_SOURCE_SHA: ${{ inputs.source_sha }}
           B24CLI_RELEASE_VERSION: ${{ inputs.release_version }}
         run: ./build/package-windows.ps1

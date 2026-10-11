@@ -62,11 +62,13 @@ def main():
                if key.upper() in {"SYSTEMROOT", "WINDIR", "TMP", "TEMP", "LANG", "LC_ALL"}}
         env.update({"PATH": str(clean), "NO_COLOR": "1", "TERM": "dumb"})
 
-        def invoke(name, command, expected=0):
+        def invoke(name, command, expected=0, stderr_contains=None):
             result = subprocess.run(prefix + [str(clean / (name + suffix)), *command],
                                     cwd=clean, env=env, text=True, encoding="utf-8",
                                     capture_output=True, timeout=30)
             check(result.returncode == expected, f"{name} {command}: exit {result.returncode}\n{result.stdout}\n{result.stderr}")
+            if stderr_contains:
+                check(stderr_contains in result.stderr, "Unicode command argument was changed: " + result.stderr)
             return result.stdout
 
         version = invoke("b24cli", ["--version", "--no-ansi"]).strip()
@@ -75,7 +77,7 @@ def main():
             output = invoke("b24cli", command)
             expected = "Bitrix24 CLI" if command[0] == "list" else "Usage:"
             check(expected in output and "\x1b" not in output, "CLI/help contract failed")
-        invoke("b24cli", ["несуществующая-команда", "--no-ansi"], 1)
+        invoke("b24cli", ["несуществующая-команда", "--no-ansi"], 1, stderr_contains="несуществующая-команда")
         probe = json.loads(invoke("runtime-probe", []))
         check(probe["version"] == args.expected_version, "Probe build identity differs")
         if not args.phar:

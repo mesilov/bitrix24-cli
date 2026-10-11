@@ -67,8 +67,14 @@ if ($argv[3] === 'probe') {
 $phar->buildFromIterator(new ArrayIterator($files));
 $phar->setStub("#!/usr/bin/env php\n<?php\nPhar::mapPhar('b24cli.phar');\nrequire 'phar://b24cli.phar/" . $entry . "';\n__HALT_COMPILER();\n");
 $phar->setSignatureAlgorithm(Phar::SHA256);
-fwrite(STDOUT, 'Compressing ' . count($files) . " production files\n");
-$phar->compressFiles(Phar::GZ);
+$compression = getenv('B24CLI_PHAR_COMPRESSION') ?: 'gzip';
+if (!in_array($compression, ['gzip', 'none'], true)) {
+    throw new RuntimeException('Unsupported PHAR compression.');
+}
+fwrite(STDOUT, 'Packing ' . count($files) . ' production files: ' . $compression . PHP_EOL);
+if ($compression === 'gzip') {
+    $phar->compressFiles(Phar::GZ);
+}
 $phar->stopBuffering();
 chmod($target, 0755);
 

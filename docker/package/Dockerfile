@@ -12,9 +12,11 @@ ENV PATH="/usr/local/musl/bin:${PATH}"
 WORKDIR /app
 
 FROM base AS runtime-builder
-COPY build/config.json build/package.py /app/build/
+COPY build/config.json build/runtime.py /app/build/
 COPY build/patches/ /app/build/patches/
-RUN python3 build/package.py linux-amd64 --runtime-only
+RUN --mount=type=secret,id=github_token \
+    GITHUB_TOKEN="$(cat /run/secrets/github_token 2>/dev/null || true)" \
+    python3 build/runtime.py linux-amd64
 
 FROM base AS builder
 COPY . /app
