@@ -38,6 +38,9 @@ def main():
         env = {k: v for k, v in os.environ.items() if k.upper() in {'SYSTEMROOT', 'WINDIR', 'SYSTEMDRIVE', 'COMSPEC', 'PATHEXT', 'PROGRAMFILES', 'PROGRAMFILES(X86)', 'PROGRAMDATA', 'LANG', 'LC_ALL'}}
         env.update({'HOME': str(home), 'APPDATA': str(home / 'Roaming'), 'PATH': str(binaries),
                     'TMPDIR': str(temp), 'TMP': str(temp), 'TEMP': str(temp), 'NO_COLOR': '1', 'TERM': 'dumb'})
+        # Native evidence: inbox PowerShell startup takes 18-27 s on Windows CI.
+        # A command verifies several ACLs; concurrent writers additionally wait on the lock.
+        native_timeout = 600 if os.name == 'nt' else 90
         secret = 'RecognizableFixtureSecret'
         webhook = 'https://fixture.invalid/rest/1/' + secret + '/'
         assert webhook.encode() not in (binaries / ('b24cli' + suffix)).read_bytes(), 'Fixture credential entered production binary'
@@ -55,7 +58,7 @@ def main():
             started = time.monotonic()
             result = subprocess.run([str(powershell), '-NoProfile', '-NonInteractive', '-Command', script],
                                   env={**env, 'B24CLI_TEST_PATH': str(binaries), **(extra or {})},
-                                  text=True, capture_output=True, timeout=30, check=True)
+                                  text=True, capture_output=True, timeout=60, check=True)
             print(json.dumps({'windows_acl_helper_seconds': round(time.monotonic() - started, 2)}), flush=True)
             return result.stdout
 
@@ -66,7 +69,7 @@ def main():
             try:
                 result = subprocess.run(prefix + [str(binaries / (name + suffix)), *argv], cwd=root,
                                         env={**env, **(extra or {})}, text=True, encoding='utf-8',
-                                        capture_output=True, input=stdin, timeout=90)
+                                        capture_output=True, input=stdin, timeout=native_timeout)
             except subprocess.TimeoutExpired:
                 if os.name == 'nt':
                     # Log process metadata and names only; never credential contents or environment.
@@ -127,14 +130,14 @@ def main():
             shell_env = {**env, 'B24CLI_BINARY': str(binaries / ('b24cli' + suffix)), 'B24CLI_SECRET_FILE': str(secret_file), 'B24CLI_SHELL_CONFIG': str(root / 'shell profiles')}
             if not args.phar:
                 if os.name == 'nt':
-                    shell_result = subprocess.run([str(powershell), '-NoProfile', '-NonInteractive', '-Command', "Get-Content -Raw $env:B24CLI_SECRET_FILE | & $env:B24CLI_BINARY connection:add work --webhook-stdin -n --config-dir $env:B24CLI_SHELL_CONFIG --json; if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}; & $env:B24CLI_BINARY connection:use work --config-dir $env:B24CLI_SHELL_CONFIG --json"], env=shell_env, cwd=root, capture_output=True, text=True, timeout=90)
+                    shell_result = subprocess.run([str(powershell), '-NoProfile', '-NonInteractive', '-Command', "Get-Content -Raw $env:B24CLI_SECRET_FILE | & $env:B24CLI_BINARY connection:add work --webhook-stdin -n --config-dir $env:B24CLI_SHELL_CONFIG --json; if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}; & $env:B24CLI_BINARY connection:use work --config-dir $env:B24CLI_SHELL_CONFIG --json"], env=shell_env, cwd=root, capture_output=True, text=True, timeout=native_timeout)
                     assert shell_result.returncode == 0 and secret not in shell_result.stdout + shell_result.stderr
                     cmd = Path(env.get('SystemRoot', env.get('SYSTEMROOT', 'C:\\Windows'))) / 'System32/cmd.exe'
-                    shell_result = subprocess.run([str(cmd), '/d', '/s', '/c', '"%B24CLI_BINARY%" connection:add pet --webhook-stdin -n --config-dir "%B24CLI_SHELL_CONFIG%" --json < "%B24CLI_SECRET_FILE%"'], env=shell_env, cwd=root, capture_output=True, text=True, timeout=90)
+                    shell_result = subprocess.run([str(cmd), '/d', '/s', '/c', '"%B24CLI_BINARY%" connection:add pet --webhook-stdin -n --config-dir "%B24CLI_SHELL_CONFIG%" --json < "%B24CLI_SECRET_FILE%"'], env=shell_env, cwd=root, capture_output=True, text=True, timeout=native_timeout)
                     assert shell_result.returncode == 0 and secret not in shell_result.stdout + shell_result.stderr
                 else:
                     shell = '/bin/zsh' if os.uname().sysname == 'Darwin' else '/bin/bash'
-                    shell_result = subprocess.run([shell, '-c', '"$B24CLI_BINARY" connection:add work --webhook-stdin -n --config-dir "$B24CLI_SHELL_CONFIG" --json < "$B24CLI_SECRET_FILE" && "$B24CLI_BINARY" connection:use work --config-dir "$B24CLI_SHELL_CONFIG" --json'], env=shell_env, cwd=root, capture_output=True, text=True, timeout=90)
+                    shell_result = subprocess.run([shell, '-c', '"$B24CLI_BINARY" connection:add work --webhook-stdin -n --config-dir "$B24CLI_SHELL_CONFIG" --json < "$B24CLI_SECRET_FILE" && "$B24CLI_BINARY" connection:use work --config-dir "$B24CLI_SHELL_CONFIG" --json'], env=shell_env, cwd=root, capture_output=True, text=True, timeout=native_timeout)
                     assert shell_result.returncode == 0 and secret not in shell_result.stdout + shell_result.stderr
             # Readers and dry-run may inspect metadata with a missing credential.
             credential.unlink()

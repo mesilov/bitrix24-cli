@@ -29,6 +29,8 @@ Goals: меньшие executable всех поддерживаемых targets, 
 
 ## Native acceptance environment
 
-The unchanged base dev run 38172429157 (b35aba5c63657a5ce37487face021ebd95b5f739) reproduces Linux bind-mount PermissionError and Windows connection/ACL timeouts without compression. CI makes exported public artifacts readable to the unprivileged fixture. The Windows fixture retains OS essentials and fixes module discovery to inbox PowerShell modules with a temporary analysis cache; PHP/build tools remain absent from PATH. Existing profile/ACL checks remain mandatory.
+The unchanged base dev run 38172429157 (b35aba5c63657a5ce37487face021ebd95b5f739) reproduces Linux bind-mount PermissionError and Windows connection/ACL timeouts without compression. CI makes exported public artifacts readable to the unprivileged fixture. The Windows fixture retains OS essentials and supplies the inbox PowerShell module path and a temporary analysis cache; PHP/build tools remain absent from PATH. Existing profile/ACL checks remain mandatory.
 
 Windows module-path construction reference: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_psmodulepath?view=powershell-5.1 . Restricted module discovery is an environment correction to verify natively, not a proven explanation of every previous timeout.
+
+Run 38175056319 measures Windows ACL helper startup at 26.67/17.79/17.61 seconds. The first connection:add reaches the protected credential file before its former 90-second limit expires. The fixture allows 60 seconds per helper and 600 seconds per native command/native-shell sequence on Windows, covering multiple ACL launches and four serialized writers; Unix limits remain 90 seconds. No profile/ACL assertion is removed. Per-command durations remain visible in logs.
