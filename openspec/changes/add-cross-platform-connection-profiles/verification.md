@@ -36,9 +36,9 @@ Updated dev integration: ce9c6c23a8ea2d6380404b54c5bc79f966fcc2cd.
 - openspec validate add-cross-platform-connection-profiles --strict: PASS.
 - build/tests/compose-connection-check.py: PASS (4 argument fixtures and readonly overlays).
 - build/tests/source-check.py: PASS (12 checks); build/tests/publish-check.py: PASS (7 checks).
-- Production PHAR built from 1130acf4962ef8734ae277cd4eebfcccd0966322 using PHP 8.5.11 and locked no-dev dependencies: PASS.
+- Production PHAR built from 5977e2799beab9bdb5a2a1febdcfef7faea7636e using PHP 8.5.11 and locked no-dev dependencies: PASS.
 - PHAR smoke (unprivileged packaging image, outside checkout): PASS (version/help/list/30 task commands, UTF-8, task dry-run, no credentials, SIGINT, trusted TLS and rejected certificate).
-- PHAR connection-smoke: PASS (private storage, concurrent writers, defaults, full SDK controlled transport, CRLF, Unicode/space paths, readonly executable directory, no cwd dotenv, no secret output or binary mutation, missing HOME and raw URL controls).
+- PHAR connection-smoke: PASS (private storage, concurrent writers, defaults, full SDK controlled transport, CRLF, Unicode/space paths, readonly executable directory, no cwd dotenv, no secret output or binary mutation, missing HOME, raw URL controls and filesystem-only env-file selection).
 
 ## CI
 
@@ -49,11 +49,17 @@ Updated dev integration: ce9c6c23a8ea2d6380404b54c5bc79f966fcc2cd.
 - Merged dev ae7bd81: command tests, schema, all linters and worktree isolation passed. Native run 38170322978 cancelled when dev advanced.
 - Follow-up 1130acf: all unit/schema/linters/worktree checks passed in CI; native run https://github.com/mesilov/bitrix24-cli/actions/runs/38170833832 remains pending and needs the same smoke fixture correction.
 
+## Native findings after #40
+
+Run 38171333726 (source 567c980): macOS arm64 native acceptance passed, including private storage, concurrent writes, full SDK controlled transport, shells and raw control cases. Linux built and passed general smoke, then the unprivileged connection smoke could not read the exported executable; package.py now fixes Unix executable mode at 0755 before export, matching final archive mode. Windows passed general smoke and connection/profile/file/process cases up to the cmd.exe setup assertion. The inline command was being passed through Python CRT argument quoting to cmd /s; a fixed batch fixture now carries the documented redirection and safe diagnostics. Final Windows acceptance is pending; this finding does not establish completed ACL/concurrency checks after that assertion.
+
+Primary quoting references: [cmd](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/cmd), [Python argument conversion](https://docs.python.org/3/library/subprocess.html#converting-an-argument-sequence-to-a-string-on-windows).
+
 ## Final delivery pending
 
 - PR #40 merged at 7e589a59db62346bb8d7d299ee51660849d5c1e7; native smoke resolves its own temporary roots while runtime link protection remains intact.
-- Merged dev unit/schema/all linters/worktree checks passed. Native run https://github.com/mesilov/bitrix24-cli/actions/runs/38171464691 is still compiling Linux/macOS/Windows.
-- Filesystem-only env-file correction and historical design wording updates are prepared in bugfix/19-local-credential-files; publication and updated native acceptance pending.
+- Merged dev unit/schema/all linters/worktree checks passed. Native run https://github.com/mesilov/bitrix24-cli/actions/runs/38171464691 was cancelled by a subsequent docs merge into dev; this is not acceptance evidence.
+- Filesystem-only env-file correction and historical design wording updates are prepared in bugfix/19-local-credential-files; publication and updated native acceptance pending. Native smoke also explicitly normalizes Unix executable mode to 0755 before export and uses a fixed batch fixture for cmd.exe redirection.
 
 ## Boundaries and final assessment
 

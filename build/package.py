@@ -96,6 +96,8 @@ def main():
     suffix = ".exe" if os.name == "nt" else ""
     for name in ["b24cli", "runtime-probe"]:
         run(["php", "bin/spc", "micro:combine", dist / (name + ".phar"), "-O", dist / (name + suffix)], spc, env)
+        if os.name != "nt":
+            (dist / name).chmod(0o755)
         if args.target == "macos-arm64":
             from macos import finalize
             finalize(dist / name, dist / (name + ".phar"))

@@ -60,6 +60,10 @@ def main():
             assert result.returncode == expected, f'{command}: exit {result.returncode}\n{result.stdout}\n{result.stderr}'
             return result.stdout
 
+        def check_shell(result, name):
+            assert secret not in result.stdout + result.stderr, 'Credential leaked in ' + name + ' output'
+            assert result.returncode == 0, f'{name}: exit {result.returncode}\n{result.stdout}\n{result.stderr}'
+
         try:
             if os.name != 'nt':
                 binaries.chmod(0o500)
@@ -107,14 +111,17 @@ def main():
             if not args.phar:
                 if os.name == 'nt':
                     shell_result = subprocess.run([str(powershell), '-NoProfile', '-NonInteractive', '-Command', "Get-Content -Raw $env:B24CLI_SECRET_FILE | & $env:B24CLI_BINARY connection:add work --webhook-stdin -n --config-dir $env:B24CLI_SHELL_CONFIG --json; if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}; & $env:B24CLI_BINARY connection:use work --config-dir $env:B24CLI_SHELL_CONFIG --json"], env=shell_env, cwd=root, capture_output=True, text=True, timeout=90)
-                    assert shell_result.returncode == 0 and secret not in shell_result.stdout + shell_result.stderr
+                    check_shell(shell_result, 'PowerShell setup')
                     cmd = Path(env.get('SystemRoot', env.get('SYSTEMROOT', 'C:\\Windows'))) / 'System32/cmd.exe'
-                    shell_result = subprocess.run([str(cmd), '/d', '/s', '/c', '"%B24CLI_BINARY%" connection:add pet --webhook-stdin -n --config-dir "%B24CLI_SHELL_CONFIG%" --json < "%B24CLI_SECRET_FILE%"'], env=shell_env, cwd=root, capture_output=True, text=True, timeout=90)
-                    assert shell_result.returncode == 0 and secret not in shell_result.stdout + shell_result.stderr
+                    # Let cmd parse a batch file directly, without CRT argument quoting of shell code.
+                    batch = root / 'connection-setup.cmd'
+                    batch.write_bytes(b'@echo off\r\n"%B24CLI_BINARY%" connection:add pet --webhook-stdin -n --config-dir "%B24CLI_SHELL_CONFIG%" --json < "%B24CLI_SECRET_FILE%"\r\nexit /b %errorlevel%\r\n')
+                    shell_result = subprocess.run([str(cmd), '/d', '/c', batch.name], env=shell_env, cwd=root, capture_output=True, text=True, timeout=90)
+                    check_shell(shell_result, 'cmd.exe setup')
                 else:
                     shell = '/bin/zsh' if os.uname().sysname == 'Darwin' else '/bin/bash'
                     shell_result = subprocess.run([shell, '-c', '"$B24CLI_BINARY" connection:add work --webhook-stdin -n --config-dir "$B24CLI_SHELL_CONFIG" --json < "$B24CLI_SECRET_FILE" && "$B24CLI_BINARY" connection:use work --config-dir "$B24CLI_SHELL_CONFIG" --json'], env=shell_env, cwd=root, capture_output=True, text=True, timeout=90)
-                    assert shell_result.returncode == 0 and secret not in shell_result.stdout + shell_result.stderr
+                    check_shell(shell_result, 'Unix shell setup')
             # Readers and dry-run may inspect metadata with a missing credential.
             credential.unlink()
             run(['task:add', '--profile', 'work', '--title', 'No secret read', '--dry-run', '--json'])
