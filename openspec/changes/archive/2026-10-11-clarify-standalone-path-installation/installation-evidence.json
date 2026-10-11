@@ -1,0 +1,23 @@
+{
+  "platform": "macOS 15.5 arm64",
+  "version": "b24cli dev-a7024b1f0228f833d185c0e4d6c2f5a1e1a57a17",
+  "archive_sha256": "6c71a00b8ebd3746fd70ae8c9b5340844de089ff675b84a3f81133d83afaf6f0",
+  "artifact_run": 38148884407,
+  "checks": [
+    "archive checksum and extraction",
+    "bare command absent before PATH setup (exit 127)",
+    "README/build local ./b24cli --version and --help",
+    "mismatch checksum blocks extraction",
+    "missing-entry checksum blocks extraction",
+    "user installation mode 755 and all license notices preserved",
+    "current session finds installed command from /tmp",
+    "ZDOTDIR profile persists PATH without duplicate entries",
+    "default .zshrc fallback path",
+    "new interactive login zsh resolves binary with parent PATH excluding user bin",
+    "4 relative documentation links and fragment anchors"
+  ],
+  "license_files": 10,
+  "relocation": "$HOME -> $B24CLI_TEST_USER_ROOT in executed snippets; separate ZDOTDIR",
+  "current_session": "/private/tmp/bitrix24-cli-issue-24-qa/user with spaces/.local/bin/b24cli\nb24cli dev-a7024b1f0228f833d185c0e4d6c2f5a1e1a57a17",
+  "fresh_session": "/private/tmp/bitrix24-cli-issue-24-qa/user with spaces/.local/bin/b24cli\nb24cli dev-a7024b1f0228f833d185c0e4d6c2f5a1e1a57a17"
+}
