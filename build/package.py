@@ -105,6 +105,7 @@ def main():
         payload = dist / (name + ".phar")
         original, final = raw / (name + suffix), dist / (name + suffix)
         run(["php", "bin/spc", "micro:combine", payload, "-O", original], spc, env)
+        original.chmod(0o755)
         if args.target == "macos-arm64":
             from macos import finalize
             finalize(original, payload)
@@ -115,6 +116,7 @@ def main():
                  "-O", final], spc, env)
             if not final.read_bytes().endswith(payload.read_bytes()):
                 raise RuntimeError("Compressed executable changed the original PHAR bytes")
+        final.chmod(0o755)
     export_notices(args.target, work, dist / "compression-licenses")
     write_report(dist, args.target)
     licenses = spc / "buildroot/license"
