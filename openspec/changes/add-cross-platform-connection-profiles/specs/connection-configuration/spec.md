@@ -221,6 +221,7 @@ A packaged invocation SHALL obtain credentials only from process environment, an
 #### Scenario: Native platform execution
 - **WHEN** a platform binary runs outside a checkout with profile, explicit file or process env
 - **THEN** each documented source works on Linux amd64, macOS arm64 and Windows amd64 without installed PHP, Composer, Docker or an additional credential helper
+- **AND** concurrent invocations use independently reserved temporary payloads, without renaming an opened temporary file, and clean their payload files/directories on exit
 - **AND** Unix package executables have mode 0755 before archive creation and the public local-export directory permits ordinary-user traversal, so the package can be copied by an ordinary user
 
 ### Requirement: Safe connection diagnostics

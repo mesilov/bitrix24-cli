@@ -410,3 +410,15 @@ Windows native CI остаётся обязательным подтвержде
 [Directory.SetAccessControl](https://learn.microsoft.com/en-us/dotnet/api/system.io.directory.setaccesscontrol),
 [FileSystemAccessRule](https://learn.microsoft.com/en-us/dotnet/api/system.security.accesscontrol.filesystemaccessrule),
 [SetAccessRuleProtection](https://learn.microsoft.com/en-us/dotnet/api/system.security.accesscontrol.objectsecurity.setaccessruleprotection).
+
+## Concurrent Windows payload bootstrap
+
+Native #19 acceptance reached concurrent writers and exposed access-denied when
+the Windows micro stub renamed a tempnam file to .phar. The stub now atomically
+reserves a random temporary directory and exclusively creates application.phar
+inside it; no temp-file rename is required. Handles close on success and failure;
+shutdown removes the PHAR through Phar::unlinkArchive, with unlink for incomplete
+archives, then removes the directory. This is application code, never credentials
+or user configuration. A portable real-PHAR fixture covers success, entry failure,
+source failure and four concurrent processes; native Windows acceptance remains
+the platform proof.

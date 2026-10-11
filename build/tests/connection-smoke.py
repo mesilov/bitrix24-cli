@@ -54,7 +54,9 @@ def main():
             started = time.monotonic()
             result = subprocess.run([str(powershell), '-NoProfile', '-NonInteractive', '-EncodedCommand', encoded],
                                   env={**env, 'B24CLI_TEST_PATH': str(binaries), **(extra or {})},
-                                  stdin=subprocess.DEVNULL, text=True, capture_output=True, timeout=30, check=True)
+                                  stdin=subprocess.DEVNULL, text=True, capture_output=True, timeout=30)
+            assert secret not in result.stdout + result.stderr, 'Credential leaked in ACL fixture output'
+            assert result.returncode == 0, f'Windows ACL fixture: exit {result.returncode}\n{result.stdout}\n{result.stderr}'
             print(json.dumps({'stage': 'Windows inbox ACL fixture', 'seconds': round(time.monotonic() - started, 2)}), flush=True)
             return result.stdout
 
@@ -179,7 +181,7 @@ def main():
                     rejected = json.loads(run(['task:list', '--profile', 'work', '--json'], 1, fixture=True, extra={'B24CLI_FIXTURE_EXPECTED_HOST': 'fixture.invalid'}))
                     assert rejected['error']['code'] == 'configuration-error' and rejected['meta']['apiCalls'] == []
                 finally:
-                    ps("$a=[System.IO.File]::GetAccessControl($env:B24CLI_MANAGED); $a.SetSecurityDescriptorSddlForm($env:B24CLI_ORIGINAL_ACL,[System.Security.AccessControl.AccessControlSections]'Owner,Group,Access'); [System.IO.File]::SetAccessControl($env:B24CLI_MANAGED,$a)", {'B24CLI_MANAGED': str(managed), 'B24CLI_ORIGINAL_ACL': original.strip()})
+                    ps("$a=[System.IO.File]::GetAccessControl($env:B24CLI_MANAGED); $a.SetSecurityDescriptorSddlForm($env:B24CLI_ORIGINAL_ACL,[System.Security.AccessControl.AccessControlSections]::Access); [System.IO.File]::SetAccessControl($env:B24CLI_MANAGED,$a)", {'B24CLI_MANAGED': str(managed), 'B24CLI_ORIGINAL_ACL': original.strip()})
             # Explicit Unicode paths work independently of executable/cwd/default paths.
             other = root / 'Профили space'
             run(['--config-dir', str(other), 'connection:add', 'work', '--webhook-stdin', '--json'], stdin=webhook)
@@ -195,7 +197,7 @@ def main():
             if os.name != 'nt':
                 binaries.chmod(0o700)
             elif executable_acl:
-                ps("$a=[System.IO.Directory]::GetAccessControl($env:B24CLI_TEST_PATH); $a.SetSecurityDescriptorSddlForm($env:B24CLI_ORIGINAL_ACL,[System.Security.AccessControl.AccessControlSections]'Owner,Group,Access'); [System.IO.Directory]::SetAccessControl($env:B24CLI_TEST_PATH,$a)", {'B24CLI_ORIGINAL_ACL': executable_acl.strip()})
+                ps("$a=[System.IO.Directory]::GetAccessControl($env:B24CLI_TEST_PATH); $a.SetSecurityDescriptorSddlForm($env:B24CLI_ORIGINAL_ACL,[System.Security.AccessControl.AccessControlSections]::Access); [System.IO.Directory]::SetAccessControl($env:B24CLI_TEST_PATH,$a)", {'B24CLI_ORIGINAL_ACL': executable_acl.strip()})
 
 
 if __name__ == '__main__':

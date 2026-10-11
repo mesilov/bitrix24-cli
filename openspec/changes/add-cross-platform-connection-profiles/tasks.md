@@ -33,7 +33,7 @@
 
 ## 5. Native packaging и завершение проверки
 
-- [ ] 5.1 Добавить native package smoke для profile/explicit file/process env вне checkout на Linux amd64/macOS arm64/Windows amd64 против controlled fixture; проверить CRLF, spaces/Unicode, read-only executable dir и отсутствие автоматического cwd-dotenv; README команды bash/zsh, PowerShell, cmd.exe повторены в соответствующих jobs.
+- [ ] 5.1 Добавить native package smoke для profile/explicit file/process env вне checkout на Linux amd64/macOS arm64/Windows amd64 против controlled fixture; проверить CRLF, spaces/Unicode, read-only executable dir и отсутствие автоматического cwd-dotenv; README команды bash/zsh, PowerShell, cmd.exe повторены в соответствующих jobs; проверить concurrent Windows temporary payload без rename и cleanup на success/failure.
 - [ ] 5.2 Сохранить no-secret package invariant; fixture scan PHAR/архивов/evidence не находит credentials, config mutation не затрагивает binaries; проверить production packaging gates.
 - [ ] 5.3 Выполнить make check, make unit, make lint-all, strict OpenSpec validation и applicable packaging checks; записать результаты с точными source/CI refs, отделив live portal checks и keyring feasibility.
 - [ ] 5.4 Выполнить openspec-verify-change и проверить обе стороны issue #19 ↔ proposal, labels/milestone; устранить несоответствия, записать verification.md.

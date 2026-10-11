@@ -84,6 +84,7 @@ def main():
     app = stage(work, info, env)
     for name, mode in [("b24cli.phar", "application"), ("runtime-probe.phar", "probe")]:
         run(["php", "-d", "phar.readonly=0", ROOT / "build/package-phar.php", app, dist / name, mode], env=env)
+    run(["php", "-d", "phar.readonly=0", ROOT / "build/tests/temporary-phar-check.php"], env=env)
     # Detect payload corruption separately from the native micro runtime.
     run(["php", dist / "b24cli.phar", "--version", "--no-ansi"], env=env)
     (dist / "build-info.json").write_text(json.dumps(info, indent=2) + "\n")

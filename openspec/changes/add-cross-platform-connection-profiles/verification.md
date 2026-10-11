@@ -61,6 +61,8 @@ Run 38173086031 head 98cfa778: macOS native PASS again; Linux export-root failur
 
 Run 38174964824 head 31c5f58: Linux and macOS native acceptance PASS, including connection smoke and archive installation. Windows OS context did not resolve the delay: two fixture ACL calls took 42 seconds, then first connection:add exceeded 90 seconds. The backend and fixture now use direct .NET Framework Directory/File.GetAccessControl/SetAccessControl and intrinsic constructors inside the inbox PowerShell host, avoiding module-discovery cmdlets while retaining identical owner/protected-DACL/current-SID-only checks. This change requires updated Windows native proof; timeouts and assertions are not relaxed.
 
+Run 38175667141 head9db57c0: direct .NET ACL fixture calls dropped to 0.16 seconds each. Windows profile/file/process SDK cases, offline surfaces, raw URI/control cases and documented PowerShell/cmd setup reached concurrent writers; a native invocation failed before application bootstrap because tempnam-to-phar rename returned access-denied. The new stub reserves a random temporary directory and creates the PHAR exclusively without rename. A portable real-PHAR success/failure/concurrency regression is added. Fixture cleanup restores only the changed DACL, avoiding unrelated owner/group privilege requirements; pending native proof is retained.
+
 ## Final delivery pending
 
 - PR #40 merged at 7e589a59db62346bb8d7d299ee51660849d5c1e7; native smoke resolves its own temporary roots while runtime link protection remains intact.
