@@ -128,8 +128,12 @@ def main():
                             'stderr': control.stderr.replace(secret, '[REDACTED]')}}), flush=True)
                     assert shell_result.returncode == 0 and secret not in shell_result.stdout + shell_result.stderr, json.dumps({'final_shell': {'returncode': shell_result.returncode, 'stdout': shell_result.stdout.replace(secret, '[REDACTED]'), 'stderr': shell_result.stderr.replace(secret, '[REDACTED]')}})
                     cmd = Path(env.get('SystemRoot', env.get('SYSTEMROOT', 'C:\\Windows'))) / 'System32/cmd.exe'
-                    shell_result = subprocess.run([str(cmd), '/d', '/s', '/c', '"%B24CLI_BINARY%" connection:add pet --webhook-stdin -n --config-dir "%B24CLI_SHELL_CONFIG%" --json < "%B24CLI_SECRET_FILE%"'], env=shell_env, cwd=root, capture_output=True, text=True, timeout=native_timeout)
-                    assert shell_result.returncode == 0 and secret not in shell_result.stdout + shell_result.stderr
+                    # cmd.exe does not use the MS C runtime argument parser. Pass its
+                    # documented /s /c outer quote pair as a command line directly;
+                    # list2cmdline would inject backslash escapes into this syntax.
+                    command_line = '"' + str(cmd) + '" /d /s /c ""%B24CLI_BINARY%" connection:add pet --webhook-stdin -n --config-dir "%B24CLI_SHELL_CONFIG%" --json < "%B24CLI_SECRET_FILE%""'
+                    shell_result = subprocess.run(command_line, env=shell_env, cwd=root, capture_output=True, text=True, timeout=native_timeout)
+                    assert shell_result.returncode == 0 and secret not in shell_result.stdout + shell_result.stderr, json.dumps({'cmd_shell': {'returncode': shell_result.returncode, 'stdout': shell_result.stdout.replace(secret, '[REDACTED]'), 'stderr': shell_result.stderr.replace(secret, '[REDACTED]')}})
                 else:
                     shell = '/bin/zsh' if os.uname().sysname == 'Darwin' else '/bin/bash'
                     shell_result = subprocess.run([shell, '-c', '"$B24CLI_BINARY" connection:add work --webhook-stdin -n --config-dir "$B24CLI_SHELL_CONFIG" --json < "$B24CLI_SECRET_FILE" && "$B24CLI_BINARY" connection:use work --config-dir "$B24CLI_SHELL_CONFIG" --json'], env=shell_env, cwd=root, capture_output=True, text=True, timeout=native_timeout)
