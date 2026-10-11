@@ -3,6 +3,7 @@
 import argparse
 import base64
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
@@ -86,6 +87,8 @@ def toolchain(work, env):
     (spc / "config/source.json").write_text(json.dumps(source, indent=4) + "\n")
     for name in CONFIG["toolchain_patches"]:
         patch = json.loads((ROOT / name).read_text())
+        if patch.get("phase") == "micro-source":
+            continue
         path = spc / patch["file"]
         content = path.read_text()
         if content.count(patch["before"]) == 1:
@@ -94,6 +97,38 @@ def toolchain(work, env):
             raise RuntimeError("Toolchain patch does not match the pinned source: " + name)
     composer(["install", "--no-dev", "--no-interaction", "--no-progress", "--classmap-authoritative"], spc, env)
     return spc
+
+
+def patch_micro_archive(spc, target):
+    if target != "windows-amd64":
+        return
+    lock_path = spc / "downloads/.lock.json"
+    lock = json.loads(lock_path.read_text())
+    archive = spc / "downloads" / lock["micro"]["filename"]
+    patches = [json.loads((ROOT / name).read_text()) for name in CONFIG["toolchain_patches"]
+               if json.loads((ROOT / name).read_text()).get("phase") == "micro-source"]
+    original_hash = hashlib.sha1(archive.read_bytes()).hexdigest()
+    changed = set()
+    with tarfile.open(archive, "r:gz") as source, tarfile.open(archive.with_suffix(".patched"), "w:gz") as dest:
+        for member in source.getmembers():
+            data = source.extractfile(member).read() if member.isfile() else None
+            for patch in patches:
+                if member.isfile() and member.name.split("/", 1)[-1] == patch["file"]:
+                    content = data.decode("utf-8").replace("\r\n", "\n")
+                    for replacement in patch["replacements"]:
+                        if content.count(replacement["before"]) != 1:
+                            raise RuntimeError("Micro patch does not match the pinned source: " + patch["file"])
+                        content = content.replace(replacement["before"], replacement["after"])
+                    data = content.encode("utf-8")
+                    member.size = len(data)
+                    changed.add(patch["file"])
+            dest.addfile(member, io.BytesIO(data) if data is not None else None)
+    if changed != {patch["file"] for patch in patches}:
+        raise RuntimeError("Micro patch target is missing")
+    archive.with_suffix(".patched").replace(archive)
+    lock["micro"]["b24cli_original_archive_sha1"] = original_hash
+    lock["micro"]["hash"] = hashlib.sha1(archive.read_bytes()).hexdigest()
+    lock_path.write_text(json.dumps(lock, indent=4) + "\n")
 
 
 def build_runtime(spc, env, target):
@@ -112,6 +147,7 @@ def build_runtime(spc, env, target):
         lock = json.loads((spc / "downloads/.lock.json").read_text())
         if lock["micro"].get("filename") != "phpmicro-" + CONFIG["micro_ref"] + ".tar.gz":
             raise RuntimeError("PHP micro source differs from the pinned commit")
+        patch_micro_archive(spc, target)
         run(["php", "bin/spc", "doctor", "--auto-fix"], spc, env)
         run(["php", "bin/spc", "build", ",".join(CONFIG["extensions"]), "--build-micro", "--with-micro-fake-cli"], spc, env)
         sanitize_logs(spc, env)

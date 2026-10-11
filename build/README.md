@@ -7,6 +7,9 @@ PHP micro скачивается как архив точного commit; altern
 а source lock проверяется до компиляции. Compatibility patches лежат в
 `build/patches/`; их SHA входят в build-info.json и cache key. Windows fake-CLI
 patch исправляет лишнюю кавычку в nmake wrapper закреплённого SPC.
+Windows argv patch использует преобразование wide command line из PHP CLI,
+чтобы кириллица не заменялась знаками вопроса. Original и patched SHA-1 micro
+архива записываются в runtime-sources.json; patch SHA-256 — в build-info.json.
 Windows использует несжатый embedded PHAR: закреплённый micro runtime выдаёт
 `zlib: data error` на gzip entries. Сжатие Windows archive выполняет ZIP;
 Linux/macOS сохраняют gzip PHAR. Режим записан в build-info.json.
@@ -28,11 +31,11 @@ make package
 ```
 
 macOS arm64: macOS 15, Xcode Command Line Tools, PHP 8.5.11 с production extensions,
-Composer 2.8, Python 3.13, Git, autoconf, automake, bison, re2c, pkgconf, cmake.
+Composer 2.10.3, Python 3.13, Git, autoconf, automake, bison, re2c, pkgconf, cmake.
 Добавьте Homebrew bison в PATH. Команда: `make package-macos`.
 
 Windows amd64: Windows Server 2022 runner/совместимая build machine, VS 2022/MSVC
-x64 developer environment, PHP 8.5.11 с production extensions, Composer 2.8
+x64 developer environment, PHP 8.5.11 с production extensions, Composer 2.10.3
 (`composer.phar` рядом с launcher), Python 3.13, Git, tar, PowerShell.
 Команда: `./build/package-windows.ps1` или `make package-windows`.
 

@@ -3,8 +3,8 @@
 Issue: https://github.com/mesilov/bitrix24-cli/issues/14
 PR: https://github.com/mesilov/bitrix24-cli/pull/17
 Base: `5d236a084f67b9de2ef99fa99ad3fc586582c20b` (`dev`).
-Current native acceptance run: https://github.com/mesilov/bitrix24-cli/actions/runs/38136687489
-Source for this run: `1db973b834d4f9325c0d49795306ae7d4adb473a`.
+Current native acceptance run: https://github.com/mesilov/bitrix24-cli/actions/runs/38139110057
+Source for this run: `309ab6df73f1b88602f2106c5ccf9ff12d1c60e8`.
 
 ## Local checks completed
 
@@ -21,7 +21,9 @@ Source for this run: `1db973b834d4f9325c0d49795306ae7d4adb473a`.
 
 ## Native platform and CI checks
 
-Pending the actual platform jobs and final artifact inspection. No task requiring native acceptance is marked complete yet.
+Linux job `114465504080` in run [38137914206](https://github.com/mesilov/bitrix24-cli/actions/runs/38137914206) passed build, standalone smoke, rejection fixtures, static linkage and archive installation. Its uploaded `b24cli-linux-amd64` artifact reports `dev-a1b0cd3ff3ac44ee9986520d042a938dd5c7cec9`, PHP 8.5.11 and the exact pinned micro archive. The downloaded binary also passed the strengthened Unicode argv / HTTPS smoke locally in a clean pinned Debian 12 Python container with only artifact and fixture mounts. License review found missing compiler-runtime notices; these are being added before final verification.
+
+macOS/Windows and the complete release archive set remain pending the current run. The fourth run's macOS job hit anonymous GitHub API rate limits, addressed with read-only GitHub token input and log redaction. Windows compiled successfully but could not read gzip-compressed PHAR entries (`zlib: data error`); its payload now uses uncompressed embedded PHAR, with final archive compression supplied by ZIP. The standalone fixture also checks zlib round-trip separately.
 
 First run `38135599370` exposed an old Debian Python extraction API and an outdated macOS setup-php action. Both were corrected. Windows was cancelled by the next source push. This run did not upload verified platform artifacts or publish a Release.
 

@@ -72,7 +72,7 @@ jobs:
         with:
           php-version: '8.5.11'
           extensions: bcmath, intl, curl, mbstring, openssl, phar
-          tools: composer:2.8
+          tools: composer:2.10.3
           coverage: none
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
@@ -130,7 +130,7 @@ jobs:
         with:
           php-version: '8.5.11'
           extensions: bcmath, intl, curl, mbstring, openssl, phar
-          tools: composer:2.8
+          tools: composer:2.10.3
           coverage: none
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:

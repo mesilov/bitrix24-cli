@@ -83,6 +83,8 @@ def main():
     app = stage(work, info, env)
     for name, mode in [("b24cli.phar", "application"), ("runtime-probe.phar", "probe")]:
         run(["php", "-d", "phar.readonly=0", ROOT / "build/package-phar.php", app, dist / name, mode], env=env)
+    # Detect payload corruption separately from the native micro runtime.
+    run(["php", dist / "b24cli.phar", "--version", "--no-ansi"], env=env)
     (dist / "build-info.json").write_text(json.dumps(info, indent=2) + "\n")
     shutil.copy2(ROOT / "build/THIRD-PARTY-NOTICES.md", dist / "THIRD-PARTY-NOTICES.md")
     shutil.copy2(ROOT / "build/YIIPRESS-LICENSE.txt", dist / "YIIPRESS-LICENSE.txt")
@@ -103,6 +105,11 @@ def main():
         shutil.rmtree(dest)
     shutil.copytree(licenses, dest)
     shutil.copy2(spc / "source/php-src/sapi/micro/LICENSE", dest / "phpmicro-LICENSE.txt")
+    if args.target == "linux-amd64":
+        # SPC's library dumper does not include the musl/GCC compiler runtime.
+        shutil.copy2(spc / "source/musl-1.2.5/COPYRIGHT", dest / "musl-COPYRIGHT.txt")
+        for name in ["GCC-COPYING3.txt", "GCC-COPYING.RUNTIME.txt"]:
+            shutil.copy2(ROOT / "build/licenses" / name, dest / name)
     shutil.copy2(spc / "downloads/.lock.json", dist / "runtime-sources.json")
 
 

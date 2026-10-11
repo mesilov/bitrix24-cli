@@ -8,8 +8,8 @@
 
 ## 2. Linux runtime и acceptance fixtures
 
-- [ ] 2.1 Адаптировать Docker/Buildx builder PHP micro и PHAR combine из YiiPress, закрепить PHP patch-version и `static-php-cli` commit; проверить Linux amd64 build, linkage и наличие требуемых production extensions без host modules.
-- [ ] 2.2 Добавить общий packaged-runtime smoke и fixture harness для version/help/list, UTF-8, usage errors/exit codes, HTTPS success и rejected certificate; проверить Linux binary в чистом runtime без PHP, Composer, Docker tooling и checkout/vendor access.
+- [x] 2.1 Адаптировать Docker/Buildx builder PHP micro и PHAR combine из YiiPress, закрепить PHP patch-version и `static-php-cli` commit; проверить Linux amd64 build, linkage и наличие требуемых production extensions без host modules.
+- [x] 2.2 Добавить общий packaged-runtime smoke и fixture harness для version/help/list, UTF-8, usage errors/exit codes, HTTPS success и rejected certificate; проверить Linux binary в чистом runtime без PHP, Composer, Docker tooling и checkout/vendor access.
 - [ ] 2.3 Добавить documented `package` target, Linux prerequisites/CA policy/minimum requirements и атрибуцию адаптированных файлов; повторить документированную сборку из clean checkout и проверить состав output и корректность license notices.
 
 ## 3. macOS и Windows builders

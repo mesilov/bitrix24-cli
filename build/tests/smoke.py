@@ -64,7 +64,7 @@ def main():
 
         def invoke(name, command, expected=0, stderr_contains=None):
             result = subprocess.run(prefix + [str(clean / (name + suffix)), *command],
-                                    cwd=clean, env=env, text=True, encoding="utf-8",
+                                    cwd=clean, env=env, text=True, encoding="utf-8", errors="backslashreplace",
                                     capture_output=True, timeout=30)
             check(result.returncode == expected, f"{name} {command}: exit {result.returncode}\n{result.stdout}\n{result.stderr}")
             if stderr_contains:
