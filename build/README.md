@@ -134,8 +134,12 @@ lock. Диагностика: CI logs и `runtime/package-*/static-php-cli-*/log
 
 ## Установка
 
-Скачайте platform archive и SHA256SUMS из одного Release. Сначала checksum,
-затем распаковка и установка. Linux:
+Скачайте platform archive и `SHA256SUMS` из одного Release или одного CI run.
+Для CI используйте artifact `b24cli-release-assets`: распакуйте внешний ZIP,
+чтобы получить platform archives и `SHA256SUMS`. Перейдите в каталог с этими файлами.
+Сначала checksum, затем распаковка и установка.
+
+### Linux amd64
 
 ```sh
 grep '  b24cli-linux-amd64.tar.gz$' SHA256SUMS | sha256sum --check -
@@ -146,11 +150,79 @@ install -m 755 b24cli "$HOME/.local/bin/b24cli"
 b24cli --version
 ```
 
-macOS: `grep '  b24cli-macos-arm64.tar.gz$' SHA256SUMS | shasum -a 256 --check -`,
-затем распакуйте этот archive и выполните те же install/PATH/version steps.
 Сохраняйте license notices рядом с установленным инструментом.
 
-Windows PowerShell:
+### macOS arm64 (zsh)
+
+Проверьте archive и распакуйте его только при успешной проверке. Команды ниже
+соединены через `&&`: при неверном checksum распаковка не выполняется.
+
+```sh
+grep '  b24cli-macos-arm64.tar.gz$' SHA256SUMS | shasum -a 256 --check - &&
+tar -xzf b24cli-macos-arm64.tar.gz
+```
+
+Продолжайте, только если проверка вывела `b24cli-macos-arm64.tar.gz: OK`
+и распаковка завершилась успешно. Первый запуск из этого каталога:
+
+```sh
+chmod +x ./b24cli
+./b24cli --version
+./b24cli --help
+```
+
+Пользователю не нужны PHP, Composer или Docker. Если macOS блокирует запуск,
+см. [issue #23](https://github.com/mesilov/bitrix24-cli/issues/23): настройка PATH
+решает поиск команды в shell, а блокировка запуска рассматривается отдельно.
+
+После успешного первого запуска установите binary с правами на исполнение
+в пользовательский каталог. `sudo` не требуется. Сохраните внешние license notices:
+
+```sh
+mkdir -p "$HOME/.local/bin" "$HOME/.local/share/b24cli"
+install -m 755 b24cli "$HOME/.local/bin/b24cli"
+install -m 644 THIRD-PARTY-NOTICES.md YIIPRESS-LICENSE.txt "$HOME/.local/share/b24cli/"
+cp -R runtime-licenses "$HOME/.local/share/b24cli/"
+```
+
+Включите этот каталог в PATH текущей zsh-сессии:
+
+```sh
+export PATH="$HOME/.local/bin:$PATH"
+rehash
+```
+
+Для новых терминалов добавьте ту же настройку в `.zshrc`. Команды учитывают
+`ZDOTDIR`, если вы используете отдельный каталог конфигурации zsh,
+и при повторном запуске не дублируют строку:
+
+```sh
+b24cli_zshrc="${ZDOTDIR:-$HOME}/.zshrc"
+touch "$b24cli_zshrc"
+grep -Fqx 'export PATH="$HOME/.local/bin:$PATH"' "$b24cli_zshrc" ||
+  printf '\n%s\n' 'export PATH="$HOME/.local/bin:$PATH"' >> "$b24cli_zshrc"
+```
+
+Проверьте установку из другого каталога:
+
+```sh
+cd /tmp
+command -v b24cli
+b24cli --version
+```
+
+`command -v` должен показать путь к `$HOME/.local/bin/b24cli`, а команда версии —
+версию скачанной сборки. Откройте новый терминал и повторите эти две проверки.
+Новую interactive login zsh-сессию можно проверить и из текущего терминала:
+
+```sh
+zsh -lic 'command -v b24cli && b24cli --version'
+```
+
+После установки используйте `b24cli --help`, `b24cli help task:show` и другие
+команды из любого каталога. Текущий каталог `.` добавлять в PATH не нужно.
+
+### Windows amd64 (PowerShell)
 
 ```powershell
 $expected = ((Get-Content SHA256SUMS | Where-Object { $_ -match '  b24cli-windows-amd64.zip$' }) -split '  ')[0]

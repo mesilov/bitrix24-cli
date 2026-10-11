@@ -21,6 +21,24 @@ CLI для работы с задачами Битрикс24.
 Для скачивания CI artifacts нужен вход в GitHub; срок хранения — 90 дней (эти сборки доступны до 09.01.2027).
 [Новые сборки](https://github.com/mesilov/bitrix24-cli/actions/workflows/package-static.yml?query=branch%3Adev).
 
+### Первый запуск
+
+Проверьте checksum и распакуйте архив по [инструкции установки](build/README.md#установка).
+В терминале перейдите в каталог с распакованным файлом. На macOS и Linux:
+
+```sh
+chmod +x ./b24cli
+./b24cli --version
+./b24cli --help
+```
+
+`./b24cli` запускает файл из текущего каталога. Команда `b24cli` ищется в PATH:
+скачивание и распаковка не добавляют её туда, поэтому zsh может ответить
+`command not found`. Чтобы вызывать `b24cli` из любого каталога, выполните
+[установку для macOS/zsh](build/README.md#macos-arm64-zsh) или своей платформы.
+На Windows первый запуск — `./b24cli/b24cli.exe --version` по инструкции установки.
+Если macOS блокирует запуск `./b24cli`, см. [issue #23](https://github.com/mesilov/bitrix24-cli/issues/23).
+
 ## CLI-команды
 
 | Команда | Назначение |
