@@ -135,6 +135,7 @@ class CompressionChecks(unittest.TestCase):
              patch("compress.subprocess.run", side_effect=run):
             compression.pack_macos(self.root, binary, {})
         self.assertEqual(binary.read_bytes(), b"compressed signed launcher")
+        self.assertEqual(calls[0][calls[0].index("--show-information") + 1], "none")
         self.assertIn("--sign", calls[1])
         self.assertIn("--verify", calls[2])
         self.assertFalse(any("--cleanup" in args for args in calls))

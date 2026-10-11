@@ -130,7 +130,7 @@ def pack_macos(work, binary, env):
     packed = binary.with_name(binary.name + ".packed")
     packed.unlink(missing_ok=True)
     subprocess.run([str(tool), "--compression", str(CONFIG["wrappe"]["compression"]),
-                    str(root), binary.name, str(packed)], env=env, check=True)
+                    "--show-information", "none", str(root), binary.name, str(packed)], env=env, check=True)
     packed.chmod(0o755)
     subprocess.run(["codesign", "--force", "--sign", "-", "--identifier", "b24cli", str(packed)], check=True)
     subprocess.run(["codesign", "--verify", "--strict", str(packed)], check=True)
