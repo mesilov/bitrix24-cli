@@ -26,3 +26,9 @@ Goals: меньшие executable всех поддерживаемых targets, 
 ## Migration Plan
 
 Обычные Make/CI команды автоматически создают compressed outputs; пользовательские имена и PATH остаются прежними. Rollback — revert packaging change без изменения source/Composer/runtime API. Проверить все native PR jobs, архивировать OpenSpec после verify и отправить PR в dev.
+
+## Native acceptance environment
+
+The unchanged base dev run 38172429157 (b35aba5c63657a5ce37487face021ebd95b5f739) reproduces Linux bind-mount PermissionError and Windows connection/ACL timeouts without compression. CI makes exported public artifacts readable to the unprivileged fixture. The Windows fixture retains OS essentials and fixes module discovery to inbox PowerShell modules with a temporary analysis cache; PHP/build tools remain absent from PATH. Existing profile/ACL checks remain mandatory.
+
+Windows module-path construction reference: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_psmodulepath?view=powershell-5.1 . Restricted module discovery is an environment correction to verify natively, not a proven explanation of every previous timeout.

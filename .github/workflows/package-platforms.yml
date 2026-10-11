@@ -53,6 +53,10 @@ jobs:
           RELEASE_VERSION: ${{ inputs.release_version }}
         run: |
           expected="${RELEASE_VERSION:-dev-${SOURCE_SHA}}"
+          # BuildKit's local exporter can create a private destination directory.
+          # The controlled connection fixture runs as an unprivileged OS user.
+          stat -c '%a %n' dist/linux-amd64 dist/linux-amd64/b24cli
+          chmod -R a+rX dist/linux-amd64
           python3 build/compress.py dist/linux-amd64
           docker run --rm --mount "type=bind,src=${PWD}/dist/linux-amd64/uncompressed,dst=/artifacts,readonly" \
             --mount "type=bind,src=${PWD}/build/tests,dst=/tests,readonly" \

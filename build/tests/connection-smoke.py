@@ -34,7 +34,7 @@ def main():
         config = home / '.config' / 'b24cli' if os.name != 'nt' else home / 'Roaming' / 'b24cli'
         temp = root / 'temporary'
         temp.mkdir()
-        env = {k: v for k, v in os.environ.items() if k.upper() in {'SYSTEMROOT', 'WINDIR', 'LANG', 'LC_ALL'}}
+        env = {k: v for k, v in os.environ.items() if k.upper() in {'SYSTEMROOT', 'WINDIR', 'SYSTEMDRIVE', 'COMSPEC', 'PATHEXT', 'PROGRAMFILES', 'PROGRAMFILES(X86)', 'PROGRAMDATA', 'LANG', 'LC_ALL'}}
         env.update({'HOME': str(home), 'APPDATA': str(home / 'Roaming'), 'PATH': str(binaries),
                     'TMPDIR': str(temp), 'TMP': str(temp), 'TEMP': str(temp), 'NO_COLOR': '1', 'TERM': 'dumb'})
         secret = 'RecognizableFixtureSecret'
@@ -44,6 +44,11 @@ def main():
         (binaries / '.env.local').write_text('BITRIX24_WEBHOOK=https://untrusted.invalid/rest/1/UntrustedSecret/\n')
         executable_acl = None
         powershell = Path(env.get('SystemRoot', env.get('SYSTEMROOT', 'C:\\Windows'))) / 'System32/WindowsPowerShell/v1.0/powershell.exe'
+        if os.name == 'nt':
+            # Keep command discovery inside the inbox modules and its cache in
+            # the fixture; inherited runner/user module paths are not inputs.
+            env['PSModulePath'] = str(powershell.parent / 'Modules')
+            env['PSModuleAnalysisCachePath'] = str(temp / 'powershell-module-cache')
 
         def ps(script, extra=None):
             return subprocess.run([str(powershell), '-NoProfile', '-NonInteractive', '-Command', script],
