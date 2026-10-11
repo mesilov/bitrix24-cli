@@ -1,6 +1,5 @@
 services:
   php-cli:
-    image: bitrix24-cli-php-cli:dev
     build:
       context: ./docker/php-cli
     user: "${LOCAL_UID:-10001}:${LOCAL_GID:-10001}"

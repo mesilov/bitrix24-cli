@@ -1,0 +1,32 @@
+# Adapted from bitrix24/b24phpsdk v3, commit 8ebd4c154d5557db949b0196825f347a3a6c5bf0.
+name: "Rector lint checks"
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  static-analysis:
+    name: "Rector"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Export container user
+        run: |
+          echo "LOCAL_UID=$(id -u)" >> "$GITHUB_ENV"
+          echo "LOCAL_GID=$(id -g)" >> "$GITHUB_ENV"
+
+      - name: Build CLI image
+        run: make docker-build
+
+      - name: Install locked dependencies
+        run: make composer-install
+
+      - name: "Rector"
+        run: make lint-rector

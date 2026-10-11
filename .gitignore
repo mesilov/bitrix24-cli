@@ -2,3 +2,10 @@
 /vendor/
 /.env
 /.env.local
+/.worktree/
+/.worktree-test-results/
+
+/var/cache/
+/dist/
+/runtime/
+__pycache__/

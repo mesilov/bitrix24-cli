@@ -1,0 +1,60 @@
+name: Release standalone binaries
+
+on:
+  push:
+    tags: ['*.*.*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate-tag:
+    name: Verify production tag belongs to main
+    runs-on: ubuntu-24.04
+    outputs:
+      source_sha: ${{ steps.source.outputs.sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Resolve the exact main version tag
+        id: source
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          sha="$(python3 build/source.py --release-tag "$RELEASE_TAG")"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+  packages:
+    needs: validate-tag
+    uses: ./.github/workflows/package-platforms.yml
+    with:
+      source_sha: ${{ needs.validate-tag.outputs.source_sha }}
+      release_version: ${{ github.ref_name }}
+
+  publish:
+    needs: packages
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: b24cli-release-assets
+          path: assets
+      - name: Verify archives before publication
+        run: python3 build/tests/archive-check.py assets
+      - name: Publish verified assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: python3 build/publish-release.py "$RELEASE_TAG" assets

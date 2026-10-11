@@ -1,0 +1,556 @@
+{
+  "checked_on": "2026-10-09",
+  "status": "static-planning-assessment-not-runtime",
+  "spec": "openspec/specs/task-workflows/spec.md",
+  "catalog": "cli-candidates.json",
+  "coverage": [
+    {
+      "id": "PM-01",
+      "commands": [
+        "task:add",
+        "task:subtask:add",
+        "task:show",
+        "task:checklist:add",
+        "task:checklist:item:add"
+      ],
+      "new_card_status": "documented",
+      "strict_rest3_status": "documented",
+      "condition": "Для каждого задания заданы title, creator/responsible, deadline и критерии в description. Зависимости/чек-листы — отдельные расширения, не обязательны для базовой декомпозиции.",
+      "acceptance": "Создание с критериями и сроком; отсутствие обязательного creator; отказ в правах.",
+      "mvp": {
+        "mapping_status": "mapping-reduced",
+        "remaining_commands": [
+          "task:add",
+          "task:show",
+          "task:checklist:add",
+          "task:checklist:item:add"
+        ],
+        "mvp_candidates": [
+          "task:add",
+          "task:show",
+          "task:checklist:add",
+          "task:checklist:item:add"
+        ],
+        "api_policy_pending_commands": [],
+        "post_mvp_commands": [
+          "task:subtask:add"
+        ],
+        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD. Дополнительные связи поиска и чек-листов описывают discovery/декомпозицию. Все восемь checklist/root/item команд явно включены в MVP через REST1; это решение о scope/API, а не доказательство runtime acceptance или повышения исходного API assessment. Отдельная task:subtask:add после MVP; явный parentId обычной task:add не является отдельной командой или неявной операцией. Исходный продуктовый JTBD не удаляется."
+      }
+    },
+    {
+      "id": "PM-02",
+      "commands": [
+        "task:list",
+        "task:plan",
+        "task:risks",
+        "task:dependency:list"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "conditional",
+      "condition": "Просрочки вычисляются; полная выборка локально фильтруется. Для blockers/ожиданий нужен утверждённый источник; v3 gantt.list даёт только исходящие связи.",
+      "acceptance": "Недостающие blocker data => unknown; превышение scan cap => partial; входящие зависимости не заявлены полными.",
+      "mvp": {
+        "mapping_status": "mapping-reduced",
+        "remaining_commands": [
+          "task:list"
+        ],
+        "mvp_candidates": [
+          "task:list"
+        ],
+        "api_policy_pending_commands": [],
+        "post_mvp_commands": [
+          "task:plan",
+          "task:risks",
+          "task:dependency:list"
+        ],
+        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD."
+      }
+    },
+    {
+      "id": "PM-03",
+      "commands": [
+        "task:blocker:raise",
+        "task:blocker:resolve",
+        "task:chat:send"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "conditional",
+      "condition": "Нужен контракт событий препятствия, owner/next-step и конфликтных изменений. Чатное уведомление не гарантирует прочтение.",
+      "acceptance": "Связь raise/resolve по ID; два противоречащих решения; отправка в нужный чат от авторизованного лица.",
+      "mvp": {
+        "mapping_status": "mapping-reduced",
+        "remaining_commands": [
+          "task:chat:send"
+        ],
+        "mvp_candidates": [
+          "task:chat:send"
+        ],
+        "api_policy_pending_commands": [],
+        "post_mvp_commands": [
+          "task:blocker:raise",
+          "task:blocker:resolve"
+        ],
+        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD."
+      }
+    },
+    {
+      "id": "PM-04",
+      "commands": [
+        "task:plan",
+        "task:assign",
+        "task:deadline:set",
+        "task:change:propose",
+        "task:change:accept"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "conditional",
+      "condition": "Само update v3 документировано; согласование и ресурсные ограничения требуют данных/протокола. Ответственный не равен процедуре delegate.",
+      "acceptance": "Предложение не изменяет fields; --apply применяет согласованные значения; частичный multi-step явно виден.",
+      "mvp": {
+        "mapping_status": "mapping-reduced",
+        "remaining_commands": [
+          "task:assign",
+          "task:deadline:set"
+        ],
+        "mvp_candidates": [
+          "task:assign",
+          "task:deadline:set"
+        ],
+        "api_policy_pending_commands": [],
+        "post_mvp_commands": [
+          "task:plan",
+          "task:change:propose",
+          "task:change:accept"
+        ],
+        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD."
+      }
+    },
+    {
+      "id": "PM-05",
+      "commands": [
+        "task:result:list",
+        "task:approve",
+        "task:disapprove",
+        "task:acceptance:record"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "conditional",
+      "condition": "REST3 status writable в модели, но эквивалентность approve/disapprove требует acceptance. До него специальные команды disabled.",
+      "acceptance": "Контроль включён; проверяющий имеет approve rights; возврат содержит замечания; клиентская приёмка не подменяет внутреннюю.",
+      "mvp": {
+        "mapping_status": "no-remaining-mapped-commands",
+        "remaining_commands": [],
+        "mvp_candidates": [],
+        "api_policy_pending_commands": [],
+        "post_mvp_commands": [
+          "task:result:list",
+          "task:approve",
+          "task:disapprove",
+          "task:acceptance:record"
+        ],
+        "note": "Все связанные команды результатов и внутренней приёмки после MVP. PM-05 сохраняется как требование продукта; MVP не выполняет approve/disapprove или скрытый переход статуса."
+      }
+    },
+    {
+      "id": "PM-06",
+      "commands": [
+        "task:chat:list",
+        "task:chat:send"
+      ],
+      "new_card_status": "documented",
+      "strict_rest3_status": "conditional",
+      "condition": "Отправка REST3, история через документированный IM companion route; только участник task chat с правами.",
+      "acceptance": "Прочитать старые сообщения с LAST_ID; отправить и повторно прочитать MESSAGE_ID; отказ пользователю без доступа.",
+      "mvp": {
+        "mapping_status": "mapping-unchanged",
+        "remaining_commands": [
+          "task:chat:list",
+          "task:chat:send"
+        ],
+        "mvp_candidates": [
+          "task:chat:list",
+          "task:chat:send"
+        ],
+        "api_policy_pending_commands": [],
+        "post_mvp_commands": [],
+        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD."
+      }
+    },
+    {
+      "id": "AM-01",
+      "commands": [
+        "task:add",
+        "task:show",
+        "task:find"
+      ],
+      "new_card_status": "documented",
+      "strict_rest3_status": "documented",
+      "condition": "Для базового сценария источник запроса, клиентский контекст и ожидание вводятся оператором в description. Автоматический импорт из CRM не требуется и не обещается.",
+      "acceptance": "Карточка сохраняет source ref, client context и outcome; числовые creator/responsible обязательны.",
+      "mvp": {
+        "mapping_status": "mapping-unchanged",
+        "remaining_commands": [
+          "task:add",
+          "task:show",
+          "task:find"
+        ],
+        "mvp_candidates": [
+          "task:add",
+          "task:show",
+          "task:find"
+        ],
+        "api_policy_pending_commands": [],
+        "post_mvp_commands": [],
+        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD. Дополнительные связи поиска и чек-листов описывают discovery/декомпозицию. Все восемь checklist/root/item команд явно включены в MVP через REST1; это решение о scope/API, а не доказательство runtime acceptance или повышения исходного API assessment."
+      }
+    },
+    {
+      "id": "AM-02",
+      "commands": [
+        "task:risks",
+        "task:report",
+        "task:context:set"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "conditional",
+      "condition": "Обещанный клиенту срок может отличаться от task.deadline. Нужны clientRef, promisedAt, связь обязательств с задачами и полнота выборки.",
+      "acceptance": "Два разных срока не смешиваются; нет promisedAt => unknown; частичные данные не дают зелёный статус обязательства.",
+      "mvp": {
+        "mapping_status": "no-remaining-mapped-commands",
+        "remaining_commands": [],
+        "mvp_candidates": [],
+        "api_policy_pending_commands": [],
+        "post_mvp_commands": [
+          "task:risks",
+          "task:report",
+          "task:context:set"
+        ],
+        "note": "Все связанные команды вынесены; клиентские обязательства относятся к развитию после MVP."
+      }
+    },
+    {
+      "id": "AM-03",
+      "commands": [
+        "task:report",
+        "task:brief"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "conditional",
+      "condition": "Следующий шаг и следующее обновление требуют явных данных, не вывода из status или произвольного текста чата.",
+      "acceptance": "Сводка содержит evidence IDs/as-of/partial; неизвестный срок обновления не выдумывается; client audience не раскрывает внутреннюю переписку автоматически.",
+      "mvp": {
+        "mapping_status": "no-remaining-mapped-commands",
+        "remaining_commands": [],
+        "mvp_candidates": [],
+        "api_policy_pending_commands": [],
+        "post_mvp_commands": [
+          "task:report",
+          "task:brief"
+        ],
+        "note": "Все связанные сводки вынесены; отдельный workflow клиентского статусного отчёта после MVP."
+      }
+    },
+    {
+      "id": "AM-04",
+      "commands": [
+        "task:change:propose",
+        "task:change:accept",
+        "task:update"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "conditional",
+      "condition": "Нужен контракт исходных и новых требований, влияния на объём/сроки и решения согласующего. Запись решения отдельно от применения.",
+      "acceptance": "Предложение/согласование/применение различаются; конфликт текущих fields не затирается; виден согласующий и источник.",
+      "mvp": {
+        "mapping_status": "mapping-reduced",
+        "remaining_commands": [
+          "task:update"
+        ],
+        "mvp_candidates": [
+          "task:update"
+        ],
+        "api_policy_pending_commands": [],
+        "post_mvp_commands": [
+          "task:change:propose",
+          "task:change:accept"
+        ],
+        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD."
+      }
+    },
+    {
+      "id": "AM-05",
+      "commands": [
+        "task:result:list",
+        "task:delivery:record",
+        "task:feedback:record",
+        "task:acceptance:record",
+        "task:report"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "conditional",
+      "condition": "Публичная передача и отзыв подтверждаются оператором/источником. Хранилище и схема событий ещё не приняты; команды не отправляют клиенту сообщения.",
+      "acceptance": "Передача имеет evidence и дату; отзыв имеет source ref; внутреннее approve не делает client accepted автоматически.",
+      "mvp": {
+        "mapping_status": "no-remaining-mapped-commands",
+        "remaining_commands": [],
+        "mvp_candidates": [],
+        "api_policy_pending_commands": [],
+        "post_mvp_commands": [
+          "task:result:list",
+          "task:delivery:record",
+          "task:feedback:record",
+          "task:acceptance:record",
+          "task:report"
+        ],
+        "note": "Все исходные mapped команды, включая result:list, после MVP. Клиентская передача/отзыв/приёмка сохраняются общими требованиями продукта."
+      }
+    },
+    {
+      "id": "AM-06",
+      "commands": [
+        "task:chat:list",
+        "task:chat:send"
+      ],
+      "new_card_status": "documented",
+      "strict_rest3_status": "conditional",
+      "condition": "Новая task-card переписка по маршрутам REST3 + IM; внешний клиент не получает права от роли аккаунт менеджера.",
+      "acceptance": "Уточнение и ответ читаются в task chat; верная принадлежность задачи/чата; отсутствует legacy comment route.",
+      "mvp": {
+        "mapping_status": "mapping-unchanged",
+        "remaining_commands": [
+          "task:chat:list",
+          "task:chat:send"
+        ],
+        "mvp_candidates": [
+          "task:chat:list",
+          "task:chat:send"
+        ],
+        "api_policy_pending_commands": [],
+        "post_mvp_commands": [],
+        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD."
+      }
+    },
+    {
+      "id": "EMP-01",
+      "commands": [
+        "task:my",
+        "task:list"
+      ],
+      "new_card_status": "documented",
+      "strict_rest3_status": "documented",
+      "condition": "Фильтрация по responsible/status/deadline выполняется локально после полного обхода доступных задач. Нужен заданный user ID; при cap результат явно partial.",
+      "acceptance": "Пагинация более страницы; свои задачи отделены от чужих; лимит выхода не прекращает сканирование до определения полноты.",
+      "mvp": {
+        "mapping_status": "mapping-reduced",
+        "remaining_commands": [
+          "task:list"
+        ],
+        "mvp_candidates": [
+          "task:list"
+        ],
+        "api_policy_pending_commands": [],
+        "post_mvp_commands": [
+          "task:my"
+        ],
+        "note": "task:my исключён; базовая выборка сотрудника остаётся через task:list --responsible ID. Это замена shortcut, а не утверждение runtime полноты всего JTBD."
+      }
+    },
+    {
+      "id": "EMP-02",
+      "commands": [
+        "task:show",
+        "task:chat:send",
+        "task:find",
+        "task:checklist:list",
+        "task:checklist:item:list"
+      ],
+      "new_card_status": "documented",
+      "strict_rest3_status": "documented",
+      "condition": "Требования/материалы/критерии доступны в карточке и ссылках. Недостающие сведения запрашиваются через REST3 task chat. История обсуждения — дополнительный IM route.",
+      "acceptance": "Получить related fields через select; вопросы связаны с задачей; загрузка локального файла не выдается за attach existing file.",
+      "mvp": {
+        "mapping_status": "mapping-unchanged",
+        "remaining_commands": [
+          "task:show",
+          "task:chat:send",
+          "task:find",
+          "task:checklist:list",
+          "task:checklist:item:list"
+        ],
+        "mvp_candidates": [
+          "task:show",
+          "task:chat:send",
+          "task:find",
+          "task:checklist:list",
+          "task:checklist:item:list"
+        ],
+        "api_policy_pending_commands": [],
+        "post_mvp_commands": [],
+        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD. Дополнительные связи поиска и чек-листов описывают discovery/декомпозицию. Все восемь checklist/root/item команд явно включены в MVP через REST1; это решение о scope/API, а не доказательство runtime acceptance или повышения исходного API assessment."
+      }
+    },
+    {
+      "id": "EMP-03",
+      "commands": [
+        "task:blocker:raise",
+        "task:chat:send"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "conditional",
+      "condition": "Чат позволяет сообщить проблему, но для поиска/закрытия препятствий нужны reason, needs, owner, next-step и источник этих фактов.",
+      "acceptance": "Нет нового status=blocked; просьба сохраняется в task chat; owner не назначается по догадке.",
+      "mvp": {
+        "mapping_status": "mapping-reduced",
+        "remaining_commands": [
+          "task:chat:send"
+        ],
+        "mvp_candidates": [
+          "task:chat:send"
+        ],
+        "api_policy_pending_commands": [],
+        "post_mvp_commands": [
+          "task:blocker:raise"
+        ],
+        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD."
+      }
+    },
+    {
+      "id": "EMP-04",
+      "commands": [
+        "task:brief",
+        "task:change:propose",
+        "task:change:accept",
+        "task:show"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "conditional",
+      "condition": "Чтобы отличить принятые ожидания от обсуждения, нужна явная модель согласования/истории. Нативная history пока только прежний маршрут.",
+      "acceptance": "Показать текущую принятую версию и различия; не объявлять любое чатное предложение согласованным.",
+      "mvp": {
+        "mapping_status": "mapping-reduced",
+        "remaining_commands": [
+          "task:show"
+        ],
+        "mvp_candidates": [
+          "task:show"
+        ],
+        "api_policy_pending_commands": [],
+        "post_mvp_commands": [
+          "task:brief",
+          "task:change:propose",
+          "task:change:accept"
+        ],
+        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD."
+      }
+    },
+    {
+      "id": "EMP-05",
+      "commands": [
+        "task:result:add",
+        "task:result:from-message",
+        "task:file:attach",
+        "task:complete"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "conditional",
+      "condition": "Предъявить result через v3 можно; переход на контроль, requireResult и post-condition complete нуждаются в lifecycle acceptance.",
+      "acceptance": "Нет result при requireResult => ошибка; needsControl => awaiting control; права и действительный статус проверены.",
+      "mvp": {
+        "mapping_status": "mapping-reduced",
+        "remaining_commands": [
+          "task:file:attach"
+        ],
+        "mvp_candidates": [
+          "task:file:attach"
+        ],
+        "api_policy_pending_commands": [],
+        "post_mvp_commands": [
+          "task:result:add",
+          "task:result:from-message",
+          "task:complete"
+        ],
+        "note": "В MVP остаётся только task:file:attach. Result:add/from-message и complete после MVP; прикрепление файла не выполняет предъявление native result или завершение задачи. Для будущего lifecycle сохраняются requireResult/needsControl, права и проверка side effects без скрытого создания результата."
+      }
+    },
+    {
+      "id": "EMP-06",
+      "commands": [
+        "task:time:show",
+        "task:time:add",
+        "task:time:list",
+        "task:time:update",
+        "task:time:delete"
+      ],
+      "new_card_status": "conditional",
+      "strict_rest3_status": "gap",
+      "condition": "V3 даёт чтение elapsedTime, но не документирует запись/исправление elapsed entries. Четыре legacy time маршрута явно допущены в MVP пользователем; strict-rest3 gap и runtime проверки сохраняются.",
+      "acceptance": "Собственная запись seconds/comment; исправление и удаление в пределах author/admin прав и выбранной задачи; не секундомер; проверка полного списка entries отдельно.",
+      "mvp": {
+        "mapping_status": "mapping-unchanged",
+        "remaining_commands": [
+          "task:time:show",
+          "task:time:add",
+          "task:time:list",
+          "task:time:update",
+          "task:time:delete"
+        ],
+        "mvp_candidates": [
+          "task:time:show",
+          "task:time:add",
+          "task:time:list",
+          "task:time:update",
+          "task:time:delete"
+        ],
+        "api_policy_pending_commands": [],
+        "post_mvp_commands": [],
+        "note": "Все четыре операции записей времени включены в MVP с явным REST 1.0 допуском. Time:show остаётся REST3. Для EMP-06 проверяются создание, полный список, исправление и удаление своих записей, права и принадлежность ENTRY_ID задаче. Strict-rest3 gap сохраняется; решение о scope не подтверждает runtime acceptance."
+      }
+    },
+    {
+      "id": "EMP-07",
+      "commands": [
+        "task:chat:list",
+        "task:chat:send"
+      ],
+      "new_card_status": "documented",
+      "strict_rest3_status": "conditional",
+      "condition": "История IM и send v3 документированы для новой карточки. Действия выполняются от текущего подключения, не подставленного AUTHOR_ID.",
+      "acceptance": "Последовательное чтение FIRST_ID/LAST_ID; ответ находится при нужной задаче; отказ без участия/прав.",
+      "mvp": {
+        "mapping_status": "mapping-unchanged",
+        "remaining_commands": [
+          "task:chat:list",
+          "task:chat:send"
+        ],
+        "mvp_candidates": [
+          "task:chat:list",
+          "task:chat:send"
+        ],
+        "api_policy_pending_commands": [],
+        "post_mvp_commands": [],
+        "note": "Отражено только наличие оставшихся связей команд. Исходные условия/gaps и будущий acceptance сохраняются; состав MVP не доказывает полного выполнения JTBD."
+      }
+    }
+  ],
+  "counts": {
+    "intent_mapped": 19,
+    "new_card": {
+      "documented": 7,
+      "conditional": 12
+    },
+    "strict_rest3": {
+      "documented": 4,
+      "conditional": 14,
+      "gap": 1
+    }
+  },
+  "cli_contract": "openspec/specs/cli-experience/spec.md",
+  "mvp_scope_spec": "openspec/specs/task-mvp-scope/spec.md",
+  "mvp_mapping_counts": {
+    "mapping-unchanged": 6,
+    "mapping-reduced": 9,
+    "no-remaining-mapped-commands": 4
+  },
+  "mvp_mapping_definition": "Structural command partition after 29 user exclusions, not a full/partial JTBD acceptance score. remaining_commands includes candidates and API-policy-pending extensions."
+}
