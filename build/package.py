@@ -77,6 +77,7 @@ def main():
             raise ValueError("PHAR does not have a compiled runtime")
         build_runtime(toolchain(work, env), env, args.target)
         return
+    run(["php", "-d", "phar.readonly=0", ROOT / "build/tests/phar-stub-check.php"], env=env)
     env["COMPOSER_ROOT_VERSION"] = info["version"] if args.version else "dev-dev"
     info["executable_compression"] = provenance(args.target)
     info["phar_compression"] = "gzip"

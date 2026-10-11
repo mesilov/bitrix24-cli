@@ -9,6 +9,7 @@
 - Добавить обязательное сжатие PHP micro runtime через закреплённый UPX на Linux/Windows до добавления gzip PHAR; на macOS упаковать готовый подписанный executable закреплённым wrappe.
 - Сохранить исходные runtime и PHAR, записывать метод/версию упаковки и размеры до/после в отдельный отчёт; проверять уменьшение размера до upload и release.
 - Выполнять существующие native проверки на итоговых сжатых файлах, дополнительно проверяя macOS inner/outer подписи и неизменность PHAR.
+- Создавать временный Windows PHAR сразу под уникальным конечным именем без rename, чтобы сохранить одновременный запуск итоговых бинарников.
 - Документировать prerequisites, распаковку macOS при запуске и обязательные license notices.
 
 ## Capabilities
@@ -23,7 +24,7 @@
 
 ## Impact
 
-`build/package.py`, новый compression helper/config, packaging CI, macOS acceptance, release archive allowlist и документация. Composer production lock, API-поля, CLI-команды и пользовательские настройки не изменяются. Не обещаем 6 MB: набор зависимостей отличается от YiiPress.
+`build/package.py`, Windows `build/phar-stub.php`, новый compression helper/config, packaging CI, macOS acceptance, release archive allowlist и документация. Composer production lock, API-поля, CLI-команды и пользовательские настройки не изменяются. Не обещаем 6 MB: набор зависимостей отличается от YiiPress.
 
 ## GitHub issues
 

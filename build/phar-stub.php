@@ -3,16 +3,15 @@
 
 // Windows micro stream hooks are bypassed by loading the payload as a regular PHAR.
 if ('__B24CLI_PAYLOAD_STRATEGY__' === 'temporary-phar' && function_exists('micro_open_self')) {
-    $temporary = tempnam(sys_get_temp_dir(), 'b24cli-payload-');
-    if ($temporary === false || !rename($temporary, $temporary . '.phar')) {
+    $temporary = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'b24cli-payload-' . bin2hex(random_bytes(16)) . '.phar';
+    $destination = @fopen($temporary, 'x+b');
+    if ($destination === false) {
         throw new RuntimeException('Cannot create temporary application PHAR.');
     }
-    $temporary .= '.phar';
     register_shutdown_function(static function () use ($temporary): void {
         Phar::unlinkArchive($temporary);
     });
     $source = micro_open_self();
-    $destination = fopen($temporary, 'wb');
     if ($source === false || $destination === false || fseek($source, micro_get_sfxsize()) !== 0) {
         throw new RuntimeException('Cannot read embedded application PHAR.');
     }

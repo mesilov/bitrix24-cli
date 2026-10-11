@@ -206,6 +206,8 @@ def main():
                 assert secret not in path.read_text(), 'Secret in metadata'
             assert all(hashlib.sha256((binaries / name).read_bytes()).hexdigest() == digest for name, digest in hashes.items())
             assert not list(binaries.glob('credentials')), 'Configuration was written beside binary'
+            if os.name == 'nt':
+                assert not list(temp.glob('b24cli-payload-*.phar')), 'Temporary PHAR leaked after concurrent launches'
             print(json.dumps({'status': 'passed', 'checks': ['private-storage', 'Windows-ACL' if os.name == 'nt' else 'Unix-modes',
                 'concurrent-writers', 'profile-defaults', 'source-precedence', 'full-SDK-controlled-transport',
                 'CRLF', 'documented-native-shells', 'Unicode-space-paths', 'read-only-executable-dir', 'no-cwd-dotenv', 'missing-user-home', 'raw-URL-controls', 'no-secret-output', 'no-binary-mutation']}))

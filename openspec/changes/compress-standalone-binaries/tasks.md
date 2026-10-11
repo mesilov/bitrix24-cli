@@ -3,7 +3,7 @@
 ## 1. Compression implementation
 
 - [x] 1.1 Add pinned packer configuration, scoped verified tool installation, licensing and compression reports; verify regression cases for wrong digest/version, failed tool, missing output, no reduction and altered report/hash.
-- [x] 1.2 Integrate Linux/Windows micro compression before PHAR combine and macOS packing after payload finalization with inner/outer signatures; verify original runtime/payload preservation and native size reduction.
+- [ ] 1.2 Integrate Linux/Windows micro compression before PHAR combine and macOS packing after payload finalization with inner/outer signatures; preserve concurrent Windows startup through direct exclusive temporary PHAR creation; verify original runtime/payload preservation, temporary cleanup and native size reduction.
 - [x] 1.3 Document native prerequisites, packer identities and macOS cold/warm unpack behavior; verify documented commands match Make/build entry points and notices are shipped.
 
 ## 2. CI and archive acceptance

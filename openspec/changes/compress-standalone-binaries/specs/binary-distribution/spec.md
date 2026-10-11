@@ -13,6 +13,11 @@ All supported standalone packages SHALL contain a compressed executable smaller 
 - **THEN** both the embedded executable and its launcher have valid signatures, the original PHAR bytes remain intact, and repeated invocation succeeds
 - **AND** direct SIGINT preserves confirmed task output and exit 130
 
+#### Scenario: Concurrent Windows startup
+- **WHEN** multiple compressed Windows executables start concurrently in one writable temporary directory
+- **THEN** each loads the unchanged application PHAR from its own exclusively created file without a temporary-file rename
+- **AND** concurrent profile updates preserve all independent profiles and normal shutdown removes the temporary PHAR files
+
 #### Scenario: Reject unsuccessful compression
 - **WHEN** the selected compressor is unavailable, has an unexpected identity, fails, or produces no size reduction
 - **THEN** packaging fails before artifact upload or release publication
