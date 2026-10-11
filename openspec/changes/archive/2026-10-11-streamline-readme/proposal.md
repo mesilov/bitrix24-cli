@@ -28,10 +28,10 @@ README в актуальной `dev` перегружен устройством
 - Файлы реализации: `README.md`, `docs/development.md` и необходимые исправления относительных ссылок в перенесённом тексте.
 - Без изменений CLI, API, зависимостей, сборочных scripts и CI workflows.
 - Первоначальная база планирования: `dev` / `09c598e1eb085a125d689b1d35c1fe700d9b410a`. Перед публикацией плана worktree обновлён fast-forward до `dev` / `56654f1`, содержащей сборочную инфраструктуру PR #17. Отдельный worktree `/private/tmp/bitrix24-cli-issue-18`, ветка `feature/18-streamline-readme`.
-- На 11.10.2026 публичных Releases нет. Последняя проверенная успешная native-матрица: https://github.com/mesilov/bitrix24-cli/actions/runs/38146040105 (Linux/macOS/Windows); более новый run 38147243497 ещё выполняется. Эти URL — доказательство текущего состояния, а не навсегда закреплённые ссылки README.
+- На 11.10.2026 публичных Releases нет. README ссылается на последнюю проверенную успешную native-матрицу: https://github.com/mesilov/bitrix24-cli/actions/runs/38148884407 / `a7024b1` (Linux/macOS/Windows). Коммит уже принят в историю `dev`; новые матрицы `dev` ещё выполняются. Срок доступности artifacts указан рядом со ссылками; для поиска новых сборок есть переход на workflow.
 
 ## GitHub issues
 
 - [#18 — Причесать README: бейджи линтеров, последние бинарники и список CLI-команд](https://github.com/mesilov/bitrix24-cli/issues/18) — весь объём этого change. Label: `documentation`; milestone: `0.1.0`.
 - [#7](https://github.com/mesilov/bitrix24-cli/issues/7) — существующие бейджи, сохраняемые при редактуре.
-- [#14](https://github.com/mesilov/bitrix24-cli/issues/14) / [PR #17](https://github.com/mesilov/bitrix24-cli/pull/17) — источник бинарников и контракт имён архивов. Их реализация и публикация Release остаются в отдельной задаче.
+- [#14](https://github.com/mesilov/bitrix24-cli/issues/14) / [PR #17](https://github.com/mesilov/bitrix24-cli/pull/17) — принятая сборочная инфраструктура и контракт имён архивов. Публикация публичного Release не входит в этот change.
