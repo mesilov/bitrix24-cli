@@ -134,105 +134,25 @@ lock. Диагностика: CI logs и `runtime/package-*/static-php-cli-*/log
 
 ## Установка
 
-Скачайте platform archive и `SHA256SUMS` из одного Release или одного CI run.
-Для CI используйте artifact `b24cli-release-assets`: распакуйте внешний ZIP,
-чтобы получить platform archives и `SHA256SUMS`. Перейдите в каталог с этими файлами.
-Сначала checksum, затем распаковка и установка.
+Подробные команды скачивания, checksum, распаковки, первого запуска и пользовательского
+PATH находятся в [README → Установка](../README.md#установка). Там же описаны предупреждения
+macOS/Windows, ограничения текущей предварительной сборки, сохранение notices и обновление.
+Для CI скачивайте `b24cli-release-assets` одного run и распакуйте внешний ZIP;
+для Release используйте platform archive и `SHA256SUMS` из одного Release.
 
 ### Linux amd64
 
-```sh
-grep '  b24cli-linux-amd64.tar.gz$' SHA256SUMS | sha256sum --check -
-tar -xzf b24cli-linux-amd64.tar.gz
-mkdir -p "$HOME/.local/bin"
-install -m 755 b24cli "$HOME/.local/bin/b24cli"
-# Добавьте $HOME/.local/bin в PATH своего shell.
-b24cli --version
-```
-
-Сохраняйте license notices рядом с установленным инструментом.
+Откройте в README блок **Linux amd64 — установка и PATH (Bash)**.
 
 ### macOS arm64 (zsh)
 
-Проверьте archive и распакуйте его только при успешной проверке. Команды ниже
-соединены через `&&`: при неверном checksum распаковка не выполняется.
-
-```sh
-grep '  b24cli-macos-arm64.tar.gz$' SHA256SUMS | shasum -a 256 --check - &&
-tar -xzf b24cli-macos-arm64.tar.gz
-```
-
-Продолжайте, только если проверка вывела `b24cli-macos-arm64.tar.gz: OK`
-и распаковка завершилась успешно. Первый запуск из этого каталога:
-
-```sh
-chmod +x ./b24cli
-./b24cli --version
-./b24cli --help
-```
-
-Пользователю не нужны PHP, Composer или Docker. Если macOS блокирует запуск,
-см. [issue #23](https://github.com/mesilov/bitrix24-cli/issues/23): настройка PATH
-решает поиск команды в shell, а блокировка запуска рассматривается отдельно.
-
-После успешного первого запуска установите binary с правами на исполнение
-в пользовательский каталог. `sudo` не требуется. Сохраните внешние license notices:
-
-```sh
-mkdir -p "$HOME/.local/bin" "$HOME/.local/share/b24cli"
-install -m 755 b24cli "$HOME/.local/bin/b24cli"
-install -m 644 THIRD-PARTY-NOTICES.md YIIPRESS-LICENSE.txt "$HOME/.local/share/b24cli/"
-cp -R runtime-licenses "$HOME/.local/share/b24cli/"
-```
-
-Включите этот каталог в PATH текущей zsh-сессии:
-
-```sh
-export PATH="$HOME/.local/bin:$PATH"
-rehash
-```
-
-Для новых терминалов добавьте ту же настройку в `.zshrc`. Команды учитывают
-`ZDOTDIR`, если вы используете отдельный каталог конфигурации zsh,
-и при повторном запуске не дублируют строку:
-
-```sh
-b24cli_zshrc="${ZDOTDIR:-$HOME}/.zshrc"
-touch "$b24cli_zshrc"
-grep -Fqx 'export PATH="$HOME/.local/bin:$PATH"' "$b24cli_zshrc" ||
-  printf '\n%s\n' 'export PATH="$HOME/.local/bin:$PATH"' >> "$b24cli_zshrc"
-```
-
-Проверьте установку из другого каталога:
-
-```sh
-cd /tmp
-command -v b24cli
-b24cli --version
-```
-
-`command -v` должен показать путь к `$HOME/.local/bin/b24cli`, а команда версии —
-версию скачанной сборки. Откройте новый терминал и повторите эти две проверки.
-Новую interactive login zsh-сессию можно проверить и из текущего терминала:
-
-```sh
-zsh -lic 'command -v b24cli && b24cli --version'
-```
-
-После установки используйте `b24cli --help`, `b24cli help task:show` и другие
-команды из любого каталога. Текущий каталог `.` добавлять в PATH не нужно.
+Откройте в README блок **macOS arm64 — установка, первый запуск и PATH (zsh)**.
+`./b24cli` запускает файл из текущего каталога; `b24cli` требует установки в PATH.
+Известный отказ ОС рассматривается в [#23](https://github.com/mesilov/bitrix24-cli/issues/23).
 
 ### Windows amd64 (PowerShell)
 
-```powershell
-$expected = ((Get-Content SHA256SUMS | Where-Object { $_ -match '  b24cli-windows-amd64.zip$' }) -split '  ')[0]
-if (-not $expected -or (Get-FileHash b24cli-windows-amd64.zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-    throw 'Checksum mismatch'
-}
-Expand-Archive b24cli-windows-amd64.zip -DestinationPath b24cli
-./b24cli/b24cli.exe --version
-# Добавьте directory b24cli в пользовательский PATH.
-```
+Откройте в README блок **Windows amd64 — установка и PATH (PowerShell)**.
 
 Пользователю не нужны PHP/Composer/Docker. Linux использует static musl; clean
 runtime проверяется на Debian 12, build job — Ubuntu 24.04. Minimum validated
