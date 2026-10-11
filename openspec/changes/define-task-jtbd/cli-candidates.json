@@ -9,7 +9,7 @@
     {
       "name": "task:add",
       "group": "Карточка и выборки",
-      "syntax": "--title TEXT --creator ID --responsible ID [--project ID --deadline ISO8601 --description TEXT | --description-file PATH|-] [--fields JSON | --fields-file PATH|-]",
+      "syntax": "--title TEXT --creator ID --responsible ID [--group-id ID --deadline ISO8601 --description TEXT | --description-file PATH|-] [--fields JSON | --fields-file PATH|-]",
       "route": "rest3",
       "methods": [
         "tasks.task.add"
@@ -99,7 +99,7 @@
     {
       "name": "task:list",
       "group": "Карточка и выборки",
-      "syntax": "[--id ID ...] [--responsible ID --project ID --status STATUS --due-before ISO8601] [--where JSON | --where-file PATH|-] [--select FIELD ... --order FIELD:asc|desc ... --limit N | --all] [--max-scan N]",
+      "syntax": "[--id ID ...] [--responsible ID --group-id ID --status STATUS --due-before ISO8601] [--where JSON | --where-file PATH|-] [--select FIELD ... --order FIELD:asc|desc ... --limit N | --all] [--max-scan N]",
       "route": "rest3-client-filter",
       "methods": [
         "tasks.task.list"
@@ -112,7 +112,7 @@
         "AM-02",
         "EMP-01"
       ],
-      "note": "REST filter только id. --where выполняется локально по явно выбранным полям; полнота требует обхода всех доступных задач. --limit ограничивает выход, --max-scan число просмотренных, это разные значения. --responsible/--project/--status/--due-before — локальные predicates; --id — единственный server filter. --where/--where-file — альтернативный advanced режим локального фильтра, без смешивания с удобными predicates. --limit и --all взаимоисключающие.",
+      "note": "REST filter только id. --where выполняется локально по явно выбранным полям; полнота требует обхода всех доступных задач. --limit ограничивает выход, --max-scan число просмотренных, это разные значения. --responsible/--group-id/--status/--due-before — локальные predicates; --id — единственный server filter. --where/--where-file — альтернативный advanced режим локального фильтра, без смешивания с удобными predicates. --limit и --all взаимоисключающие.",
       "kind": "candidate",
       "effect": "read",
       "method_routes": [
@@ -131,7 +131,7 @@
     {
       "name": "task:find",
       "group": "Карточка и выборки",
-      "syntax": "--title TEXT [--limit N | --all] [--max-scan N]",
+      "syntax": "--title TEXT [--group-id ID] [--limit N | --all] [--max-scan N]",
       "route": "rest3-client-filter",
       "methods": [
         "tasks.task.list"
@@ -144,7 +144,7 @@
         "AM-01",
         "EMP-02"
       ],
-      "note": "Поиск буквальной подстроки только в title, без учёта регистра Unicode; непустой --title обязателен, пробелы по краям запроса убираются. V3 filter поддерживает только id: выбрать id/title и локально проверить все страницы доступных задач в scan budget, без legacy fallback. --limit50/--all ограничивают вывод, --max-scan10000 — просмотр; cap/ошибка/нет title => partial, exit3; полный пустой результат => exit0. Порядок id ASC; regex/wildcards/fuzzy не поддерживаются. Результат всегда список id/title: human таблица, plain TSV, JSON data.items array, включая 0/1 совпадение; карточка не открывается автоматически.",
+      "note": "Поиск буквальной подстроки только в title, без учёта регистра Unicode; непустой --title обязателен, пробелы по краям запроса убираются. V3 filter поддерживает только id: выбрать id/title и, при --group-id, groupId; применить title и опциональный groupId совместно и локально проверить все страницы доступных задач в scan budget, без legacy fallback. --limit50/--all ограничивают вывод, --max-scan10000 — просмотр; cap/ошибка/нет title => partial, exit3; полный пустой результат => exit0. Порядок id ASC; regex/wildcards/fuzzy не поддерживаются. Результат всегда список id/title: human таблица, plain TSV, JSON data.items array, включая 0/1 совпадение; карточка не открывается автоматически.",
       "kind": "candidate",
       "effect": "read",
       "method_routes": [
@@ -163,7 +163,7 @@
     {
       "name": "task:update",
       "group": "Карточка и выборки",
-      "syntax": "TASK_ID [--title TEXT] [--creator ID] [--responsible ID] [--project ID] [--deadline ISO8601] [--description TEXT | --description-file PATH|-] [--fields JSON | --fields-file PATH|-]",
+      "syntax": "TASK_ID [--title TEXT] [--creator ID] [--responsible ID] [--group-id ID] [--deadline ISO8601] [--description TEXT | --description-file PATH|-] [--fields JSON | --fields-file PATH|-]",
       "route": "rest3",
       "methods": [
         "tasks.task.update"
@@ -1222,7 +1222,7 @@
     {
       "name": "task:plan",
       "group": "Рабочие сценарии",
-      "syntax": "--project ID [--max-scan N]",
+      "syntax": "--group-id ID [--max-scan N]",
       "route": "rest3-derived",
       "methods": [
         "tasks.task.list",
@@ -1268,7 +1268,7 @@
     {
       "name": "task:risks",
       "group": "Рабочие сценарии",
-      "syntax": "--project ID [--at ISO8601 --due-within DURATION --max-scan N]",
+      "syntax": "--group-id ID [--at ISO8601 --due-within DURATION --max-scan N]",
       "route": "workflow-data-gate",
       "methods": [
         "tasks.task.list",
@@ -1329,7 +1329,7 @@
     {
       "name": "task:report",
       "group": "Рабочие сценарии",
-      "syntax": "--project ID [--client-ref REF --audience internal|client --as-of ISO8601 --max-scan N]",
+      "syntax": "--group-id ID [--client-ref REF --audience internal|client --as-of ISO8601 --max-scan N]",
       "route": "workflow-data-gate",
       "methods": [
         "tasks.task.list",
