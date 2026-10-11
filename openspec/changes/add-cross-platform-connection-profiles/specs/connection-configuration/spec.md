@@ -41,6 +41,11 @@ The CLI SHALL maintain versioned non-secret config.json with independent named e
 - **WHEN** a required profile field is missing or empty, or the credential webhook is non-HTTPS or targets a hostname different from connection.hostname
 - **THEN** configuration-error occurs before any API request without fallback, URL rewriting or mutation
 
+#### Scenario: Webhook control characters are rejected before parsing
+- **WHEN** stdin, an explicit dotenv file or process environment supplies a webhook containing internal whitespace or ASCII control characters
+- **THEN** configuration-error occurs before URL normalization, credential persistence or API calls without disclosing the input
+- **AND** a trailing CRLF from documented stdin or dotenv input remains accepted as an input delimiter
+
 #### Scenario: Unsupported format
 - **WHEN** a selected config.json has an unsupported version or invalid structure
 - **THEN** the CLI returns configuration-error before remote requests and preserves its bytes

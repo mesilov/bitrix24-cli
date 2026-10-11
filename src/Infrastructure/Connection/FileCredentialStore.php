@@ -15,6 +15,10 @@ final readonly class FileCredentialStore implements CredentialStore
 
     public static function hostname(string $webhook): string
     {
+        if (preg_match('/[\x00-\x20\x7f]/', $webhook) === 1) {
+            throw new Failure('configuration-error', 'Provide a valid full HTTPS incoming webhook URL without whitespace or control characters.');
+        }
+
         $url = parse_url($webhook);
         if (!is_array($url) || ($url['scheme'] ?? '') !== 'https' || isset($url['user']) || isset($url['pass']) || isset($url['query']) || isset($url['fragment']) || !ProfileRepository::domain($url['host'] ?? null) || preg_match('~^/rest/[1-9][0-9]*/[A-Za-z0-9_-]+/$~D', $url['path'] ?? '') !== 1) {
             throw new Failure('configuration-error', 'Provide a valid full HTTPS incoming webhook URL.');
