@@ -78,9 +78,11 @@ def toolchain(work, env):
         unpack.mkdir(exist_ok=True)
         with tarfile.open(archive) as tar:
             for member in tar.getmembers():
-                if member.issym() or member.islnk():
-                    raise RuntimeError("Unexpected symlink in toolchain archive")
-            tar.extractall(unpack, filter="data")
+                destination = (unpack / member.name).resolve()
+                if not (member.isfile() or member.isdir()) or not destination.is_relative_to(unpack.resolve()):
+                    raise RuntimeError("Unsafe member in toolchain archive")
+            # Debian's Python 3.11 lacks extraction filters; all members were validated above.
+            tar.extractall(unpack)
         (unpack / ("static-php-cli-" + ref)).rename(spc)
         shutil.rmtree(unpack)
         archive.unlink()

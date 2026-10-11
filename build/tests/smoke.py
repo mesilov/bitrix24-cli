@@ -68,7 +68,8 @@ def main():
         check(version == "Bitrix24 CLI " + args.expected_version, "Version mismatch: " + version)
         for command in [["list", "--no-ansi"], ["--help", "--no-ansi"]]:
             output = invoke("b24cli", command)
-            check("Bitrix24 CLI" in output and "\x1b" not in output, "CLI/help contract failed")
+            expected = "Bitrix24 CLI" if command[0] == "list" else "Usage:"
+            check(expected in output and "\x1b" not in output, "CLI/help contract failed")
         invoke("b24cli", ["несуществующая-команда", "--no-ansi"], 1)
         probe = json.loads(invoke("runtime-probe", []))
         check(probe["version"] == args.expected_version, "Probe build identity differs")

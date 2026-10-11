@@ -44,8 +44,11 @@ jobs:
         run: |
           expected="${RELEASE_VERSION:-dev-${SOURCE_SHA}}"
           docker run --rm --mount "type=bind,src=${PWD}/dist/linux-amd64,dst=/artifacts,readonly" \
-            --mount "type=bind,src=${PWD}/build/tests/smoke.py,dst=/smoke.py,readonly" \
-            python:3.13-slim python /smoke.py /artifacts --expected-version "$expected"
+            --mount "type=bind,src=${PWD}/build/tests,dst=/tests,readonly" \
+            python:3.13-slim python /tests/smoke.py /artifacts --expected-version "$expected"
+          docker run --rm --mount "type=bind,src=${PWD}/dist/linux-amd64,dst=/artifacts,readonly" \
+            --mount "type=bind,src=${PWD}/build/tests,dst=/tests,readonly" \
+            python:3.13-slim python /tests/rejection-check.py /artifacts
           file dist/linux-amd64/b24cli
           if readelf -l dist/linux-amd64/b24cli | grep -q INTERP; then
             echo 'Linux binary requires a dynamic linker' >&2; exit 1
@@ -65,7 +68,7 @@ jobs:
         with:
           ref: ${{ inputs.source_sha }}
           persist-credentials: false
-      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962
         with:
           php-version: '8.5.11'
           extensions: bcmath, intl, curl, mbstring, openssl, phar
@@ -95,6 +98,7 @@ jobs:
           RELEASE_VERSION: ${{ inputs.release_version }}
         run: |
           python3 build/tests/smoke.py dist/macos-arm64 --expected-version "${RELEASE_VERSION:-dev-${SOURCE_SHA}}"
+          python3 build/tests/rejection-check.py dist/macos-arm64
           otool -L dist/macos-arm64/b24cli
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
@@ -111,7 +115,7 @@ jobs:
         with:
           ref: ${{ inputs.source_sha }}
           persist-credentials: false
-      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962
         with:
           php-version: '8.5.11'
           extensions: bcmath, intl, curl, mbstring, openssl, phar
@@ -142,6 +146,8 @@ jobs:
           $expected = if ($env:RELEASE_VERSION) { $env:RELEASE_VERSION } else { "dev-$env:SOURCE_SHA" }
           python build/tests/smoke.py dist/windows-amd64 --expected-version $expected
           if ($LASTEXITCODE -ne 0) { throw 'Windows smoke test failed' }
+          python build/tests/rejection-check.py dist/windows-amd64
+          if ($LASTEXITCODE -ne 0) { throw 'Windows rejection checks failed' }
           dumpbin /dependents dist/windows-amd64/b24cli.exe
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:

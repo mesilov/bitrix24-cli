@@ -38,13 +38,13 @@ if (file_exists($target)) {
 $phar = new Phar($target);
 $phar->startBuffering();
 $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS));
-$count = 0;
+$files = [];
 foreach ($iterator as $file) {
-    if (!$file->isFile()) {
-        continue;
-    }
     if ($file->isLink()) {
         throw new RuntimeException('Symlinks are not allowed in production staging.');
+    }
+    if (!$file->isFile()) {
+        continue;
     }
     $relative = str_replace('\\', '/', substr($file->getPathname(), strlen($root) + 1));
     if (preg_match('~^vendor/[^/]+/[^/]+/(tests?|\.github)(/|$)~', $relative) === 1) {
@@ -56,20 +56,18 @@ foreach ($iterator as $file) {
         }
         throw new RuntimeException('Local state is not allowed in the package: ' . $relative);
     }
-    $phar->addFile($file->getPathname(), $relative);
-    if (++$count % 2500 === 0) {
-        fwrite(STDOUT, 'Added ' . $count . " production files\n");
-    }
+    $files[$relative] = $file->getPathname();
 }
 
 $entry = 'bin/console';
 if ($argv[3] === 'probe') {
-    $phar->addFile(__DIR__ . '/tests/runtime-probe.php', 'packaging/runtime-probe.php');
+    $files['packaging/runtime-probe.php'] = __DIR__ . '/tests/runtime-probe.php';
     $entry = 'packaging/runtime-probe.php';
 }
+$phar->buildFromIterator(new ArrayIterator($files));
 $phar->setStub("#!/usr/bin/env php\n<?php\nPhar::mapPhar('b24cli.phar');\nrequire 'phar://b24cli.phar/" . $entry . "';\n__HALT_COMPILER();\n");
 $phar->setSignatureAlgorithm(Phar::SHA256);
-fwrite(STDOUT, 'Compressing ' . $count . " production files\n");
+fwrite(STDOUT, 'Compressing ' . count($files) . " production files\n");
 $phar->compressFiles(Phar::GZ);
 $phar->stopBuffering();
 chmod($target, 0755);
