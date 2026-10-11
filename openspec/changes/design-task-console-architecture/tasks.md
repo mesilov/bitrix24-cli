@@ -74,3 +74,10 @@
 - [x] 7.1 Сверить все 30 команд с live happy-path assertions, добавить явные command-группы и unit guard полноты CommandCatalog; обновить карту покрытия без зачёта negative/skipped cases.
 - [x] 7.2 Добавить недостающие содержательные проверки: create/delete readback, title search со списком двух Unicode совпадений, точные access/time/history контракты и confirmed file attachment; сохранить fixtures cleanup и границы полноты API.
 - [x] 7.3 Прогнать unit/integration/quality/OpenSpec, сохранить отдельное sanitized evidence и результаты покрытия всех команд; прежние открытые portal cases 5.2–5.4 не закрывать без соответствующего доказательства.
+
+## 8. Интеграционные тесты per command — 2026-10-11
+
+- [x] 8.1 Разделить live suite на 30 CommandTest-классов с собственным happy-path каждого; перенести дополнительные/negative/ограниченные cases в классы соответствующих команд, сохранить прежние проверки результатов.
+- [x] 8.2 Вынести SDK fixtures/readback/cleanup/evidence в общий LiveTaskCommandTestCase; разрешать invoke только команды текущего класса, создавать независимые fixtures для каждого case и сохранять cleanup при отказе assertions.
+- [x] 8.3 Усилить unit guard: класс соответствует CommandCatalog, ровно одна command-группа и минимум один отдельный happy-path метод; обновить карту покрытия/README и проверить выборочный запуск команды.
+- [x] 8.4 Прогнать unit/live/quality/OpenSpec, сохранить отдельное sanitized per-command evidence и обновить verification/трассировку issue/MR; прежние portal limits 5.2–5.4 сохранить.

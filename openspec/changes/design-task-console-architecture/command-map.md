@@ -69,46 +69,48 @@
 
 Каждая строка имеет собственную command contract проверку: допустимый ввод → typed Request → ожидаемый маршрут/effect/output; missing/conflicting input → usage2 без подключения. Для всех дополнительных чтений отдельно проверяются API policy и отсутствие mutation в dry-run. Общие parser/version/confirmation/scan tests перечислены в [tasks.md](tasks.md).
 
-Дополнительно для каждой строки обязателен минимум один happy-path в tests/Integration через реальный портал. PHPUnit Group `command:<имя>` связывает сценарий с командой; unit guard сверяет группы с CommandCatalog. Список вызовов без проверки данных, negative case и skip не засчитываются. Положительный workflow может покрывать несколько команд с отдельными assertions; для time/history проверяется точная документированная граница полноты, а для file attach — confirmed ACK с явным ограничением readback.
+Дополнительно для каждой строки обязателен собственный happy-path case в отдельном CommandTest-классе. Class-level PHPUnit Group `command:<имя>` связывает класс с одной командой; method-level Group `happy-path` выделяет базовый сценарий. Unit guard проверяет соответствие CommandCatalog, имя класса и наличие своего happy-path. Fixtures, readback и cleanup используют SDK; через CLI выполняется только команда этого класса.
 
 ## Integration happy-path coverage
 
-Все методы находятся в `tests/Integration/TaskCommandsTest.php` и связаны с командами Group `command:<имя>`. Проверка наличия — `tests/Unit/IntegrationCommandCoverageTest.php`; результат live запуска фиксируется отдельно в implementation-verification.md и sanitized evidence. В таблице указаны положительные assertions, а не вспомогательные или negative вызовы.
+30 отдельных классов находятся в `tests/Integration/Task/`; общая обвязка — `tests/Support/LiveTaskCommandTestCase.php`, guard — `tests/Unit/IntegrationCommandCoverageTest.php`. Ни одна CLI-команда не считается покрытой за счёт fixture setup или соседнего case. Результаты live запуска фиксируются отдельно в implementation-verification.md и sanitized evidence.
 
-| Команда | Метод теста | Проверка результата |
-| --- | --- | --- |
-| `task:add` | testTaskCreationAndDeletionReadBack | Положительный ID, confirmed, точные title/description/creator/responsible в новой карточке |
-| `task:show` | testTaskCreationAndDeletionReadBack | ID и поля собственной созданной задачи |
-| `task:delete` | testTaskCreationAndDeletionReadBack | Confirmed, ID, отсутствие в list по ID и отказ show после удаления |
-| `task:update` | testTaskCardSchemaAndSparseUpdates | Новое title и явное очищение description через show |
-| `task:assign` | testTaskCardSchemaAndSparseUpdates | responsibleId выбранного пользователя через show |
-| `task:deadline:set` | testTaskCardSchemaAndSparseUpdates | Timestamp deadline совпадает с заданным offset |
-| `task:list` | testTaskCardSchemaAndSparseUpdates | Список содержит ID собственной задачи |
-| `task:fields:list` | testTaskCardSchemaAndSparseUpdates | Непустой metadata список и точный name=title при выборе поля |
-| `task:access:show` | testTaskCardSchemaAndSparseUpdates | Непустые права совпадают с API, собственная задача имеет разрешённое действие |
-| `task:find` | testTaskFindReturnsMatchingTitlesAsAList | Exit0, complete=true, ровно две пары id/title по Unicode подстроке другого регистра |
-| `task:chat:send` | testTaskChatSendReadUpdateDeleteAndWrongTaskBinding | Confirmed ACK и уникальный текст в чате собственной задачи |
-| `task:chat:list` | testTaskChatSendReadUpdateDeleteAndWrongTaskBinding | Ровно одно сообщение с собственным текстом и проверяемым ID |
-| `task:chat:update` | testTaskChatSendReadUpdateDeleteAndWrongTaskBinding | Изменённый текст прочитан из того же чата |
-| `task:chat:delete` | testTaskChatSendReadUpdateDeleteAndWrongTaskBinding | Удалённое сообщение отсутствует при повторном чтении |
-| `task:time:add` | testOwnTimeEntriesReadBackSecondsAndKeepOmittedText | Собственная запись содержит 60 секунд, text и userId |
-| `task:time:list` | testOwnTimeEntriesReadBackSecondsAndKeepOmittedText | Запись доступна по ID с ожидаемыми значениями |
-| `task:time:update` | testOwnTimeEntriesReadBackSecondsAndKeepOmittedText | 120 секунд и сохранённый omitted text через list |
-| `task:time:delete` | testOwnTimeEntriesReadBackSecondsAndKeepOmittedText | Запись отсутствует при повторном list |
-| `task:time:show` | testOwnTimeEntriesReadBackSecondsAndKeepOmittedText | taskId/elapsedTime совпадают с provider, scope/historyComplete и точная причина неполноты |
-| `task:checklist:add` | testChecklistRootsNestedItemsAndStateDoNotChangeTaskStatus | Созданные roots прочитаны по ID с точными названиями |
-| `task:checklist:list` | testChecklistRootsNestedItemsAndStateDoNotChangeTaskStatus | Два независимых корня доступны по ID/title |
-| `task:checklist:item:add` | testChecklistRootsNestedItemsAndStateDoNotChangeTaskStatus | Основной и nested item доступны, parentId соответствует основному пункту |
-| `task:checklist:item:list` | testChecklistRootsNestedItemsAndStateDoNotChangeTaskStatus | Пункты выбранного root имеют ожидаемые ID/title/parent/state |
-| `task:checklist:item:update` | testChecklistRootsNestedItemsAndStateDoNotChangeTaskStatus | Новое title прочитано из выбранного root |
-| `task:checklist:item:complete` | testChecklistRootsNestedItemsAndStateDoNotChangeTaskStatus | isComplete=true через list |
-| `task:checklist:item:renew` | testChecklistRootsNestedItemsAndStateDoNotChangeTaskStatus | isComplete=false и неизменный task status |
-| `task:checklist:item:delete` | testChecklistRootsNestedItemsAndStateDoNotChangeTaskStatus | Удалённый subtree отсутствует через list |
-| `task:participants:set` | testParticipantsOmissionClearAndHistoryCompletenessBoundary | Auditor ID прочитан, omitted роль сохранена, explicit clear очищает её |
-| `task:history:list` | testParticipantsOmissionClearAndHistoryCompletenessBoundary | Собственное изменение title: точные from/to/user, ID и известная граница navigation |
-| `task:file:attach` | testAttachExistingDiskFileWithConfirmedAcknowledgement | Confirmed ACK с точными taskId/fileId; membership независимо не доказано |
+| Команда | Test-класс | Собственный happy-path case | Проверка результата |
+| --- | --- | --- | --- |
+| `task:access:show` | [ShowTaskAccessCommandTest](../../../tests/Integration/Task/ShowTaskAccessCommandTest.php) | `testHappyPathReturnsCurrentConnectionPermissions` | Непустые права совпадают с API, собственная задача имеет разрешённое действие |
+| `task:add` | [AddTaskCommandTest](../../../tests/Integration/Task/AddTaskCommandTest.php) | `testHappyPathCreatesTaskWithRequestedFields` | Положительный ID, confirmed, точные title/description/creator/responsible в новой карточке |
+| `task:assign` | [AssignTaskCommandTest](../../../tests/Integration/Task/AssignTaskCommandTest.php) | `testHappyPathSetsResponsibleUser` | responsibleId выбранного пользователя в SDK card |
+| `task:chat:delete` | [DeleteTaskChatMessageCommandTest](../../../tests/Integration/Task/DeleteTaskChatMessageCommandTest.php) | `testHappyPathDeletesOwnTaskMessage` | Подтверждён ACK удаления; исходный текст отсутствует в SDK readback чата (ID может сохраниться со служебной заглушкой) |
+| `task:chat:list` | [ListTaskChatCommandTest](../../../tests/Integration/Task/ListTaskChatCommandTest.php) | `testHappyPathListsMessagesOfSelectedTask` | Ровно одно сообщение с собственным текстом и проверяемым ID |
+| `task:chat:send` | [SendTaskChatMessageCommandTest](../../../tests/Integration/Task/SendTaskChatMessageCommandTest.php) | `testHappyPathSendsMessageToTaskChat` | Confirmed ACK и уникальный текст в чате собственной задачи |
+| `task:chat:update` | [UpdateTaskChatMessageCommandTest](../../../tests/Integration/Task/UpdateTaskChatMessageCommandTest.php) | `testHappyPathUpdatesOwnTaskMessage` | Изменённый текст прочитан из того же чата |
+| `task:checklist:add` | [AddTaskChecklistCommandTest](../../../tests/Integration/Task/AddTaskChecklistCommandTest.php) | `testHappyPathCreatesChecklistRoot` | SDK readback созданного ID: точный title, parentId=0, isComplete=false |
+| `task:checklist:item:add` | [AddTaskChecklistItemCommandTest](../../../tests/Integration/Task/AddTaskChecklistItemCommandTest.php) | `testHappyPathAddsItemToSelectedChecklist` | Точное title, parentId выбранного root и isComplete=false через SDK |
+| `task:checklist:item:complete` | [CompleteTaskChecklistItemCommandTest](../../../tests/Integration/Task/CompleteTaskChecklistItemCommandTest.php) | `testHappyPathCompletesItemWithoutChangingTaskStatus` | isComplete=true через list |
+| `task:checklist:item:delete` | [DeleteTaskChecklistItemCommandTest](../../../tests/Integration/Task/DeleteTaskChecklistItemCommandTest.php) | `testHappyPathDeletesItemAndItsSubtree` | Удалённый subtree отсутствует через list |
+| `task:checklist:item:list` | [ListTaskChecklistItemsCommandTest](../../../tests/Integration/Task/ListTaskChecklistItemsCommandTest.php) | `testHappyPathListsItemsInsideSelectedChecklist` | Точные ID/title/parent/state двух пунктов, preorder, без чужого checklist |
+| `task:checklist:item:renew` | [RenewTaskChecklistItemCommandTest](../../../tests/Integration/Task/RenewTaskChecklistItemCommandTest.php) | `testHappyPathRenewsItemWithoutChangingTaskStatus` | isComplete=false и неизменный task status |
+| `task:checklist:item:update` | [UpdateTaskChecklistItemCommandTest](../../../tests/Integration/Task/UpdateTaskChecklistItemCommandTest.php) | `testHappyPathChangesItemTitle` | Новое title прочитано из выбранного root |
+| `task:checklist:list` | [ListTaskChecklistsCommandTest](../../../tests/Integration/Task/ListTaskChecklistsCommandTest.php) | `testHappyPathListsOnlyChecklistRoots` | Два независимых корня доступны по ID/title |
+| `task:deadline:set` | [SetTaskDeadlineCommandTest](../../../tests/Integration/Task/SetTaskDeadlineCommandTest.php) | `testHappyPathSetsDeadlineWithOffset` | Timestamp deadline совпадает с заданным offset |
+| `task:delete` | [DeleteTaskCommandTest](../../../tests/Integration/Task/DeleteTaskCommandTest.php) | `testHappyPathDeletesTask` | Confirmed taskId и отсутствие задачи в SDK list по ID |
+| `task:fields:list` | [ListTaskFieldsCommandTest](../../../tests/Integration/Task/ListTaskFieldsCommandTest.php) | `testHappyPathListsFieldMetadata` | Непустой metadata список содержит поле title; выбор одного поля — отдельный case |
+| `task:file:attach` | [AttachTaskFilesCommandTest](../../../tests/Integration/Task/AttachTaskFilesCommandTest.php) | `testHappyPathConfirmsDiskFileAttachment` | Confirmed ACK с точными taskId/fileId; membership независимо не доказано |
+| `task:find` | [FindTaskCommandTest](../../../tests/Integration/Task/FindTaskCommandTest.php) | `testHappyPathReturnsTwoUnicodeTitleMatches` | Exit0, complete=true, ровно две пары id/title по Unicode подстроке другого регистра |
+| `task:history:list` | [ListTaskHistoryCommandTest](../../../tests/Integration/Task/ListTaskHistoryCommandTest.php) | `testHappyPathReturnsTitleChangeWithItsCompletenessBoundary` | Собственное изменение title: точные from/to/user, ID и известная граница navigation |
+| `task:list` | [ListTaskCommandTest](../../../tests/Integration/Task/ListTaskCommandTest.php) | `testHappyPathListsSelectedTask` | Список содержит ID собственной задачи |
+| `task:participants:set` | [SetTaskParticipantsCommandTest](../../../tests/Integration/Task/SetTaskParticipantsCommandTest.php) | `testHappyPathSetsSelectedParticipantRoles` | Оба выбранных role sets прочитаны через SDK; omission/clear — отдельные cases |
+| `task:show` | [ShowTaskCommandTest](../../../tests/Integration/Task/ShowTaskCommandTest.php) | `testHappyPathReturnsTaskCard` | ID и поля собственной созданной задачи |
+| `task:time:add` | [AddTaskTimeEntryCommandTest](../../../tests/Integration/Task/AddTaskTimeEntryCommandTest.php) | `testHappyPathCreatesOwnTimeEntry` | Собственная запись содержит 60 секунд, text и userId |
+| `task:time:delete` | [DeleteTaskTimeEntryCommandTest](../../../tests/Integration/Task/DeleteTaskTimeEntryCommandTest.php) | `testHappyPathDeletesOwnTimeEntry` | Запись отсутствует в SDK readback списка |
+| `task:time:list` | [ListTaskTimeEntriesCommandTest](../../../tests/Integration/Task/ListTaskTimeEntriesCommandTest.php) | `testHappyPathListsOwnTimeEntry` | Запись доступна по ID с ожидаемыми значениями |
+| `task:time:show` | [ShowTaskTimeCommandTest](../../../tests/Integration/Task/ShowTaskTimeCommandTest.php) | `testHappyPathReturnsTimeContextWithItsCompletenessBoundary` | taskId/elapsedTime совпадают с provider, scope/historyComplete и точная причина неполноты |
+| `task:time:update` | [UpdateTaskTimeEntryCommandTest](../../../tests/Integration/Task/UpdateTaskTimeEntryCommandTest.php) | `testHappyPathUpdatesSecondsAndKeepsOmittedText` | 120 секунд и сохранённый omitted text в SDK readback |
+| `task:update` | [UpdateTaskCommandTest](../../../tests/Integration/Task/UpdateTaskCommandTest.php) | `testHappyPathChangesTitleAndKeepsOmittedDescription` | Новое title и сохранённый omitted description в SDK card; очищение — отдельный case |
 
-`testFilledParticipantsAreEnrichedThroughExplicitUserLookup` дополнительно проверяет task:show с observers/email и task:participants:set; denied-role сценарий не заменяет happy-path. Для двух read-команд с недоказанной полнотой допускается только описанная в runtime spec точная граница exit3. Смена ответственного проверена на текущего пользователя; покрытие иных ролей остаётся отдельной приёмкой.
+Дополнительные cases находятся рядом с happy-path той же команды: ShowTaskCommandTest — participants/email/ID-only/empty; UpdateTaskCommandTest — empty description и restricted role; ListTaskFieldsCommandTest — выбор поля; UpdateTaskChatMessageCommandTest и UpdateTaskTimeEntryCommandTest — wrong-task binding; AddTaskChecklistItemCommandTest — nested parent/wrong root; SetTaskParticipantsCommandTest — omission/clear. Каждый case создаёт собственные SDK fixtures, не зависит от соседних tests и может запускаться отдельно.
+
+`make integration TEST_ARGS='--group command:task:update'` выбирает cases одной команды; `TEST_ARGS='--group happy-path'` — 30 базовых cases. Time/history сохраняют только точные документированные границы exit3, file attach подтверждён ACK. Смена ответственного проверена на текущего пользователя; другие роли остаются отдельной приёмкой.
 
 ## Output profiles
 

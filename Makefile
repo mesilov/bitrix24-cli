@@ -12,6 +12,7 @@ COMPOSE := sh ./scripts/compose.sh
 RUN := $(COMPOSE) run --rm -T php-cli
 CLI_RUN := $(COMPOSE) run --rm -T --env BITRIX24_WEBHOOK --env BITRIX24_PHP_SDK_PLAYGROUND_WEBHOOK --env B24CLI_TIMEOUT --env B24CLI_API_POLICY --env B24CLI_TEST_DISK_FILE_ID --env B24CLI_TEST_RESTRICTED_WEBHOOK php-cli
 ARGS ?=
+TEST_ARGS ?=
 
 .PHONY: help docker-init docker-build docker-up docker-down docker-restart \
         composer-install composer-update composer-dumpautoload composer \
@@ -45,6 +46,7 @@ help:
 	  'lint-all             Run all four quality checks'
 	@printf '%s\n' 'unit                 Run unit-tests (no external portal)' \
 	  'integration          Run integration-tests against the real portal' \
+	  'TEST_ARGS="..."      PHPUnit filters, e.g. --group command:task:find' \
 	  'test                 Alias for unit' \
 	  'test-integration     Alias for integration (.env.local/.env; skip without webhook)'
 
@@ -118,7 +120,7 @@ test test-unit make-unit: unit
 test-integration make-integration: integration
 
 unit:
-	$(RUN) vendor/bin/phpunit --testsuite unit-tests
+	$(RUN) vendor/bin/phpunit --testsuite unit-tests $(TEST_ARGS)
 
 integration:
-	$(CLI_RUN) vendor/bin/phpunit --testsuite integration-tests
+	$(CLI_RUN) vendor/bin/phpunit --testsuite integration-tests $(TEST_ARGS)

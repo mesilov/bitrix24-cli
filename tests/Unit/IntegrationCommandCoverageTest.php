@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Bitrix24\CLI\Tests\Unit;
 
 use Bitrix24\CLI\Bootstrap\CommandCatalog;
+use Bitrix24\CLI\Tests\Integration\Task\ShowTaskCommandTest;
+use Bitrix24\CLI\Tests\Support\LiveTaskCommandTestCase;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
 
 final class IntegrationCommandCoverageTest extends TestCase
@@ -25,6 +28,15 @@ final class IntegrationCommandCoverageTest extends TestCase
                 continue;
             }
 
+            self::assertTrue($class->isSubclassOf(LiveTaskCommandTestCase::class), $class->name);
+            $groups = array_map(static fn (\ReflectionAttribute $attribute): string => $attribute->newInstance()->name(), $class->getAttributes(Group::class));
+            $commands = array_values(array_filter($groups, static fn (string $group): bool => str_starts_with($group, 'command:')));
+            self::assertCount(1, $commands, 'Each integration class must belong to exactly one command: ' . $class->name);
+            $command = substr($commands[0], strlen('command:'));
+            self::assertArrayHasKey($command, CommandCatalog::COMMANDS);
+            $commandClass = new \ReflectionClass(CommandCatalog::COMMANDS[$command]['class']);
+            self::assertSame('Bitrix24\\CLI\\Tests\\Integration\\Task\\' . $commandClass->getShortName() . 'Test', $class->name);
+            $happyPaths = [];
             foreach ($class->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
                 if (!str_starts_with($method->name, 'test') || $method->isStatic()) {
                     continue;
@@ -32,15 +44,28 @@ final class IntegrationCommandCoverageTest extends TestCase
 
                 foreach ($method->getAttributes(Group::class) as $attribute) {
                     $group = $attribute->newInstance()->name();
-                    if (str_starts_with($group, 'command:')) {
-                        $covered[] = substr($group, strlen('command:'));
+                    self::assertFalse(str_starts_with($group, 'command:'), 'Command ownership is declared only on the test class.');
+                    if ($group === 'happy-path') {
+                        $happyPaths[] = $method->name;
                     }
                 }
             }
+
+            self::assertNotEmpty($happyPaths, 'Missing dedicated happy-path method: ' . $command);
+            self::assertArrayNotHasKey($command, $covered, 'Duplicate test class for command: ' . $command);
+            $covered[$command] = $class->name;
         }
 
         $expected = array_keys(CommandCatalog::COMMANDS);
-        self::assertSame([], array_values(array_diff($expected, $covered)), 'Commands missing an integration happy-path group.');
-        self::assertSame([], array_values(array_diff($covered, $expected)), 'Integration groups referring to unknown commands.');
+        self::assertSame([], array_values(array_diff($expected, array_keys($covered))), 'Commands missing a dedicated integration test class.');
+        self::assertSame([], array_values(array_diff(array_keys($covered), $expected)), 'Integration classes referring to unknown commands.');
+    }
+
+    public function testLiveHarnessRejectsAnotherCommandBeforeConsoleExecution(): void
+    {
+        $showTaskCommandTest = new ShowTaskCommandTest('testHappyPathReturnsTaskCard');
+        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionMessage('Fixtures and readback must use SDK helpers, not another CLI command.');
+        (new \ReflectionMethod(LiveTaskCommandTestCase::class, 'invoke'))->invoke($showTaskCommandTest, ['task:add']);
     }
 }

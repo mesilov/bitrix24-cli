@@ -6,8 +6,8 @@ Issue: [#10](https://github.com/mesilov/bitrix24-cli/issues/10). PR: [#11 → de
 
 | Dimension | Evidence and boundary |
 | --- | --- |
-| Completeness | 38/41 tasks complete; 5.2–5.4 remain partially verified. All 30 MVP commands have an explicitly attributed live happy-path scenario with result assertions. 30 Command classes / 23 request-reference DTO / 11 handlers + 4 services; 29 post-MVP operations excluded |
-| Correctness | 15 runtime requirements and the revised scope admission have implementation/offline coverage. Live suite: 9 passed, 1 restricted-role case skipped, 329 assertions. Filled participant enrichment succeeds through explicitly selected companion reads; native REST3 auditors remains broken on this portal. Time/history retain their precisely asserted completeness boundaries |
+| Completeness | 42/45 tasks complete; 5.2–5.4 remain partially verified. All 30 MVP commands have a dedicated integration class and own live happy-path method with result assertions. 30 Command classes / 23 request-reference DTO / 11 handlers + 4 services; 29 post-MVP operations excluded |
+| Correctness | 15 runtime requirements and the revised scope admission have implementation/offline coverage. Live suite: 41 passed, 1 restricted-role case skipped, 395 assertions across 30 per-command classes. Filled participant enrichment succeeds through explicitly selected companion reads; native REST3 auditors remains broken on this portal. Time/history retain their precisely asserted completeness boundaries |
 | Coherence | Standalone Symfony Console + DI, explicit API versions/ports, deferred SDK provider. Conditional enrichment routes are checked before credentials. PHPStan, Rector, code style and licenses passed; no error-triggered API fallback/retry |
 
 ## Changes verified
@@ -20,7 +20,7 @@ Issue: [#10](https://github.com/mesilov/bitrix24-cli/issues/10). PR: [#11 → de
 
 ## Local checks
 
-- `make unit`: **192 tests / 944 assertions**, no failures or warnings.
+- `make unit`: **193 tests / 1157 assertions**, no failures or warnings.
 - `make check`: Composer strict/platform requirements, PHP syntax and shared bootstrap/startup passed.
 - `make lint-all`: licenses, PHP-CS-Fixer, PHPStan level5 and Rector dry-run passed. Initial Rector naming/type suggestions were applied without lowering rules.
 - `openspec validate --all --strict` and `git diff --check` passed.
@@ -28,22 +28,22 @@ Issue: [#10](https://github.com/mesilov/bitrix24-cli/issues/10). PR: [#11 → de
 
 ## Portal evidence
 
-Current source: [sanitized happy-path execution record](portal-happy-path-evidence-2026-10-11.json). Earlier refactor: [refactor evidence](portal-refactor-evidence-2026-10-11.json). Earlier enrichment: [2026-10-11 evidence](portal-enrichment-evidence-2026-10-11.json). Prior run: [2026-10-10 evidence](portal-evidence-2026-10-10.json). Raw logs and selected trace remain ignored under var/cache; committed evidence contains no webhook URL/token, request parameters, user names or chat text.
+Current source: [sanitized per-command execution record](portal-per-command-evidence-2026-10-11.json). Previous grouped workflows: [happy-path evidence](portal-happy-path-evidence-2026-10-11.json). Earlier records: [refactor](portal-refactor-evidence-2026-10-11.json), [enrichment](portal-enrichment-evidence-2026-10-11.json), [2026-10-10](portal-evidence-2026-10-10.json). Their original counts and fixture IDs are preserved. Raw logs/trace remain ignored; committed evidence excludes webhook URL/token, request parameters, user names, emails and chat text.
 
-Final run: **10 tests / 329 assertions / 0 failures / 0 errors / 1 skipped**. All 30 CLI names have command-groups, meaningful result assertions and an observed happy-path execution in the attributed scenario. Identity: webhook user1 as fixture creator/responsible, own message/time-entry author; admin status is not asserted.
+Final full run: **42 tests / 395 assertions / 41 passed / 1 restricted-role skip / 0 failures / 0 errors**. All 30 dedicated happy-path methods executed successfully within the precisely recorded API completeness boundaries. Acting identity: webhook user1 as fixture creator/responsible and own message/time-entry author; admin status is not asserted.
 
-`testFilledParticipantsAreEnrichedThroughExplicitUserLookup` verifies filled auditors/accomplices, shared profile lookup, selected email, ID-only projection and empty-role behavior. Names/email remain excluded from evidence. The full suite includes the final email assertions. Earlier enrichment/diagnostic runs retain their original counts and IDs in their own records.
+Current owned fixtures: **42 tasks and 1 Disk file**, all deleted with zero cleanup failures. Independent task:list readback confirms absence of all **89 task IDs** from split-suite runs/probes. Restricted-role skip occurs before fixture creation without a second webhook. SDK fixture and cleanup calls are recorded only as fixture evidence, not as additional CLI coverage.
 
-Current owned fixtures: **12 tasks and 1 Disk file**, IDs recorded in the current sanitized evidence. All deleted with zero cleanup failures. Independent task:list readback also confirms absence of all 12 current task IDs and all 9 recovered failed-run IDs. The restricted-role test is skipped before fixture creation without a second webhook.
+## Per-command integration verification
 
-## Per-command integration happy-path verification
+- Each of the 30 CommandCatalog commands has its own `tests/Integration/Task/<CommandClass>Test.php`, class Group `command:<name>` and dedicated method Group `happy-path`. Twelve additional methods preserve participant/email, omitted/empty fields, nested checklist, wrong-task gates and the restricted-role case. [Command map](command-map.md#integration-happy-path-coverage) links every command to its own method and concrete assertions.
+- Shared `LiveTaskCommandTestCase` creates disposable fixtures, reads back results and cleans up through SDK transport/adapters. Each case gets its own task(s); methods have no ordering dependency or shared mutable fixture. `invoke` rejects another CLI command before Console execution; SDK setup never counts as CLI coverage. Created CLI task IDs are registered before assertions for reliable cleanup.
+- Unit guard checks exactly one command group per class, matching CommandCatalog/CommandTest naming, no duplicate/unknown classes and a dedicated happy-path method. An offline unit case proves cross-command invocation is rejected before application/provider access. Mutation probe removed the task:find happy-path tag: unit verification failed with the expected missing-method message, then the exact original file bytes were restored.
+- `make integration TEST_ARGS='--group command:task:update'`: only three UpdateTaskCommandTest cases ran, 2 passed + 1 restricted-role skip, 18 assertions. `--group happy-path` selects the 30 own baseline methods; empty TEST_ARGS keeps the full suite. Existing Make aliases forward the same filters.
+- The first split-suite run had 40 passed + 1 failure + 1 role skip. The deletion test incorrectly expected message ID absence, then empty text. Portal readback keeps the ID with a localized deletion placeholder. The final assertion checks confirmed deletion ACK and absence of the original text, preserving the verified contract without depending on placeholder language. Every failed/probe run cleaned up its own fixtures; no production behavior changed.
+- Time/history accept only their exact documented partial reasons with exit3, complete=false and partial-result. All other baseline methods require exit0/error=null and meaningful expected data. Attachment remains confirmed ACK only; reassignment uses the acting user. Skips do not count as live success.
 
-- Added requirement `Integration happy-path coverage for every CLI command`; [command map](command-map.md#integration-happy-path-coverage) maps all 30 commands to test methods and concrete assertions. Built-in Symfony help/list/version/completion retain offline coverage.
-- Added create/delete readback and a dedicated Unicode title search requiring exit0/complete=true and exactly two id/title rows. Strengthened access comparison, added time-entry initial values/author, exact time-context data/scope/completeness, history from/to/author/ID and confirmed file taskId/fileId.
-- PHPUnit Group `command:<name>` declares coverage. Integration teardown validates a real successful invocation for every declared group after fixture cleanup. Only the documented exact time/history partial reasons are accepted with exit3, complete=false and partial-result; arbitrary partial or API errors fail.
-- `IntegrationCommandCoverageTest` compares all integration method command-groups against CommandCatalog without reading credentials. Mutation probe removed only the task:find group: the guard failed with the missing command and exit1, then the original bytes were restored. Adding an uncovered command therefore stops unit CI; metadata alone is not portal acceptance.
-- The first new run incorrectly asserted meta.complete on mutation responses and failed before fixture IDs were registered. Corrected the assertion to respect each response profile and register created task IDs before assertions. Nine narrowly identified owned fixtures from that failed run were recovered and deleted; Disk cleanup had already succeeded. Later full runs passed and cleaned up their own fixtures. Recovery is recorded separately in current evidence.
-- Final checks: 192 unit tests / 944 assertions; 10 live tests / 329 assertions (9 passed, 1 restricted-role skip); make check and all quality checks passed, all 8 strict OpenSpec items and diff-check passed. Tasks 7.1–7.3 are complete; tasks 5.2–5.4 retain their previous evidence limits.
+Final checks: 193 unit tests / 1157 assertions; 42 live tests / 395 assertions; make check, licenses, PHP-CS-Fixer, PHPStan level5 and Rector passed. All 8 strict OpenSpec items and diff-check passed. Tasks 8.1–8.4 complete; tasks 5.2–5.4 retain their existing evidence limits.
 
 ## Architecture simplification and MR review
 

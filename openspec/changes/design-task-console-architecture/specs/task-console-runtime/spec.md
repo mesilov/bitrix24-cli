@@ -29,15 +29,27 @@ Runtime SHALL проверять синтаксис и локальные огр
 - **THEN** справка доступна офлайн, а отказ сервера при выполнении возвращается как permission-denied с кодом 1
 
 ### Requirement: Integration happy-path coverage for every CLI command
-Каждая прикладная команда CommandCatalog SHALL иметь минимум один happy-path интеграционный тест через реальный Console input, production bootstrap/provider и Bitrix24 портал. Тест SHALL проверять данные либо confirmed mutation с доступным readback и удалять собственные fixtures. Unit, mock, negative case, факт вызова и skip не SHALL заменять live happy-path. Встроенные help/list/version/completion проверяются отдельно офлайн.
+Каждая прикладная команда CommandCatalog SHALL иметь отдельный integration test-класс и минимум один собственный happy-path test-case через production bootstrap/provider и реальный портал. Каждый case SHALL выполнять только свою CLI-команду и проверять её результат. Fixtures, readback и cleanup SHALL использовать SDK. Unit, mock, negative case и skip не SHALL заменять live happy-path; встроенные Symfony команды проверяются офлайн.
 
 #### Scenario: A new command has no integration happy-path test
-- **WHEN** unit-suite сравнивает CommandCatalog с PHPUnit Group `command:<имя>` методов live-сценариев
-- **THEN** отсутствующее или неизвестное имя команды вызывает отказ проверки покрытия; release verification не объявляется полной
+- **WHEN** unit-suite сравнивает CommandCatalog с test-классами tests/Integration/Task, их единственной Group `command:<имя>` и методами Group `happy-path`
+- **THEN** отсутствующая/неизвестная команда, общий класс нескольких команд либо отсутствие собственного happy-path метода вызывает отказ; каждый Command соответствует своему CommandTest
 
-#### Scenario: A workflow declares several happy-path commands
-- **WHEN** один интеграционный метод имеет command-группы для нескольких команд
-- **THEN** у каждой команды проверяются фактический happy-path вызов, exit0/error=null и ожидаемые данные; одна группа без выполнения, negative case либо skip не считается успешной интеграцией
+#### Scenario: A command gets more integration cases
+- **WHEN** для task:update добавляют проверку явного очищения description или отказа прав
+- **THEN** case располагается в UpdateTaskCommandTest, запускается независимо от остальных cases и сохраняет отдельный happy-path этой команды; ошибка одной команды не отменяет выполнение тестов другой
+
+#### Scenario: A test attempts to invoke another CLI command
+- **WHEN** case одной команды передаёт invoke имя другой CLI-команды
+- **THEN** test harness отклоняет такой вызов до выполнения команды; создание fixtures и проверочные чтения происходят через SDK
+
+#### Scenario: Select cases of one command
+- **WHEN** выполняется make integration TEST_ARGS='--group command:task:update'
+- **THEN** запускаются только cases UpdateTaskCommandTest; TEST_ARGS='--group happy-path' отдельно выбирает собственные happy-path всех команд, отсутствие фильтра запускает всю suite
+
+#### Scenario: Dedicated happy-path is executed
+- **WHEN** запускается собственный happy-path case команды
+- **THEN** проверяются фактический вызов этой команды, exit0/error=null и ожидаемые данные; один тег без выполнения либо пропущенный case не считается успешной интеграцией
 
 #### Scenario: Successful command with a disposable portal fixture
 - **WHEN** интеграционный тест создаёт собственную задачу и выполняет покрываемую команду
