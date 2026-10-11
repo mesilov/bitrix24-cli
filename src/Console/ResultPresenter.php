@@ -14,6 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class ResultPresenter
 {
     private const COLUMNS = [
+        'connections' => ['profile', 'name', 'hostname', 'default', 'source', 'path', 'isDefault'],
         'task-list' => ['id', 'title', 'responsibleId', 'groupId', 'status', 'deadline'],
         'title-matches' => ['id', 'title'], 'task-fields' => ['name', 'type', 'editable', 'filterable', 'sortable'],
         'chat-messages' => ['id', 'createdDate', 'authorId', 'text'],

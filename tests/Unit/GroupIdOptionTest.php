@@ -40,6 +40,10 @@ final class GroupIdOptionTest extends TestCase
                     $fields['groupId'] = 42;
                 }
 
+                if ($command === 'add') {
+                    $fields['allowsTimeTracking'] = false;
+                }
+
                 self::assertSame($fields, $api->calls[0]['parameters']['fields']);
                 if ($command === 'update') {
                     self::assertSame(123, $api->calls[0]['parameters']['id']);
@@ -102,11 +106,13 @@ final class GroupIdOptionTest extends TestCase
     {
         foreach (['add', 'update'] as $command) {
             foreach (['--fields', '--fields-file'] as $option) {
-                $fields = $command === 'add' ? ['title' => 'Group task', 'creatorId' => 1, 'responsibleId' => 2, 'groupId' => 42] : ['groupId' => 42];
+                $fields = $command === 'add' ? ['title' => 'Group task', 'creatorId' => 1, 'responsibleId' => 2, 'groupId' => 42, 'allowsTimeTracking' => false] : ['groupId' => 42];
                 $portal = new FixturePortal();
                 $api = new FakeApiTransport(static function (string $method, int $version, array $params) use ($fields, $portal): ApiResponse {
                     if ($method === 'tasks.task.field.list') {
-                        return new ApiResponse(['items' => array_map(static fn (string $name): array => ['name' => $name, 'type' => $name === 'title' ? 'string' : 'integer', 'editable' => true], array_keys($fields))]);
+                        return new ApiResponse(['items' => array_map(static fn (string $name): array => ['name' => $name, 'type' => match ($name) {
+                            'title' => 'string', 'allowsTimeTracking' => 'boolean', default => 'integer'
+                        }, 'editable' => true], array_keys($fields))]);
                     }
 
                     return $portal->respond($method, $version, $params);
