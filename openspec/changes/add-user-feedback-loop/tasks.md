@@ -1,6 +1,8 @@
 # Tasks
 
-Постановка #15 завершена; ниже задачи реализации, все остаются открытыми. См. `specs/user-feedback/spec.md` и `design.md`.
+Постановка #15 и серверной подзадачи [#32](https://github.com/mesilov/bitrix24-cli/issues/32) подготовлена для milestone `0.2.0`; ниже задачи реализации, все остаются открытыми. См. `specs/user-feedback/spec.md` и `design.md`.
+
+Серверная область #32: 1.1–1.2, 3.1–3.4, 4.1–4.3, 5.1–5.2. CLI/документация #15: 2.1–2.3, 5.3–5.4. Сквозная приёмка 6.1–6.2 выполняется совместно по обоим issues. Слияние планирующего PR #16 в `main` не закрывает implementation tasks.
 
 ## 1. Подготовка внешнего сервиса
 
@@ -36,9 +38,9 @@
 ## 6. Сквозная приёмка
 
 - [ ] 6.1 Выполнить сквозной сценарий на test deployment с установленной App и пользователем без GitHub-аккаунта: receipt → moderation → ровно один issue → уточнение → resolution → release → ответ; сохранить отдельные доказательства live API и почты без private data.
-- [ ] 6.2 Проверить end-to-end outage/retry/duplicate/delete-contact и резервный канал, выполнить применимые quality gates и `openspec validate add-user-feedback-loop --strict`, сверить все критерии #15 и двустороннюю трассировку; сохранить результаты без приравнивания offline proof к работающему сервису.
+- [ ] 6.2 Проверить end-to-end outage/retry/duplicate/delete-contact и резервный канал, выполнить применимые quality gates и `openspec validate add-user-feedback-loop --strict`, сверить все критерии #15/#32 и двустороннюю трассировку; сохранить результаты без приравнивания offline proof к работающему сервису.
 
 ## Workflow follow-up
 
-- После реализации выполнить `openspec-verify-change`, затем `openspec-archive-change` и обновить путь change в #15 на фактический archive path.
+- После реализации выполнить `openspec-verify-change`, затем `openspec-archive-change` и обновить путь change в #15 и #32 на фактический archive path.
 - Отправить реализованную ветку на ревью в dev. Доступность GitHub шаблонов в main и deployment внешнего сервиса подтверждать отдельными release/deployment доказательствами.
