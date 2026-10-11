@@ -8,6 +8,7 @@ from pathlib import Path
 import shutil
 import ssl
 import subprocess
+import sys
 import tempfile
 import threading
 
@@ -45,6 +46,8 @@ def check(condition, message):
 
 
 def main():
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8", errors="backslashreplace")
     parser = argparse.ArgumentParser()
     parser.add_argument("dist", type=Path)
     parser.add_argument("--expected-version", required=True)
