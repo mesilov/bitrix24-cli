@@ -4,6 +4,17 @@ declare(strict_types=1);
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
+// Fixture-only metadata: never print redirected credential text.
+if (($argv[1] ?? '') === 'stdin-fingerprint') {
+    $input = stream_get_contents(STDIN);
+    echo json_encode([
+        'length' => strlen($input),
+        'prefix_hex' => bin2hex(substr($input, 0, 3)),
+        'trimmed_sha256' => hash('sha256', trim($input)),
+    ], JSON_THROW_ON_ERROR) . PHP_EOL;
+    exit(0);
+}
+
 if (($argv[1] ?? '') === 'task-signal') {
     require __DIR__ . '/task-signal.php';
     exit(1);
