@@ -44,7 +44,7 @@ The project SHALL document commands to rebuild packages from a locked applicatio
 - **AND** it does not modify another checkout's dependencies, configuration, cache or artifacts
 
 ### Requirement: Package version identity
-Release binaries SHALL report a version matching their source version tag. Development binaries SHALL expose the full source commit SHA so each downloaded artifact can be traced to the revision built.
+Release binaries SHALL report a version matching their source version tag. Development binaries SHALL expose the full source commit SHA so each downloaded artifact can be traced to the revision built. Developer Make builds MUST support any clean checkout commit without requiring a main branch or tag and MUST reject uncommitted package inputs or a supplied SHA that differs from HEAD before staging.
 
 #### Scenario: Verify release version
 - **WHEN** a package is built from a release version tag
@@ -52,9 +52,14 @@ Release binaries SHALL report a version matching their source version tag. Devel
 - **AND** the workflow fails if the reported version differs
 
 #### Scenario: Verify development revision
-- **WHEN** a package is built for a development revision
+- **WHEN** a developer builds a clean checkout revision on any branch without requiring a version tag
 - **THEN** `--version` identifies the full source commit SHA
 - **AND** the workflow fails if it identifies a different revision
+
+#### Scenario: Reject mismatched source identity
+- **WHEN** a developer attempts packaging with dirty tracked/untracked application inputs or a supplied SHA that does not match the checkout HEAD
+- **THEN** the build fails before staging or passing its source into Docker
+- **AND** ignored build/cache output does not block a clean source build
 
 ### Requirement: CI artifact verification
 Packaging CI SHALL run on pull requests targeting dev or main, pushes to dev and manual dispatch, build all supported platform packages, smoke-test them independently of the checkout, and upload verified artifacts. Pull-request runs MUST NOT publish releases.
@@ -65,7 +70,7 @@ Packaging CI SHALL run on pull requests targeting dev or main, pushes to dev and
 - **AND** a missing artifact or failed smoke test fails its job without release publication
 
 ### Requirement: Release assets and publication gate
-A version-tag workflow SHALL publish `b24cli-linux-amd64.tar.gz`, `b24cli-macos-arm64.tar.gz`, `b24cli-windows-amd64.zip` and `SHA256SUMS` only after all platform builds and smoke tests succeed. Checksums MUST cover the exact final archives.
+Production CI SHALL build only a specific version tag whose commit is reachable from main. A version-tag workflow SHALL publish `b24cli-linux-amd64.tar.gz`, `b24cli-macos-arm64.tar.gz`, `b24cli-windows-amd64.zip` and `SHA256SUMS` only after all platform builds and smoke tests succeed. Checksums MUST cover the exact final archives. Publication retries MUST resume an existing draft, upload the complete verified asset set before publication and leave already public releases unchanged.
 
 #### Scenario: Publish a verified release
 - **WHEN** all supported platform packages for a version tag have passed their checks
@@ -74,6 +79,15 @@ A version-tag workflow SHALL publish `b24cli-linux-amd64.tar.gz`, `b24cli-macos-
 #### Scenario: Reject an incomplete release
 - **WHEN** any platform build, version check, smoke test or required artifact fails
 - **THEN** no public release is published for that workflow run
+
+#### Scenario: Reject a version tag outside main
+- **WHEN** a version tag points to a commit outside the main branch history
+- **THEN** production CI fails before platform builds or publication
+
+#### Scenario: Resume interrupted draft publication
+- **WHEN** a previous publication attempt left a draft after creation, partial upload or a failed publish step
+- **THEN** a rerun reuses the draft and uploads all verified assets before publishing
+- **AND** lookup/upload failures stop publication and an already published release is not overwritten
 
 ### Requirement: Installation and evidence documentation
 Documentation SHALL describe supported systems, package download, checksum verification before installation, PATH setup and build commands. Recorded acceptance MUST distinguish local checks, actual CI runs, actual release publication and live portal verification.

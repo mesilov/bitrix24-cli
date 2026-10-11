@@ -38,10 +38,10 @@
 ## 7. Review follow-up — PR #17
 
 - [x] 7.1 Влить актуальные main и dev в feature branch, разрешить конфликты точки входа/Makefile/README, сохранить новые task commands и packaged BuildVersion; проверить ancestry и startup/config registration.
-- [ ] 7.2 Отклонять dirty Git inputs и явный SHA, не совпадающий с HEAD, до staging/Docker build; проверить clean/dirty/staged/untracked/ignored fixtures и metadata identity на всех builders.
+- [x] 7.2 Отклонять dirty Git inputs и явный SHA, не совпадающий с HEAD, до staging/Docker build; проверить clean/dirty/staged/untracked/ignored fixtures и metadata identity на всех builders.
 - [x] 7.3 Сделать публикацию возобновляемой: создать или переиспользовать draft, загрузить полный verified asset set и публиковать после успеха; проверить retries после create/upload/edit failure без настоящего Release.
 - [x] 7.4 Ограничить production CI version-tag commit-ами в истории main, сохранив developer Make builds на любом clean checkout commit; проверить main/feature tags и tagless developer builds, обновить документацию.
-- [ ] 7.5 Проверить offline task commands в production PHAR/native package без portal credentials, Unix pcntl/SIGINT с сохранением подтверждённого шага, unit/quality/worktree gates и полную native CI matrix; обновить verification, issue trace и архивировать change.
+- [x] 7.5 Проверить offline task commands в production PHAR/native package без portal credentials, Unix pcntl/SIGINT с сохранением подтверждённого шага, unit/quality/worktree gates и полную native CI matrix; обновить verification, issue trace и подготовить change к архивированию.
 
 ## Workflow follow-up
 
