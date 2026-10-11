@@ -7,7 +7,7 @@ case "$target" in
     phar) stage=phar-artifacts; output=dist/phar; platform="" ;;
     *) echo 'Expected linux or phar target' >&2; exit 2 ;;
 esac
-sha="${B24CLI_SOURCE_SHA:-$(git rev-parse HEAD)}"
+sha="$(python3 build/source.py --source-sha "${B24CLI_SOURCE_SHA:-$(git rev-parse HEAD)}")"
 args=(buildx build --file docker/package/Dockerfile --target "$stage"
     --build-arg "B24CLI_SOURCE_SHA=$sha"
     --build-arg "B24CLI_RELEASE_VERSION=${B24CLI_RELEASE_VERSION:-}"

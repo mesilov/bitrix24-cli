@@ -77,12 +77,30 @@ def main():
             return result.stdout
 
         version = invoke("b24cli", ["--version", "--no-ansi"]).strip()
-        check(version == "Bitrix24 CLI " + args.expected_version, "Version mismatch: " + version)
+        check(version == "b24cli " + args.expected_version, "Version mismatch: " + version)
         for command in [["list", "--no-ansi"], ["--help", "--no-ansi"]]:
             output = invoke("b24cli", command)
-            expected = "Bitrix24 CLI" if command[0] == "list" else "Usage:"
+            expected = "b24cli" if command[0] == "list" else "Usage:"
             check(expected in output and "\x1b" not in output, "CLI/help contract failed")
-        invoke("b24cli", ["несуществующая-команда", "--no-ansi"], 1, stderr_contains="несуществующая-команда")
+        unknown = json.loads(invoke("b24cli", ["несуществующая-команда", "--json", "--no-ansi"], 2))
+        check(unknown["error"]["code"] == "usage-error" and unknown["meta"]["apiCalls"] == [],
+              "Unknown command did not preserve the usage contract")
+        commands = [line.split()[0] for line in invoke("b24cli", ["list", "task", "--raw", "--no-ansi"]).splitlines()]
+        check(len(commands) == 30 and all(name.startswith("task:") for name in commands),
+              "Task command registration differs: " + repr(commands))
+        for name in commands:
+            check("Usage:" in invoke("b24cli", [name, "--help", "--no-ansi"]), "Task help failed: " + name)
+        dry_run = json.loads(invoke("b24cli", ["task:add", "--title", "Привет, Битрикс24", "--creator", "1",
+                                               "--responsible", "2", "--dry-run", "--json", "--no-ansi"]))
+        check(dry_run["error"] is None and dry_run["meta"]["dryRun"] is True
+              and dry_run["meta"]["apiCalls"] == [] and dry_run["meta"]["schemaVersion"] == 1,
+              "Offline task dry-run contract failed")
+        check(dry_run["data"]["plan"]["steps"] == [{"taskId": None, "step": 1, "method": "tasks.task.add",
+              "apiVersion": "3.0", "effect": "write", "fields": {"title": "Привет, Битрикс24", "creatorId": 1,
+              "responsibleId": 2}}], "Task DI/UTF-8 arguments or plan changed")
+        missing = json.loads(invoke("b24cli", ["task:show", "123", "--json", "--no-ansi"], 1))
+        check(missing["error"]["code"] == "connection-unavailable" and missing["meta"]["apiCalls"] == [],
+              "Missing connection did not stop before API calls")
         probe = json.loads(invoke("runtime-probe", []))
         check(probe["version"] == args.expected_version, "Probe build identity differs")
         if not args.phar:
@@ -114,7 +132,8 @@ def main():
         check(all(path.name in allowed_phars for path in clean.glob("*.phar")),
               "Temporary application PHAR was not removed")
         print(json.dumps({"status": "passed", "version": args.expected_version, "runtime": probe,
-                          "checks": ["version", "help", "list", "usage-exit", "autoload", "extensions", "unicode",
+                          "checks": ["version", "help", "list", "usage-exit", "30-task-commands", "task-dry-run",
+                                     "missing-connection", "autoload", "extensions", "unicode",
                                      "trusted-https", "rejected-certificate", "clean-PATH", "temporary-phar-cleanup"]}, ensure_ascii=False))
 
 

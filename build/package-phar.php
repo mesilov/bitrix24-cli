@@ -59,7 +59,7 @@ foreach ($iterator as $file) {
     $files[$relative] = $file->getPathname();
 }
 
-$entry = 'bin/console';
+$entry = 'bin/b24cli';
 if ($argv[3] === 'probe') {
     $files['packaging/runtime-probe.php'] = __DIR__ . '/tests/runtime-probe.php';
     $entry = 'packaging/runtime-probe.php';
@@ -88,7 +88,7 @@ $phar->stopBuffering();
 chmod($target, 0755);
 
 $archive = new Phar($target);
-foreach (['bin/console', 'vendor/autoload.php', 'src/BuildVersion.php', 'LICENSE', 'build-info.json'] as $path) {
+foreach (['bin/b24cli', 'bin/console', 'config/services.php', 'vendor/autoload.php', 'src/BuildVersion.php', 'LICENSE', 'build-info.json'] as $path) {
     if (!isset($archive[$path])) {
         throw new RuntimeException('Required file is absent: ' . $path);
     }

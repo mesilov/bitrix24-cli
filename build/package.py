@@ -12,12 +12,13 @@ import subprocess
 import sys
 
 from runtime import ROOT, CONFIG, run, composer, toolchain, build_runtime
+from source import validate_sha, verify_checkout
 
 
 def identity(source_sha, version):
-    sha = source_sha or subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
-    if not re.fullmatch(r"[0-9a-f]{40}", sha):
-        raise ValueError("Source SHA must contain 40 lowercase hexadecimal characters")
+    # Docker consumes the SHA validated before submitting its context; native
+    # builders validate the actual Git checkout before creating any staging.
+    sha = verify_checkout(ROOT, source_sha) if (ROOT / '.git').exists() else validate_sha(source_sha or '')
     if version and not re.fullmatch(r"v?\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?", version):
         raise ValueError("Release version must be a version tag, e.g. 0.1.0 or v0.1.0")
     return {"version": version or "dev-" + sha, "source_sha": sha,

@@ -46,7 +46,7 @@ with tempfile.TemporaryDirectory(prefix='b24cli-install-') as directory:
         raise AssertionError('Installed binary was not found in the installation PATH')
     version = subprocess.check_output([command, '--version', '--no-ansi'], cwd=root,
                                       env=env, text=True, encoding='utf-8').strip()
-    expected = 'Bitrix24 CLI ' + json.loads((dist / 'build-info.json').read_text())['version']
+    expected = 'b24cli ' + json.loads((dist / 'build-info.json').read_text())['version']
     if version != expected:
         raise AssertionError('Installed binary version differs: ' + version)
     print('Verified checksum, archive unpack, executable permissions and PATH installation: ' + version)

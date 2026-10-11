@@ -23,13 +23,28 @@ PHAR; payload strategy и compression записаны в build-info.json.
 `--no-dev --no-plugins --no-scripts`; при появлении runtime generation hooks
 нужно явно добавить staging step и проверки.
 
-Linux amd64: Docker, Buildx, Git, Make. На ARM Docker использует amd64 emulation;
+Linux amd64: Docker, Buildx, Git, Make, Python 3. На ARM Docker использует amd64 emulation;
 первую полную компиляцию лучше выполнять на native amd64 CI runner.
 
 ```sh
 make package-phar
 make package
 ```
+
+Разработчик может собрать тестовый бинарник на любом коммите любой ветки:
+переключите отдельный checkout/worktree на нужный коммит и выполните `make package`
+(на соответствующей OS — `make package-macos` или `make package-windows`).
+Тег и принадлежность `main` для этих Make-команд не требуются. Например:
+
+```sh
+git worktree add --detach /tmp/b24cli-test-build <commit-sha>
+make -C /tmp/b24cli-test-build package
+```
+
+Checkout должен быть чистым: изменённые, staged и untracked файлы отклоняются
+до staging и запуска Docker. Игнорируемые `runtime/`, `dist/`, `vendor/` не мешают
+повторной сборке; игнорируемые файлы внутри application/resource roots отклоняются,
+чтобы содержимое бинарника соответствовало заявленному коммиту.
 
 macOS arm64: macOS 15, Xcode Command Line Tools, PHP 8.5.11 с production extensions,
 Composer 2.10.3, Python 3.13, Git, autoconf, automake, bison, re2c, pkgconf, cmake.
@@ -43,10 +58,11 @@ x64 developer environment, PHP 8.5.11 с production extensions, Composer 2.10.3
 PHP/Composer нужны только на машине сборки. Development identity:
 `dev-<full commit SHA>`. Для локальной проверки release identity задайте
 `B24CLI_RELEASE_VERSION=0.1.0`: это не создаёт tag или Release.
-`B24CLI_SOURCE_SHA` позволяет передать SHA явно; неверная identity отклоняется
+`B24CLI_SOURCE_SHA` позволяет передать текущий SHA явно; значение должно совпадать с HEAD и отклоняется
 до создания staging. По умолчанию SHA получается через Git.
 
-Пакет включает точку входа, src, production vendor, LICENSE и build metadata.
+Пакет включает `bin/b24cli`, совместимый `bin/console`, src, DI config,
+production vendor, LICENSE и build metadata.
 Resource roots перечислены в config.json. Symlinks и локальные `.env`/credentials
 в application staging отклоняются; поставляемые vendor `.env` и test directories
 исключаются. Installed package set проверяется против production lock.
@@ -59,7 +75,8 @@ python3 build/tests/smoke.py dist/macos-arm64 --expected-version "dev-$(git rev-
 
 На Windows используйте `python` и `dist/windows-amd64`. Linux harness выполняется
 в чистом Python container с mounts только artifacts и smoke.py. Проверяются
-exact version, help/list, Unicode usage error/exit code, SDK autoload, production
+exact version, help/list, регистрацию и help всех 30 команд задач, Unicode
+`task:add --dry-run`, JSON usage/connection errors и exit codes, SDK autoload, production
 extensions, BCMath/ICU, trusted HTTPS и отказ на чужой CA. Smoke копирует artifacts
 в temp directory, убирает build tools из PATH и использует whitelist environment
 без portal credentials и PHP/LD/DYLD конфигурации.
@@ -79,9 +96,19 @@ payload. Он не входит в public archive; в основном CLI не�
 gh run download RUN_ID --name b24cli-release-assets --dir ./downloaded
 ```
 
+Production-бинарники собираются в CI из конкретного version tag на коммите
+ветки `main`. Workflow получает полную историю, разрешает тег в точный commit SHA
+(включая annotated tag) и проверяет, что коммит входит в историю `origin/main`.
+Тег на отдельной feature/dev истории отклоняется до запуска platform builders.
+Можно собрать и более ранний коммит `main`; совпадение с текущим tip не требуется.
+Production identity сохраняет точное имя тега, например `0.1.0` или `v0.1.0`.
+PR/dev/manual workflow создаёт тестовые artifacts с `dev-<full SHA>`.
+
 Version-tag workflow использует те же builders; publish зависит от всех checks.
-Failure блокирует публикацию; на PR Release не создаётся. Tags: `0.1.0` или
-`v0.1.0`; `--version` сохраняет точное tag имя. Assets:
+Failure блокирует публикацию; на PR Release не создаётся. Публикация создаёт или
+переиспользует draft, загружает все четыре проверенных assets и только затем
+делает Release публичным. Повторный запуск после create/upload/publish failure
+возобновляет draft; уже публичный Release оставляет без изменений. Assets:
 
 - `b24cli-linux-amd64.tar.gz`
 - `b24cli-macos-arm64.tar.gz`

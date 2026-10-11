@@ -9,7 +9,8 @@
 - Упаковка точки входа, исходников и production-зависимостей из `composer.lock` в PHAR и объединение с embedded PHP runtime через `static-php-cli`.
 - Поддержка бинарников Linux amd64, macOS arm64 и Windows amd64 с документированными minimum OS/system requirements.
 - Повторяемая сборка через Make/scripts, отдельные packaging jobs на PR/push/manual events, проверка артефактов вне checkout без внешнего PHP.
-- Release workflow по version tag с платформенными архивами, `SHA256SUMS` и публикацией после успешной сборки и smoke tests всей матрицы.
+- Production CI по конкретному version tag на коммите из истории `main`, с платформенными архивами, `SHA256SUMS` и возобновляемой публикацией draft после успешной сборки и smoke tests всей матрицы.
+- Developer Make builds на любом clean checkout commit без обязательного тега; dirty inputs и несовпадающий SHA отклоняются до staging.
 - Документация установки в `PATH`, проверки checksum, сборочных входов и ограничений.
 
 Образец обвязки: [yiipress/engine](https://github.com/yiipress/engine/tree/e61459fc788a74b91188d5d41a5fca59a02a229e), commit `e61459fc788a74b91188d5d41a5fca59a02a229e`, проверенный 11.10.2026. Адаптируются packaging/CI и подход PHAR → PHP micro → binary; специфичные extensions YiiPress не включаются. Nightly publication, self-update, установщики и distroless image остаются вне этой итерации.

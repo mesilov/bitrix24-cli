@@ -12,10 +12,30 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  validate-tag:
+    name: Verify production tag belongs to main
+    runs-on: ubuntu-24.04
+    outputs:
+      source_sha: ${{ steps.source.outputs.sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Resolve the exact main version tag
+        id: source
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          sha="$(python3 build/source.py --release-tag "$RELEASE_TAG")"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
   packages:
+    needs: validate-tag
     uses: ./.github/workflows/package-platforms.yml
     with:
-      source_sha: ${{ github.sha }}
+      source_sha: ${{ needs.validate-tag.outputs.source_sha }}
       release_version: ${{ github.ref_name }}
 
   publish:
@@ -37,7 +57,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ github.ref_name }}
-        run: |
-          gh release create "$RELEASE_TAG" assets/* --verify-tag --draft \
-            --title "$RELEASE_TAG" --generate-notes
-          gh release edit "$RELEASE_TAG" --draft=false --latest
+        run: python3 build/publish-release.py "$RELEASE_TAG" assets

@@ -20,14 +20,15 @@
     "zlib"
   ],
   "application_paths": [
+    "bin/b24cli",
     "bin/console",
     "src",
+    "config",
     "LICENSE",
     "composer.json",
     "composer.lock"
   ],
   "optional_resource_paths": [
-    "config",
     "resources"
   ]
 }

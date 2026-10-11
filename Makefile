@@ -53,7 +53,7 @@ help:
 	  'php-cli-bash         Open a shell in the PHP container' \
 	  'cli ARGS="..."       Run bin/b24cli (default: command list)' \
 	  'package-phar         Build the locked production PHAR in Docker' \
-	  'package              Build the standalone Linux amd64 binary in Docker' \
+	  'package              Build a test Linux binary from any clean checkout commit (Docker)' \
 	  'package-macos        Build the native macOS arm64 binary' \
 	  'package-windows      Build the native Windows amd64 binary' \
 	  'test-package ARGS="..." Run the copied-artifact acceptance harness' \
