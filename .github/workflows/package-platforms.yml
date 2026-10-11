@@ -111,7 +111,7 @@ jobs:
         id: packer-cache
         with:
           path: runtime/package-macos-arm64/packers
-          key: b24cli-wrappe-notices-macos-arm64-${{ hashFiles('build/compression.json') }}
+          key: b24cli-wrappe-notices-macos-arm64-${{ hashFiles('build/compression.json', 'build/patches/wrappe-cargo-home.json') }}
       - name: Build native macOS package
         env:
           GITHUB_TOKEN: ${{ github.token }}

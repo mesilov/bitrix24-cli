@@ -114,20 +114,43 @@ class CompressionChecks(unittest.TestCase):
             compression.finalize_upx_elf(binary)
         self.assertEqual(binary.read_bytes(), before)
 
+    def test_changed_cached_wrappe_executable_is_rejected(self):
+        root = self.root / 'packers'
+        tool = root / 'bin/wrappe'
+        tool.parent.mkdir(parents=True)
+        tool.write_bytes(b'original cached tool')
+        stamp = {'provenance': compression.provenance('macos-arm64'), 'tool_sha256': compression.digest(tool)}
+        (root / 'wrappe-build-info.json').write_text(json.dumps(stamp))
+        tool.write_bytes(b'changed cached tool')
+        with patch('compress.checked_download', return_value=root / 'wrappe.crate'):
+            with self.assertRaisesRegex(RuntimeError, 'Cached wrappe executable SHA256'):
+                compression.install_wrappe(self.root, {})
+
+    def test_verified_wrappe_source_patch_preserves_scoped_cargo_home(self):
+        # Use the pinned package content shape, with a real tar archive.
+        import io
+        archive = self.root / 'wrappe.crate'
+        content = b'if env.starts_with("CARGO") {\n    command.env_remove(&env);\n}\n'
+        with tarfile.open(archive, 'w') as crate:
+            member = tarfile.TarInfo('wrappe-1.0.4/build.rs')
+            member.size = len(content)
+            crate.addfile(member, io.BytesIO(content))
+        source = compression.prepare_wrappe_source(archive, self.root)
+        self.assertIn('&& env != "CARGO_HOME"', (source / 'build.rs').read_text())
+
     def test_runner_notices_survive_cache_without_host_registry(self):
         packers = self.root / 'packers'
         host = self.root / 'host'
         for path in [packers / 'cargo-home/registry/src/index/packer-1/LICENSE',
-                     host / '.cargo/registry/src/index/runner-1/LICENSE']:
+                     packers / 'cargo-home/registry/src/index/runner-1/LICENSE']:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(path.parent.name + ' license')
         notices = packers / 'wrappe-notices'
-        with patch('compress.Path.home', return_value=host):
-            compression.collect_wrappe_notices(packers, notices)
+        compression.collect_wrappe_notices(packers, notices)
         self.assertEqual((notices / 'runner-1/LICENSE').read_text(), 'runner-1 license')
         self.assertEqual((notices / 'packer-1/LICENSE').read_text(), 'packer-1 license')
         import shutil
-        shutil.rmtree(host)
+        shutil.rmtree(packers / 'cargo-home')
         output = self.root / 'licenses'
         compression.export_notices('macos-arm64', self.root, output)
         self.assertTrue((output / 'wrappe-dependencies/runner-1/LICENSE').is_file())

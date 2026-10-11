@@ -185,7 +185,7 @@ Local checks, actual CI, actual Release publication и live portal verification
 На Linux удаляется служебный UPX trailer за последним PT_LOAD, как в SPC: PHAR
 должен начинаться на границе, которую вычисляет micro loader.
 
-macOS: wrappe 1.0.4 собирается через `cargo +1.90.0 install --locked` в
+macOS: проверенный wrappe 1.0.4 собирается через `cargo +1.90.0 install --locked --path` в
 checkout-local prefix и упаковывает готовый executable с Zstandard level 16.
 Исходный inner executable сначала проходит PHAR bounds check и ad-hoc signature;
 Затем исправляются Mach-O bounds итогового launcher и выполняется его подпись.
@@ -218,4 +218,6 @@ report и `compression-licenses/`; исходный executable, probe и PHAR н
 Уведомления UPX и wrappe, включая license files Rust dependencies
 встроенного launcher, поставляются вместе с архивом. У upstream wrappe внешний
 packer использует Cargo.lock, а вложенный runner разрешает зависимости отдельно;
-notices из обоих Cargo registry trees сохраняются вместе с cached tool.
+Локальный build.rs patch сохраняет CARGO_HOME у вложенного runner, чтобы обе
+сборки использовали checkout-local registry. SHA256 patch записан в build-info;
+notices сохраняются вместе с cached tool.

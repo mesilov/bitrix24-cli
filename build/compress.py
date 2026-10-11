@@ -28,7 +28,8 @@ def provenance(target):
         config = CONFIG["wrappe"]
         return {"tool": "wrappe", "version": config["version"], "strategy": "whole-executable",
                 "compression": config["compression"], "rust_toolchain": config["rust_toolchain"],
-                "crate_sha256": config["crate_sha256"]}
+                "crate_sha256": config["crate_sha256"],
+                "runner_build_patch_sha256": digest(ROOT / config["runner_build_patch"])}
     config = CONFIG["upx"]
     return {"tool": "upx", "version": config["version"], "strategy": "micro-before-phar",
             "level": config["level"], "archive_sha256": config["targets"][target]["sha256"]}
@@ -87,24 +88,59 @@ def install_upx(target, work):
     return tool
 
 
+def prepare_wrappe_source(archive, root):
+    source = Path(root) / "source"
+    if source.exists():
+        shutil.rmtree(source)
+    source.mkdir()
+    with tarfile.open(archive) as crate:
+        for member in crate.getmembers():
+            destination = source / member.name
+            if not destination.resolve().is_relative_to(source.resolve()) or not (member.isfile() or member.isdir()):
+                raise RuntimeError("Unsafe wrappe source archive member")
+            if member.isdir():
+                destination.mkdir(parents=True, exist_ok=True)
+            else:
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                destination.write_bytes(crate.extractfile(member).read())
+    source = source / ("wrappe-" + CONFIG["wrappe"]["version"])
+    patch = json.loads((ROOT / CONFIG["wrappe"]["runner_build_patch"]).read_text())
+    path = source / patch["file"]
+    content = path.read_text()
+    if content.count(patch["before"]) != 1:
+        raise RuntimeError("wrappe build patch differs from pinned source")
+    path.write_text(content.replace(patch["before"], patch["after"]))
+    return source
+
+
 def install_wrappe(work, env):
     config = CONFIG["wrappe"]
     root = Path(work) / "packers"
-    checked_download("https://crates.io/api/v1/crates/wrappe/" + config["version"] + "/download",
+    archive = checked_download("https://crates.io/api/v1/crates/wrappe/" + config["version"] + "/download",
                      root / "wrappe.crate", config["crate_sha256"])
     tool = root / "bin/wrappe"
     cargo_env = env.copy()
     cargo_env["CARGO_HOME"] = str(root / "cargo-home")
-    if not tool.is_file():
+    stamp = root / "wrappe-build-info.json"
+    expected = provenance("macos-arm64")
+    installed = json.loads(stamp.read_text()) if stamp.is_file() else None
+    rebuild = not tool.is_file() or not installed or installed["provenance"] != expected
+    if not rebuild and installed["tool_sha256"] != digest(tool):
+        raise RuntimeError("Cached wrappe executable SHA256 mismatch")
+    if rebuild:
         if not shutil.which("cargo"):
             raise RuntimeError("Rust/cargo is required to build the macOS compressor")
-        subprocess.run(["cargo", "+" + config["rust_toolchain"], "install", "--locked",
-                        "--version", config["version"], "--root", str(root), "wrappe"],
-                       env=cargo_env, check=True)
+        source = prepare_wrappe_source(archive, root)
+        subprocess.run(["cargo", "+" + config["rust_toolchain"], "install", "--locked", "--force",
+                        "--path", str(source), "--root", str(root)], env=cargo_env, check=True)
     check_version(tool, config["version"], cargo_env)
     notices = root / "wrappe-notices"
+    if rebuild and notices.exists():
+        shutil.rmtree(notices)
     if not notices.is_dir():
         collect_wrappe_notices(root, notices)
+    if rebuild:
+        stamp.write_text(json.dumps({"provenance": expected, "tool_sha256": digest(tool)}, indent=2) + "\n")
     return tool
 
 
@@ -169,9 +205,8 @@ def pack_macos(work, binary, env):
 
 
 def collect_wrappe_notices(root, destination):
-    # wrappe's nested runner build clears CARGO_HOME; keep notices from both
-    # registries beside the cached tool so a cache hit remains self-contained.
-    registries = [Path(root) / "cargo-home/registry/src", Path.home() / ".cargo/registry/src"]
+    # Preserve notices beside the cached tool; both builds use scoped CARGO_HOME.
+    registries = [Path(root) / "cargo-home/registry/src"]
     count = 0
     for registry in registries:
         for crate in registry.glob("*/*"):

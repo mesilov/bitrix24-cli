@@ -36,3 +36,6 @@ PHAR combination on Linux/Windows; wrappe-compressed final executable on macOS.
 
 Actual version, archive/crate SHA256 and compression settings are recorded in
 build-info.json and compression-info.json. Compressor caches remain checkout-local.
+
+The verified wrappe source receives build/patches/wrappe-cargo-home.json to retain
+checkout-local CARGO_HOME in its nested runner build; its SHA256 is recorded.
