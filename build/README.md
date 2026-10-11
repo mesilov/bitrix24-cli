@@ -134,33 +134,25 @@ lock. Диагностика: CI logs и `runtime/package-*/static-php-cli-*/log
 
 ## Установка
 
-Скачайте platform archive и SHA256SUMS из одного Release. Сначала checksum,
-затем распаковка и установка. Linux:
+Подробные команды скачивания, checksum, распаковки, первого запуска и пользовательского
+PATH находятся в [README → Установка](../README.md#установка). Там же описаны предупреждения
+macOS/Windows, ограничения текущей предварительной сборки, сохранение notices и обновление.
+Для CI скачивайте `b24cli-release-assets` одного run и распакуйте внешний ZIP;
+для Release используйте platform archive и `SHA256SUMS` из одного Release.
 
-```sh
-grep '  b24cli-linux-amd64.tar.gz$' SHA256SUMS | sha256sum --check -
-tar -xzf b24cli-linux-amd64.tar.gz
-mkdir -p "$HOME/.local/bin"
-install -m 755 b24cli "$HOME/.local/bin/b24cli"
-# Добавьте $HOME/.local/bin в PATH своего shell.
-b24cli --version
-```
+### Linux amd64
 
-macOS: `grep '  b24cli-macos-arm64.tar.gz$' SHA256SUMS | shasum -a 256 --check -`,
-затем распакуйте этот archive и выполните те же install/PATH/version steps.
-Сохраняйте license notices рядом с установленным инструментом.
+Откройте в README блок **Linux amd64 — установка и PATH (Bash)**.
 
-Windows PowerShell:
+### macOS arm64 (zsh)
 
-```powershell
-$expected = ((Get-Content SHA256SUMS | Where-Object { $_ -match '  b24cli-windows-amd64.zip$' }) -split '  ')[0]
-if (-not $expected -or (Get-FileHash b24cli-windows-amd64.zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-    throw 'Checksum mismatch'
-}
-Expand-Archive b24cli-windows-amd64.zip -DestinationPath b24cli
-./b24cli/b24cli.exe --version
-# Добавьте directory b24cli в пользовательский PATH.
-```
+Откройте в README блок **macOS arm64 — установка, первый запуск и PATH (zsh)**.
+`./b24cli` запускает файл из текущего каталога; `b24cli` требует установки в PATH.
+Известный отказ ОС рассматривается в [#23](https://github.com/mesilov/bitrix24-cli/issues/23).
+
+### Windows amd64 (PowerShell)
+
+Откройте в README блок **Windows amd64 — установка и PATH (PowerShell)**.
 
 Пользователю не нужны PHP/Composer/Docker. Linux использует static musl; clean
 runtime проверяется на Debian 12, build job — Ubuntu 24.04. Minimum validated
