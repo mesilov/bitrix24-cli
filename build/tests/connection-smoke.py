@@ -98,16 +98,19 @@ def main():
             assert missing['error']['code'] == 'connection-unavailable' and missing['meta']['apiCalls'] == []
             # Repeat documented redirection/selection through the native user shell.
             secret_file = root / 'webhook input.txt'
-            secret_file.write_text(webhook + '\n')
+            secret_file.write_bytes((webhook + '\n').encode('utf-8'))
+            assert secret_file.read_bytes().startswith(b'https://'), 'Fixture source has a BOM'
             shell_env = {**env, 'B24CLI_BINARY': str(binaries / ('b24cli' + suffix)), 'B24CLI_STDIN_PROBE': str(binaries / ('runtime-probe' + suffix)), 'B24CLI_SECRET_FILE': str(secret_file), 'B24CLI_SHELL_CONFIG': str(root / 'shell profiles')}
             if not args.phar:
                 if os.name == 'nt':
-                    fingerprint_script = "[Console]::Error.WriteLine('default-preamble=' + [BitConverter]::ToString($OutputEncoding.GetPreamble())); Get-Content -Raw $env:B24CLI_SECRET_FILE | & $env:B24CLI_STDIN_PROBE stdin-fingerprint -n; $OutputEncoding = [System.Text.UTF8Encoding]::new($false); [Console]::Error.WriteLine('explicit-preamble=' + [BitConverter]::ToString($OutputEncoding.GetPreamble())); Get-Content -Raw -Encoding UTF8 $env:B24CLI_SECRET_FILE | & $env:B24CLI_STDIN_PROBE stdin-fingerprint -n"
+                    # .NET Framework initializes Process.StandardInput with Console.InputEncoding
+                    # and AutoFlush before PowerShell's OutputEncoding writer is used.
+                    fingerprint_script = "[Console]::Error.WriteLine('console-input-preamble=' + [BitConverter]::ToString([Console]::InputEncoding.GetPreamble())); Get-Content -Raw $env:B24CLI_SECRET_FILE | & $env:B24CLI_STDIN_PROBE stdin-fingerprint -n; $OutputEncoding = [System.Text.UTF8Encoding]::new($false); Get-Content -Raw -Encoding UTF8 $env:B24CLI_SECRET_FILE | & $env:B24CLI_STDIN_PROBE stdin-fingerprint -n; [Console]::InputEncoding = $OutputEncoding; [Console]::Error.WriteLine('explicit-console-input-preamble=' + [BitConverter]::ToString([Console]::InputEncoding.GetPreamble())); Get-Content -Raw -Encoding UTF8 $env:B24CLI_SECRET_FILE | & $env:B24CLI_STDIN_PROBE stdin-fingerprint -n"
                     fingerprints = subprocess.run([str(powershell), '-NoProfile', '-NonInteractive', '-Command', fingerprint_script], env=shell_env, cwd=root, capture_output=True, text=True, timeout=60, check=True)
                     results = [json.loads(line) for line in fingerprints.stdout.splitlines()]
                     print(json.dumps({'PowerShell_stdin_fingerprints': results, 'encoding': fingerprints.stderr}), flush=True)
                     assert results[-1]['trimmed_sha256'] == hashlib.sha256(webhook.encode()).hexdigest(), 'PowerShell changed UTF-8 fixture stdin'
-                    script = "$OutputEncoding = [System.Text.UTF8Encoding]::new($false); Get-Content -Raw -Encoding UTF8 $env:B24CLI_SECRET_FILE | & $env:B24CLI_BINARY connection:add work --webhook-stdin -n --config-dir $env:B24CLI_SHELL_CONFIG --json; if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}; & $env:B24CLI_BINARY connection:use work --config-dir $env:B24CLI_SHELL_CONFIG --json"
+                    script = "$OutputEncoding = [Console]::InputEncoding = [System.Text.UTF8Encoding]::new($false); Get-Content -Raw -Encoding UTF8 $env:B24CLI_SECRET_FILE | & $env:B24CLI_BINARY connection:add work --webhook-stdin -n --config-dir $env:B24CLI_SHELL_CONFIG --json; if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}; & $env:B24CLI_BINARY connection:use work --config-dir $env:B24CLI_SHELL_CONFIG --json"
                     shell_result = subprocess.run([str(powershell), '-NoProfile', '-NonInteractive', '-Command', script], env=shell_env, cwd=root, capture_output=True, text=True, timeout=native_timeout)
                     original = args.dist.resolve() / 'uncompressed/b24cli.exe'
                     if shell_result.returncode != 0 and original.is_file():
