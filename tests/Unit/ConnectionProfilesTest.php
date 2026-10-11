@@ -332,6 +332,59 @@ final class ConnectionProfilesTest extends TestCase
         self::assertSame('built-in-default', $run->json()['meta']['fieldSources']['allowsTimeTracking']);
     }
 
+    public function testRawWebhookControlCharactersAreRejectedWithoutDisclosure(): void
+    {
+        $app = $this->app();
+        $fileProtection = new FileProtection();
+        $fileProtection->directory($this->directory);
+        foreach (["\t", "\0", "\n", "\r", ' ', "\x7f"] as $control) {
+            $webhook = 'https://fixture.invalid/rest/1/RecognizableFixtureSecret' . $control . 'Test/';
+            $run = ConsoleHarness::run($app, ['connection:add', 'work', '--webhook-stdin', '--json'], $webhook);
+            self::assertSame(1, $run->status, $run->stdout);
+            self::assertStringNotContainsString('RecognizableFixtureSecret', $run->stdout . $run->stderr);
+            self::assertFileDoesNotExist($this->directory . '/config.json');
+            $file = $this->directory . '/external.env';
+            file_put_contents($file, "BITRIX24_WEBHOOK='" . $webhook . "'\n");
+            $this->manager->configure(null, $file, null);
+            try {
+                $this->manager->webhook();
+                self::fail('Expected malformed dotenv URL to fail.');
+            } catch (Failure $error) {
+                self::assertSame('configuration-error', $error->errorCode);
+            }
+
+            if ($control !== "\0") {
+                putenv('BITRIX24_WEBHOOK=' . $webhook);
+                $this->manager->configure(null, null, null);
+                try {
+                    $this->manager->webhook();
+                    self::fail('Expected malformed process URL to fail.');
+                } catch (Failure $error) {
+                    self::assertSame('configuration-error', $error->errorCode);
+                }
+            }
+        }
+    }
+
+    public function testSourceDotenvIsOnlyTheFinalProviderAndNeverUsedByPackagedMode(): void
+    {
+        $this->add();
+        file_put_contents($this->directory . '/.env', "BITRIX24_WEBHOOK=https://source.invalid/rest/1/SourceSecret/\n");
+        $fileProtection = new FileProtection();
+        $fileCredentialStore = new FileCredentialStore($fileProtection);
+        $connectionManager = new ConnectionManager(new ConfigDirectoryResolver(), $this->repository, $fileCredentialStore, $this->directory, false);
+        self::assertSame('https://source.invalid/rest/1/SourceSecret/', $connectionManager->webhook());
+        file_put_contents($this->directory . '/.env.local', "BITRIX24_WEBHOOK=https://local.invalid/rest/1/LocalSecret/\n");
+        $connectionManager->configure(null, null, null);
+        self::assertSame('https://local.invalid/rest/1/LocalSecret/', $connectionManager->webhook());
+        $this->repository->use($this->directory, 'work');
+        $connectionManager->configure(null, null, null);
+        self::assertSame('https://work.invalid/rest/1/RecognizableFixtureSecret/', $connectionManager->webhook());
+        $this->repository->remove($this->directory, 'work');
+        $this->manager->configure(null, null, null);
+        self::assertSame('none', $this->manager->metadata()['source']);
+    }
+
     public function testPublicationFailureCleansNewCredentialAndPreservesMetadata(): void
     {
         if (PHP_OS_FAMILY === 'Windows' || (function_exists('posix_geteuid') && posix_geteuid() === 0)) {

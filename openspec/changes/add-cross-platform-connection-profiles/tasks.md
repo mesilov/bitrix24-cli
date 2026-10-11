@@ -19,7 +19,7 @@
 ## 3. Выбор подключения и совместимость
 
 - [x] 3.1 Расширить --profile, добавить --env-file/--config-dir и передать invocation selection в lazy resolver; проверить selectors до/после команды, --config profile, conflicts и precedence tests; обновить global help.
-- [ ] 3.2 Реализовать compatibility chain, SDK alias и source-only root dotenv; проверить zero API calls при selected-source failure, missing default и ambient conflicts, fixture host/token не смешиваются; описать migration --profile default.
+- [x] 3.2 Реализовать compatibility chain, SDK alias и source-only root dotenv; проверить zero API calls при selected-source failure, missing default и ambient conflicts, fixture host/token не смешиваются; описать migration --profile default.
 - [ ] 3.3 Проверить bootstrap source/packaged mode и lazy offline behavior; subprocess tests для help/version/list/completion/offline dry-run в read-only environment не создают config и не читают secret store.
 - [x] 3.4 Сохранить Compose/worktree сценарии process env и explicit file; добавить явное forwarding/mount пользовательского каталога и выбранного файла, проверить wrapper fixture и документированные Docker примеры.
 

@@ -79,9 +79,11 @@ default.task необязателен при чтении; connection:add пиш
 
 Проверка ограничена официальной документацией и чтением кода. Создание задачи, конкретные права автора/исполнителя/группы и серверное поведение учёта времени не проверялись live.
 
-## Что ещё не доказано
+## Границы исходного исследования
 
-- File backend, global selectors и local commands пока только спроектированы.
+Этот раздел описывает состояние до реализации. Runtime и локальные проверки добавлены 12.10.2026; их evidence и native CI фиксируются в verification.md.
+
+- Исследование само по себе не доказывает file backend, global selectors и local commands.
 - Windows ACL/atomic replace и native binary connection smoke должны пройти в реализации. Unit path simulation этого не доказывает.
 - Не выполнялись запросы в реальные Bitrix24 порталы и native keyring прототипы.
 - OAuth token lifecycle не относится к существующему webhook MVP и не включён в change.

@@ -123,6 +123,18 @@ def main():
             assert failure['meta']['apiCalls'] == []
             run(['connection:remove', 'work', '--json'])
             assert json.loads((config / 'config.json').read_text())['defaultProfile'] is None
+            # Missing user home never redirects managed state into cwd or payload.
+            no_home = {'HOME': '', 'APPDATA': '', 'XDG_CONFIG_HOME': ''}
+            result = json.loads(run(['connection:list', '--json'], 1, extra=no_home))
+            assert result['error']['code'] == 'configuration-error'
+            run(['task:add', '--title', 'Offline no home', '--creator', '1', '--responsible', '2', '--dry-run', '--json'], extra=no_home)
+            for control in ['\t', '\x00', '\n', '\r', ' ', '\x7f']:
+                invalid = webhook.replace(secret, secret + control + 'Test')
+                run(['connection:add', 'invalid', '--webhook-stdin', '--json'], 1, stdin=invalid)
+                external.write_text("BITRIX24_WEBHOOK='" + invalid + "'\n")
+                run(['task:list', '--env-file', str(external), '--json'], 1)
+                if control != '\x00':
+                    run(['task:list', '--json'], 1, extra={'BITRIX24_WEBHOOK': invalid})
             # Concurrent writers must preserve all independent profiles.
             def add(alias):
                 run(['connection:add', alias, '--webhook-stdin', '--json'], stdin=webhook)
@@ -145,7 +157,7 @@ def main():
             assert not list(binaries.glob('credentials')), 'Configuration was written beside binary'
             print(json.dumps({'status': 'passed', 'checks': ['private-storage', 'Windows-ACL' if os.name == 'nt' else 'Unix-modes',
                 'concurrent-writers', 'profile-defaults', 'source-precedence', 'full-SDK-controlled-transport',
-                'CRLF', 'documented-native-shells', 'Unicode-space-paths', 'read-only-executable-dir', 'no-cwd-dotenv', 'no-secret-output', 'no-binary-mutation']}))
+                'CRLF', 'documented-native-shells', 'Unicode-space-paths', 'read-only-executable-dir', 'no-cwd-dotenv', 'missing-user-home', 'raw-URL-controls', 'no-secret-output', 'no-binary-mutation']}))
         finally:
             if os.name != 'nt':
                 binaries.chmod(0o700)
