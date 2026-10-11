@@ -52,6 +52,10 @@ final class FieldSchema
                 throw Failure::usage('ID and time estimate fields must be positive integers.');
             }
 
+            if ($name === 'allowsTimeTracking' && !is_bool($value)) {
+                throw Failure::usage('allowsTimeTracking must be a JSON boolean.');
+            }
+
             if ($name === 'title' && (!is_string($value) || trim($value) === '')) {
                 throw Failure::usage('Provide a nonempty title.');
             }
@@ -66,7 +70,7 @@ final class FieldSchema
         }
 
         if ($create && array_diff(['title', 'creatorId', 'responsibleId'], array_keys($fields)) !== []) {
-            throw Failure::usage('Creation requires --title, --creator and --responsible (or their advanced fields).');
+            throw Failure::usage('Missing required creation fields: ' . implode(', ', array_diff(['title', 'creatorId', 'responsibleId'], array_keys($fields))) . '. Supply explicit values or matching profile defaults.');
         }
     }
 

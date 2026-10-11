@@ -12,7 +12,7 @@ use Symfony\Component\Console\Input\InputInterface;
 
 final readonly class TaskInputMapper
 {
-    public function __construct(private InputSourceReader $reader)
+    public function __construct(private InputSourceReader $reader, private ?\Bitrix24\CLI\Infrastructure\Connection\ConnectionManager $connections = null)
     {
     }
 
@@ -78,6 +78,29 @@ final readonly class TaskInputMapper
         }
 
         $fields = $advanced ?? $fields;
+        if ($create) {
+            if ($fields !== []) {
+                FieldSchema::localPatch($fields, false);
+            }
+
+            $sources = array_fill_keys(array_keys($fields), 'explicit');
+            foreach ($this->connections?->defaults($input->getOption('dry-run')) ?? [] as $field => $value) {
+                if (!array_key_exists($field, $fields)) {
+                    $fields[$field] = $value;
+                    $sources[$field] = 'profile-default';
+                }
+            }
+
+            if (!array_key_exists('allowsTimeTracking', $fields)) {
+                $fields['allowsTimeTracking'] = false;
+                $sources['allowsTimeTracking'] = 'built-in-default';
+            }
+
+            if ($this->connections instanceof \Bitrix24\CLI\Infrastructure\Connection\ConnectionManager) {
+                $this->connections->fieldSources = $sources;
+            }
+        }
+
         FieldSchema::localPatch($fields, $create);
         return [$fields, $advanced !== null];
     }

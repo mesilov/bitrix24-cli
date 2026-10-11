@@ -19,7 +19,7 @@ final class InputSourceReader
         $this->stream = $input instanceof StreamableInputInterface ? $input->getStream() : null;
     }
 
-    public function read(string $path): string
+    public function read(string $path, ?int $maximum = null): string
     {
         if ($path === '-') {
             $stream = $this->stream ?? (defined('STDIN') ? STDIN : null);
@@ -28,9 +28,13 @@ final class InputSourceReader
             }
 
             $this->stdinUsed = true;
-            $data = stream_get_contents($stream);
+            $data = $maximum === null ? stream_get_contents($stream) : stream_get_contents($stream, $maximum + 1);
         } else {
             $data = is_file($path) && is_readable($path) ? file_get_contents($path) : false;
+        }
+
+        if ($maximum !== null && is_string($data) && strlen($data) > $maximum) {
+            throw Failure::usage('Input exceeds the allowed size.');
         }
 
         if ($data === false) {
