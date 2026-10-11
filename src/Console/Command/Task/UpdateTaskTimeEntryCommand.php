@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitrix24\CLI\Console\Command\Task;
 
-use Bitrix24\CLI\Application\Task\Handler\UpdateTaskTimeEntryHandler;
+use Bitrix24\CLI\Application\Task\TimeEntryService;
 use Bitrix24\CLI\Application\Task\Request\UpdateTaskTimeEntryRequest;
 use Bitrix24\CLI\Console\CommandRunner;
 use Bitrix24\CLI\Console\TaskInputMapper;
@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'task:time:update', description: 'Исправить запись времени')]
 final class UpdateTaskTimeEntryCommand extends Command
 {
-    public function __construct(private readonly UpdateTaskTimeEntryHandler $handler, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
+    public function __construct(private readonly TimeEntryService $service, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
     {
         parent::__construct();
     }
@@ -36,13 +36,12 @@ final class UpdateTaskTimeEntryCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this->runner->run(
+            $this,
             $input,
             $output,
-            'task:time:update',
-            'write',
             fn (): UpdateTaskTimeEntryRequest => $this->mapper->updateTaskTimeEntry($input),
-            fn (UpdateTaskTimeEntryRequest $request): array => $this->handler->routes(),
-            fn (UpdateTaskTimeEntryRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),
+            fn (UpdateTaskTimeEntryRequest $request): array => $this->service->updateRoutes(),
+            fn (UpdateTaskTimeEntryRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->service->update($request),
         );
     }
 }

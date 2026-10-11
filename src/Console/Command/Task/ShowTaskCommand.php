@@ -33,10 +33,9 @@ final class ShowTaskCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this->runner->run(
+            $this,
             $input,
             $output,
-            'task:show',
-            'read',
             fn (): ShowTaskRequest => $this->mapper->showTask($input),
             fn (ShowTaskRequest $request): array => $this->handler->routes($request),
             fn (ShowTaskRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),

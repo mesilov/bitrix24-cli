@@ -109,7 +109,7 @@ ServiceBuilder создаётся перед первым API-запросом. 
 
 ```sh
 B24CLI_ENV_FILE=/Users/mesilov/work/Bitrix24/bitrix24-cli/.env.local make cli ARGS='task:show 123'
-B24CLI_ENV_FILE=/Users/mesilov/work/Bitrix24/bitrix24-cli/.env.local make test-integration
+B24CLI_ENV_FILE=/Users/mesilov/work/Bitrix24/bitrix24-cli/.env.local make integration
 ```
 
 В [SDK integration Factory](https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/tests/Integration/Factory.php) по умолчанию используется webhook (`getServiceBuilder(false)`). `getServiceBuilder(true)` подключает OAuth-токены приложения через ApplicationBridge с сохранением обновлённых токенов. Для этой пачки выбран webhook.
@@ -140,20 +140,20 @@ Update отправляет только явный патч; `--description=""`
 ## Тесты команд
 
 ```sh
-make test                 # offline: Console + DI + SDK Core с контролируемым HTTP
-make test-integration     # живой портал; явный skip без webhook
+make unit                 # unit-tests: Console + DI + SDK Core с контролируемым HTTP
+make integration     # живой портал; явный skip без webhook
 ```
 
-Offline suite проверяет все 30 маршрутов, JSON-параметры, поиск/пагинацию, patches, binding, dry-run, API policy, вывод, env precedence, SDK ошибки, timeout и SIGINT в subprocess. GitHub Actions запускает только offline suite без секретов.
+Unit suite (`tests/Unit`, PHPUnit `unit-tests`) проверяет все 30 маршрутов, JSON-параметры, поиск/пагинацию, patches, binding, dry-run, API policy, вывод, env precedence, SDK ошибки, timeout и SIGINT в subprocess. GitHub Actions запускает только `make unit` без секретов. `make integration` запускается отдельно с реальным webhook. Прежние `make test`/`make test-integration` и `make make-unit`/`make make-integration` остаются aliases соответствующих запусков.
 
-Live suite создаёт задачи с префиксом `b24cli-test-`, проверяет изменения повторным чтением и удаляет созданные задачи в tearDown. Нужен тестовый портал и пользователь с правами создавать/удалять собственные задачи и работать с их чатом. При ошибке cleanup тест сообщает IDs для ручного удаления. Неверный webhook вызывает ошибку, а не skip.
+Integration suite (`integration-tests`) создаёт задачи с префиксом `b24cli-test-`, проверяет изменения повторным чтением и удаляет созданные задачи в tearDown. Нужен тестовый портал и пользователь с правами создавать/удалять собственные задачи и работать с их чатом. При ошибке cleanup тест сообщает IDs для ручного удаления. Неверный webhook вызывает ошибку, а не skip.
 
 Дополнительные fixtures в том же env-файле:
 
 - `B24CLI_TEST_DISK_FILE_ID`: существующий доступный файл Диска. Предоставленный файл тест не удаляет. При отсутствии ID тест создаёт маленький временный файл в личном Диске пользователя webhook и удаляет его после проверки; нужны scope `disk`, права загрузки/удаления и ровно одно личное хранилище. Attachment проверяется по ACK: REST 3 get возвращает `fileIds: null`, поэтому не доказывает наличие вложения.
 - `B24CLI_TEST_RESTRICTED_WEBHOOK`: webhook другого, не административного пользователя без права редактировать создаваемую задачу для denied-role case.
 
-Без restricted webhook denied-role case пропускается отдельно. Без основного webhook порталные сценарии не считаются пройденными; offline тесты не доказывают поведение конкретного портала.
+Без restricted webhook denied-role case пропускается отдельно. Без основного webhook порталные сценарии не считаются пройденными; unit-тесты не доказывают поведение конкретного портала.
 
 Проверка 2026-10-11: REST 3.0 на этом портале по-прежнему возвращает `INTERNAL_SERVER_ERROR` даже на заполненный `auditors.id`, хотя webhook уже имеет scope `user`. В `task:show` выбранные `auditors/accomplices` теперь читаются по заранее объявленной схеме: REST3 карточка без этих relations → REST1 `tasks.task.get` только ID нужных ролей → `user.get` по уникальным ID. Остальные поля карточки остаются из REST3. `task:list` сохраняет native REST3 projections; fallback/retry после ошибки отсутствует.
 

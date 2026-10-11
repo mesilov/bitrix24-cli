@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Bitrix24\CLI\Console\Command\Task;
 
-use Bitrix24\CLI\Application\Task\Handler\RenewTaskChecklistItemHandler;
-use Bitrix24\CLI\Application\Task\Request\RenewTaskChecklistItemRequest;
+use Bitrix24\CLI\Application\Task\ChecklistItemService;
+use Bitrix24\CLI\Application\Task\Request\ChecklistItemReference;
 use Bitrix24\CLI\Console\CommandRunner;
 use Bitrix24\CLI\Console\TaskInputMapper;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'task:checklist:item:renew', description: 'Возобновить пункт чек-листа')]
 final class RenewTaskChecklistItemCommand extends Command
 {
-    public function __construct(private readonly RenewTaskChecklistItemHandler $handler, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
+    public function __construct(private readonly ChecklistItemService $service, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
     {
         parent::__construct();
     }
@@ -34,13 +34,12 @@ final class RenewTaskChecklistItemCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this->runner->run(
+            $this,
             $input,
             $output,
-            'task:checklist:item:renew',
-            'write',
-            fn (): RenewTaskChecklistItemRequest => $this->mapper->renewTaskChecklistItem($input),
-            fn (RenewTaskChecklistItemRequest $request): array => $this->handler->routes(),
-            fn (RenewTaskChecklistItemRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),
+            fn (): ChecklistItemReference => $this->mapper->checklistItemReference($input),
+            fn (ChecklistItemReference $request): array => $this->service->renewRoutes(),
+            fn (ChecklistItemReference $request): \Bitrix24\CLI\Application\PreparedOperation => $this->service->renew($request),
         );
     }
 }

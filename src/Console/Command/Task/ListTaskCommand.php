@@ -42,10 +42,9 @@ final class ListTaskCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this->runner->run(
+            $this,
             $input,
             $output,
-            'task:list',
-            'read',
             fn (): ListTasksRequest => $this->mapper->listTasks($input),
             fn (ListTasksRequest $request): array => $this->handler->routes(),
             fn (ListTasksRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Bitrix24\CLI\Application\RuntimeState;
-use Bitrix24\CLI\Bootstrap\RegisterTaskCommandsPass;
+use Bitrix24\CLI\Bootstrap\CommandCatalog;
 use Bitrix24\CLI\Console\B24Application;
 use Bitrix24\CLI\Infrastructure\Bitrix24\ApiResponse;
 use Bitrix24\CLI\Infrastructure\Bitrix24\ApiTransport;
@@ -20,7 +20,6 @@ $configure($container, $root);
 $container->removeAlias(ApiTransport::class);
 $container->register(ApiTransport::class)->setSynthetic(true)->setPublic(true);
 $container->getDefinition(RuntimeState::class)->setPublic(true);
-$container->addCompilerPass(new RegisterTaskCommandsPass());
 $container->compile();
 $state = $container->get(RuntimeState::class);
 $api = new FakeApiTransport(static function () use ($state): ApiResponse {
@@ -31,5 +30,5 @@ $api = new FakeApiTransport(static function () use ($state): ApiResponse {
 });
 $container->set(ApiTransport::class, $api);
 $app = $container->get(B24Application::class);
-$app->setCommandLoader(new ContainerCommandLoader($container, $container->getParameter('b24cli.command_map')));
+$app->setCommandLoader(new ContainerCommandLoader($container, array_map(static fn (array $command): string => $command['class'], CommandCatalog::COMMANDS)));
 exit($app->run(new ArgvInput(['b24cli', '--json', 'task:file:attach', '123', '--file-id', '50', '--file-id', '51', '--file-id', '52'])));

@@ -42,10 +42,9 @@ final class UpdateTaskCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this->runner->run(
+            $this,
             $input,
             $output,
-            'task:update',
-            'write',
             fn (): UpdateTaskRequest => $this->mapper->updateTask($input),
             fn (UpdateTaskRequest $request): array => $this->handler->routes($request),
             fn (UpdateTaskRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),

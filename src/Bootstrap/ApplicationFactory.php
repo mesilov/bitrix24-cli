@@ -15,7 +15,7 @@ final class ApplicationFactory
     {
         $container = (new ContainerFactory())->create($root, $transport, $resolver);
         $application = $container->get(B24Application::class);
-        $application->setCommandLoader(new ContainerCommandLoader($container, $container->getParameter('b24cli.command_map')));
+        $application->setCommandLoader(new ContainerCommandLoader($container, array_map(static fn (array $command): string => $command['class'], CommandCatalog::COMMANDS)));
         return $application;
     }
 }

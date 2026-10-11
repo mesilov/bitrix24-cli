@@ -7,15 +7,15 @@
 ## ADDED Requirements
 
 ### Requirement: Exact MVP command registration
-Runtime SHALL предоставлять ровно 30 прикладных команд из MVP каталога define-task-jtbd, отдельно от встроенных команд справки и completion. Дубликат имени, расхождение зарегистрированной команды с каталогом либо регистрация post-MVP операции SHALL препятствовать запуску приложения с безопасной ошибкой конфигурации. Исключённые операции не SHALL возвращаться через aliases.
+Runtime SHALL предоставлять ровно 30 прикладных команд из MVP каталога define-task-jtbd, отдельно от встроенных команд справки и completion. Регистрация SHALL строиться напрямую из единственного явного CommandCatalog без tags/compiler pass и массового сканирования. Unit-tests SHALL проверять уникальность имён/классов, совпадение AsCommand с каталогом и отсутствие post-MVP операций. Исключённые операции не SHALL возвращаться через aliases.
 
 #### Scenario: Root command inventory
 - **WHEN** пользователь запускает b24cli без имени команды либо list task без профиля подключения
 - **THEN** видны все 30 согласованных task-команд, отсутствуют 29 исключённых команд, включая task:subtask:add; API и чтение credentials не выполняются
 
-#### Scenario: Duplicate command registration
-- **WHEN** сборка приложения содержит два определения одного имени команды
-- **THEN** приложение сообщает configuration-error и завершается с кодом 1 до подключения к порталу
+#### Scenario: Explicit catalog consistency
+- **WHEN** запускаются unit-tests регистрации приложения
+- **THEN** проверяются все 30 имён и уникальных Command-классов, совпадение AsCommand и отсутствие aliases; compiler pass и console.command tags не требуются, credentials и API не читаются
 
 ### Requirement: Deferred connection resolution
 Runtime SHALL проверять синтаксис и локальные ограничения ввода до получения credentials и создания API клиента. Help, list, version и completion SHALL работать без подключения. Доступность команд не SHALL зависеть от роли пользователя на портале; серверные права проверяются при выполнении выбранной операции.
@@ -133,7 +133,7 @@ Runtime SHALL ограничивать сетевые шаги документ�
 - **WHEN** Ctrl-C поступает после подтверждения первого attachment до следующего шага
 - **THEN** второй attachment не отправляется, возвращается 130 и сведения о первом шаге без обещания отката
 
-### Requirement: Offline acceptance and separate portal evidence
+### Requirement: Unit acceptance and separate portal evidence
 Runtime SHALL позволять проверять регистрацию, парсинг, вывод, ошибки, gates и планы с подставными API-ответами без портала. Успех этих проверок не SHALL считаться доказательством прав, схемы или поведения конкретного Bitrix24 подключения; portal acceptance SHALL фиксироваться отдельно с версией, ролью и результатом проверки.
 
 #### Scenario: Passing command contract tests
@@ -166,3 +166,10 @@ Runtime SHALL поддерживать BITRIX24_WEBHOOK из выбранног�
 #### Scenario: Explicit integration suite without credentials
 - **WHEN** запускается integration suite без webhook
 - **THEN** live cases явно пропускаются без портальных mutations; это не объявляется portal acceptance
+
+### Requirement: Explicit unit and integration test entrypoints
+Локальная suite SHALL называться unit-tests и находиться в tests/Unit. Make unit SHALL запускать её без внешнего портала. Make integration SHALL отдельно запускать integration-tests через реальный provider и выбранный env. CI SHALL явно запускать make unit без портальных credentials; прежние test/test-integration SHALL оставаться совместимыми aliases.
+
+#### Scenario: Separate test runs
+- **WHEN** запускается make unit либо make integration
+- **THEN** запускается только соответствующая PHPUnit suite; отсутствие webhook явно пропускает portal cases, unit success не объявляется portal acceptance

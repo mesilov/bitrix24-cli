@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitrix24\CLI\Console\Command\Task;
 
-use Bitrix24\CLI\Application\Task\Handler\AddTaskChecklistItemHandler;
+use Bitrix24\CLI\Application\Task\ChecklistItemService;
 use Bitrix24\CLI\Application\Task\Request\AddTaskChecklistItemRequest;
 use Bitrix24\CLI\Console\CommandRunner;
 use Bitrix24\CLI\Console\TaskInputMapper;
@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'task:checklist:item:add', description: 'Добавить пункт чек-листа')]
 final class AddTaskChecklistItemCommand extends Command
 {
-    public function __construct(private readonly AddTaskChecklistItemHandler $handler, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
+    public function __construct(private readonly ChecklistItemService $service, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
     {
         parent::__construct();
     }
@@ -36,13 +36,12 @@ final class AddTaskChecklistItemCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this->runner->run(
+            $this,
             $input,
             $output,
-            'task:checklist:item:add',
-            'write',
             fn (): AddTaskChecklistItemRequest => $this->mapper->addTaskChecklistItem($input),
-            fn (AddTaskChecklistItemRequest $request): array => $this->handler->routes(),
-            fn (AddTaskChecklistItemRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),
+            fn (AddTaskChecklistItemRequest $request): array => $this->service->addRoutes(),
+            fn (AddTaskChecklistItemRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->service->add($request),
         );
     }
 }

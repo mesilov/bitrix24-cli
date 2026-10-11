@@ -34,10 +34,9 @@ final class AddTaskChecklistCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this->runner->run(
+            $this,
             $input,
             $output,
-            'task:checklist:add',
-            'write',
             fn (): AddTaskChecklistRequest => $this->mapper->addTaskChecklist($input),
             fn (AddTaskChecklistRequest $request): array => $this->handler->routes(),
             fn (AddTaskChecklistRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),

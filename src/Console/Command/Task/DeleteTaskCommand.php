@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Bitrix24\CLI\Console\Command\Task;
 
 use Bitrix24\CLI\Application\Task\Handler\DeleteTaskHandler;
-use Bitrix24\CLI\Application\Task\Request\DeleteTaskRequest;
+use Bitrix24\CLI\Application\Task\Request\TaskReference;
 use Bitrix24\CLI\Console\CommandRunner;
 use Bitrix24\CLI\Console\TaskInputMapper;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -34,13 +34,12 @@ final class DeleteTaskCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this->runner->run(
+            $this,
             $input,
             $output,
-            'task:delete',
-            'delete',
-            fn (): DeleteTaskRequest => $this->mapper->deleteTask($input),
-            fn (DeleteTaskRequest $request): array => $this->handler->routes(),
-            fn (DeleteTaskRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),
+            fn (): TaskReference => $this->mapper->taskReference($input),
+            fn (TaskReference $request): array => $this->handler->routes(),
+            fn (TaskReference $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),
         );
     }
 }

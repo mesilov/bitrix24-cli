@@ -4,62 +4,62 @@
 
 30 имён ниже — полный набор прикладных команд MVP; встроенные Symfony help/list/completion считаются отдельно. Команда `task:subtask:add` и остальные 28 post-MVP операции не регистрируются. Колонка API сохраняет основные catalog method_routes, включая штатный preflight. Колонка дополнительных чтений описывает проектные проверки внутри выбранных API семейств; она не означает проверку на реальном портале.
 
-Общий namespace команд: `Bitrix24\CLI\Console\Command\Task`; requests и handlers: `Bitrix24\CLI\Application\Task\Request` и `Bitrix24\CLI\Application\Task\Handler`. В колонке handler для краткости указан общий stem: `AddTask` означает `AddTaskRequest` / `AddTaskHandler`. **30 Command классов / 28 пар Request–Handler**. Обработчик UpdateTask используется тремя командами; допустимый patch зависит от operation identity.
+Классы команд используют namespace `Bitrix24\CLI\Console\Command\Task`; requests/references — `Bitrix24\CLI\Application\Task\Request`, handlers — `Bitrix24\CLI\Application\Task\Handler`, сервисы — `Bitrix24\CLI\Application\Task`. **30 Command-классов / 23 request/reference DTO / 11 handlers + 4 services**. UpdateTaskHandler используется тремя командами; допустимый patch зависит от operation identity.
 
 ## Карточка, выборки, поля и доступ
 
-| Команда | Command class | Request / Handler stem | Основные API method/version | Дополнительные чтения и ограничения | Output profile |
+| Команда | Command class | Request / Application method | Основные API method/version | Дополнительные чтения и ограничения | Output profile |
 | --- | --- | --- | --- | --- | --- |
-| `task:add` | `AddTaskCommand` | `AddTask` | `tasks.task.add@3.0` | Advanced: `tasks.task.field.list@3.0` для writable validation; title/creator/responsible обязательны; обычный/advanced ввод раздельны | mutation |
-| `task:show` | `ShowTaskCommand` | `ShowTask` | `tasks.task.get@3.0`; для выбранных auditors/accomplices также `tasks.task.get@1.0`, `user.get@1.0` | Карточка из REST3, role IDs выбранной TASK_ID отдельно, минимальное bounded user enrichment; strict-rest3 отклоняет enriched plan заранее | task-card |
-| `task:list` | `ListTaskCommand` | `ListTasks` | `tasks.task.list@3.0` | Server filter только id; local predicates/where; selected fields включают поля фильтра; finite scan/limit/all | task-list |
-| `task:find` | `FindTaskCommand` | `FindTasks` | `tasks.task.list@3.0` | Literal Unicode substring title, trim, id ASC; zero/one/many всегда items array; finite scan | title-matches |
-| `task:update` | `UpdateTaskCommand` | `UpdateTask` | `tasks.task.update@3.0` | Advanced: `tasks.task.field.list@3.0`; nonempty explicit patch; status/read-only запрещены; поля отсутствия сохраняются | mutation |
-| `task:delete` | `DeleteTaskCommand` | `DeleteTask` | `tasks.task.delete@3.0` | `tasks.task.get@3.0` для цели/названия; force либо TTY confirmation; без force/-n ошибка до запроса | mutation |
-| `task:fields:list` | `ListTaskFieldsCommand` | `ListTaskFields` | `tasks.task.field.list@3.0`, `tasks.task.field.get@3.0` | list без --name либо get выбранного --name; всегда список из 0/1/many metadata records | task-fields |
-| `task:access:show` | `ShowTaskAccessCommand` | `ShowTaskAccess` | `tasks.task.access.get@3.0` | Только доступ текущего подключения; role name не вычисляет права | task-access |
-| `task:assign` | `AssignTaskCommand` | `UpdateTask` | `tasks.task.update@3.0` | Только --responsible → responsibleId; никакого выбора «текущего» сотрудника | mutation |
-| `task:deadline:set` | `SetTaskDeadlineCommand` | `UpdateTask` | `tasks.task.update@3.0` | Только --at → deadline; ISO8601 с явным offset | mutation |
+| `task:add` | `AddTaskCommand` | `AddTaskRequest` / `AddTaskHandler.prepare` | `tasks.task.add@3.0` | Advanced: `tasks.task.field.list@3.0` для writable validation; title/creator/responsible обязательны; обычный/advanced ввод раздельны | mutation |
+| `task:show` | `ShowTaskCommand` | `ShowTaskRequest` / `ShowTaskHandler.prepare` | `tasks.task.get@3.0`; для выбранных auditors/accomplices также `tasks.task.get@1.0`, `user.get@1.0` | Карточка из REST3, role IDs выбранной TASK_ID отдельно, минимальное bounded user enrichment; strict-rest3 отклоняет enriched plan заранее | task-card |
+| `task:list` | `ListTaskCommand` | `ListTasksRequest` / `ListTasksHandler.prepare` | `tasks.task.list@3.0` | Server filter только id; local predicates/where; selected fields включают поля фильтра; finite scan/limit/all | task-list |
+| `task:find` | `FindTaskCommand` | `FindTasksRequest` / `FindTasksHandler.prepare` | `tasks.task.list@3.0` | Literal Unicode substring title, trim, id ASC; zero/one/many всегда items array; finite scan | title-matches |
+| `task:update` | `UpdateTaskCommand` | `UpdateTaskRequest` / `UpdateTaskHandler.prepare` | `tasks.task.update@3.0` | Advanced: `tasks.task.field.list@3.0`; nonempty explicit patch; status/read-only запрещены; поля отсутствия сохраняются | mutation |
+| `task:delete` | `DeleteTaskCommand` | `TaskReference` / `DeleteTaskHandler.prepare` | `tasks.task.delete@3.0` | `tasks.task.get@3.0` для цели/названия; force либо TTY confirmation; без force/-n ошибка до запроса | mutation |
+| `task:fields:list` | `ListTaskFieldsCommand` | `ListTaskFieldsRequest` / `TaskMetadataService.fields` | `tasks.task.field.list@3.0`, `tasks.task.field.get@3.0` | list без --name либо get выбранного --name; всегда список из 0/1/many metadata records | task-fields |
+| `task:access:show` | `ShowTaskAccessCommand` | `TaskReference` / `TaskMetadataService.access` | `tasks.task.access.get@3.0` | Только доступ текущего подключения; role name не вычисляет права | task-access |
+| `task:assign` | `AssignTaskCommand` | `UpdateTaskRequest` / `UpdateTaskHandler.prepare` | `tasks.task.update@3.0` | Только --responsible → responsibleId; никакого выбора «текущего» сотрудника | mutation |
+| `task:deadline:set` | `SetTaskDeadlineCommand` | `UpdateTaskRequest` / `UpdateTaskHandler.prepare` | `tasks.task.update@3.0` | Только --at → deadline; ISO8601 с явным offset | mutation |
 
 ## Чат и файлы
 
-| Команда | Command class | Request / Handler stem | Основные API method/version | Дополнительные чтения и ограничения | Output profile |
+| Команда | Command class | Request / Application method | Основные API method/version | Дополнительные чтения и ограничения | Output profile |
 | --- | --- | --- | --- | --- | --- |
-| `task:chat:list` | `ListTaskChatCommand` | `ListTaskChat` | `tasks.task.get@3.0`, `im.dialog.messages.get@1.0` | Проверить task/chat association; before/after исключают друг друга; finite messages budget; IM version видима | chat-messages |
-| `task:chat:send` | `SendTaskChatMessageCommand` | `SendTaskChatMessage` | `tasks.task.chat.message.send@3.0` | Один explicit text/text-file, нет legacy comment; Подтверждение отправки без MESSAGE_ID, resourceId=null; acting connection identity | mutation |
-| `task:chat:update` | `UpdateTaskChatMessageCommand` | `UpdateTaskChatMessage` | `tasks.task.get@3.0`, `im.message.update@1.0` | `im.dialog.messages.get@1.0` для MESSAGE_ID binding к chat выбранной задачи; budget10 000, иначе gate4; server author/admin rights | mutation |
-| `task:chat:delete` | `DeleteTaskChatMessageCommand` | `DeleteTaskChatMessage` | `tasks.task.get@3.0`, `im.message.delete@1.0` | `im.dialog.messages.get@1.0` для binding; delete confirmation не отменяет связь/права | mutation |
-| `task:file:attach` | `AttachTaskFilesCommand` | `AttachTaskFiles` | `tasks.task.file.attach@3.0` | Повторяемые уже загруженные Disk IDs; никаких local upload; отдельный request с одним fileId на шаг; ledger подтверждений | mutation |
+| `task:chat:list` | `ListTaskChatCommand` | `ListTaskChatRequest` / `TaskChatService.list` | `tasks.task.get@3.0`, `im.dialog.messages.get@1.0` | Проверить task/chat association; before/after исключают друг друга; finite messages budget; IM version видима | chat-messages |
+| `task:chat:send` | `SendTaskChatMessageCommand` | `SendTaskChatMessageRequest` / `TaskChatService.send` | `tasks.task.chat.message.send@3.0` | Один explicit text/text-file, нет legacy comment; Подтверждение отправки без MESSAGE_ID, resourceId=null; acting connection identity | mutation |
+| `task:chat:update` | `UpdateTaskChatMessageCommand` | `UpdateTaskChatMessageRequest` / `TaskChatService.update` | `tasks.task.get@3.0`, `im.message.update@1.0` | `im.dialog.messages.get@1.0` для MESSAGE_ID binding к chat выбранной задачи; budget10 000, иначе gate4; server author/admin rights | mutation |
+| `task:chat:delete` | `DeleteTaskChatMessageCommand` | `DeleteTaskChatMessageRequest` / `TaskChatService.delete` | `tasks.task.get@3.0`, `im.message.delete@1.0` | `im.dialog.messages.get@1.0` для binding; delete confirmation не отменяет связь/права | mutation |
+| `task:file:attach` | `AttachTaskFilesCommand` | `AttachTaskFilesRequest` / `AttachTaskFilesHandler.prepare` | `tasks.task.file.attach@3.0` | Повторяемые уже загруженные Disk IDs; никаких local upload; отдельный request с одним fileId на шаг; ledger подтверждений | mutation |
 
 ## Время
 
-| Команда | Command class | Request / Handler stem | Основные API method/version | Дополнительные чтения и ограничения | Output profile |
+| Команда | Command class | Request / Application method | Основные API method/version | Дополнительные чтения и ограничения | Output profile |
 | --- | --- | --- | --- | --- | --- |
-| `task:time:show` | `ShowTaskTimeCommand` | `ShowTaskTime` | `tasks.task.get@3.0` | Select elapsedTime; связанное поле без обещания total/completeness | time-context |
-| `task:time:add` | `AddTaskTimeEntryCommand` | `AddTaskTimeEntry` | `task.elapseditem.add@1.0` | Seconds integer >0, optional text; действует от текущего подключения; явный REST1 admission | mutation |
-| `task:time:list` | `ListTaskTimeEntriesCommand` | `ListTaskTimeEntries` | `task.elapseditem.getlist@1.0` | Typed --params query schema; positional API codec; pagination/scope/budget; no arbitrary payload | time-entries |
-| `task:time:update` | `UpdateTaskTimeEntryCommand` | `UpdateTaskTimeEntry` | `task.elapseditem.update@1.0` | `task.elapseditem.getlist@1.0` для TASK_ID/ENTRY_ID binding; seconds >0; omission text сохраняет комментарий; server rights | mutation |
-| `task:time:delete` | `DeleteTaskTimeEntryCommand` | `DeleteTaskTimeEntry` | `task.elapseditem.delete@1.0` | `task.elapseditem.getlist@1.0` для binding; force/confirmation; без обхода server rights | mutation |
+| `task:time:show` | `ShowTaskTimeCommand` | `TaskReference` / `TaskMetadataService.time` | `tasks.task.get@3.0` | Select elapsedTime; связанное поле без обещания total/completeness | time-context |
+| `task:time:add` | `AddTaskTimeEntryCommand` | `AddTaskTimeEntryRequest` / `TimeEntryService.add` | `task.elapseditem.add@1.0` | Seconds integer >0, optional text; действует от текущего подключения; явный REST1 admission | mutation |
+| `task:time:list` | `ListTaskTimeEntriesCommand` | `ListTaskTimeEntriesRequest` / `TimeEntryService.list` | `task.elapseditem.getlist@1.0` | Typed --params query schema; positional API codec; pagination/scope/budget; no arbitrary payload | time-entries |
+| `task:time:update` | `UpdateTaskTimeEntryCommand` | `UpdateTaskTimeEntryRequest` / `TimeEntryService.update` | `task.elapseditem.update@1.0` | `task.elapseditem.getlist@1.0` для TASK_ID/ENTRY_ID binding; seconds >0; omission text сохраняет комментарий; server rights | mutation |
+| `task:time:delete` | `DeleteTaskTimeEntryCommand` | `DeleteTaskTimeEntryRequest` / `TimeEntryService.delete` | `task.elapseditem.delete@1.0` | `task.elapseditem.getlist@1.0` для binding; force/confirmation; без обхода server rights | mutation |
 
 ## Чек-листы и пункты
 
-| Команда | Command class | Request / Handler stem | Основные API method/version | Дополнительные чтения и ограничения | Output profile |
+| Команда | Command class | Request / Application method | Основные API method/version | Дополнительные чтения и ограничения | Output profile |
 | --- | --- | --- | --- | --- | --- |
-| `task:checklist:add` | `AddTaskChecklistCommand` | `AddTaskChecklist` | `task.checklistitem.add@1.0` | Core v1, явный PARENT_ID=0; непустой title; SDK wrapper не принимает PARENT_ID | mutation |
-| `task:checklist:list` | `ListTaskChecklistsCommand` | `ListTaskChecklists` | `task.checklistitem.getlist@1.0` | Только корни PARENT_ID=0, flat response задачи; неполное дерево не объявляется полным | checklist-roots |
-| `task:checklist:item:add` | `AddTaskChecklistItemCommand` | `AddTaskChecklistItem` | `task.checklistitem.getlist@1.0`, `task.checklistitem.add@1.0` | Выбранный root/parent принадлежат TASK_ID; явный PARENT_ID через Core v1; нет auto root | mutation |
-| `task:checklist:item:list` | `ListTaskChecklistItemsCommand` | `ListTaskChecklistItems` | `task.checklistitem.getlist@1.0` | Root обязателен; только его descendants, включая nested; ID/PARENT_ID и deterministic tree order | checklist-items |
-| `task:checklist:item:update` | `UpdateTaskChecklistItemCommand` | `UpdateTaskChecklistItem` | `task.checklistitem.getlist@1.0`, `task.checklistitem.update@1.0` | Проверенный item, не root; только nonempty title; остальные поля сохраняются | mutation |
-| `task:checklist:item:complete` | `CompleteTaskChecklistItemCommand` | `CompleteTaskChecklistItem` | `task.checklistitem.getlist@1.0`, `task.checklistitem.complete@1.0` | Item binding; lifecycle задачи не меняется | mutation |
-| `task:checklist:item:renew` | `RenewTaskChecklistItemCommand` | `RenewTaskChecklistItem` | `task.checklistitem.getlist@1.0`, `task.checklistitem.renew@1.0` | Item binding; lifecycle задачи не меняется | mutation |
-| `task:checklist:item:delete` | `DeleteTaskChecklistItemCommand` | `DeleteTaskChecklistItem` | `task.checklistitem.getlist@1.0`, `task.checklistitem.delete@1.0` | Проверить item и descendants; API удаляет subtree, показать его в плане/подтверждении; root не допускается | mutation |
+| `task:checklist:add` | `AddTaskChecklistCommand` | `AddTaskChecklistRequest` / `AddTaskChecklistHandler.prepare` | `task.checklistitem.add@1.0` | Core v1, явный PARENT_ID=0; непустой title; SDK wrapper не принимает PARENT_ID | mutation |
+| `task:checklist:list` | `ListTaskChecklistsCommand` | `TaskReference` / `ListTaskChecklistsHandler.prepare` | `task.checklistitem.getlist@1.0` | Только корни PARENT_ID=0, flat response задачи; неполное дерево не объявляется полным | checklist-roots |
+| `task:checklist:item:add` | `AddTaskChecklistItemCommand` | `AddTaskChecklistItemRequest` / `ChecklistItemService.add` | `task.checklistitem.getlist@1.0`, `task.checklistitem.add@1.0` | Выбранный root/parent принадлежат TASK_ID; явный PARENT_ID через Core v1; нет auto root | mutation |
+| `task:checklist:item:list` | `ListTaskChecklistItemsCommand` | `ListTaskChecklistItemsRequest` / `ChecklistItemService.list` | `task.checklistitem.getlist@1.0` | Root обязателен; только его descendants, включая nested; ID/PARENT_ID и deterministic tree order | checklist-items |
+| `task:checklist:item:update` | `UpdateTaskChecklistItemCommand` | `UpdateTaskChecklistItemRequest` / `ChecklistItemService.update` | `task.checklistitem.getlist@1.0`, `task.checklistitem.update@1.0` | Проверенный item, не root; только nonempty title; остальные поля сохраняются | mutation |
+| `task:checklist:item:complete` | `CompleteTaskChecklistItemCommand` | `ChecklistItemReference` / `ChecklistItemService.complete` | `task.checklistitem.getlist@1.0`, `task.checklistitem.complete@1.0` | Item binding; lifecycle задачи не меняется | mutation |
+| `task:checklist:item:renew` | `RenewTaskChecklistItemCommand` | `ChecklistItemReference` / `ChecklistItemService.renew` | `task.checklistitem.getlist@1.0`, `task.checklistitem.renew@1.0` | Item binding; lifecycle задачи не меняется | mutation |
+| `task:checklist:item:delete` | `DeleteTaskChecklistItemCommand` | `ChecklistItemReference` / `ChecklistItemService.delete` | `task.checklistitem.getlist@1.0`, `task.checklistitem.delete@1.0` | Проверить item и descendants; API удаляет subtree, показать его в плане/подтверждении; root не допускается | mutation |
 
 ## Участники и история изменений
 
-| Команда | Command class | Request / Handler stem | Основные API method/version | Дополнительные чтения и ограничения | Output profile |
+| Команда | Command class | Request / Application method | Основные API method/version | Дополнительные чтения и ограничения | Output profile |
 | --- | --- | --- | --- | --- | --- |
-| `task:participants:set` | `SetTaskParticipantsCommand` | `SetTaskParticipants` | `tasks.task.update@1.0` | `tasks.task.get@3.0` для TASK_ID/title; полная замена только явно заданной роли, explicit clear; нет status/прочего legacy payload | mutation |
-| `task:history:list` | `ListTaskHistoryCommand` | `ListTaskHistory` | `tasks.task.history.list@1.0` | Только typed filter.FIELD/order.createdDate; navigation/completeness acceptance; история отдельно от чата | task-history |
+| `task:participants:set` | `SetTaskParticipantsCommand` | `SetTaskParticipantsRequest` / `SetTaskParticipantsHandler.prepare` | `tasks.task.update@1.0` | `tasks.task.get@3.0` для TASK_ID/title; полная замена только явно заданной роли, explicit clear; нет status/прочего legacy payload | mutation |
+| `task:history:list` | `ListTaskHistoryCommand` | `ListTaskHistoryRequest` / `ListTaskHistoryHandler.prepare` | `tasks.task.history.list@1.0` | Только typed filter.FIELD/order.createdDate; navigation/completeness acceptance; история отдельно от чата | task-history |
 
 ## Ввод и режимы
 
@@ -91,3 +91,7 @@
 У task:list adapter добавляет стабильные profile fields и predicate fields к --select; JSON сохраняет явно выбранные дополнительные поля. Partial/meta диагностируются отдельно от TSV rows. В mutation task-level resourceId равен taskId; для child операции — message/entry/checklist/item/file ID; отсутствие известного ID после неопределённого add не выдумывается. Patch values видны в dry-run, обычное подтверждение показывает changedFields без полного тела API.
 
 Dry-run использует отдельный **plan** profile: JSON data.plan object, human цель/поля/steps, plain taskId, step, method, apiVersion, effect, fields (compact JSON). Выполненные read steps отмечаются в meta; предполагаемые write steps не выдаются за executed. Этот формат не заменяет обычный result profile команды.
+
+## Simplified implementation — 2026-10-11
+
+30 Command-классов, 23 request/reference DTO, 11 отдельных handlers и 4 сервиса. UpdateTask shared для трёх команд. Методы routes объявляются до preflight, transport сохраняет явные версии; группировка не меняет API, permissions и output contracts.

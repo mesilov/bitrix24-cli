@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitrix24\CLI\Console\Command\Task;
 
-use Bitrix24\CLI\Application\Task\Handler\UpdateTaskChecklistItemHandler;
+use Bitrix24\CLI\Application\Task\ChecklistItemService;
 use Bitrix24\CLI\Application\Task\Request\UpdateTaskChecklistItemRequest;
 use Bitrix24\CLI\Console\CommandRunner;
 use Bitrix24\CLI\Console\TaskInputMapper;
@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'task:checklist:item:update', description: 'Изменить заголовок пункта')]
 final class UpdateTaskChecklistItemCommand extends Command
 {
-    public function __construct(private readonly UpdateTaskChecklistItemHandler $handler, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
+    public function __construct(private readonly ChecklistItemService $service, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
     {
         parent::__construct();
     }
@@ -35,13 +35,12 @@ final class UpdateTaskChecklistItemCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this->runner->run(
+            $this,
             $input,
             $output,
-            'task:checklist:item:update',
-            'write',
             fn (): UpdateTaskChecklistItemRequest => $this->mapper->updateTaskChecklistItem($input),
-            fn (UpdateTaskChecklistItemRequest $request): array => $this->handler->routes(),
-            fn (UpdateTaskChecklistItemRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),
+            fn (UpdateTaskChecklistItemRequest $request): array => $this->service->updateRoutes(),
+            fn (UpdateTaskChecklistItemRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->service->update($request),
         );
     }
 }

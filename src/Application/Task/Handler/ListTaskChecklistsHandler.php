@@ -7,7 +7,7 @@ namespace Bitrix24\CLI\Application\Task\Handler;
 use Bitrix24\CLI\Application\OperationResult;
 use Bitrix24\CLI\Application\PreparedOperation;
 use Bitrix24\CLI\Application\Route;
-use Bitrix24\CLI\Application\Task\Request\ListTaskChecklistsRequest;
+use Bitrix24\CLI\Application\Task\Request\TaskReference;
 
 final readonly class ListTaskChecklistsHandler
 {
@@ -20,7 +20,7 @@ final readonly class ListTaskChecklistsHandler
         return [new Route('task.checklistitem.getlist', 1, 'read')];
     }
 
-    public function prepare(ListTaskChecklistsRequest $request): PreparedOperation
+    public function prepare(TaskReference $request): PreparedOperation
     {
         $tree = $this->support->tree($request->taskId);
         return new PreparedOperation([], fn (): OperationResult => new OperationResult('checklist-roots', ['items' => $tree->roots()], ['complete' => true]));

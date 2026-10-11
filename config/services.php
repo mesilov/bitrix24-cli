@@ -23,6 +23,11 @@ return static function (ContainerBuilder $container, string $root): void {
         Bitrix24\CLI\Application\Task\ChecklistSupport::class,
         Bitrix24\CLI\Application\Task\HistoryScanner::class,
         Bitrix24\CLI\Application\Task\TaskParticipantEnricher::class,
+        Bitrix24\CLI\Application\Task\TaskMetadataService::class,
+        Bitrix24\CLI\Application\Task\TaskChatService::class,
+        Bitrix24\CLI\Application\Task\TimeEntryService::class,
+        Bitrix24\CLI\Application\Task\ChecklistItemService::class,
+
     ];
     foreach ($services as $service) {
         $container->register($service)->setAutowired(true);
@@ -41,17 +46,14 @@ return static function (ContainerBuilder $container, string $root): void {
     }
 
     foreach ([
-        'AddTask', 'ShowTask', 'ListTasks', 'FindTasks', 'UpdateTask', 'DeleteTask', 'ListTaskFields', 'ShowTaskAccess',
-        'ListTaskChat', 'SendTaskChatMessage', 'UpdateTaskChatMessage', 'DeleteTaskChatMessage', 'AttachTaskFiles',
-        'ShowTaskTime', 'AddTaskTimeEntry', 'ListTaskTimeEntries', 'UpdateTaskTimeEntry', 'DeleteTaskTimeEntry',
-        'AddTaskChecklist', 'ListTaskChecklists', 'AddTaskChecklistItem', 'ListTaskChecklistItems', 'UpdateTaskChecklistItem',
-        'CompleteTaskChecklistItem', 'RenewTaskChecklistItem', 'DeleteTaskChecklistItem', 'SetTaskParticipants', 'ListTaskHistory',
+        'AddTask', 'ShowTask', 'ListTasks', 'FindTasks', 'UpdateTask', 'DeleteTask', 'AttachTaskFiles',
+        'AddTaskChecklist', 'ListTaskChecklists', 'SetTaskParticipants', 'ListTaskHistory',
     ] as $handler) {
         $container->register('Bitrix24\\CLI\\Application\\Task\\Handler\\' . $handler . 'Handler')->setAutowired(true);
     }
 
-    foreach (CommandCatalog::COMMANDS as $name => $command) {
-        $container->register($command['class'])->setAutowired(true)->setPublic(true)->addTag('console.command', ['name' => $name]);
+    foreach (CommandCatalog::COMMANDS as $command) {
+        $container->register($command['class'])->setAutowired(true)->setPublic(true);
     }
 
     $container->register(B24Application::class)->setAutowired(true)->setPublic(true);

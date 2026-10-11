@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Bitrix24\CLI\Console\Command\Task;
 
-use Bitrix24\CLI\Application\Task\Handler\DeleteTaskChecklistItemHandler;
-use Bitrix24\CLI\Application\Task\Request\DeleteTaskChecklistItemRequest;
+use Bitrix24\CLI\Application\Task\ChecklistItemService;
+use Bitrix24\CLI\Application\Task\Request\ChecklistItemReference;
 use Bitrix24\CLI\Console\CommandRunner;
 use Bitrix24\CLI\Console\TaskInputMapper;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'task:checklist:item:delete', description: 'Удалить пункт с дочерними пунктами')]
 final class DeleteTaskChecklistItemCommand extends Command
 {
-    public function __construct(private readonly DeleteTaskChecklistItemHandler $handler, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
+    public function __construct(private readonly ChecklistItemService $service, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
     {
         parent::__construct();
     }
@@ -35,13 +35,12 @@ final class DeleteTaskChecklistItemCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this->runner->run(
+            $this,
             $input,
             $output,
-            'task:checklist:item:delete',
-            'delete',
-            fn (): DeleteTaskChecklistItemRequest => $this->mapper->deleteTaskChecklistItem($input),
-            fn (DeleteTaskChecklistItemRequest $request): array => $this->handler->routes(),
-            fn (DeleteTaskChecklistItemRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),
+            fn (): ChecklistItemReference => $this->mapper->checklistItemReference($input),
+            fn (ChecklistItemReference $request): array => $this->service->deleteRoutes(),
+            fn (ChecklistItemReference $request): \Bitrix24\CLI\Application\PreparedOperation => $this->service->delete($request),
         );
     }
 }

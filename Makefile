@@ -16,7 +16,7 @@ ARGS ?=
 .PHONY: help docker-init docker-build docker-up docker-down docker-restart \
         composer-install composer-update composer-dumpautoload composer \
         composer-validate php-cli-bash cli lint check worktree-info test-worktree \
-        lint-allowed-licenses lint-cs-fixer lint-phpstan lint-rector lint-all test test-integration
+        lint-allowed-licenses lint-cs-fixer lint-phpstan lint-rector lint-all test test-unit test-integration unit integration make-unit make-integration
 
 help:
 	@printf '%s\n' \
@@ -43,8 +43,10 @@ help:
 	  'lint-phpstan         Run PHPStan static analysis' \
 	  'lint-rector          Check Rector rules (dry run)' \
 	  'lint-all             Run all four quality checks'
-	@printf '%s\n' 'test                 Run offline command/SDK contract tests' \
-	  'test-integration     Run live portal tests using .env.local/.env (skip without webhook)'
+	@printf '%s\n' 'unit                 Run unit-tests (no external portal)' \
+	  'integration          Run integration-tests against the real portal' \
+	  'test                 Alias for unit' \
+	  'test-integration     Alias for integration (.env.local/.env; skip without webhook)'
 
 worktree-info:
 	@$(COMPOSE) --info
@@ -111,8 +113,12 @@ lint-rector:
 
 lint-all: lint-allowed-licenses lint-cs-fixer lint-phpstan lint-rector
 
-test:
-	$(RUN) vendor/bin/phpunit --testsuite offline
+test test-unit make-unit: unit
 
-test-integration:
-	$(CLI_RUN) vendor/bin/phpunit --testsuite integration
+test-integration make-integration: integration
+
+unit:
+	$(RUN) vendor/bin/phpunit --testsuite unit-tests
+
+integration:
+	$(CLI_RUN) vendor/bin/phpunit --testsuite integration-tests

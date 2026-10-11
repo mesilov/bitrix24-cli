@@ -5,7 +5,7 @@
 ## 1. Standalone bootstrap и DI
 
 - [x] 1.1 Добавить совместимый с PHP 8.4/8.5 `symfony/dependency-injection:^8.0` и offline test harness; проверить composer validate/check-platform-reqs, существующие license checks и запуск тестов внутри checkout-specific Docker. FrameworkBundle/Kernel не добавлять.
-- [x] 1.2 Реализовать ContainerFactory/ApplicationFactory, PHP definitions, явные tags и RegisterTaskCommandsPass → ContainerCommandLoader; проверить на подставных командах duplicate/mismatched name/alias rejection, autowiring/port replacement и отсутствие credential reads при compile; runtime не читает openspec каталог.
+- [x] 1.2 Реализовать ContainerFactory/ApplicationFactory, PHP definitions, CommandCatalog → ContainerCommandLoader; проверить каталог/AsCommand/unique classes/no aliases в unit-tests, autowiring/port replacement и отсутствие credential reads при compile; runtime не читает openspec каталог.
 - [x] 1.3 Реализовать единый bootstrap для bin/b24cli и bin/console, отложенный client provider и build version; проверить оба launcher, offline help/list/version/completion и zero calls через spy resolver. Полный inventory из 30 проверяется после группы 4.
 
 ## 2. Ввод, выполнение и вывод
@@ -48,7 +48,7 @@
 
 ## 5. Интеграция и приёмка
 
-- [x] 5.1 Сверить фактический command inventory и DI wiring со всеми 30 строками карты: 30 уникальных имен/classes, 28 handlers, ни одной из 29 post-MVP операций/aliases; проверить offline list/help/completion обоих launcher, common options/output/error cases и отсутствие API/credentials. Выполнить project lint/check и статический анализ в Docker.
+- [x] 5.1 Сверить фактический command inventory и DI wiring со всеми 30 строками карты: 30 уникальных имен/classes, согласованные handlers/services, ни одной из 29 post-MVP операций/aliases; проверить offline list/help/completion обоих launcher, common options/output/error cases и отсутствие API/credentials. Выполнить project lint/check и статический анализ в Docker.
 - [ ] 5.2 На тестовом портале с согласованным connection provider проверить v3 карточку/schema/выборки/title search, task/chat association и message update/delete под допустимой и запрещённой ролью; сохранить role/API version/targets/observed results, отдельную полноту и отсутствующие cases в evidence без secrets.
 - [ ] 5.3 На тестовом портале проверить 4 time и 8 checklist/root/item REST1 команды: create/list/update/delete собственных time entries, wrong-task/rights rejection, root/nested item/tree state и item complete/renew без смены task status. Сохранить runtime evidence отдельно от fixtures и scope admission.
 - [ ] 5.4 На тестовом портале проверить participants REST1 в новой карточке, omitted/cleared roles, отказ прав и history navigation/completeness; проверить strict-rest3 zero-call rejection всех non-v3 планов. Недоказанную completeness показать как partial и зафиксировать ограничение.
@@ -59,3 +59,12 @@
 - Пользователь разрешил apply; сохранять source/fixture/portal evidence раздельно.
 - После реализации и проверки применить openspec-verify-change; архивировать через openspec-archive-change и обновить путь change в issue #10.
 - Сохранить связь issue #10 → research/define-task-jtbd/architecture → PR в dev; main delivery/merge не выполняются этой пачкой.
+
+## 6. Упрощение архитектуры и замечания MR — 2026-10-11
+
+- [x] 6.1 Удалить tags/RegisterTaskCommandsPass, строить loader map напрямую из CommandCatalog; проверить exact inventory, AsCommand, unique classes/no aliases и deferred credentials.
+- [x] 6.2 Объединить простые DTO в TaskReference/ChecklistItemReference; сохранить локальную валидацию ID и сложные requests, обновить command-map.
+- [x] 6.3 Объединить 17 handlers в 4 сервиса с явными методами, сохранив routes, preflight/binding, plans, output и remaining 11 handlers; подтвердить все 30 command contracts.
+- [x] 6.4 Убрать повтор имени/effect из execute: CommandRunner получает Command и использует каталог, без общего REST-интерпретатора; проверить deletion/policy/dry-run/cancellation.
+- [x] 6.5 Исправить оба review threads MR #11: tests/Unit и suite unit-tests, отдельные make unit/make integration и integration-tests, явный unit запуск в CI, совместимые старые Make aliases.
+- [x] 6.6 Прогнать unit/live integration/quality/OpenSpec проверки, зафиксировать фактические результаты и remaining portal limits, актуализировать verification для MR.

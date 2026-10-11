@@ -7,7 +7,7 @@ namespace Bitrix24\CLI\Application\Task\Handler;
 use Bitrix24\CLI\Application\OperationResult;
 use Bitrix24\CLI\Application\PreparedOperation;
 use Bitrix24\CLI\Application\Route;
-use Bitrix24\CLI\Application\Task\Request\DeleteTaskRequest;
+use Bitrix24\CLI\Application\Task\Request\TaskReference;
 use Bitrix24\CLI\Application\Task\Plan;
 use Bitrix24\CLI\Application\Task\Port\TaskGateway;
 
@@ -22,7 +22,7 @@ final readonly class DeleteTaskHandler
         return [new Route('tasks.task.get', 3, 'read'), new Route('tasks.task.delete', 3, 'delete')];
     }
 
-    public function prepare(DeleteTaskRequest $request): PreparedOperation
+    public function prepare(TaskReference $request): PreparedOperation
     {
         $task = $this->tasks->get($request->taskId, ['title']);
         return new PreparedOperation([Plan::step($request->taskId, 'tasks.task.delete', 3, 'delete', [])], function () use ($request): OperationResult {

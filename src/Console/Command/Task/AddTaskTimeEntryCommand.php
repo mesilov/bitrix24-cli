@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitrix24\CLI\Console\Command\Task;
 
-use Bitrix24\CLI\Application\Task\Handler\AddTaskTimeEntryHandler;
+use Bitrix24\CLI\Application\Task\TimeEntryService;
 use Bitrix24\CLI\Application\Task\Request\AddTaskTimeEntryRequest;
 use Bitrix24\CLI\Console\CommandRunner;
 use Bitrix24\CLI\Console\TaskInputMapper;
@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'task:time:add', description: 'Добавить запись времени')]
 final class AddTaskTimeEntryCommand extends Command
 {
-    public function __construct(private readonly AddTaskTimeEntryHandler $handler, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
+    public function __construct(private readonly TimeEntryService $service, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
     {
         parent::__construct();
     }
@@ -35,13 +35,12 @@ final class AddTaskTimeEntryCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this->runner->run(
+            $this,
             $input,
             $output,
-            'task:time:add',
-            'write',
             fn (): AddTaskTimeEntryRequest => $this->mapper->addTaskTimeEntry($input),
-            fn (AddTaskTimeEntryRequest $request): array => $this->handler->routes(),
-            fn (AddTaskTimeEntryRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),
+            fn (AddTaskTimeEntryRequest $request): array => $this->service->addRoutes(),
+            fn (AddTaskTimeEntryRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->service->add($request),
         );
     }
 }

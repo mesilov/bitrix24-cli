@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitrix24\CLI\Console\Command\Task;
 
-use Bitrix24\CLI\Application\Task\Handler\ListTaskChatHandler;
+use Bitrix24\CLI\Application\Task\TaskChatService;
 use Bitrix24\CLI\Application\Task\Request\ListTaskChatRequest;
 use Bitrix24\CLI\Console\CommandRunner;
 use Bitrix24\CLI\Console\TaskInputMapper;
@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'task:chat:list', description: 'Показать сообщения чата задачи')]
 final class ListTaskChatCommand extends Command
 {
-    public function __construct(private readonly ListTaskChatHandler $handler, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
+    public function __construct(private readonly TaskChatService $service, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
     {
         parent::__construct();
     }
@@ -37,13 +37,12 @@ final class ListTaskChatCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this->runner->run(
+            $this,
             $input,
             $output,
-            'task:chat:list',
-            'read',
             fn (): ListTaskChatRequest => $this->mapper->listTaskChat($input),
-            fn (ListTaskChatRequest $request): array => $this->handler->routes(),
-            fn (ListTaskChatRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),
+            fn (ListTaskChatRequest $request): array => $this->service->listRoutes(),
+            fn (ListTaskChatRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->service->list($request),
         );
     }
 }

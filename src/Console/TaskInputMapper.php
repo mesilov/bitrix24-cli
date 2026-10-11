@@ -183,9 +183,9 @@ final readonly class TaskInputMapper
         return new Request\FindTasksRequest($this->query($input, true), trim($this->text($input, 'title')));
     }
 
-    public function deleteTask(InputInterface $input): Request\DeleteTaskRequest
+    public function taskReference(InputInterface $input): Request\TaskReference
     {
-        return new Request\DeleteTaskRequest($this->taskId($input));
+        return new Request\TaskReference($this->taskId($input));
     }
 
     public function listTaskFields(InputInterface $input): Request\ListTaskFieldsRequest
@@ -193,10 +193,6 @@ final readonly class TaskInputMapper
         return new Request\ListTaskFieldsRequest($this->text($input, 'name', false));
     }
 
-    public function showTaskAccess(InputInterface $input): Request\ShowTaskAccessRequest
-    {
-        return new Request\ShowTaskAccessRequest($this->taskId($input));
-    }
 
     public function listTaskChat(InputInterface $input): Request\ListTaskChatRequest
     {
@@ -233,10 +229,6 @@ final readonly class TaskInputMapper
         return new Request\AttachTaskFilesRequest($this->taskId($input), array_values(array_unique(array_map(fn ($id): int => $this->id($id, '--file-id'), $input->getOption('file-id')))));
     }
 
-    public function showTaskTime(InputInterface $input): Request\ShowTaskTimeRequest
-    {
-        return new Request\ShowTaskTimeRequest($this->taskId($input));
-    }
 
     public function addTaskTimeEntry(InputInterface $input): Request\AddTaskTimeEntryRequest
     {
@@ -316,10 +308,6 @@ final readonly class TaskInputMapper
         return new Request\AddTaskChecklistRequest($this->taskId($input), $this->text($input, 'title'));
     }
 
-    public function listTaskChecklists(InputInterface $input): Request\ListTaskChecklistsRequest
-    {
-        return new Request\ListTaskChecklistsRequest($this->taskId($input));
-    }
 
     public function addTaskChecklistItem(InputInterface $input): Request\AddTaskChecklistItemRequest
     {
@@ -336,20 +324,12 @@ final readonly class TaskInputMapper
         return new Request\UpdateTaskChecklistItemRequest($this->taskId($input), $this->id($input->getOption('item'), '--item'), $this->text($input, 'title'));
     }
 
-    public function completeTaskChecklistItem(InputInterface $input): Request\CompleteTaskChecklistItemRequest
+    public function checklistItemReference(InputInterface $input): Request\ChecklistItemReference
     {
-        return new Request\CompleteTaskChecklistItemRequest($this->taskId($input), $this->id($input->getOption('item'), '--item'));
+        return new Request\ChecklistItemReference($this->taskId($input), $this->id($input->getOption('item'), '--item'));
     }
 
-    public function renewTaskChecklistItem(InputInterface $input): Request\RenewTaskChecklistItemRequest
-    {
-        return new Request\RenewTaskChecklistItemRequest($this->taskId($input), $this->id($input->getOption('item'), '--item'));
-    }
 
-    public function deleteTaskChecklistItem(InputInterface $input): Request\DeleteTaskChecklistItemRequest
-    {
-        return new Request\DeleteTaskChecklistItemRequest($this->taskId($input), $this->id($input->getOption('item'), '--item'));
-    }
 
     public function setTaskParticipants(InputInterface $input): Request\SetTaskParticipantsRequest
     {

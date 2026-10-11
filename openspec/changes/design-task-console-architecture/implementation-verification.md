@@ -6,8 +6,8 @@ Issue: [#10](https://github.com/mesilov/bitrix24-cli/issues/10). PR: [#11 → de
 
 | Dimension | Evidence and boundary |
 | --- | --- |
-| Completeness | 29/32 tasks complete; 5.2–5.4 remain partially verified. All 30 MVP commands executed on the portal. 30 Command classes / 28 handlers; 29 post-MVP operations excluded |
-| Correctness | 13 runtime requirements and the revised scope admission have implementation/offline coverage. Live suite: 7 passed, 1 restricted-role case skipped, 142 assertions. Filled participant enrichment now succeeds through explicitly selected companion reads; native REST3 auditors remains broken on this portal |
+| Completeness | 35/38 tasks complete; 5.2–5.4 remain partially verified. All 30 MVP commands executed on the portal. 30 Command classes / 23 request-reference DTO / 11 handlers + 4 services; 29 post-MVP operations excluded |
+| Correctness | 14 runtime requirements and the revised scope admission have implementation/offline coverage. Live suite: 7 passed, 1 restricted-role case skipped, 145 assertions. Filled participant enrichment now succeeds through explicitly selected companion reads; native REST3 auditors remains broken on this portal |
 | Coherence | Standalone Symfony Console + DI, explicit API versions/ports, deferred SDK provider. Conditional enrichment routes are checked before credentials. PHPStan, Rector, code style and licenses passed; no error-triggered API fallback/retry |
 
 ## Changes verified
@@ -20,7 +20,7 @@ Issue: [#10](https://github.com/mesilov/bitrix24-cli/issues/10). PR: [#11 → de
 
 ## Local checks
 
-- `make test`: **193 tests / 792 assertions**, no failures or warnings.
+- `make unit`: **191 tests / 942 assertions**, no failures or warnings.
 - `make check`: Composer strict/platform requirements, PHP syntax and shared bootstrap/startup passed.
 - `make lint-all`: licenses, PHP-CS-Fixer, PHPStan level5 and Rector dry-run passed. Initial Rector naming/type suggestions were applied without lowering rules.
 - `openspec validate --all --strict` and `git diff --check` passed.
@@ -28,13 +28,24 @@ Issue: [#10](https://github.com/mesilov/bitrix24-cli/issues/10). PR: [#11 → de
 
 ## Portal evidence
 
-Current source: [sanitized execution record](portal-enrichment-evidence-2026-10-11.json). Prior run: [2026-10-10 evidence](portal-evidence-2026-10-10.json). Raw JUnit and selected trace remain ignored under var/cache; committed evidence contains no webhook URL/token, request parameters, user names or chat text.
+Current source: [sanitized refactor execution record](portal-refactor-evidence-2026-10-11.json). Earlier enrichment: [2026-10-11 evidence](portal-enrichment-evidence-2026-10-11.json). Prior run: [2026-10-10 evidence](portal-evidence-2026-10-10.json). Raw JUnit and selected trace remain ignored under var/cache; committed evidence contains no webhook URL/token, request parameters, user names or chat text.
 
-Final run: **8 tests / 142 assertions / 0 failures / 0 errors / 1 skipped**. All 30 CLI names appear in the current record. Identity: webhook user1 as fixture creator/responsible, own message/time-entry author; admin status is not asserted.
+Final run: **8 tests / 145 assertions / 0 failures / 0 errors / 1 skipped**. All 30 CLI names appear in the current record. Identity: webhook user1 as fixture creator/responsible, own message/time-entry author; admin status is not asserted.
 
-`testFilledParticipantsAreEnrichedThroughExplicitUserLookup` verifies filled auditors and accomplices, shared profile lookup, name readback, ID-only projection and empty-role behavior. Filled/root path uses exactly tasks.task.get@3.0 → tasks.task.get@1.0 → user.get@1.0 and complete=true. ID-only/empty use two task reads. Targeted rerun on final code adds observer email readback and absence from unselected roles: 1 test / 23 assertions passed. Name/email share the same user.get; email values are excluded from evidence. The full-suite result above precedes these extra email assertions; production code did not change between runs. A prior owned diagnostic task confirmed user scope already present and user.get succeeds while native REST3 auditors.id still returns INTERNAL_SERVER_ERROR.
+`testFilledParticipantsAreEnrichedThroughExplicitUserLookup` verifies filled auditors/accomplices, shared profile lookup, selected email, ID-only projection and empty-role behavior. Names/email remain excluded from evidence. The full suite includes the final email assertions. Earlier enrichment/diagnostic runs retain their original counts and IDs in their own records.
 
-Current owned tasks: **5360, 5362, 5364, 5366, 5368, 5370, 5372, 5374, 5376**. Owned Disk file: **1374**. All deleted with no cleanup failures. Diagnostic task5356 and targeted-test tasks5358/5378 were also deleted.
+Current owned tasks: **5380, 5382, 5384, 5386, 5388, 5390, 5392, 5394, 5396**. Owned Disk files: **1380**. All deleted with zero cleanup failures. The restricted-role test is skipped without a second webhook; teardown still cleans up its own primary-webhook fixture.
+
+## Architecture simplification and MR review
+
+- 17 handlers were grouped into TaskMetadataService, TaskChatService, TimeEntryService and ChecklistItemService with explicit routes/prepare methods. All 34 moved methods preserve their route/preflight/execute logic against base commit 7d07ab1 after name/reference substitutions and whitespace normalization. The remaining 11 handlers keep distinct scenarios; no API adapter/transport/provider behavior changed.
+- Seven simple request classes were replaced by TaskReference/ChecklistItemReference, leaving 23 DTO/reference classes. Shared mapper methods retain positive-ID validation. Thirty Command classes and seven Gateway interfaces remain.
+- CommandCatalog supplies ContainerCommandLoader directly, without console.command tags, reflection or custom compiler pass. Unit tests verify all 30 loaded classes, matching AsCommand, unique classes/no aliases and zero credential/API access. CommandRunner derives name/effect centrally.
+- [Naming thread](https://github.com/mesilov/bitrix24-cli/pull/11#discussion_r4240924676): tests/Unit, Tests\Unit namespace, PHPUnit suite unit-tests. Local subprocess/loopback checks are preserved and do not call the external portal.
+- [Make/CI thread](https://github.com/mesilov/bitrix24-cli/pull/11#discussion_r4241086872): make unit / make integration run only unit-tests / integration-tests respectively; CI runs make unit. Old test/test-integration and requested make-unit/make-integration are compatible aliases. Live integration uses the actual provider and selected env.
+- Final local run: 191 tests / 942 assertions, no failures/errors/warnings; make check, licenses, PHP-CS-Fixer, PHPStan level5 and Rector passed. The old PHPStan path and new test variable naming were corrected without lowering rules. Three old compiler-pass cases were replaced by one full-catalog test; existing command/runtime/SDK tests were preserved (193 → 191 tests, 792 → 942 assertions).
+- Full live run: 8 tests / 145 assertions, 7 passed + 1 restricted-role skip, 0 failures/errors; all 30 command names appear in the new sanitized record. OpenSpec strict: all 8 items passed; git diff --check passed.
+
 
 ## Remaining verification
 

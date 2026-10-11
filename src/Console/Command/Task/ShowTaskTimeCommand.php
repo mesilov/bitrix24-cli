@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Bitrix24\CLI\Console\Command\Task;
 
-use Bitrix24\CLI\Application\Task\Handler\ShowTaskTimeHandler;
-use Bitrix24\CLI\Application\Task\Request\ShowTaskTimeRequest;
+use Bitrix24\CLI\Application\Task\TaskMetadataService;
+use Bitrix24\CLI\Application\Task\Request\TaskReference;
 use Bitrix24\CLI\Console\CommandRunner;
 use Bitrix24\CLI\Console\TaskInputMapper;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -17,7 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'task:time:show', description: 'Показать контекст учёта времени')]
 final class ShowTaskTimeCommand extends Command
 {
-    public function __construct(private readonly ShowTaskTimeHandler $handler, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
+    public function __construct(private readonly TaskMetadataService $service, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
     {
         parent::__construct();
     }
@@ -31,13 +31,12 @@ final class ShowTaskTimeCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this->runner->run(
+            $this,
             $input,
             $output,
-            'task:time:show',
-            'read',
-            fn (): ShowTaskTimeRequest => $this->mapper->showTaskTime($input),
-            fn (ShowTaskTimeRequest $request): array => $this->handler->routes(),
-            fn (ShowTaskTimeRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),
+            fn (): TaskReference => $this->mapper->taskReference($input),
+            fn (TaskReference $request): array => $this->service->timeRoutes(),
+            fn (TaskReference $request): \Bitrix24\CLI\Application\PreparedOperation => $this->service->time($request),
         );
     }
 }

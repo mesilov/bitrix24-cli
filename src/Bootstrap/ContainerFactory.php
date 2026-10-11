@@ -22,7 +22,6 @@ final class ContainerFactory
             }
         }
 
-        $containerBuilder->addCompilerPass(new RegisterTaskCommandsPass());
         $containerBuilder->compile();
         foreach ([ApiTransport::class => $transport, ConnectionResolver::class => $resolver] as $id => $replacement) {
             if ($replacement !== null) {

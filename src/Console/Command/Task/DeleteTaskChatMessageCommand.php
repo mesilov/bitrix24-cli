@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitrix24\CLI\Console\Command\Task;
 
-use Bitrix24\CLI\Application\Task\Handler\DeleteTaskChatMessageHandler;
+use Bitrix24\CLI\Application\Task\TaskChatService;
 use Bitrix24\CLI\Application\Task\Request\DeleteTaskChatMessageRequest;
 use Bitrix24\CLI\Console\CommandRunner;
 use Bitrix24\CLI\Console\TaskInputMapper;
@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'task:chat:delete', description: 'Удалить сообщение чата задачи')]
 final class DeleteTaskChatMessageCommand extends Command
 {
-    public function __construct(private readonly DeleteTaskChatMessageHandler $handler, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
+    public function __construct(private readonly TaskChatService $service, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
     {
         parent::__construct();
     }
@@ -35,13 +35,12 @@ final class DeleteTaskChatMessageCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this->runner->run(
+            $this,
             $input,
             $output,
-            'task:chat:delete',
-            'delete',
             fn (): DeleteTaskChatMessageRequest => $this->mapper->deleteTaskChatMessage($input),
-            fn (DeleteTaskChatMessageRequest $request): array => $this->handler->routes(),
-            fn (DeleteTaskChatMessageRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),
+            fn (DeleteTaskChatMessageRequest $request): array => $this->service->deleteRoutes(),
+            fn (DeleteTaskChatMessageRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->service->delete($request),
         );
     }
 }

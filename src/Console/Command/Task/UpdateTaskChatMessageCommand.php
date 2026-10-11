@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitrix24\CLI\Console\Command\Task;
 
-use Bitrix24\CLI\Application\Task\Handler\UpdateTaskChatMessageHandler;
+use Bitrix24\CLI\Application\Task\TaskChatService;
 use Bitrix24\CLI\Application\Task\Request\UpdateTaskChatMessageRequest;
 use Bitrix24\CLI\Console\CommandRunner;
 use Bitrix24\CLI\Console\TaskInputMapper;
@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'task:chat:update', description: 'Изменить сообщение чата задачи')]
 final class UpdateTaskChatMessageCommand extends Command
 {
-    public function __construct(private readonly UpdateTaskChatMessageHandler $handler, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
+    public function __construct(private readonly TaskChatService $service, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
     {
         parent::__construct();
     }
@@ -36,13 +36,12 @@ final class UpdateTaskChatMessageCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this->runner->run(
+            $this,
             $input,
             $output,
-            'task:chat:update',
-            'write',
             fn (): UpdateTaskChatMessageRequest => $this->mapper->updateTaskChatMessage($input),
-            fn (UpdateTaskChatMessageRequest $request): array => $this->handler->routes(),
-            fn (UpdateTaskChatMessageRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),
+            fn (UpdateTaskChatMessageRequest $request): array => $this->service->updateRoutes(),
+            fn (UpdateTaskChatMessageRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->service->update($request),
         );
     }
 }

@@ -8,6 +8,8 @@ use Bitrix24\CLI\Application\Failure;
 use Bitrix24\CLI\Application\InvocationContext;
 use Bitrix24\CLI\Application\OperationResult;
 use Bitrix24\CLI\Application\RuntimeState;
+use Bitrix24\CLI\Bootstrap\CommandCatalog;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
@@ -20,8 +22,15 @@ final readonly class CommandRunner
     {
     }
 
-    public function run(InputInterface $input, OutputInterface $output, string $command, string $effect, \Closure $requestFactory, \Closure $routes, \Closure $prepare): int
+    public function run(Command $consoleCommand, InputInterface $input, OutputInterface $output, \Closure $requestFactory, \Closure $routes, \Closure $prepare): int
     {
+        $command = $consoleCommand->getName();
+        $definition = CommandCatalog::COMMANDS[$command] ?? null;
+        if ($definition === null || $definition['class'] !== $consoleCommand::class) {
+            throw new Failure('configuration-error', 'The command is absent from the explicit catalog.');
+        }
+
+        $effect = $definition['effect'];
         $this->reader->reset($input);
         $context = $this->context($input);
         $this->state->begin($context->timeout);

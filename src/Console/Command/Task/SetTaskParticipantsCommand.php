@@ -37,10 +37,9 @@ final class SetTaskParticipantsCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this->runner->run(
+            $this,
             $input,
             $output,
-            'task:participants:set',
-            'write',
             fn (): SetTaskParticipantsRequest => $this->mapper->setTaskParticipants($input),
             fn (SetTaskParticipantsRequest $request): array => $this->handler->routes(),
             fn (SetTaskParticipantsRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),

@@ -34,10 +34,9 @@ final class FindTaskCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this->runner->run(
+            $this,
             $input,
             $output,
-            'task:find',
-            'read',
             fn (): FindTasksRequest => $this->mapper->findTasks($input),
             fn (FindTasksRequest $request): array => $this->handler->routes(),
             fn (FindTasksRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),

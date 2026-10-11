@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitrix24\CLI\Console\Command\Task;
 
-use Bitrix24\CLI\Application\Task\Handler\SendTaskChatMessageHandler;
+use Bitrix24\CLI\Application\Task\TaskChatService;
 use Bitrix24\CLI\Application\Task\Request\SendTaskChatMessageRequest;
 use Bitrix24\CLI\Console\CommandRunner;
 use Bitrix24\CLI\Console\TaskInputMapper;
@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'task:chat:send', description: 'Отправить сообщение в чат задачи')]
 final class SendTaskChatMessageCommand extends Command
 {
-    public function __construct(private readonly SendTaskChatMessageHandler $handler, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
+    public function __construct(private readonly TaskChatService $service, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
     {
         parent::__construct();
     }
@@ -35,13 +35,12 @@ final class SendTaskChatMessageCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this->runner->run(
+            $this,
             $input,
             $output,
-            'task:chat:send',
-            'write',
             fn (): SendTaskChatMessageRequest => $this->mapper->sendTaskChatMessage($input),
-            fn (SendTaskChatMessageRequest $request): array => $this->handler->routes(),
-            fn (SendTaskChatMessageRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),
+            fn (SendTaskChatMessageRequest $request): array => $this->service->sendRoutes(),
+            fn (SendTaskChatMessageRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->service->send($request),
         );
     }
 }

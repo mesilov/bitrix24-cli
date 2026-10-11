@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bitrix24\CLI\Console\Command\Task;
 
-use Bitrix24\CLI\Application\Task\Handler\DeleteTaskTimeEntryHandler;
+use Bitrix24\CLI\Application\Task\TimeEntryService;
 use Bitrix24\CLI\Application\Task\Request\DeleteTaskTimeEntryRequest;
 use Bitrix24\CLI\Console\CommandRunner;
 use Bitrix24\CLI\Console\TaskInputMapper;
@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'task:time:delete', description: 'Удалить запись времени')]
 final class DeleteTaskTimeEntryCommand extends Command
 {
-    public function __construct(private readonly DeleteTaskTimeEntryHandler $handler, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
+    public function __construct(private readonly TimeEntryService $service, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
     {
         parent::__construct();
     }
@@ -35,13 +35,12 @@ final class DeleteTaskTimeEntryCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this->runner->run(
+            $this,
             $input,
             $output,
-            'task:time:delete',
-            'delete',
             fn (): DeleteTaskTimeEntryRequest => $this->mapper->deleteTaskTimeEntry($input),
-            fn (DeleteTaskTimeEntryRequest $request): array => $this->handler->routes(),
-            fn (DeleteTaskTimeEntryRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),
+            fn (DeleteTaskTimeEntryRequest $request): array => $this->service->deleteRoutes(),
+            fn (DeleteTaskTimeEntryRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->service->delete($request),
         );
     }
 }

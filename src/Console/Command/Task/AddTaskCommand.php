@@ -40,10 +40,9 @@ final class AddTaskCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this->runner->run(
+            $this,
             $input,
             $output,
-            'task:add',
-            'write',
             fn (): AddTaskRequest => $this->mapper->addTask($input),
             fn (AddTaskRequest $request): array => $this->handler->routes($request),
             fn (AddTaskRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),

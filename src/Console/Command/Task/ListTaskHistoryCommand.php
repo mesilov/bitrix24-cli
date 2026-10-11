@@ -34,10 +34,9 @@ final class ListTaskHistoryCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this->runner->run(
+            $this,
             $input,
             $output,
-            'task:history:list',
-            'read',
             fn (): ListTaskHistoryRequest => $this->mapper->listTaskHistory($input),
             fn (ListTaskHistoryRequest $request): array => $this->handler->routes(),
             fn (ListTaskHistoryRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),

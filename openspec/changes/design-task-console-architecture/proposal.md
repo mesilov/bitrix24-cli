@@ -10,8 +10,14 @@
 - Разделить Console-команды, прикладные запросы/обработчики и API-порты с адаптерами. `task:update`, `task:assign` и `task:deadline:set` используют один обработчик изменения полей с разными ограничениями ввода.
 - Описать маршрут каждой команды, проверки task/chat/message/checklist/time IDs, dry-run, подтверждение удаления, пагинацию, API policy и неопределённый результат записи.
 - Уточнение пользователя 2026-10-11: для выбранных auditors/accomplices в task:show читать карточку через REST3 без этих relations, отдельно получать ID через REST1 tasks.task.get и обогащать их через user.get. Маршруты объявляются заранее; это разрешённая композиция чтений, без переключения после ошибки.
-- Реализовать карту команд, standalone bootstrap/DI, API adapters/handlers, offline и отдельные live integration tests. Пользователь разрешил apply 2026-10-09. Live приёмка требует предоставленного webhook и фиксируется отдельно.
+- Реализовать карту команд, standalone bootstrap/DI, API adapters/handlers, unit-tests и отдельные live integration tests. Пользователь разрешил apply 2026-10-09. Live приёмка требует предоставленного webhook и фиксируется отдельно.
 - Зафиксировать отсутствие `task:subtask:add` в регистрации MVP. Это исключение уже отражено в `define-task-jtbd` и `task-mvp-scope`; изменение не возвращает 29 исключённых операций через aliases или скрытые шаги.
+
+## Упрощение архитектуры и MR review — 2026-10-11
+
+По согласованной схеме сохраняем 30 Command-классов, standalone DI, Gateway-интерфейсы и version-specific adapters. Карта loader строится прямо из CommandCatalog без tags/compiler pass; согласованность AsCommand и MVP проверяется unit-tests. Простые task/item DTO объединяются в TaskReference/ChecklistItemReference. 17 handlers объединяются в TaskMetadataService, TaskChatService, TimeEntryService и ChecklistItemService с явными методами; 11 обработчиков остальных сценариев остаются отдельными. CommandRunner получает имя/effect из команды/каталога. API-маршруты, binding, dry-run, partial и cancellation сохраняются.
+
+Замечания MR #11: локальная suite называется unit-tests, реальные portal tests — integration-tests; Makefile и CI явно разделяют запуски. После рефакторинга выполнить обе suite, quality checks и опубликовать исправления в существующем MR.
 
 ## Capabilities
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Bitrix24\CLI\Tests\Offline;
+namespace Bitrix24\CLI\Tests\Unit;
 
 use Bitrix24\CLI\Bootstrap\ApplicationFactory;
 use Bitrix24\CLI\Tests\Support\ConsoleHarness;

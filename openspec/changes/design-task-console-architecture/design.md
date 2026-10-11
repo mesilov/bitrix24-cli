@@ -38,7 +38,7 @@ flowchart LR
     Factory --> App["B24Application"]
     App --> Command["30 Symfony Command classes"]
     Command --> Runner["CommandRunner: context, preview, confirmation, output"]
-    Command --> Handler["Typed requests and application handlers"]
+    Command --> Handler["Typed requests, references and application services"]
     Runner --> Handler
     Handler --> Port["Task / Chat / Checklist / Time / Participant / History ports"]
     Adapter["Versioned SDK adapters"] -. implements .-> Port
@@ -54,14 +54,13 @@ Console зависит от Application; Application зависит от сво�
 
 | Компонент | Ответственность |
 | --- | --- |
-| `Bootstrap/ContainerFactory` | Создать ContainerBuilder, загрузить PHP service definitions, добавить compiler pass, compile; не получать credentials |
+| `Bootstrap/ContainerFactory` | Создать ContainerBuilder, загрузить PHP service definitions, compile; не получать credentials |
 | `Bootstrap/ApplicationFactory` | Создать B24Application, передать loader, общие сервисы и build version |
 | `Console/B24Application` | Глобальная InputDefinition, error boundary и безопасный выбор команд |
-| `Bootstrap/RegisterTaskCommandsPass` | Собрать явные `console.command` tags, проверить уникальность/имена/точный MVP набор и сформировать name → service ID |
 | `config/services.php` | Явные определения 30 команд, autowiring конструкторов и aliases порт → адаптер |
 | `bin/b24cli`, `bin/console` | Два тонких launcher одного ApplicationFactory; публичное имя приложения — b24cli |
 
-Каждый Command имеет `AsCommand` с полным именем и явное service definition/tag. В standalone Console атрибут сам не сканирует `src/` и не регистрирует сервис: карту строит наш pass. Не включаем массовое сканирование namespace, которое могло бы случайно зарегистрировать исключённую команду. Pass сравнивает tag и AsCommand, запрещает aliases post-MVP и несогласованные имена. Будущая компактная карта runtime содержит только имя/класс/effect; весь исследовательский каталог из `openspec/` не загружается при запуске.
+Каждый Command имеет AsCommand с полным именем и явное service definition. CommandCatalog — единственный источник регистрации: config/services.php регистрирует перечисленные классы, ApplicationFactory напрямую передаёт name → class в ContainerCommandLoader. Tags, reflection и собственный compiler pass в bootstrap отсутствуют. Unit-tests сверяют AsCommand, отсутствие aliases, уникальность имён/классов и точный MVP. Массового сканирования namespace и чтения исследовательского каталога openspec при запуске нет.
 
 `ContainerCommandLoader` получает контейнер и карту команд ([закреплённый исходник](https://github.com/symfony/console/blob/4b81146e3ee248ea969186f85499b54fbc78db08/CommandLoader/ContainerCommandLoader.php)). Только command services доступны loader как public; обработчики, порты и SDK provider private и внедряются конструкторами. Доступ к контейнеру внутри команд/обработчиков запрещён. Альтернатива — отдельный ServiceLocator с private commands; для этого MVP public граница из 30 команд проще и достаточна.
 
@@ -73,11 +72,17 @@ Console зависит от Application; Application зависит от сво�
 
 30 отдельных final Command классов наследуют Symfony Command и используют `configure()`/`execute()`. Это поддерживается закреплённой версией; основной обзор текущих docs показывает и invokable commands ([Console docs](https://symfony.com/doc/current/console.html), [Command source](https://github.com/symfony/console/blob/4b81146e3ee248ea969186f85499b54fbc78db08/Command/Command.php)). Здесь обычный Command удобен для явной InputDefinition, конфликтов опций, проверки присутствия поля и CommandTester.
 
-В каждом классе остаются определение ввода/справки, сборка typed Request через общие input helpers и передача в конкретный handler через CommandRunner. Не делаем одну огромную TaskCommand с action switch и не связываем группы команд с SDK сервисами 1:1. Общий BaseTaskCommand с бизнес-логикой не нужен: повторяющийся цикл выполнения вынесен в сервис, а не в иерархию наследования.
+В каждом классе остаются определение ввода/справки, сборка typed Request через общие input helpers и передача в конкретный handler/service через CommandRunner. Не делаем одну огромную TaskCommand с action switch и не связываем группы команд с SDK сервисами 1:1. Общий BaseTaskCommand с бизнес-логикой не нужен: повторяющийся цикл выполнения вынесен в сервис, а не в иерархию наследования.
 
-[Карта всех 30 команд](command-map.md) задаёт имя, класс, Request/Handler, маршруты, preflight и output profile. Классы команд находятся в `Console/Command/Task`, requests/handlers — в `Application/Task/Request` и `Application/Task/Handler`. Имена в карте задают обязательные классы будущей реализации.
+[Карта всех 30 команд](command-map.md) задаёт имя, класс, Request/Handler, маршруты, preflight и output profile. Классы команд находятся в `Console/Command/Task`, requests/handlers — в `Application/Task/Request` и `Application/Task/Handler`. Карта задаёт Command, тип входа и конкретный метод handler/service.
 
-`task:update`, `task:assign`, `task:deadline:set` передают `UpdateTaskRequest` в `UpdateTaskHandler`. Request содержит operation identity и patch; политика allowlist различается: общие writable поля / только responsibleId / только deadline. В результате **30 Command классов и 28 handlers**; общие сервисы поиска/валидации не являются отдельными CLI операциями. Message bus, service lookup по строке и новые сущности CQRS для этого не нужны.
+`task:update`, `task:assign`, `task:deadline:set` передают `UpdateTaskRequest` в `UpdateTaskHandler`. Request содержит operation identity и patch; политика allowlist различается: общие writable поля / только responsibleId / только deadline. После согласованного упрощения используются **30 Command-классов, 11 отдельных handlers и 4 application services**; общие сервисы поиска/валидации не являются отдельными CLI операциями. Message bus, service lookup по строке и новые сущности CQRS для этого не нужны.
+
+### 4a. Упрощение DTO и handlers — 2026-10-11
+
+TaskReference заменяет DeleteTaskRequest, ShowTaskAccessRequest, ShowTaskTimeRequest и ListTaskChecklistsRequest. ChecklistItemReference заменяет CompleteTaskChecklistItemRequest, RenewTaskChecklistItemRequest и DeleteTaskChecklistItemRequest. Сложные typed requests остаются; всего 23 входных DTO/reference.
+
+TaskMetadataService объединяет fields/access/elapsedTime; TaskChatService — list/send/update/delete; TimeEntryService — add/list/update/delete; ChecklistItemService — add/list/update/complete/renew/delete. У каждого сервиса явные именованные методы routes и prepare; action switch, message bus и динамический вызов метода по пользовательской строке не вводятся. Shared support сохраняет binding и bounded scans; ShowTaskHandler и TaskParticipantEnricher сохраняют отдельную композицию.
 
 ### 5. InputDefinition и локальная валидация
 
@@ -111,7 +116,7 @@ Console зависит от Application; Application зависит от сво�
 6. Handler выполняет подготовленные шаги через порты. Mutation не повторяется автоматически. ExecutionLedger учитывает подтверждённые, skipped и outcome-unknown шаги. Cancellation проверяется между запросами.
 7. Handler возвращает OperationResult; ResultPresenter выбирает human/plain/JSON, ExitStatusMapper возвращает код.
 
-Runner получает конкретные typed prepare/execute callbacks handler, без общего bus или интерпретатора произвольных plan steps. PreparedOperation хранит validated target/patch и display plan, а не SDK objects или credentials. Порты выполняют конкретные операции. Plan служит для policy, dry-run и evidence; он не даёт пользователю возможность исполнить произвольный REST маршрут.
+Runner получает Command, определяет имя через getName и effect из CommandCatalog; конкретные typed callbacks handler/service сохраняются, без общего bus или интерпретатора произвольных plan steps. PreparedOperation хранит validated target/patch и display plan, а не SDK objects или credentials. Порты выполняют конкретные операции. Plan служит для policy, dry-run и evidence; он не даёт пользователю возможность исполнить произвольный REST маршрут.
 
 Обычная запись не требует дополнительного подтверждения. Force не отменяет policy, ID binding, field validator или серверные права. Preflight не устраняет гонку с последующей записью; сервер остаётся последней проверкой доступа и состояния.
 
@@ -187,6 +192,8 @@ Default --timeout=30 seconds ограничивает **один сетевой 
 Cancellation service обрабатывает SIGINT в поддерживаемом CLI окружении с pcntl, ставит флаг и прекращает новые requests; текущий HTTP шаг ограничен timeout. Runtime/deployment acceptance проверяет наличие signal support и фактическое поведение процесса. Уже отправленная mutation может завершиться на сервере; exit130 сохраняет сведения о подтверждённых/неопределённых шагах. Нельзя считать unit flag test доказательством Ctrl-C в поставляемом окружении.
 
 ### 12. Проверки по уровням
+
+Локальные тесты находятся в tests/Unit (namespace Tests\Unit, suite unit-tests). Make unit запускает их отдельно; make integration запускает suite integration-tests на реальном портале через тот же provider. Старые test/test-integration остаются совместимыми aliases. CI запускает make unit без портальных credentials. Unit-suite включает контролируемые local subprocess/loopback проверки timeout/SIGINT, без внешнего портала.
 
 ConsoleHarness с реальным ArgvInput/ConsoleOutputInterface и fake transport проверяет команды/typed requests, omitted/empty values, fields allowlists, confirmation, dry-run, version policy и output profiles. Application-level ArgvInput tests и реальные короткие subprocess calls проверяют глобальные flags до/после имени, parser failures, typo/ambiguity, native help/list/version/completion и exit codes. Spy resolver/client factory подтверждает **ноль credential reads и запросов** для offline surfaces/invalid local input/strict policy denial.
 

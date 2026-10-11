@@ -34,7 +34,7 @@
         "bin/b24cli"
     ],
     "scripts": {
-        "test": "phpunit --testsuite offline",
-        "test:integration": "phpunit --testsuite integration"
+        "test": "phpunit --testsuite unit-tests",
+        "test:integration": "phpunit --testsuite integration-tests"
     }
 }
