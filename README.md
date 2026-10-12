@@ -66,7 +66,7 @@ chmod +x ./b24cli
 ```sh
 mkdir -p "$HOME/.local/bin" "$HOME/.local/share/b24cli"
 install -m 755 ./b24cli "$HOME/.local/bin/b24cli"
-install -m 644 build-info.json runtime-sources.json THIRD-PARTY-NOTICES.md YIIPRESS-LICENSE.txt "$HOME/.local/share/b24cli/"
+install -m 644 build-info.json runtime-sources.json THIRD-PARTY-NOTICES.md BITRIX24-CLI-LICENSE.txt YIIPRESS-LICENSE.txt "$HOME/.local/share/b24cli/"
 cp -R runtime-licenses "$HOME/.local/share/b24cli/"
 export PATH="$HOME/.local/bin:$PATH"
 ```
@@ -146,7 +146,7 @@ codesign --verify --strict --verbose=2 ./b24cli
 ```sh
 mkdir -p "$HOME/.local/bin" "$HOME/.local/share/b24cli"
 install -m 755 ./b24cli "$HOME/.local/bin/b24cli"
-install -m 644 build-info.json runtime-sources.json THIRD-PARTY-NOTICES.md YIIPRESS-LICENSE.txt "$HOME/.local/share/b24cli/"
+install -m 644 build-info.json runtime-sources.json THIRD-PARTY-NOTICES.md BITRIX24-CLI-LICENSE.txt YIIPRESS-LICENSE.txt "$HOME/.local/share/b24cli/"
 cp -R runtime-licenses "$HOME/.local/share/b24cli/"
 export PATH="$HOME/.local/bin:$PATH"
 rehash
@@ -412,3 +412,10 @@ JSON и REST 3.0 используют `groupId`; для advanced input испо�
 явный `--group-id` или advanced JSON имеет приоритет над этим значением.
 
 Разработка, подключение и сборка: [руководство](docs/development.md).
+
+## Лицензия
+
+[bitrix24-cli-license](LICENSE) основана на BSD-3-Clause.
+Copyright © 2026 Maksim Mesilov <mesilov.maxim@gmail.com>.
+Лицензии сторонних компонентов сохранены в пакетах отдельно.
+Все упоминаемые товарные знаки принадлежат их владельцам.

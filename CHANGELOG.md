@@ -32,6 +32,10 @@
   Конечный macOS executable проходит strict проверку ad-hoc подписи.
 - Изолированное Docker/Make окружение для Git worktree, unit и per-command
   integration suites, четыре CI-линтера и native packaging/acceptance matrix.
+- [bitrix24-cli-license](LICENSE) на основе BSD-3-Clause, Copyright © 2026
+  Maksim Mesilov <mesilov.maxim@gmail.com> и уведомление о владельцах товарных знаков.
+  Полный текст поставляется в каждом архиве как `BITRIX24-CLI-LICENSE.txt`;
+  исходные лицензии сторонних компонентов сохранены отдельно.
 
 ### Область RC
 
