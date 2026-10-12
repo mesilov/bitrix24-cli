@@ -16,7 +16,7 @@ Issue [#47](https://github.com/mesilov/bitrix24-cli/issues/47), branch feature/4
 - `make lint-all`: PASS, allowed licenses, PHP-CS-Fixer check, PHPStan level5, Rector dry-run.
 - `openspec validate --all --strict`: **15/15** items before this change's archive. Intentional `skip_specs` info and already synced define-task-jtbd ADDED admission info are not failures; unfinished post-MVP tasks stay active.
 - Delta/main requirement comparison: all **21** relevant blocks match; other task-mvp-scope requirements and its Purpose retained.
-- Local current Markdown links and anchors: **136 targets / 10 anchors**, no missing targets or anchors before adding this report; repeated after final archive.
+- Local current Markdown links and anchors: **137 targets / 10 anchors**, no missing targets or anchors after final archive.
 - README task/connection inventory checked against CommandCatalog; targeted compatibility/migration scan and `git diff --check`: PASS.
 
 Only docs, OpenSpec and maintainer instructions changed. Existing runtime/production source, dependency lock, build scripts and CI workflows are unchanged. Historical JSON records from the moved architecture change retain exact Git blob bytes.
