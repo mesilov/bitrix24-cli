@@ -59,6 +59,7 @@ final class ConnectionManager implements ConnectionResolver
         }
 
         if ($this->file !== null) {
+            FileCredentialStore::assertEnvironmentPath($this->file);
             return $this->selection = ['source' => 'explicit-file', 'path' => $this->file];
         }
 
@@ -75,6 +76,7 @@ final class ConnectionManager implements ConnectionResolver
         }
 
         if ($file !== '') {
+            FileCredentialStore::assertEnvironmentPath($file);
             return $this->selection = ['source' => 'environment-file', 'path' => $file];
         }
 

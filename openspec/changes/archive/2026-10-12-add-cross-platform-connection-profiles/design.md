@@ -4,7 +4,7 @@
 
 Мотивация — в [proposal.md](proposal.md); поведенческий контракт — в [spec](specs/connection-configuration/spec.md). Baseline: dev 56654f1310b75580362bb5ad58b00ad63d006363.
 
-EnvConnectionResolver сейчас читает process webhook/SDK alias, B24CLI_ENV_FILE или project-root dotenv; B24ClientProvider подключается лениво. B24Application уже объявляет --profile и --config. CommandRunner::context принимает только default и non-secret runtime JSON с timeout/apiPolicy/profile. Packaging использует PHAR и Windows temporary payload; ни один payload root не подходит для mutable credentials.
+На исходном baseline EnvConnectionResolver читает process webhook/SDK alias, B24CLI_ENV_FILE или project-root dotenv; B24ClientProvider подключается лениво. B24Application уже объявляет --profile и --config. CommandRunner::context принимает только default и non-secret runtime JSON с timeout/apiPolicy/profile. Packaging использует PHAR и Windows temporary payload; ни один payload root не подходит для mutable credentials.
 
 ## Goals / Non-Goals
 
@@ -130,7 +130,7 @@ config.json version 1:
 }
 ```
 
-Плоский hostname/credentialFile из прежнего planning example заменён вложенным connection, а profile-root groupId перенесён в default.task.groupId. Version остаётся 1: профильное хранение ещё не реализовано/выпущено, это уточнение проектируемого v1, а не миграция существующих пользовательских файлов.
+Плоский hostname/credentialFile из прежнего planning example заменён вложенным connection, а profile-root groupId перенесён в default.task.groupId. Version остаётся 1: nested contract был уточнён до реализации профильного хранения; это не миграция существующих пользовательских файлов. Реализация поставлена в dev через PR #36/#38, а native smoke fixture уточнена в #40.
 
 Credential file содержит BITRIX24_WEBHOOK, без хранения секрета в JSON. Имя файла генерируется, не строится из profile name. References ограничиваются управляемым credentials directory; исключить traversal и небезопасные symlink targets. JSON и dotenv — данные, без выполнения кода/команд. Webhook рассматривается как единый секрет: connection.hostname извлекается безопасным URL parser без path/query/userinfo и сверяется с HTTPS authority полного webhook; name используется только для описания.
 
@@ -138,9 +138,9 @@ CredentialStore изолирует read/write/delete, ProfileRepository — vers
 
 Альтернативы рассмотрены в [research.md](research.md): system keyring защищает stored secret лучше, но Secret Service может отсутствовать в headless Linux, а PHP micro требует проверки API/FFI/helper packaging. Внешний helper добавляет executable/deployment contract. Один общий JSON с webhook проще, но смешивает shareable metadata и секрет. Base64 и encryption key рядом с файлом не решают задачу защиты.
 
-Unix: 0700 dirs/0600 managed files с момента создания. Windows: OS ACL mechanism, проверенный native test, ограничивает обычный доступ текущим пользователем; SYSTEM/административный доступ описывается отдельно. Системный механизм не требует скачиваемого helper; если права установить/проверить нельзя, persistence fails closed. Не считать chmod эквивалентом Windows ACL. Explicit env-files остаются externally managed и не изменяются CLI.
+Unix: 0700 dirs/0600 managed files с момента создания. Windows: OS ACL mechanism, проверенный native test, ограничивает обычный доступ текущим пользователем; SYSTEM/административный доступ описывается отдельно. Системный механизм не требует скачиваемого helper; если права установить/проверить нельзя, persistence fails closed. Не считать chmod эквивалентом Windows ACL. Explicit env-files остаются externally managed и не изменяются CLI. Selector принимает обычный filesystem file или local file URI; non-filesystem stream/HTTP URI отклоняется до чтения, включая dry-run. Не выполнять network fetch через file reader.
 
-Под блокировкой конфигурации: подготовить private temp credential, atomic replace, затем atomic metadata update. При сбое metadata новая запись не становится selectable; cleanup orphan/rollback не раскрывает secret. При remove сначала убрать reference/default, затем удалить credential. Остаточный защищённый orphan при ошибке удаления сообщается безопасным path. No overwrite существующего профиля в connection:add; для ротации v1 remove/add/use.
+Под блокировкой конфигурации: создать новый private credential под случайным идентификатором, завершить запись и flush/fsync/close, затем опубликовать reference через atomic metadata update. Неполный credential не доступен через profile metadata; существующие credential files не перезаписываются. При сбое metadata новая запись не становится selectable; cleanup orphan/rollback не раскрывает secret. При remove сначала убрать reference/default, затем удалить credential. Остаточный защищённый orphan при ошибке удаления сообщается безопасным path. No overwrite существующего профиля в connection:add; для ротации v1 remove/add/use.
 
 ### 3. Явный selector и compatibility chain
 
@@ -198,7 +198,7 @@ Dry-run показывает итоговые groupId/creatorId/responsibleId/al
 
 Canonical --group-id уже поставлен отдельно в [#27](https://github.com/mesilov/bitrix24-cli/issues/27), [PR #31](https://github.com/mesilov/bitrix24-cli/pull/31) в main; --project удалён без alias. Архив — openspec/changes/archive/2026-10-11-unify-group-id-option/. Реализация default.task остаётся в #19.
 
-Примеры проектируемого поведения для work.default.task={groupId:42, creatorId:1, responsibleId:2, allowsTimeTracking:false}:
+Примеры поведения для work.default.task={groupId:42, creatorId:1, responsibleId:2, allowsTimeTracking:false}:
 
 ```sh
 # Дефолты заполняют обязательных участников и группу
@@ -211,7 +211,7 @@ b24cli --profile work task:add --title "Договор" --group-id 77 --creator 
 b24cli --profile work task:add --fields '{"title":"Договор","allowsTimeTracking":true}'
 ```
 
-Первый вызов подготовит title, groupId=42, creatorId=1, responsibleId=2, allowsTimeTracking=false. Без profile creatorId/responsibleId пользователь обязан передать соответствующие явные поля; default.task не отменяет требования API. Profile defaults ещё не реализованы.
+Первый вызов подготовит title, groupId=42, creatorId=1, responsibleId=2, allowsTimeTracking=false. Без profile creatorId/responsibleId пользователь обязан передать соответствующие явные поля; default.task не отменяет требования API.
 
 ### 6. Проверка и сборка
 
@@ -229,7 +229,7 @@ ID в CLI — JSON integer literal 1..PHP_INT_MAX, без float coercion. Ста
 
 ## Пользовательский путь
 
-Это проектируемое поведение, ещё не реализованные команды. Основной сценарий: пользователь скачал бинарник, не задавал process webhook/SDK alias/B24CLI_ENV_FILE/B24CLI_PROFILE/--config и использует стандартный каталог конфигурации.
+Реализованные локальные команды следуют этому пути. Основной сценарий: пользователь скачал бинарник, не задавал process webhook/SDK alias/B24CLI_ENV_FILE/B24CLI_PROFILE/--config и использует стандартный каталог конфигурации.
 
 | OS | Каталог конфигурации | Как запускаются команды |
 | --- | --- | --- |
@@ -299,7 +299,7 @@ CLI запрашивает полный URL скрытым вводом, про�
 b24cli connection:add clientA --group-id 77 --creator-id 3 --responsible-id 4 --allows-time-tracking false
 ```
 
-Создаются отдельные credentials и запись clientA.default.task в том же config.json; секрет вводится скрыто. Это проектируемые параметры локальной команды.
+Создаются отдельные credentials и запись clientA.default.task в том же config.json; секрет вводится скрыто.
 
 ### 3. Посмотреть сохранённые подключения
 
@@ -394,15 +394,31 @@ SystemRoot/System32/WindowsPowerShell/v1.0/powershell.exe. Статически�
 WindowsIdentity.GetCurrent().User даёт SID; FileSecurity/DirectorySecurity задают
 owner SID, SetAccessRuleProtection(true,false) исключает inherited grants,
 FileSystemAccessRule допускает FullControl только этому SID. Каталоги наследуют
-ContainerInherit/ObjectInherit для приватного создания новых файлов. Get-Acl
-повторно проверяет owner, protected DACL и отсутствие чужих grants; любые failures
+ContainerInherit/ObjectInherit для приватного создания новых файлов. Прямые методы
+.NET Framework Directory/File.GetAccessControl и SetAccessControl устанавливают и
+повторно проверяют owner, protected DACL и отсутствие чужих grants; любые failures
 останавливают persistence. Файл создаётся пустым, ACL устанавливается до записи webhook.
 
 Metadata: private temporary file → flush/fsync → close → rename(config.json) под flock.
 Native connection-smoke проверяет замену через use/remove и многопроцессные добавления.
+PowerShell script использует .NET constructors/методы, без New-Object/Get-Acl/Set-Acl:
+это исключает module discovery в headless окружении, не меняя owner/DACL policy.
 Windows native CI остаётся обязательным подтверждением; локальные Linux unit tests
 не доказывают Windows ACL. Файловый backend не является keyring или шифрованием.
 
-Первичные API references: [Set-Acl](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/set-acl?view=powershell-5.1),
+Первичные API references: [File.GetAccessControl](https://learn.microsoft.com/en-us/dotnet/api/system.io.file.getaccesscontrol),
+[Directory.SetAccessControl](https://learn.microsoft.com/en-us/dotnet/api/system.io.directory.setaccesscontrol),
 [FileSystemAccessRule](https://learn.microsoft.com/en-us/dotnet/api/system.security.accesscontrol.filesystemaccessrule),
 [SetAccessRuleProtection](https://learn.microsoft.com/en-us/dotnet/api/system.security.accesscontrol.objectsecurity.setaccessruleprotection).
+
+## Concurrent Windows payload bootstrap
+
+Native #19 acceptance reached concurrent writers and exposed access-denied when
+the Windows micro stub renamed a tempnam file to .phar. The stub now atomically
+reserves a random temporary directory and exclusively creates application.phar
+inside it; no temp-file rename is required. Handles close on success and failure;
+shutdown removes the PHAR through Phar::unlinkArchive, with unlink for incomplete
+archives, then removes the directory. This is application code, never credentials
+or user configuration. A portable real-PHAR fixture covers success, entry failure,
+source failure and four concurrent processes; native Windows acceptance remains
+the platform proof.

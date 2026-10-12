@@ -366,6 +366,40 @@ final class ConnectionProfilesTest extends TestCase
         }
     }
 
+    public function testEnvironmentSourcesRejectRemoteAndVirtualStreamsBeforeReading(): void
+    {
+        $fileProtection = new FileProtection();
+        $fileProtection->directory($this->directory);
+
+        $file = $this->directory . '/external.env';
+        $webhook = 'https://fixture.invalid/rest/1/RecognizableFixtureSecret/';
+        file_put_contents($file, "BITRIX24_WEBHOOK=" . $webhook . "\n");
+        self::assertSame($webhook, FileCredentialStore::environmentFile($file));
+        self::assertSame($webhook, FileCredentialStore::environmentFile('file://' . $file));
+        $app = $this->app();
+        foreach (['https://fixture.invalid/credential.env', 'ftp://fixture.invalid/credential.env', 'php://filter/resource=' . $file,
+            'data://text/plain;base64,' . base64_encode("BITRIX24_WEBHOOK=" . $webhook . "\n")] as $path) {
+            foreach ([true, false] as $explicit) {
+                putenv('B24CLI_ENV_FILE');
+                if (!$explicit) {
+                    putenv('B24CLI_ENV_FILE=' . $path);
+                }
+
+                $run = ConsoleHarness::run($app, ['task:add', '--title', 'Offline', '--creator', '1', '--responsible', '2', '--dry-run', '--json', ...($explicit ? ['--env-file', $path] : [])]);
+                self::assertSame(1, $run->status, $run->stdout);
+                self::assertSame('configuration-error', $run->json()['error']['code']);
+                self::assertSame([], $run->json()['meta']['apiCalls']);
+                self::assertStringNotContainsString('RecognizableFixtureSecret', $run->stdout . $run->stderr);
+                try {
+                    FileCredentialStore::environmentFile($path);
+                    self::fail('Expected a non-filesystem credential source to fail.');
+                } catch (Failure $error) {
+                    self::assertSame('configuration-error', $error->errorCode);
+                }
+            }
+        }
+    }
+
     public function testSourceDotenvIsOnlyTheFinalProviderAndNeverUsedByPackagedMode(): void
     {
         $this->add();

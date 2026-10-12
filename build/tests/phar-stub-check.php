@@ -41,7 +41,7 @@ try {
     $source = file_get_contents(__DIR__ . '/../phar-stub.php');
     $source = substr($source, strpos($source, '<?php'));
     $source = str_replace(['__B24CLI_PAYLOAD_STRATEGY__', '__B24CLI_ENTRY__'], ['temporary-phar', 'fixture.php'], $source);
-    $source = str_replace('<?php', "<?php\nnamespace StubFixture;\nuse Phar;\nuse RuntimeException;", $source);
+    $source = str_replace('<?php', "<?php\nnamespace StubFixture;\nuse Phar;\nuse RuntimeException;\nuse Throwable;", $source);
     file_put_contents($stub, $source);
     file_put_contents($runner, <<<'RUNNER'
 <?php
@@ -63,11 +63,14 @@ RUNNER);
     ensure($exit === 0 && $stdout === 'loaded' && $stderr === '', 'Payload execution failed: ' . $stdout . $stderr);
     ensure(glob($temporary . DIRECTORY_SEPARATOR . '*') === [], 'Temporary PHAR was not cleaned');
     $occupied = file_get_contents($log);
+    // The loader now atomically reserves a directory before opening its PHAR.
+    mkdir(dirname($occupied));
     file_put_contents($occupied, 'existing-file-sentinel');
     [$exit, $stdout, $stderr] = launch($runner, $temporary, $payload, $log);
     ensure($exit !== 0 && str_contains($stdout . $stderr, 'Cannot create temporary application PHAR.'), 'Occupied path did not fail');
     ensure(file_get_contents($occupied) === 'existing-file-sentinel', 'Occupied path was overwritten or deleted');
     unlink($occupied);
+    rmdir(dirname($occupied));
     [$exit, $stdout, $stderr] = launch($runner, $root . '/missing/directory', $payload, $log);
     ensure($exit !== 0 && str_contains($stdout . $stderr, 'Cannot create temporary application PHAR.'), 'Unavailable temporary directory did not fail');
     echo "Verified 3 PHAR loader regressions: payload/cleanup, exclusive collision, unavailable temp\n";

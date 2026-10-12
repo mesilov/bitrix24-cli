@@ -1,10 +1,10 @@
-# Connection configuration delta
+# connection-configuration Specification
 
 ## Purpose
 
 Provide predictable local storage and selection of Bitrix24 webhook connections for source and standalone CLI execution on Linux, macOS and Windows.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: User configuration location
 The CLI SHALL locate user configuration through `--config-dir`, then `B24CLI_CONFIG_DIR`, then the documented OS default. It MUST NOT write configuration into the embedded application or executable directory.
@@ -165,6 +165,11 @@ An unavailable, malformed or empty selected source and an unknown selected profi
 - **THEN** a safe configuration-error/exit1 identifies the corrective action and zero API calls occur
 - **AND** valid ambient credentials do not hide the error
 
+#### Scenario: Non-filesystem environment sources are rejected
+- **WHEN** --env-file or B24CLI_ENV_FILE selects an HTTP URL or virtual stream instead of a filesystem file
+- **THEN** configuration-error occurs before opening that source or making network/API calls, including for offline dry-run
+- **AND** regular filesystem paths and local file URIs remain readable without rewriting the source
+
 #### Scenario: Broken default or selected environment file
 - **WHEN** a stored default references missing credentials or the selected B24CLI_ENV_FILE lacks a webhook
 - **THEN** configuration-error/exit1 occurs without consulting lower-priority sources
@@ -216,6 +221,8 @@ A packaged invocation SHALL obtain credentials only from process environment, an
 #### Scenario: Native platform execution
 - **WHEN** a platform binary runs outside a checkout with profile, explicit file or process env
 - **THEN** each documented source works on Linux amd64, macOS arm64 and Windows amd64 without installed PHP, Composer, Docker or an additional credential helper
+- **AND** concurrent invocations use independently reserved temporary payloads, without renaming an opened temporary file, and clean their payload files/directories on exit
+- **AND** Unix package executables have mode 0755 before archive creation and the public local-export directory permits ordinary-user traversal, so the package can be copied by an ordinary user
 
 ### Requirement: Safe connection diagnostics
 Every output mode and error path SHALL redact the full webhook and secret parts of URLs, including debug output and parsing errors. Effective connection metadata MUST identify the chosen source truthfully without claiming a profile supplied credentials when env actually did.
