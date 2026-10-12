@@ -282,7 +282,8 @@ b24cli connection:remove pet
 ```powershell
 .\b24cli.exe connection:add work --group-id 42 --creator-id 1 --responsible-id 2
 .\b24cli.exe connection:use work
-Get-Content -Raw C:\secure\webhook.txt | .\b24cli.exe connection:add pet --webhook-stdin -n
+$OutputEncoding = [Console]::InputEncoding = [System.Text.UTF8Encoding]::new($false)
+Get-Content -Raw -Encoding UTF8 C:\secure\webhook.txt | .\b24cli.exe connection:add pet --webhook-stdin -n
 .\b24cli.exe task:list --profile work --json
 .\b24cli.exe task:list --env-file 'C:\secure\portal.env' --json
 ```

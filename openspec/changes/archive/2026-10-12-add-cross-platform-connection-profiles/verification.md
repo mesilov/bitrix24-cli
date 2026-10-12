@@ -11,7 +11,7 @@ All 20 implementation and verification tasks are complete. Implementation and ev
 
 Core implementation/docs/schema are delivered by [PR #36](https://github.com/mesilov/bitrix24-cli/pull/36), dev merge `ae7bd81b5ce00f8767c5c35ee4715ba20ede58c4`. Raw webhook control validation/source-only fallback regression/terminology are delivered by [PR #38](https://github.com/mesilov/bitrix24-cli/pull/38), merge `ed0957182b235079f99f04648346c484ae9b3479`. Physical temporary-path fixture is delivered by [PR #40](https://github.com/mesilov/bitrix24-cli/pull/40), merge `7e589a59db62346bb8d7d299ee51660849d5c1e7`.
 
-Final filesystem-selector/Windows ACL/bootstrap fixes and this archive are reviewed through [PR #46](https://github.com/mesilov/bitrix24-cli/pull/46) into dev. Acceptance source: **b8a873915b3ace2b55488d779811a28ee177a2b0**. Finalization only changes OpenSpec artifacts; runtime/package/test sources remain identical to that accepted source. Verification does not imply PR merge or release publication.
+Final filesystem-selector/Windows ACL/bootstrap fixes and this archive are reviewed through [PR #46](https://github.com/mesilov/bitrix24-cli/pull/46) into dev. Acceptance source: **b8a873915b3ace2b55488d779811a28ee177a2b0**. The archive commit `76f8a259685fc0c8d081de7f97d67336f76accc9` changes only OpenSpec artifacts; its runtime/package/test sources remain identical to that accepted source. Subsequent integration is documented separately below. Verification does not imply PR merge or release publication.
 
 ## Verification scorecard
 
@@ -85,3 +85,11 @@ Selected --env-file/B24CLI_ENV_FILE reject HTTP/php/data/ftp streams before cred
 ## Scope boundaries
 
 No live portal mutation or live authorization-scope check was performed. Connection selection uses the real SDK with controlled MockHttpClient; packaged TLS uses separate trusted/untrusted local HTTPS certificates. Plaintext storage protected by OS permissions is the v1 contract; keyring/OAuth/token refresh are outside scope. Separate #27/PR #31 establishes --group-id without --project; archive `2026-10-11-unify-group-id-option` is retained.
+
+## Integration with dev after compression delivery
+
+On 12.10.2026, merge conflicts with dev `f7923633ba5a8cebfafa31929a538877697ad598` (PR #39, archived `2026-10-12-compress-standalone-binaries`) were resolved in PR #46. Before this integration, archive head `76f8a25` passed all source/native/archive checks in [run 38177010384](https://github.com/mesilov/bitrix24-cli/actions/runs/38177010384).
+
+Resolution retains both contracts: UPX/wrappe compression, original/final executable checks, notices and reports from dev; filesystem-only env sources, direct .NET ACL/protected storage, unsafe-ACE rejection, exclusive independent PHAR directories and failure cleanup from #19. Native shell acceptance keeps dev's explicit no-BOM PowerShell encoding and direct cmd quoting. Public export traversal is normalized without changing private configuration modes. The 90-second command budget and 30-second direct ACL helper budget from #19 remain; the 600-second allowance for the replaced module-discovery implementation is unnecessary. The collision fixture reserves the occupied directory explicitly and still proves that its sentinel is untouched; native cleanup checks both payload files and directories.
+
+Post-resolution local checks: `make check` PASS; `make unit` 366 tests / 2104 assertions PASS; compressor regressions 19 PASS; source/publish guards 12/7 PASS; real-PHAR loader collision/unavailable-directory checks and success/entry/source failure/four-process cleanup PASS as ordinary UID on PHP 8.5.11; Python syntax, strict validation of all 7 main specifications and diff whitespace PASS. New native CI must establish combined compressed-binary acceptance; previous native proof remains scoped to its named pre-integration sources.

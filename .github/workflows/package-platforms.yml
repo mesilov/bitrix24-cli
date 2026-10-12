@@ -28,6 +28,7 @@ jobs:
         env:
           SOURCE_SHA: ${{ inputs.source_sha }}
         run: |
+          python3 build/tests/compression-check.py
           python3 build/tests/source-check.py
           python3 build/tests/publish-check.py
           python3 build/source.py --source-sha "$SOURCE_SHA"
@@ -52,9 +53,16 @@ jobs:
           RELEASE_VERSION: ${{ inputs.release_version }}
         run: |
           expected="${RELEASE_VERSION:-dev-${SOURCE_SHA}}"
-          # BuildKit creates a new local-export root as 0700; these are public package artifacts.
+          # BuildKit's local exporter can create a private destination directory.
+          # The controlled connection fixture runs as an unprivileged OS user.
           chmod 0755 dist/linux-amd64
+          chmod -R a+rX dist/linux-amd64
           stat -c '%a %u:%g %n' dist/linux-amd64 dist/linux-amd64/b24cli dist/linux-amd64/runtime-probe
+          python3 build/compress.py dist/linux-amd64
+          docker run --rm --mount "type=bind,src=${PWD}/dist/linux-amd64/uncompressed,dst=/artifacts,readonly" \
+            --mount "type=bind,src=${PWD}/build/tests,dst=/tests,readonly" \
+            python:3.13-slim-bookworm@sha256:a1165e272e578941b84abc79e4ab38a0305cd12803a5c4247979ac7655f4d641 python /tests/smoke.py /artifacts --expected-version "$expected"
+          python3 build/tests/linkage-check.py dist/linux-amd64/uncompressed/b24cli
           docker run --rm --mount "type=bind,src=${PWD}/dist/linux-amd64,dst=/artifacts,readonly" \
             --mount "type=bind,src=${PWD}/build/tests,dst=/tests,readonly" \
             python:3.13-slim-bookworm@sha256:a1165e272e578941b84abc79e4ab38a0305cd12803a5c4247979ac7655f4d641 python /tests/smoke.py /artifacts --expected-version "$expected"
@@ -94,6 +102,7 @@ jobs:
         run: |
           brew install autoconf automake bison re2c pkgconf cmake
           echo "$(brew --prefix bison)/bin" >> "$GITHUB_PATH"
+          rustup toolchain install 1.90.0 --profile minimal
       - name: Test native macOS signature and payload contracts
         run: python3 build/tests/macos-signing-check.py
       - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
@@ -103,6 +112,11 @@ jobs:
             runtime/package-macos-arm64/static-php-cli-*
             runtime/package-macos-arm64/composer-cache
           key: b24cli-macos-arm64-${{ hashFiles('build/config.json', 'build/runtime.py', 'build/patches/**', 'composer.lock') }}
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        id: packer-cache
+        with:
+          path: runtime/package-macos-arm64/packers
+          key: b24cli-wrappe-notices-macos-arm64-${{ hashFiles('build/compression.json', 'build/compression-patches/wrappe-cargo-home.json') }}
       - name: Build native macOS package
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -110,20 +124,31 @@ jobs:
           B24CLI_RELEASE_VERSION: ${{ inputs.release_version }}
         run: bash build/package-macos.sh
       - name: Save compiled runtime before acceptance
-        if: steps.runtime-cache.outputs.cache-hit != 'true'
+        if: always() && !cancelled() && steps.runtime-cache.outputs.cache-hit != 'true' && hashFiles('runtime/package-macos-arm64/static-php-cli-*/b24cli-runtime-key') != ''
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: |
             runtime/package-macos-arm64/static-php-cli-*
             runtime/package-macos-arm64/composer-cache
           key: ${{ steps.runtime-cache.outputs.cache-primary-key }}
+      - name: Save verified compressor and notices
+        if: always() && !cancelled() && steps.packer-cache.outputs.cache-hit != 'true' && hashFiles('runtime/package-macos-arm64/packers/bin/wrappe') != '' && hashFiles('runtime/package-macos-arm64/packers/wrappe-notices/**') != ''
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: runtime/package-macos-arm64/packers
+          key: ${{ steps.packer-cache.outputs.cache-primary-key }}
       - name: Verify copied package with clean PATH
         env:
           SOURCE_SHA: ${{ inputs.source_sha }}
           RELEASE_VERSION: ${{ inputs.release_version }}
         run: |
-          python3 build/macos.py dist/macos-arm64/b24cli dist/macos-arm64/b24cli.phar --verify-only
-          python3 build/macos.py dist/macos-arm64/runtime-probe dist/macos-arm64/runtime-probe.phar --verify-only
+          python3 build/compress.py dist/macos-arm64
+          python3 build/macos.py dist/macos-arm64/uncompressed/b24cli dist/macos-arm64/b24cli.phar --verify-only
+          python3 build/macos.py dist/macos-arm64/uncompressed/runtime-probe dist/macos-arm64/runtime-probe.phar --verify-only
+          codesign --verify --strict dist/macos-arm64/b24cli
+          codesign --verify --strict dist/macos-arm64/runtime-probe
+          python3 build/tests/linkage-check.py dist/macos-arm64/uncompressed/b24cli
+          python3 build/tests/smoke.py dist/macos-arm64/uncompressed --expected-version "${RELEASE_VERSION:-dev-${SOURCE_SHA}}"
           python3 build/tests/smoke.py dist/macos-arm64 --expected-version "${RELEASE_VERSION:-dev-${SOURCE_SHA}}"
           python3 build/tests/connection-smoke.py dist/macos-arm64
           python3 build/tests/rejection-check.py dist/macos-arm64
@@ -170,7 +195,7 @@ jobs:
           B24CLI_RELEASE_VERSION: ${{ inputs.release_version }}
         run: ./build/package-windows.ps1
       - name: Save compiled runtime before acceptance
-        if: steps.runtime-cache.outputs.cache-hit != 'true'
+        if: always() && !cancelled() && steps.runtime-cache.outputs.cache-hit != 'true' && hashFiles('runtime/package-windows-amd64/static-php-cli-*/b24cli-runtime-key') != ''
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: |
@@ -183,6 +208,12 @@ jobs:
           RELEASE_VERSION: ${{ inputs.release_version }}
         run: |
           $expected = if ($env:RELEASE_VERSION) { $env:RELEASE_VERSION } else { "dev-$env:SOURCE_SHA" }
+          python build/compress.py dist/windows-amd64
+          if ($LASTEXITCODE -ne 0) { throw 'Windows compression report check failed' }
+          python build/tests/smoke.py dist/windows-amd64/uncompressed --expected-version $expected
+          if ($LASTEXITCODE -ne 0) { throw 'Windows original smoke test failed' }
+          python build/tests/linkage-check.py dist/windows-amd64/uncompressed/b24cli.exe
+          if ($LASTEXITCODE -ne 0) { throw 'Windows original linkage check failed' }
           python build/tests/smoke.py dist/windows-amd64 --expected-version $expected
           if ($LASTEXITCODE -ne 0) { throw 'Windows smoke test failed' }
           python build/tests/connection-smoke.py dist/windows-amd64
