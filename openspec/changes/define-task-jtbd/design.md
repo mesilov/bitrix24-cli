@@ -130,3 +130,9 @@ task:subtask:add исключена из регистрации первого �
 ## Console architecture follow-up
 
 Архитектура 30 retained команд проектируется отдельно в [design-task-console-architecture](../design-task-console-architecture/proposal.md): Symfony Console + DependencyInjection, без FrameworkBundle, PHP реализации и установки зависимостей. Карта Command/Request/Handler/API/output, параметры --where/--params и TSV profiles уточнены в [design](../design-task-console-architecture/design.md) и [command map](../design-task-console-architecture/command-map.md). Это не закрывает оставшиеся provider/runtime acceptance задачи данного change.
+
+## Решение о приёмке RC 0.1.0 — 12.10.2026
+
+По явному решению пользователя непроверенные части portal tasks 5.2–5.4 и связанного `define-task-jtbd` task 2.3 перенесены в milestone **0.2.0**, [#42](https://github.com/mesilov/bitrix24-cli/issues/42), change `complete-task-portal-acceptance` (`openspec/changes/complete-task-portal-acceptance/`). Они исключены из обязательной приёмки RC 0.1.0; перенос не является новым runtime proof. Уже выполненные 30 собственных happy-path и исходные records сохраняются.
+
+Границы RC: denied-role matrix не подтверждена; history/elapsedTime completeness частична; file attachment ACK без независимого membership; reassignment только на текущего пользователя; native REST3 filled auditors limitation сохраняется для task:list, task:show использует заранее выбранную композицию чтений без error-triggered fallback/retry. Binding/policy/partial/outcomeUnknown/cancellation и 29 post-MVP исключений сохраняются. #19/#23/native packaging остаются критериями RC. [Полный список ограничений](../../../docs/rc-0.1.0.md).

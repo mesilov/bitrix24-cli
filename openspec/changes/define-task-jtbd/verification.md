@@ -105,3 +105,9 @@
 - Static JSON/Markdown exact sets/routes/stages, 59 unique names, canonical/delta task-mvp-scope 6 requirements/16 scenarios и unchanged task-workflows/cli-experience проверены. Strict validation: 5 specs и оба planning changes valid; git diff --check прошёл.
 - Новый [design-task-console-architecture](../design-task-console-architecture/proposal.md) содержит Console/DI design, delta, карту 30 Commands/28 handlers и 27 открытых implementation tasks. FrameworkBundle/Kernel не планируются; code/dependencies не меняются. [Проверка архитектуры](../design-task-console-architecture/verification.md) отделяет документационную согласованность от runtime evidence.
 - define-task-jtbd остаётся planning 8/11 с тремя дальнейшими задачами; scope refinement не закрывает provider/full-JTBD/runtime acceptance. Оба активных change не архивированы.
+
+## Решение о приёмке RC 0.1.0 — 12.10.2026
+
+По явному решению пользователя непроверенные части portal tasks 5.2–5.4 и связанного `define-task-jtbd` task 2.3 перенесены в milestone **0.2.0**, [#42](https://github.com/mesilov/bitrix24-cli/issues/42), change `complete-task-portal-acceptance` (`openspec/changes/complete-task-portal-acceptance/`). Они исключены из обязательной приёмки RC 0.1.0; перенос не является новым runtime proof. Уже выполненные 30 собственных happy-path и исходные records сохраняются.
+
+Границы RC: denied-role matrix не подтверждена; history/elapsedTime completeness частична; file attachment ACK без независимого membership; reassignment только на текущего пользователя; native REST3 filled auditors limitation сохраняется для task:list, task:show использует заранее выбранную композицию чтений без error-triggered fallback/retry. Binding/policy/partial/outcomeUnknown/cancellation и 29 post-MVP исключений сохраняются. #19/#23/native packaging остаются критериями RC. [Полный список ограничений](../../../docs/rc-0.1.0.md).
