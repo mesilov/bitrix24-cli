@@ -11,21 +11,26 @@ CLI для работы с задачами Битрикс24.
 
 ## Скачать
 
-Кандидат первой сборки 0.1.0 собирается из `dev`. Откройте
-[CI-сборки `dev`](https://github.com/mesilov/bitrix24-cli/actions/workflows/package-static.yml?query=branch%3Adev)
-и выберите завершённый run со статусом **Success**. В разделе **Artifacts**
-находятся пакеты с профилями подключения, сжатием и ad-hoc подписью macOS.
-Версия каждого бинарника содержит полный source SHA; возможности относятся к этой ревизии.
+Готовые пакеты доступны в [последнем публичном релизе](https://github.com/mesilov/bitrix24-cli/releases/latest).
+Прямые ссылки ниже ведут на **Latest Release** и обновляются при публикации следующей версии.
+Версия релизного бинарника соответствует тегу релиза.
 
-| Платформа | Архитектура | Artifact CI |
+| Платформа | Архитектура | Скачать |
 | --- | --- | --- |
-| Linux | amd64 | [b24cli-linux-amd64](https://github.com/mesilov/bitrix24-cli/actions/workflows/package-static.yml?query=branch%3Adev) |
-| macOS | arm64 | [b24cli-macos-arm64](https://github.com/mesilov/bitrix24-cli/actions/workflows/package-static.yml?query=branch%3Adev) |
-| Windows | amd64 | [b24cli-windows-amd64](https://github.com/mesilov/bitrix24-cli/actions/workflows/package-static.yml?query=branch%3Adev) |
+| Linux | amd64 | [b24cli-linux-amd64.tar.gz](https://github.com/mesilov/bitrix24-cli/releases/latest/download/b24cli-linux-amd64.tar.gz) |
+| macOS | arm64 | [b24cli-macos-arm64.tar.gz](https://github.com/mesilov/bitrix24-cli/releases/latest/download/b24cli-macos-arm64.tar.gz) |
+| Windows | amd64 | [b24cli-windows-amd64.zip](https://github.com/mesilov/bitrix24-cli/releases/latest/download/b24cli-windows-amd64.zip) |
 
-[Установочные архивы `.tar.gz` / `.zip` и `SHA256SUMS`: artifact `b24cli-release-assets`](https://github.com/mesilov/bitrix24-cli/actions/workflows/package-static.yml?query=branch%3Adev).
-Для скачивания CI artifacts нужен вход в GitHub; срок хранения — 90 дней.
-[Новые сборки](https://github.com/mesilov/bitrix24-cli/actions/workflows/package-static.yml?query=branch%3Adev).
+Скачайте [SHA256SUMS](https://github.com/mesilov/bitrix24-cli/releases/latest/download/SHA256SUMS)
+для проверки архивов перед установкой. Для конкретной версии выберите её на
+[странице релизов](https://github.com/mesilov/bitrix24-cli/releases).
+
+Для проверки изменений из `dev` доступны
+[CI-сборки](https://github.com/mesilov/bitrix24-cli/actions/workflows/package-static.yml?query=branch%3Adev).
+Выберите завершённый run со статусом **Success** и artifact `b24cli-release-assets`:
+он содержит три установочных архива и `SHA256SUMS`. Версия этих бинарников —
+`dev-<полный source SHA>`. Для скачивания CI artifacts нужен вход в GitHub;
+срок хранения — 90 дней.
 
 ## Установка
 
