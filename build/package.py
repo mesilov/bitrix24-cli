@@ -13,6 +13,7 @@ import sys
 
 from runtime import ROOT, CONFIG, run, composer, toolchain, build_runtime, extensions_for
 from source import validate_sha, verify_checkout
+from compress import provenance, compress_micro, pack_macos, export_notices, write_report
 
 
 def identity(source_sha, version, target):
@@ -76,7 +77,9 @@ def main():
             raise ValueError("PHAR does not have a compiled runtime")
         build_runtime(toolchain(work, env), env, args.target)
         return
+    run(["php", "-d", "phar.readonly=0", ROOT / "build/tests/phar-stub-check.php"], env=env)
     env["COMPOSER_ROOT_VERSION"] = info["version"] if args.version else "dev-dev"
+    info["executable_compression"] = provenance(args.target)
     info["phar_compression"] = "gzip"
     info["payload_strategy"] = "temporary-phar" if os.name == "nt" else "in-place"
     env["B24CLI_PHAR_COMPRESSION"] = info["phar_compression"]
@@ -94,11 +97,29 @@ def main():
     spc = toolchain(work, env)
     build_runtime(spc, env, args.target)
     suffix = ".exe" if os.name == "nt" else ""
+    raw = dist / "uncompressed"
+    raw.mkdir(exist_ok=True)
+    shutil.copy2(dist / "build-info.json", raw / "build-info.json")
+    compressed_runtime = (compress_micro(args.target, work, spc / "buildroot/bin/micro.sfx")
+                          if args.target != "macos-arm64" else None)
     for name in ["b24cli", "runtime-probe"]:
-        run(["php", "bin/spc", "micro:combine", dist / (name + ".phar"), "-O", dist / (name + suffix)], spc, env)
+        payload = dist / (name + ".phar")
+        original, final = raw / (name + suffix), dist / (name + suffix)
+        run(["php", "bin/spc", "micro:combine", payload, "-O", original], spc, env)
+        original.chmod(0o755)
         if args.target == "macos-arm64":
             from macos import finalize
-            finalize(dist / name, dist / (name + ".phar"))
+            finalize(original, payload)
+            shutil.copy2(original, final)
+            pack_macos(work, final, env)
+        else:
+            run(["php", "bin/spc", "micro:combine", payload, "--with-micro", compressed_runtime,
+                 "-O", final], spc, env)
+            if not final.read_bytes().endswith(payload.read_bytes()):
+                raise RuntimeError("Compressed executable changed the original PHAR bytes")
+        final.chmod(0o755)
+    export_notices(args.target, work, dist / "compression-licenses")
+    write_report(dist, args.target)
     licenses = spc / "buildroot/license"
     if not licenses.exists():
         licenses = spc / "buildroot/licenses"

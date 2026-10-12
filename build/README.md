@@ -47,8 +47,8 @@ Checkout должен быть чистым: изменённые, staged и unt
 чтобы содержимое бинарника соответствовало заявленному коммиту.
 
 macOS arm64: macOS 15, Xcode Command Line Tools, PHP 8.5.11 с production extensions,
-Composer 2.10.3, Python 3.13, Git, autoconf, automake, bison, re2c, pkgconf, cmake.
-Добавьте Homebrew bison в PATH. Команда: `make package-macos`.
+Composer 2.10.3, Python 3.13, Git, rustup с Rust 1.90.0, autoconf, automake, bison, re2c, pkgconf, cmake.
+Добавьте Homebrew bison в PATH, выполните `rustup toolchain install 1.90.0 --profile minimal`. Команда: `make package-macos`.
 
 Windows amd64: Windows Server 2022 runner/совместимая build machine, VS 2022/MSVC
 x64 developer environment, PHP 8.5.11 с production extensions, Composer 2.10.3
@@ -175,3 +175,49 @@ store. Fixture harness задаёт собственный CA через cURL CA
 Local checks, actual CI, actual Release publication и live portal verification
 фиксируются отдельно в OpenSpec verification. Packaging fixtures не обращаются
 к живому порталу Bitrix24.
+
+## Сжатие исполняемых файлов
+
+Обычные `make package`, `make package-macos` и `make package-windows` автоматически
+сжимают executable. Linux/Windows: UPX 5.2.1 (`--best`) сжимает копию PHP micro
+до добавления gzip PHAR. Официальные UPX archives проверяются по SHA256 из
+`build/compression.json`; ранее скомпилированный runtime остаётся без изменений.
+На Linux удаляется служебный UPX trailer за последним PT_LOAD, как в SPC: PHAR
+должен начинаться на границе, которую вычисляет micro loader.
+
+macOS: проверенный wrappe 1.0.4 собирается через `cargo +1.90.0 install --locked --path` в
+checkout-local prefix и упаковывает готовый executable с Zstandard level 16.
+Исходный inner executable сначала проходит PHAR bounds check и ad-hoc signature;
+Затем исправляются Mach-O bounds итогового launcher и выполняется его подпись.
+Служебный вывод wrappe отключён для сохранения CLI/JSON stdout. Это техническая ad-hoc подпись:
+Developer ID/notarization остаются отдельной задачей.
+
+При первом запуске macOS launcher распаковывает программу в доступный для записи
+системный временный каталог и сохраняет кэш для следующих запусков. Нужны место
+для исходного executable и права на исполнение в этом каталоге. Default runner
+заменяет себя программой через Unix exec, сохраняя PID, exit code и SIGINT.
+Удаление временного кэша безопасно после завершения программы; следующий запуск
+распакует её снова.
+
+`dist/<target>/compression-info.json` записывает версию/стратегию упаковщика,
+размеры и SHA256 исходных и финальных b24cli/probe. Проверка:
+
+```sh
+python3 build/tests/compression-check.py
+python3 build/compress.py dist/macos-arm64
+```
+
+Для Linux/Windows укажите соответствующий target directory. CI проверяет
+исходный и финальный runtime с чистым PATH, HTTPS/Unicode/SIGINT fixtures,
+signatures/linkage и установкой из архива. Ошибка упаковщика, несовпадающий
+SHA256/version или отсутствие уменьшения размера блокируют upload и release.
+
+Исходные executable находятся в `dist/<target>/uncompressed/` только для
+диагностики CI. Public archive содержит compressed executable, compression
+report и `compression-licenses/`; исходный executable, probe и PHAR не входят.
+Уведомления UPX и wrappe, включая license files Rust dependencies
+встроенного launcher, поставляются вместе с архивом. У upstream wrappe внешний
+packer использует Cargo.lock, а вложенный runner разрешает зависимости отдельно;
+Локальный build.rs patch сохраняет CARGO_HOME у вложенного runner, чтобы обе
+сборки использовали checkout-local registry. SHA256 patch записан в build-info;
+notices сохраняются вместе с cached tool.
