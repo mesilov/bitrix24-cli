@@ -12,6 +12,7 @@
 ## 3. Проверка изменения
 
 - [x] 3.1 Выполнить OpenSpec strict, Composer/license checker, целевые Python package regressions и git diff --check; записать verification с фактическим evidence и границами.
+- [x] 3.2 Устранить подтверждённый native archive mismatch Windows CRLF/LF без ослабления byte check: закрепить LF для двух canonical license файлов и проверить реальный Git checkout с core.autocrlf=true; повторить package regressions.
 
 ## Workflow follow-up
 

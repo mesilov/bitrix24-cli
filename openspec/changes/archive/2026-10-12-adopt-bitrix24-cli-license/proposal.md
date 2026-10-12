@@ -9,6 +9,7 @@
 - Заменить собственный LICENSE текстом BSD-3-Clause под именем bitrix24-cli-license, Copyright 2026 Maksim Mesilov с указанной почтой; добавить информационное уведомление о принадлежности упоминаемых товарных знаков их владельцам.
 - Установить стандартный SPDX metadata BSD-3-Clause в Composer и проверить lock через Composer --lock без изменения версий зависимостей. При этой metadata правке Composer сохраняет lock побайтно.
 - Включать точную копию application LICENSE как BITRIX24-CLI-LICENSE.txt в каждый standalone artifact/архив и проверять её наличие/содержание. Сохранить оригинальный YIIPRESS-LICENSE.txt, copyright и прочие dependency notices.
+- Закрепить LF для двух canonical license файлов при Git checkout, включая Windows core.autocrlf=true; это устраняет подтверждённый native byte mismatch без изменения текстов условий.
 - Обновить notices, инструкции установки, changelog и PR/issue трассировку; проверить local package regressions и final native CI.
 
 ## Capabilities

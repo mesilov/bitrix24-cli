@@ -250,6 +250,33 @@ class CompressionChecks(unittest.TestCase):
                 compression.pack_macos(self.root, binary, {})
         self.assertEqual(binary.read_bytes(), b"signed original")
 
+    def test_license_notices_remain_canonical_with_git_autocrlf(self):
+        source = Path(__file__).resolve().parents[2]
+        names = ["LICENSE", "build/YIIPRESS-LICENSE.txt"]
+        expected = {name: (source / name).read_bytes() for name in names}
+        for name, data in expected.items():
+            path = self.root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(data)
+        def git(*args):
+            subprocess.run(["git", "-C", str(self.root), *args], check=True, capture_output=True)
+        git("init", "-q")
+        git("config", "core.autocrlf", "false")
+        git("add", *names)
+        git("config", "core.autocrlf", "true")
+        for name in names:
+            (self.root / name).unlink()
+        git("checkout-index", "-f", "-a")
+        for name in names:
+            self.assertNotEqual((self.root / name).read_bytes(), expected[name])
+        (self.root / ".gitattributes").write_bytes((source / ".gitattributes").read_bytes())
+        git("add", ".gitattributes")
+        for name in names:
+            (self.root / name).unlink()
+        git("checkout-index", "-f", "-a")
+        for name in names:
+            self.assertEqual((self.root / name).read_bytes(), expected[name])
+
 
 if __name__ == "__main__":
     unittest.main()

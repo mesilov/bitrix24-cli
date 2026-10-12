@@ -15,6 +15,7 @@
 - Canonical file — LICENSE с заголовком bitrix24-cli-license и текстом BSD-3-Clause на основе указанного шаблона. Copyright 2026 Maksim Mesilov <mesilov.maxim@gmail.com>; non-endorsement относится к copyright holder/contributors. В конце отдельное информационное trademark ownership statement без нового запрета использования software.
 - Composer использует стандартное BSD-3-Clause; custom display name не вводится как неподдержанный SPDX ID. composer.lock обновляется командой Composer --lock --no-install без изменения package entries.
 - build/package.py копирует canonical LICENSE в BITRIX24-CLI-LICENSE.txt. pack требует оба own/upstream notices; archive-check сравнивает их байты с canonical source файлами. Compression fixture test проверяет присутствие собственного notice и отказ упаковки при его отсутствии.
+- Native CI на cd72092 обнаружил Windows CRLF/LF расхождение обеих лицензий: скачанные notice совпадают после CRLF normalization, но не побайтно. .gitattributes закрепляет LF только для LICENSE/build/YIIPRESS-LICENSE.txt, чтобы все платформы копировали canonical bytes. Проверка реального Git checkout с core.autocrlf=true сохраняет строгий archive byte check.
 - README/install копирует оба notice вместе с metadata. THIRD-PARTY-NOTICES явно различает собственную лицензию и upstream YiiPress.
 - Новая проверка должна падать на текущих archives без собственного notice; после упаковки новых archives проходить вместе с native matrix. Не повторять прошедший весь runtime suite для одного docs asset до появления нового runtime diff.
 
