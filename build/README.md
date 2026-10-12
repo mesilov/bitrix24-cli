@@ -120,7 +120,10 @@ Failure блокирует публикацию; на PR Release не созда
 - `b24cli-windows-amd64.zip`
 - `SHA256SUMS`
 
-В archive входят executable, build-info.json, runtime-sources.json и licenses.
+В archive входят executable, build-info.json, runtime-sources.json и licenses:
+`BITRIX24-CLI-LICENSE.txt` — точная копия собственной root LICENSE;
+`YIIPRESS-LICENSE.txt` — неизменённая upstream лицензия с исходным авторством.
+Оба текста проверяются при подготовке установочных архивов.
 После smoke CI также проверяет linkage и отказы на неверную версию/отсутствующий
 executable. Проверка установки выполняет checksum → unpack → запуск через чистый PATH.
 Версии C libraries выбираются закреплённой конфигурацией static-php-cli, actual

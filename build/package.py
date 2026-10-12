@@ -92,6 +92,7 @@ def main():
     run(["php", dist / "b24cli.phar", "--version", "--no-ansi"], env=env)
     (dist / "build-info.json").write_text(json.dumps(info, indent=2) + "\n")
     shutil.copy2(ROOT / "build/THIRD-PARTY-NOTICES.md", dist / "THIRD-PARTY-NOTICES.md")
+    shutil.copy2(ROOT / "LICENSE", dist / "BITRIX24-CLI-LICENSE.txt")
     shutil.copy2(ROOT / "build/YIIPRESS-LICENSE.txt", dist / "YIIPRESS-LICENSE.txt")
     if args.target == "phar":
         return

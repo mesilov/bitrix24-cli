@@ -1,13 +1,13 @@
-# Spec Delta
+# task-console-runtime Specification
 
 ## Purpose
 
 Определить проверяемый контракт запуска команд задач и обращения к Bitrix24: предсказуемую регистрацию MVP, проверку связанных объектов, явные версии API и единое поведение при ошибках. Требования дополняют cli-experience и task-mvp-scope; документ не подтверждает реализацию.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Exact MVP command registration
-Runtime SHALL предоставлять ровно 30 прикладных команд из MVP каталога define-task-jtbd, отдельно от встроенных команд справки и completion. Регистрация SHALL строиться напрямую из единственного явного CommandCatalog без tags/compiler pass и массового сканирования. Unit-tests SHALL проверять уникальность имён/классов, совпадение AsCommand с каталогом и отсутствие post-MVP операций. Исключённые операции не SHALL возвращаться через aliases.
+Runtime SHALL предоставлять ровно 30 task-команд из MVP каталога define-task-jtbd, отдельно от локальных connection-команд capability connection-configuration и встроенных команд справки/completion. Регистрация SHALL строиться напрямую из единственного явного CommandCatalog без tags/compiler pass и массового сканирования. Unit-tests SHALL проверять уникальность имён/классов, совпадение AsCommand с каталогом и отсутствие post-MVP операций. Исключённые операции не SHALL возвращаться через aliases.
 
 #### Scenario: Root command inventory
 - **WHEN** пользователь запускает b24cli без имени команды либо list task без профиля подключения
@@ -192,15 +192,23 @@ Runtime SHALL позволять проверять регистрацию, па
 - **THEN** результат обозначает scope связанного поля и не объявляет его полной историей или total seconds без подтверждённого контракта и полноты
 
 ### Requirement: Deferred root environment webhook connection
-Runtime SHALL поддерживать BITRIX24_WEBHOOK из выбранного B24CLI_ENV_FILE, иначе существующего root .env.local, иначе root .env, с приоритетом переменных процесса. Чтение env и создание SDK ServiceBuilder SHALL происходить после local validation и API policy. Webhook не SHALL попадать в argv, output или container config diagnostics. Integration tests SHALL запускаться отдельно и использовать тот же provider и выбранный файл для fixture settings.
+Runtime SHALL выбирать подключение по connection-configuration и отложенно читать credentials/создавать SDK после validation/API policy. Root .env.local/.env SHALL быть последним source-only fallback; standalone не SHALL искать dotenv в cwd/рядом с executable. Webhook не SHALL попадать в argv/output/diagnostics. Integration tests SHALL использовать production provider/выбранный файл и запускаться отдельно.
 
 #### Scenario: Root local environment and explicit file precedence
-- **WHEN** в checkout доступны .env и .env.local, либо выбран B24CLI_ENV_FILE
-- **THEN** credentials берутся из .env.local, а явный файл заменяет этот выбор; process credentials имеют высший приоритет, глобальное окружение не изменяется
+- **WHEN** source invocation не имеет profile/env-file selector, B24CLI_PROFILE или saved default, а в project root доступны .env и .env.local либо выбран B24CLI_ENV_FILE
+- **THEN** без process webhook выбранный B24CLI_ENV_FILE используется первым, иначе .env.local перед .env; process webhook имеет приоритет над этими неявными файлами, глобальное окружение не изменяется
 
 #### Scenario: Offline help with an unreadable environment file
 - **WHEN** пользователь запускает help/list/version/completion без доступного env файла
 - **THEN** команда работает без чтения credentials и API calls
+
+#### Scenario: Explicit connection selector
+- **WHEN** profile/env-file selector задан вместе с process BITRIX24_WEBHOOK
+- **THEN** явный selector имеет приоритет по connection-configuration; ошибки выбранного источника не переключают портал
+
+#### Scenario: Standalone ignores implicit dotenv
+- **WHEN** standalone executable запускается в каталоге с .env.local/.env без явно выбранного файла
+- **THEN** эти файлы не читаются; используются process env или выбранный/saved default профиль согласно connection-configuration
 
 #### Scenario: Explicit integration suite without credentials
 - **WHEN** запускается integration suite без webhook
@@ -217,4 +225,4 @@ Runtime SHALL поддерживать BITRIX24_WEBHOOK из выбранног�
 
 По явному решению пользователя непроверенные части portal tasks 5.2–5.4 и связанного `define-task-jtbd` task 2.3 перенесены в milestone **0.2.0**, [#42](https://github.com/mesilov/bitrix24-cli/issues/42), change `complete-task-portal-acceptance` (`openspec/changes/complete-task-portal-acceptance/`). Они исключены из обязательной приёмки RC 0.1.0; перенос не является новым runtime proof. Уже выполненные 30 собственных happy-path и исходные records сохраняются.
 
-Границы RC: denied-role matrix не подтверждена; history/elapsedTime completeness частична; file attachment ACK без независимого membership; reassignment только на текущего пользователя; native REST3 filled auditors limitation сохраняется для task:list, task:show использует заранее выбранную композицию чтений без error-triggered fallback/retry. Binding/policy/partial/outcomeUnknown/cancellation и 29 post-MVP исключений сохраняются. #19/#23/native packaging остаются критериями RC. [Полный список ограничений](../../../../../docs/rc-0.1.0.md).
+Границы RC: denied-role matrix не подтверждена; history/elapsedTime completeness частична; file attachment ACK без независимого membership; reassignment только на текущего пользователя; native REST3 filled auditors limitation сохраняется для task:list, task:show использует заранее выбранную композицию чтений без error-triggered fallback/retry. Binding/policy/partial/outcomeUnknown/cancellation и 29 post-MVP исключений сохраняются. #19/#23/native packaging остаются критериями RC. [Полный список ограничений](../../../docs/rc-0.1.0.md).

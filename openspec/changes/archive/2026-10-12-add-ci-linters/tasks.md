@@ -25,4 +25,4 @@
 
 ## Перенесённая проверка — 0.2.0
 
-- Исходная fork-часть task 2.2: реальный fork PR под другим владельцем без пользовательских секретов, GitHub access/approval limits и четыре успешных checks. Новые tracked tasks: [verify-external-fork-ci/tasks.md](../verify-external-fork-ci/tasks.md), issue [#41](https://github.com/mesilov/bitrix24-cli/issues/41). Проверка не выполнялась переносом.
+- Исходная fork-часть task 2.2: реальный fork PR под другим владельцем без пользовательских секретов, GitHub access/approval limits и четыре успешных checks. Новые tracked tasks: [verify-external-fork-ci/tasks.md](../../verify-external-fork-ci/tasks.md), issue [#41](https://github.com/mesilov/bitrix24-cli/issues/41). Проверка не выполнялась переносом.

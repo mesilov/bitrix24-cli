@@ -214,7 +214,7 @@ class CompressionChecks(unittest.TestCase):
             root.mkdir()
             executable = "b24cli.exe" if target.startswith("windows") else "b24cli"
             (root / executable).write_bytes(b"compressed executable")
-            for name in ["build-info.json", "runtime-sources.json", "THIRD-PARTY-NOTICES.md", "YIIPRESS-LICENSE.txt"]:
+            for name in ["build-info.json", "runtime-sources.json", "THIRD-PARTY-NOTICES.md", "YIIPRESS-LICENSE.txt", "BITRIX24-CLI-LICENSE.txt"]:
                 (root / name).write_text("{}")
             for name in ["runtime-licenses", "compression-licenses", "uncompressed"]:
                 (root / name).mkdir()
@@ -227,13 +227,19 @@ class CompressionChecks(unittest.TestCase):
             if archive.suffix == ".zip":
                 with zipfile.ZipFile(archive) as z:
                     names, final = z.namelist(), z.read(executable)
+                    application_license = z.read("BITRIX24-CLI-LICENSE.txt")
             else:
                 with tarfile.open(archive) as t:
                     names, final = t.getnames(), t.extractfile(executable).read()
+                    application_license = t.extractfile("BITRIX24-CLI-LICENSE.txt").read()
             self.assertEqual(final, b"compressed executable")
+            self.assertEqual(application_license, (root / "BITRIX24-CLI-LICENSE.txt").read_bytes())
             self.assertIn("compression-info.json", names)
             self.assertTrue(any(name.startswith("compression-licenses/") for name in names))
             self.assertFalse(any(name.startswith("uncompressed/") or name.endswith(".phar") for name in names))
+            (root / "BITRIX24-CLI-LICENSE.txt").unlink()
+            with self.assertRaises(FileNotFoundError):
+                module.pack(self.root, target, output)
 
     def test_macos_packer_failure_does_not_replace_original(self):
         binary = self.root / "b24cli"
@@ -243,6 +249,33 @@ class CompressionChecks(unittest.TestCase):
             with self.assertRaises(subprocess.CalledProcessError):
                 compression.pack_macos(self.root, binary, {})
         self.assertEqual(binary.read_bytes(), b"signed original")
+
+    def test_license_notices_remain_canonical_with_git_autocrlf(self):
+        source = Path(__file__).resolve().parents[2]
+        names = ["LICENSE", "build/YIIPRESS-LICENSE.txt"]
+        expected = {name: (source / name).read_bytes() for name in names}
+        for name, data in expected.items():
+            path = self.root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(data)
+        def git(*args):
+            subprocess.run(["git", "-C", str(self.root), *args], check=True, capture_output=True)
+        git("init", "-q")
+        git("config", "core.autocrlf", "false")
+        git("add", *names)
+        git("config", "core.autocrlf", "true")
+        for name in names:
+            (self.root / name).unlink()
+        git("checkout-index", "-f", "-a")
+        for name in names:
+            self.assertNotEqual((self.root / name).read_bytes(), expected[name])
+        (self.root / ".gitattributes").write_bytes((source / ".gitattributes").read_bytes())
+        git("add", ".gitattributes")
+        for name in names:
+            (self.root / name).unlink()
+        git("checkout-index", "-f", "-a")
+        for name in names:
+            self.assertEqual((self.root / name).read_bytes(), expected[name])
 
 
 if __name__ == "__main__":

@@ -5,10 +5,16 @@ are adapted from YiiPress engine, commit e61459fc788a74b91188d5d41a5fca59a02a229
 https://github.com/yiipress/engine
 
 YiiPress is licensed under BSD-3-Clause. Its license is reproduced in
-`YIIPRESS-LICENSE.txt` next to this notice. The application is licensed under
-the repository LICENSE. Production Composer package licenses are retained
+`YIIPRESS-LICENSE.txt` next to this notice, with its original copyright.
+The application uses bitrix24-cli-license, based on BSD-3-Clause, with
+Copyright (c) 2026 Maksim Mesilov <mesilov.maxim@gmail.com>. Its complete
+text is reproduced in `BITRIX24-CLI-LICENSE.txt` and the repository LICENSE.
+Production Composer package licenses are retained
 inside the PHAR. PHP and compiled runtime library licenses are included in
 the platform archives under `runtime-licenses/`.
+
+All trademarks, service marks, trade names and product names mentioned in
+the software and its documentation belong to their respective owners.
 Linux additionally includes the actual musl source COPYRIGHT and GCC 13.2.0
 GPLv3 / Runtime Library Exception texts. GCC texts are copied verbatim from
 https://github.com/gcc-mirror/gcc/tree/releases/gcc-13.2.0

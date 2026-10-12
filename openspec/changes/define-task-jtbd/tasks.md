@@ -21,7 +21,7 @@
 ## Workflow follow-up
 
 - Реализацию подготовленных частей вести через отдельные OpenSpec changes, не отмечая продуктовые JTBD выполненными по наличию документов.
-- Архитектурный следующий change: [design-task-console-architecture](../design-task-console-architecture/proposal.md), только проектирование Console/DI; его implementation tasks открыты.
+- Реализация 30 task-команд Console/DI завершена в [design-task-console-architecture](../archive/2026-10-12-design-task-console-architecture/proposal.md): 42/42 retained tasks, verify/archive 12.10.2026. Это не закрывает дальнейшие post-MVP задачи 2.1/2.2 или перенесённую portal acceptance #42.
 - Архивировать define-task-jtbd после завершения оставшихся задач проектирования и проверки соответствия; при этом явно сохранять границы runtime-доказательств.
 
 ## Перенесённая проверка — 0.2.0

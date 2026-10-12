@@ -2,7 +2,7 @@
     "name": "mesilov/bitrix24-cli",
     "description": "CLI client for the Bitrix24 portal REST API",
     "type": "project",
-    "license": "MIT",
+    "license": "BSD-3-Clause",
     "require": {
         "php": "8.4.* || 8.5.*",
         "bitrix24/b24phpsdk": "^3.7",

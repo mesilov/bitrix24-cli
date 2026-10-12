@@ -1,5 +1,5 @@
 # Adapted from bitrix24/b24phpsdk v3, commit 8ebd4c154d5557db949b0196825f347a3a6c5bf0.
-# Copyright (c) Maksim Mesilov. Distributed under the MIT license; see LICENSE.
+# Copyright (c) Maksim Mesilov. Distributed under BSD-3-Clause; see LICENSE.
 
 .DEFAULT_GOAL := help
 
