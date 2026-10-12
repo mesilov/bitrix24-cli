@@ -7,4 +7,4 @@ use Bitrix24\CLI\Bootstrap\Launcher;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-exit(Launcher::run(dirname(__DIR__)));
+exit(Launcher::run(dirname(__DIR__), \Phar::running(false) !== ''));

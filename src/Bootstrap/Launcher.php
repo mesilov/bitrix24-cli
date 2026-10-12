@@ -11,10 +11,10 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 final class Launcher
 {
-    public static function run(string $root): int
+    public static function run(string $root, bool $packaged = false): int
     {
         try {
-            return (new ApplicationFactory())->create($root)->run();
+            return (new ApplicationFactory())->create($root, packaged: $packaged)->run();
         } catch (\Throwable) {
             (new ResultPresenter())->failure(new Failure('configuration-error', 'Cannot initialize the CLI; check dependencies and service definitions.'), (new ArgvInput())->hasParameterOption('--json', true) ? 'json' : 'human', new ConsoleOutput());
             return 1;

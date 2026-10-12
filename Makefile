@@ -1,5 +1,5 @@
 # Adapted from bitrix24/b24phpsdk v3, commit 8ebd4c154d5557db949b0196825f347a3a6c5bf0.
-# Copyright (c) Maksim Mesilov. Distributed under the MIT license; see LICENSE.
+# Copyright (c) Maksim Mesilov. Distributed under BSD-3-Clause; see LICENSE.
 
 .DEFAULT_GOAL := help
 
@@ -10,7 +10,7 @@ export LOCAL_GID ?= $(shell id -g)
 
 COMPOSE := sh ./scripts/compose.sh
 RUN := $(COMPOSE) run --rm -T php-cli
-CLI_RUN := $(COMPOSE) run --rm -T --env BITRIX24_WEBHOOK --env BITRIX24_PHP_SDK_PLAYGROUND_WEBHOOK --env B24CLI_TIMEOUT --env B24CLI_API_POLICY --env B24CLI_TEST_DISK_FILE_ID --env B24CLI_TEST_RESTRICTED_WEBHOOK php-cli
+CLI_RUN := $(COMPOSE) run --rm -T --env BITRIX24_WEBHOOK --env BITRIX24_PHP_SDK_PLAYGROUND_WEBHOOK --env B24CLI_TIMEOUT --env B24CLI_API_POLICY --env B24CLI_PROFILE --env B24CLI_TEST_DISK_FILE_ID --env B24CLI_TEST_RESTRICTED_WEBHOOK php-cli
 ARGS ?=
 TEST_ARGS ?=
 

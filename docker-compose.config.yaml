@@ -1,0 +1,9 @@
+services:
+  php-cli:
+    environment:
+      B24CLI_CONFIG_DIR: /run/b24cli-config
+    volumes:
+      - type: bind
+        source: ${B24CLI_CONFIG_DIR:?Set the absolute path to your user configuration directory}
+        target: /run/b24cli-config
+        read_only: ${B24CLI_CONFIG_READ_ONLY:-true}

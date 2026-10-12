@@ -18,7 +18,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 final readonly class CommandRunner
 {
-    public function __construct(private ApiPolicyGuard $guard, private ResultPresenter $presenter, private RuntimeState $state, private InputSourceReader $reader)
+    public function __construct(private ApiPolicyGuard $guard, private ResultPresenter $presenter, private RuntimeState $state, private InputSourceReader $reader, private \Bitrix24\CLI\Infrastructure\Connection\ConnectionManager $connections)
     {
     }
 
@@ -34,6 +34,7 @@ final readonly class CommandRunner
         $this->reader->reset($input);
         $context = $this->context($input);
         $this->state->begin($context->timeout);
+        $this->connections->selected($context->dryRun);
         $request = $requestFactory();
         $plan = $routes($request);
         $this->guard->validate($command, $plan, $context->policy);
@@ -73,6 +74,7 @@ final readonly class CommandRunner
                 $result = new OperationResult($result->profile, $result->data, [...$result->meta, 'reason' => 'Interrupted; confirmed steps are retained.'], 130);
             }
 
+            $result = new OperationResult($result->profile, $result->data, [...$result->meta, 'connection' => $this->connections->metadata($context->dryRun), 'fieldSources' => $this->connections->fieldSources], $result->exitStatus);
             $this->presenter->success($result, $context->outputMode, $output, $command, $this->state->calls);
             return $result->exitStatus;
         } finally {
@@ -83,7 +85,7 @@ final readonly class CommandRunner
         }
     }
 
-    private function context(InputInterface $input): InvocationContext
+    public function context(InputInterface $input): InvocationContext
     {
         if ($input->getOption('json') && $input->getOption('plain')) {
             throw Failure::usage('Choose --json or --plain.');
@@ -93,14 +95,20 @@ final readonly class CommandRunner
         if ($input->getOption('config') !== null) {
             $config = $this->reader->object($this->reader->read($input->getOption('config')));
             if (array_diff(array_keys($config), ['timeout', 'apiPolicy', 'profile']) !== []) {
-                throw Failure::usage('Config supports timeout, apiPolicy and profile only; credentials belong in .env.');
+                throw Failure::usage('Config supports timeout, apiPolicy and profile only; credentials belong in a credential file.');
             }
         }
 
-        $profile = $input->getOption('profile') ?? $config['profile'] ?? 'default';
-        if ($profile !== 'default') {
-            throw new Failure('configuration-error', 'Only the default webhook profile is configured.');
+        if (array_key_exists('profile', $config) && (!is_string($config['profile']) || $config['profile'] === '')) {
+            throw Failure::usage('Runtime config profile must be a nonempty string.');
         }
+
+        $profile = $input->getOption('profile') ?? $config['profile'] ?? null;
+        if ($profile !== null && !is_string($profile)) {
+            throw Failure::usage('Runtime config profile must be a nonempty string.');
+        }
+
+        $this->connections->configure($profile, $input->getOption('env-file'), $input->getOption('config-dir'));
 
         $policy = $input->getOption('api-policy') ?? $config['apiPolicy'] ?? (getenv('B24CLI_API_POLICY') ?: 'task-v3');
         if (!in_array($policy, ['task-v3', 'strict-rest3'], true)) {

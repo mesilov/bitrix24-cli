@@ -16,11 +16,19 @@
 
 - [ ] 2.1 После MVP проектировать полное покрытие PM-02..05: provider blocker/change, ресурсные входы, dependency/project risk workflows и семь lifecycle переходов с needsControl/requireResult/правами/side effects. Проверить исключённые result workflows без скрытого создания результата. Эти workflow не блокируют retained CRUD/chat/file. Задача не закрывается фактом переноса scope.
 - [ ] 2.2 После MVP проектировать полное покрытие AM-02..05: принять provider clientRef/promisedAt/nextUpdate/delivery/feedback и решения согласования; проверить явные источники и раздельную внутреннюю/клиентскую приёмку по acceptance матрицы.
-- [ ] 2.3 Для допуска оставшихся кандидатов MVP проверить bounded v3 list scans/title search, права task/chat, четыре согласованные time routes с правами/принадлежностью записи, восемь checklist/root/item команд с проверкой дерева, PARENT_ID и прав, а также согласованные participants/history маршруты с правами, явными наборами ролей и полнотой истории. Сохранить evidence; lifecycle/result/blockers/change workflows после MVP не возвращаются сюда неявно, в том числе через raw status update. Наличие кандидата не заменяет runtime acceptance.
 - [x] 2.4 Спроектировать чтение и отправку task chat для PM-06/AM-06/EMP-07 и остальных участников; проверить документированные маршруты REST3 send и IM history, scope/права, связь task/chat и отсутствие legacy comments; записать acceptance cases и явное ограничение strict-rest3. Runtime checks не выполнены.
 
 ## Workflow follow-up
 
 - Реализацию подготовленных частей вести через отдельные OpenSpec changes, не отмечая продуктовые JTBD выполненными по наличию документов.
-- Архитектурный следующий change: [design-task-console-architecture](../design-task-console-architecture/proposal.md), только проектирование Console/DI; его implementation tasks открыты.
+- Реализация 30 task-команд Console/DI завершена в [design-task-console-architecture](../archive/2026-10-12-design-task-console-architecture/proposal.md): 42/42 retained tasks, verify/archive 12.10.2026. Это не закрывает дальнейшие post-MVP задачи 2.1/2.2 или перенесённую portal acceptance #42.
 - Архивировать define-task-jtbd после завершения оставшихся задач проектирования и проверки соответствия; при этом явно сохранять границы runtime-доказательств.
+
+## Перенесённая проверка — 0.2.0
+
+По решению пользователя от 12.10.2026 непроверенный остаток следующих исходных задач исключён из tracked scope RC 0.1.0 и перенесён в [#42](https://github.com/mesilov/bitrix24-cli/issues/42), [complete-task-portal-acceptance/tasks.md](../complete-task-portal-acceptance/tasks.md). Ни одна перенесённая проверка не отмечается выполненной; уже подтверждённые cases сохраняются.
+
+- Исходная 2.3 Для допуска оставшихся кандидатов MVP проверить bounded v3 list scans/title search, права task/chat, четыре согласованные time routes с правами/принадлежностью записи, восемь checklist/root/item команд с проверкой дерева, PARENT_ID и прав, а также согласованные participants/history маршруты с правами, явными наборами ролей и полнотой истории. Сохранить evidence; lifecycle/result/blockers/change workflows после MVP не возвращаются сюда неявно, в том числе через raw status update. Наличие кандидата не заменяет runtime acceptance.
+
+- Дополнительные границы того же evidence: independent file membership и reassignment второму пользователю также проверяются в #42. Native auditors limitation фиксируется отдельно.
+- Для define-task-jtbd задачи 2.1/2.2 остаются открытым проектированием после MVP; перенос дополнительных portal checks не подтверждает полное продуктовое JTBD покрытие и не возвращает исключённые функции в RC.
