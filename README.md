@@ -2,7 +2,7 @@
 
 CLI для работы с задачами Битрикс24.
 
-[Первая сборка 0.1.0 (RC): возможности](CHANGELOG.md#010--rc--2026-10-12) · [область приёмки и ограничения](docs/rc-0.1.0.md).
+[Первый релиз 0.1.0: возможности](CHANGELOG.md#010--2026-10-12) · [область приёмки и ограничения](docs/rc-0.1.0.md).
 
 [![Allowed licenses](https://github.com/mesilov/bitrix24-cli/actions/workflows/license-check.yml/badge.svg?branch=dev&event=push)](https://github.com/mesilov/bitrix24-cli/actions/workflows/license-check.yml?query=branch%3Adev+event%3Apush)
 [![PHP-CS-Fixer](https://github.com/mesilov/bitrix24-cli/actions/workflows/php-cs-fixer.yml/badge.svg?branch=dev&event=push)](https://github.com/mesilov/bitrix24-cli/actions/workflows/php-cs-fixer.yml?query=branch%3Adev+event%3Apush)
