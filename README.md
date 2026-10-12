@@ -11,18 +11,19 @@ CLI для работы с задачами Битрикс24.
 
 ## Скачать
 
-Кандидат первой сборки 0.1.0 собирается из `dev`. Ниже — бинарники
-[CI-сборки `d145b22` от 12.10.2026](https://github.com/mesilov/bitrix24-cli/actions/runs/38202965586)
-с профилями подключения, сжатием и ad-hoc подписью macOS. Версия каждого бинарника
-содержит полный source SHA; возможности относятся к этой ревизии.
+Кандидат первой сборки 0.1.0 собирается из `dev`. Откройте
+[CI-сборки `dev`](https://github.com/mesilov/bitrix24-cli/actions/workflows/package-static.yml?query=branch%3Adev)
+и выберите завершённый run со статусом **Success**. В разделе **Artifacts**
+находятся пакеты с профилями подключения, сжатием и ad-hoc подписью macOS.
+Версия каждого бинарника содержит полный source SHA; возможности относятся к этой ревизии.
 
 | Платформа | Архитектура | Artifact CI |
 | --- | --- | --- |
-| Linux | amd64 | [b24cli-linux-amd64](https://github.com/mesilov/bitrix24-cli/actions/runs/38202965586#artifacts) |
-| macOS | arm64 | [b24cli-macos-arm64](https://github.com/mesilov/bitrix24-cli/actions/runs/38202965586/artifacts/11726109222) |
-| Windows | amd64 | [b24cli-windows-amd64](https://github.com/mesilov/bitrix24-cli/actions/runs/38202965586#artifacts) |
+| Linux | amd64 | [b24cli-linux-amd64](https://github.com/mesilov/bitrix24-cli/actions/workflows/package-static.yml?query=branch%3Adev) |
+| macOS | arm64 | [b24cli-macos-arm64](https://github.com/mesilov/bitrix24-cli/actions/workflows/package-static.yml?query=branch%3Adev) |
+| Windows | amd64 | [b24cli-windows-amd64](https://github.com/mesilov/bitrix24-cli/actions/workflows/package-static.yml?query=branch%3Adev) |
 
-[Установочные архивы `.tar.gz` / `.zip` и `SHA256SUMS`: artifact `b24cli-release-assets`](https://github.com/mesilov/bitrix24-cli/actions/runs/38202965586#artifacts).
+[Установочные архивы `.tar.gz` / `.zip` и `SHA256SUMS`: artifact `b24cli-release-assets`](https://github.com/mesilov/bitrix24-cli/actions/workflows/package-static.yml?query=branch%3Adev).
 Для скачивания CI artifacts нужен вход в GitHub; срок хранения — 90 дней.
 [Новые сборки](https://github.com/mesilov/bitrix24-cli/actions/workflows/package-static.yml?query=branch%3Adev).
 
@@ -35,7 +36,7 @@ Windows Server 2022 amd64. Windows 10/11 и более старые macOS тре
 для записи `%TEMP%`. Архивы для Linux arm64 и Mac Intel пока не предоставляются.
 
 Скачайте архив своей платформы и `SHA256SUMS` **из одного Release или CI run**.
-Для текущих CI-сборок удобнее скачать [общий artifact `b24cli-release-assets` с установочными архивами](https://github.com/mesilov/bitrix24-cli/actions/runs/38202965586#artifacts)
+Для текущих CI-сборок удобнее скачать общий artifact `b24cli-release-assets` выбранного run
 и распаковать его внешний ZIP: внутри находятся `.tar.gz`/`.zip` и `SHA256SUMS`.
 Откройте терминал в каталоге с этими файлами. Продолжайте только при успешной
 проверке checksum; при несовпадении скачайте архив заново из того же источника.
