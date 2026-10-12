@@ -39,12 +39,14 @@
 
 ## GitHub issues
 
-- [#10 — исследование CLI/MCP и поверхности блока задач](https://github.com/mesilov/bitrix24-cli/issues/10): архитектура реализации согласованных команд после исследования и уточнения MVP. Change: `design-task-console-architecture`, путь `openspec/changes/design-task-console-architecture/`.
+- [#10 — исследование CLI/MCP и поверхности блока задач](https://github.com/mesilov/bitrix24-cli/issues/10): архитектура реализации согласованных команд после исследования и уточнения MVP. Change: `design-task-console-architecture`, путь `openspec/changes/archive/2026-10-12-design-task-console-architecture/`.
 
 ## Related planning
 
-- [Текущий UX](../../specs/cli-experience/spec.md), [граница MVP](../../specs/task-mvp-scope/spec.md), [продуктовые JTBD](../../specs/task-workflows/spec.md).
-- [Каталог API и команд](../define-task-jtbd/cli-candidates.json), [матрица JTBD](../define-task-jtbd/jtbd-coverage.md), [решения по scope](../define-task-jtbd/design.md).
+RC coherence review 12.10.2026: task inventory остаётся 30; локальные connection-команды реализованы отдельно в #19. Текущий выбор credentials подчиняется connection-configuration: явные selectors, process/file env, profiles/default и последний source-only root dotenv. Standalone не ищет root dotenv. Исходные разрешения и portal records ниже сохраняются как история, а текущий runtime delta уточнён по уже поставленному #19 без изменения кода/API.
+
+- [Текущий UX](../../../specs/cli-experience/spec.md), [граница MVP](../../../specs/task-mvp-scope/spec.md), [продуктовые JTBD](../../../specs/task-workflows/spec.md).
+- [Каталог API и команд](../../define-task-jtbd/cli-candidates.json), [матрица JTBD](../../define-task-jtbd/jtbd-coverage.md), [решения по scope](../../define-task-jtbd/design.md).
 
 ## Implementation authorization 2026-10-09
 
@@ -56,6 +58,6 @@
 
 По явному решению пользователя непроверенные части portal tasks 5.2–5.4 и связанного `define-task-jtbd` task 2.3 перенесены в milestone **0.2.0**, [#42](https://github.com/mesilov/bitrix24-cli/issues/42), change `complete-task-portal-acceptance` (`openspec/changes/complete-task-portal-acceptance/`). Они исключены из обязательной приёмки RC 0.1.0; перенос не является новым runtime proof. Уже выполненные 30 собственных happy-path и исходные records сохраняются.
 
-Границы RC: denied-role matrix не подтверждена; history/elapsedTime completeness частична; file attachment ACK без независимого membership; reassignment только на текущего пользователя; native REST3 filled auditors limitation сохраняется для task:list, task:show использует заранее выбранную композицию чтений без error-triggered fallback/retry. Binding/policy/partial/outcomeUnknown/cancellation и 29 post-MVP исключений сохраняются. #19/#23/native packaging остаются критериями RC. [Полный список ограничений](../../../docs/rc-0.1.0.md).
+Границы RC: denied-role matrix не подтверждена; history/elapsedTime completeness частична; file attachment ACK без независимого membership; reassignment только на текущего пользователя; native REST3 filled auditors limitation сохраняется для task:list, task:show использует заранее выбранную композицию чтений без error-triggered fallback/retry. Binding/policy/partial/outcomeUnknown/cancellation и 29 post-MVP исключений сохраняются. #19/#23/native packaging остаются критериями RC. [Полный список ограничений](../../../../docs/rc-0.1.0.md).
 
 Связанный issue перенесённой проверки: [#42](https://github.com/mesilov/bitrix24-cli/issues/42); milestone 0.2.0, change `complete-task-portal-acceptance`. Исходный #10 сохраняет milestone 0.1.0.

@@ -129,7 +129,7 @@ task:subtask:add исключена из регистрации первого �
 
 ## Console architecture follow-up
 
-Архитектура 30 retained команд проектируется отдельно в [design-task-console-architecture](../design-task-console-architecture/proposal.md): Symfony Console + DependencyInjection, без FrameworkBundle, PHP реализации и установки зависимостей. Карта Command/Request/Handler/API/output, параметры --where/--params и TSV profiles уточнены в [design](../design-task-console-architecture/design.md) и [command map](../design-task-console-architecture/command-map.md). Это не закрывает оставшиеся provider/runtime acceptance задачи данного change.
+Архитектура 30 retained команд проектируется отдельно в [design-task-console-architecture](../archive/2026-10-12-design-task-console-architecture/proposal.md): Symfony Console + DependencyInjection, без FrameworkBundle, PHP реализации и установки зависимостей. Карта Command/Request/Handler/API/output, параметры --where/--params и TSV profiles уточнены в [design](../archive/2026-10-12-design-task-console-architecture/design.md) и [command map](../archive/2026-10-12-design-task-console-architecture/command-map.md). Это не закрывает оставшиеся provider/runtime acceptance задачи данного change.
 
 ## Решение о приёмке RC 0.1.0 — 12.10.2026
 

@@ -2,13 +2,15 @@
 
 ## Context
 
-Мотивация — в [proposal.md](proposal.md). Контракты — [cli-experience](../../specs/cli-experience/spec.md), [task-mvp-scope](../../specs/task-mvp-scope/spec.md) и [новая delta](specs/task-console-runtime/spec.md).
+Мотивация — в [proposal.md](proposal.md). Контракты — [cli-experience](../../../specs/cli-experience/spec.md), [task-mvp-scope](../../../specs/task-mvp-scope/spec.md) и [новая delta](specs/task-console-runtime/spec.md).
 
 Исходное состояние до разрешённого apply 2026-10-09 в worktree issue #10: `bin/console` создаёт standalone Symfony Application без прикладных команд; `src/` не содержит реализации команд; `vendor/` отсутствует. В `composer.lock` закреплены Console 8.1.8 и b24phpsdk 3.7.0. PSR-4 namespace — `Bitrix24\CLI\`. FrameworkBundle и DependencyInjection сейчас не установлены. После разрешения пользователя реализация создана в этом change; фактические файлы и local/portal границы перечислены в [implementation-verification](implementation-verification.md).
 
-Каталог [define-task-jtbd](../define-task-jtbd/cli-candidates.json) содержит 59 исследованных операций: **30 MVP / 0 API-policy-pending / 29 после MVP**. Название CLI не обязано совпадать с методом API. Полное покрытие 19 продуктовых JTBD не обещается текущим MVP.
+Каталог [define-task-jtbd](../../define-task-jtbd/cli-candidates.json) содержит 59 исследованных операций: **30 MVP / 0 API-policy-pending / 29 после MVP**. Название CLI не обязано совпадать с методом API. Полное покрытие 19 продуктовых JTBD не обещается текущим MVP.
 
 ## Goals / Non-Goals
+
+Актуализация RC 12.10.2026: последующая capability connection-configuration (#19) добавила пять локальных connection-команд и определяет приоритеты selectors/credentials. Source dotenv является последним источником после saved default, standalone его не ищет; DI использует ConnectionManager. Исходная архитектура task-команд и исторические проверки сохраняются.
 
 **Goals:** команды используют стандартные Symfony InputDefinition/help/list; DI собирает явно выбранные сервисы; подключение возникает только при выполнении операции; ввод, результат, ошибки и API policy имеют общие границы. Каждую команду можно проверить офлайн и отдельно принять на портале.
 
@@ -255,4 +257,4 @@ Live-прогон обнаружил различающиеся подтверж
 
 По явному решению пользователя непроверенные части portal tasks 5.2–5.4 и связанного `define-task-jtbd` task 2.3 перенесены в milestone **0.2.0**, [#42](https://github.com/mesilov/bitrix24-cli/issues/42), change `complete-task-portal-acceptance` (`openspec/changes/complete-task-portal-acceptance/`). Они исключены из обязательной приёмки RC 0.1.0; перенос не является новым runtime proof. Уже выполненные 30 собственных happy-path и исходные records сохраняются.
 
-Границы RC: denied-role matrix не подтверждена; history/elapsedTime completeness частична; file attachment ACK без независимого membership; reassignment только на текущего пользователя; native REST3 filled auditors limitation сохраняется для task:list, task:show использует заранее выбранную композицию чтений без error-triggered fallback/retry. Binding/policy/partial/outcomeUnknown/cancellation и 29 post-MVP исключений сохраняются. #19/#23/native packaging остаются критериями RC. [Полный список ограничений](../../../docs/rc-0.1.0.md).
+Границы RC: denied-role matrix не подтверждена; history/elapsedTime completeness частична; file attachment ACK без независимого membership; reassignment только на текущего пользователя; native REST3 filled auditors limitation сохраняется для task:list, task:show использует заранее выбранную композицию чтений без error-triggered fallback/retry. Binding/policy/partial/outcomeUnknown/cancellation и 29 post-MVP исключений сохраняются. #19/#23/native packaging остаются критериями RC. [Полный список ограничений](../../../../docs/rc-0.1.0.md).

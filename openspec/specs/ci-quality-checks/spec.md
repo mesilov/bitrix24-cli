@@ -1,10 +1,10 @@
-# Spec Delta
+# ci-quality-checks Specification
 
 ## Purpose
 
 Обеспечить воспроизводимые проверки качества PHP-кода CLI и лицензий зависимостей локально и в GitHub Actions до принятия изменений.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Automatic quality checks
 GitHub Actions MUST запускать отдельные проверки лицензий зависимостей, PHP-CS-Fixer, PHPStan и Rector для событий `push` и `pull_request` и отображать результат каждой проверки.
@@ -55,4 +55,4 @@ PHP-CS-Fixer и Rector MUST выполняться в режиме провер�
 
 ## Решение о приёмке RC 0.1.0 — 12.10.2026
 
-По явному решению пользователя внешняя fork-часть task 2.2 перенесена в milestone **0.2.0**, [#41](https://github.com/mesilov/bitrix24-cli/issues/41), change `verify-external-fork-ci` (`openspec/changes/verify-external-fork-ci/`). Реальные push и внутренние PR checks остаются подтверждённой областью #4/0.1.0. Fork-сценарий остаётся целевым контрактом, но его живая проверка исключена из обязательной приёмки RC 0.1.0 и не считается выполненной. Конфигурация и permissions не изменяются. [Ограничения RC](../../../../../docs/rc-0.1.0.md).
+По явному решению пользователя внешняя fork-часть task 2.2 перенесена в milestone **0.2.0**, [#41](https://github.com/mesilov/bitrix24-cli/issues/41), change `verify-external-fork-ci` (`openspec/changes/verify-external-fork-ci/`). Реальные push и внутренние PR checks остаются подтверждённой областью #4/0.1.0. Fork-сценарий остаётся целевым контрактом, но его живая проверка исключена из обязательной приёмки RC 0.1.0 и не считается выполненной. Конфигурация и permissions не изменяются. [Ограничения RC](../../../docs/rc-0.1.0.md).
