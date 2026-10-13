@@ -1,6 +1,6 @@
 # Verification — #100
 
-Дата: 14.10.2026. Базовый source SHA: `8a4bd2ab0604d905fcf091e0f98ff282380080f4` (dev после merge PR #103). Проверена реализация в изолированной ветке `feature/100-help-about-docs`; source commit реализации добавляется после сохранения в Git.
+Дата: 14.10.2026. Базовый source SHA: `8a4bd2ab0604d905fcf091e0f98ff282380080f4` (dev после merge PR #103). Source commit реализации: `3aee78edf6361309175d9832dd25ba7c28bc02a0`, изолированная ветка `feature/100-help-about-docs`. Последующий commit содержит только обновлённые verification/task receipts.
 
 Версия source launcher: `0.1.0` — существующий fallback BuildVersion для checkout без build-info.json. Это не сборка или публикация релиза 0.2.0. `--about` использует версию Application, совпадающую с `--version`; в unit-тестах отдельно проверены runtime identities `0.2.0` и `dev-<SHA>`.
 
@@ -15,7 +15,7 @@
 | Примеры | Parser bind/validate для всех прикладных/локальных примеров, поддерживаемые write/delete — с dry-run; локальные примеры не выполняются |
 | Документация | docs/cli-command-map.md; генератор и make cli-reference-check; testPublishedCommandMapMatchesPublicNamesAndDocumentedExamples |
 | JTBD | Ссылки на текущую карту добавлены в docs/task-jtbd.md; существующие ID, статусы и границы live-покрытия сохранены |
-| Скилл | Issue mesilov/bitrix24-cli-skill#6 получает карту и source SHA реализации |
+| Скилл | Issue mesilov/bitrix24-cli-skill#6 обновлено immutable ссылками на карту/каталог и source SHA 3aee78e; повторное чтение GitHub подтверждает сохранение |
 | Релизная перепроверка | По прямому запросу пользователя передана в #109, change prepare-release-0-2-0; это отдельная приёмка финальных артефактов |
 
 ## Correctness
@@ -37,7 +37,7 @@
 
 ## Проверки
 
-- `make unit`: полная suite — 672 теста, 5945 assertions (повторный итоговый прогон фиксируется перед PR).
+- `make unit`: итоговый повторный прогон полной suite — 672 теста, 5945 assertions.
 - Целевой повторный прогон help/about и двух entrypoints — 6 tests, 544 assertions.
 - `make lint-all`: license checker, PHP-CS-Fixer, PHPStan, Rector — успешно после исправлений.
 - `make check`: Composer validate, синтаксис, platform requirements, запуск CLI — успешно.
@@ -52,3 +52,9 @@ Docker PHP 8.4.26. composer.lock не изменялся: из-за timeout code
 ## Границы
 
 Локальная source/offline-проверка не подтверждает сборку, native acceptance Linux/macOS/Windows, релиз 0.2.0, публикацию или live-права портала. Эти повторные проверки и при необходимости актуализация результатов обязательны в #109. Изменение скилла выполняется в его issue #6.
+
+## Итог OpenSpec verify
+
+Completeness: 12/12 задач текущей реализации после передачи итоговой карты скиллу и релизной перепроверки в #109. Spec coverage: 2/2 delta requirements; Scenario coverage: 10/10. Correctness: requirement implementation и source/offline сценарии подтверждены указанными проверками. Coherence: design и существующие Console/DI patterns соблюдены; обязательная запись CHANGELOG и документация JTBD включены.
+
+В проверенной области critical/warning findings нет. Реализация подготовлена для review в dev. Merge, archive и релизная приёмка не следуют из локальных проверок автоматически.
