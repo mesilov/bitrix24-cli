@@ -136,6 +136,52 @@ B24CLI_ENV_FILE=/absolute/path/to/checkout/.env.local make integration
 
 Update отправляет только явный патч; `--description=""` очищает описание. `--fields`/`--fields-file` — отдельный advanced JSON object режим с проверкой `editable` metadata. Status/lifecycle, participants, tags, userFields и object relations в патче запрещены. Пропущенная роль в `task:participants:set` сохраняется, указанная заменяется целиком. Разрешённые select/order/writable поля закреплены в `src/Application/Task/FieldSchema.php`; `task:fields:list` показывает metadata портала.
 
+### Фильтрация по своей роли
+
+`task:list` и `task:find` принимают `--role responsible|accomplice|creator|auditor`:
+делаю, помогаю, поручил, наблюдаю. Роль принадлежит пользователю выбранного входящего
+вебхука; profile/env-file/process env выбираются по обычным правилам подключения,
+`default.task` не задаёт текущего пользователя. ID извлекается из валидированного
+URL без `user.current`/`user.get` и без вывода token. JSON содержит
+`meta.roleFilter: {"role":"creator","userId":7}`.
+
+```sh
+make cli ARGS='task:list --role auditor --group-id 42 --status in_progress --json'
+make cli ARGS='task:list --role creator --where '\''{"responsibleId":9}'\'' --json'
+make cli ARGS='task:find --title "договор" --group-id 42 --role accomplice --json'
+```
+
+Критерии сочетаются через AND; несколько ролей в одном флаге не принимаются.
+Сам статус роль не ограничивает, а задача может попадать в несколько групп.
+Ответственный/постановщик проверяются по REST3 `responsibleId`/`creatorId` локально.
+Соисполнитель/наблюдатель проверяются через заранее объявленный REST1
+`tasks.task.get` с `taskId` и `select` ID/ACCOMPLICES либо ID/AUDITORS. При
+`strict-rest3` эти две роли отклоняются с exit 4 до credentials/API;
+responsible/creator доступны. Неизвестная/пустая роль даёт usage-error/exit 2.
+
+Participant чтение выполняется после остальных predicates только для уникальных
+подходящих задач, не более одного на задачу и не более `--max-scan` за вызов.
+Стоимость зависит от числа кандидатов: ограничивайте группу, title, а для списка
+также IDs. `--limit` применяется после фильтрации; `--all` не снимает scan budget.
+Недостающие scalar поля, page ошибки и исчерпание budget дают partial/exit 3.
+Ошибка чтения состава роли останавливает обход с `role-read-error`, сохраняя
+подтверждённые совпадения; непроверенный состав не считается пустым. Чтения списка
+и участников не являются атомарным snapshot. Ctrl-C прекращает следующие запросы
+с exit 130. Явный `--select auditors` сохраняет отдельный контракт REST3 projections;
+ролевой фильтр не добавляет эти projections и не устраняет известное ограничение
+native auditors. Новых команд, writes и fallback/retry нет.
+
+Portal cases ролей запускаются отдельно для существующих классов:
+
+```sh
+make integration TEST_ARGS='--group command:task:list'
+make integration TEST_ARGS='--group command:task:find'
+```
+
+Для scalar negative fixtures нужен `B24CLI_TEST_OTHER_USER_ID` в выбранном env-file:
+положительный ID другого доступного пользователя. Fixtures создаются и удаляются
+через SDK; отсутствие условий фиксируется как skip, а не live acceptance.
+
 ## Тесты команд
 
 ```sh

@@ -5,11 +5,25 @@ declare(strict_types=1);
 namespace Bitrix24\CLI\Tests\Integration\Task;
 
 use Bitrix24\CLI\Tests\Support\LiveTaskCommandTestCase;
+use Bitrix24\CLI\Tests\Support\TaskRoleFixtures;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
 #[Group('command:task:list')]
 final class ListTaskCommandTest extends LiveTaskCommandTestCase
 {
+    use TaskRoleFixtures;
+
+    #[DataProvider('roleCases')]
+    public function testRoleIncludesOnlyTheMatchingOwnedFixture(string $role): void
+    {
+        [$included, $excluded] = $this->roleTaskPair($role, $this->fixtureTitle());
+        $result = $this->invoke(['task:list', '--id', $included, '--id', $excluded, '--role', $role]);
+        self::assertSame([$included], array_column($result['data']['items'], 'id'));
+        self::assertSame(['role' => $role, 'userId' => $this->userId], $result['meta']['roleFilter']);
+        self::assertSame(1, $result['meta']['matched']);
+    }
+
     #[Group('happy-path')]
     public function testHappyPathListsSelectedTask(): void
     {

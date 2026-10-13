@@ -94,6 +94,30 @@ final class ConnectionProfilesTest extends TestCase
         }
     }
 
+    public function testRoleIdentityFollowsTheSelectedConnectionRatherThanTaskDefaults(): void
+    {
+        $this->repository->add($this->directory, 'work', 'https://work.invalid/rest/7/RecognizableFixtureSecret/', null, ['creatorId' => 9, 'responsibleId' => 9]);
+        $this->repository->use($this->directory, 'work');
+        putenv('BITRIX24_WEBHOOK=https://ambient.invalid/rest/2/AmbientFixtureSecret/');
+        $path = $this->directory . '/explicit.env';
+        file_put_contents($path, "BITRIX24_WEBHOOK=https://file.invalid/rest/8/FileFixtureSecret/\n");
+        $fakeApiTransport = new FakeApiTransport(static fn (): \Bitrix24\CLI\Infrastructure\Bitrix24\ApiResponse => new \Bitrix24\CLI\Infrastructure\Bitrix24\ApiResponse(['items' => array_map(static fn (int $id): array => ['id' => $id, 'title' => 'task', 'responsibleId' => $id], [2, 7, 8, 9])]));
+        $app = (new ApplicationFactory())->create(dirname(__DIR__, 2), $fakeApiTransport, packaged: true);
+        foreach ([[['--profile', 'work'], 7], [['--env-file', $path], 8], [[], 2]] as [$options, $id]) {
+            $run = ConsoleHarness::run($app, ['--json', 'task:list', '--role', 'responsible', ...$options]);
+            self::assertSame(0, $run->status, $run->stdout);
+            self::assertSame(['role' => 'responsible', 'userId' => $id], $run->json()['meta']['roleFilter']);
+            self::assertSame([$id], array_column($run->json()['data']['items'], 'id'));
+            foreach (['RecognizableFixtureSecret', 'AmbientFixtureSecret', 'FileFixtureSecret'] as $secret) {
+                self::assertStringNotContainsString($secret, $run->stdout . $run->stderr);
+            }
+        }
+
+        putenv('BITRIX24_WEBHOOK');
+        $run = ConsoleHarness::run($app, ['--json', 'task:list', '--role', 'responsible']);
+        self::assertSame(7, $run->json()['meta']['roleFilter']['userId']);
+    }
+
     public function testFourProfileLifecycleAndPrivateFiles(): void
     {
         foreach (['work', 'pet', 'clientA', 'clientB'] as $alias) {

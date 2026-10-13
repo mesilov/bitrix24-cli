@@ -6,18 +6,29 @@ namespace Bitrix24\CLI\Application\Task;
 
 use Bitrix24\CLI\Application\Failure;
 use Bitrix24\CLI\Application\OperationResult;
+use Bitrix24\CLI\Application\RuntimeState;
+use Bitrix24\CLI\Application\Task\Port\CurrentUserGateway;
+use Bitrix24\CLI\Application\Task\Port\ParticipantGateway;
 use Bitrix24\CLI\Application\Task\Port\TaskGateway;
 
 final readonly class TaskListScanner
 {
-    public function __construct(private TaskGateway $tasks)
+    public function __construct(private TaskGateway $tasks, private CurrentUserGateway $currentUser, private ParticipantGateway $participants, private RuntimeState $state)
     {
     }
 
     public function scan(TaskQuery $query, ?string $title = null): OperationResult
     {
         $filter = $query->ids === [] ? [] : [['id', 'in', $query->ids]];
+        $scalarRole = $query->role?->scalarField();
+        $participantRole = $query->role?->participantField();
+        $userId = $query->role instanceof \Bitrix24\CLI\Application\Task\TaskRole ? $this->currentUser->id() : null;
         $fields = array_values(array_unique([...($title === null ? FieldSchema::LIST_FIELDS : ['id', 'title']), ...$query->select, ...array_keys($query->where), ...($query->dueBefore === null ? [] : ['deadline'])]));
+        $hiddenRoleField = $scalarRole !== null && !in_array($scalarRole, $fields, true) ? $scalarRole : null;
+        if ($hiddenRoleField !== null) {
+            $fields[] = $hiddenRoleField;
+        }
+
         $offset = 0;
         $scanned = 0;
         $matches = [];
@@ -25,6 +36,7 @@ final readonly class TaskListScanner
         $reason = null;
         $complete = true;
         do {
+            $this->state->checkCancellation();
             try {
                 $page = $this->tasks->page($filter, $fields, $query->order, $offset, min(50, $query->maxScan - $scanned));
             } catch (Failure $failure) {
@@ -39,6 +51,7 @@ final readonly class TaskListScanner
 
             $progress = 0;
             foreach ($page->items as $row) {
+                $this->state->checkCancellation();
                 if ($scanned >= $query->maxScan) {
                     $reason = 'scan-budget-exhausted';
                     $complete = false;
@@ -75,7 +88,38 @@ final readonly class TaskListScanner
                     $matched = $matched && $row['deadline'] !== null && strtotime((string) $row['deadline']) !== false && strtotime((string) $row['deadline']) < strtotime($query->dueBefore);
                 }
 
+                if ($scalarRole !== null) {
+                    $value = $row[$scalarRole] ?? null;
+                    if ((!is_int($value) && (!is_string($value) || !ctype_digit($value))) || filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) === false) {
+                        $reason = 'missing-predicate-field';
+                        $complete = false;
+                        continue;
+                    }
+
+                    $matched = $matched && (int) $value === $userId;
+                }
+
+                if ($matched && $participantRole !== null) {
+                    try {
+                        $this->state->checkCancellation();
+                        $members = $this->participants->ids($id, [$participantRole]);
+                        $matched = in_array($userId, $members[$participantRole], true);
+                    } catch (Failure $failure) {
+                        if ($failure->exitStatus === 130) {
+                            throw $failure;
+                        }
+
+                        $reason = 'role-read-error';
+                        $complete = false;
+                        break 2;
+                    }
+                }
+
                 if ($matched) {
+                    if ($hiddenRoleField !== null) {
+                        unset($row[$hiddenRoleField]);
+                    }
+
                     $matches[] = $title === null ? $row : ['id' => $id, 'title' => $row['title']];
                 }
             }
@@ -101,6 +145,7 @@ final readonly class TaskListScanner
             'scope' => $query->ids === [] ? 'tasks-visible-to-connection' : 'explicit-task-ids',
             'complete' => $complete, 'scanned' => $scanned, 'matched' => $matchedCount, 'returned' => count($items),
             'limitApplied' => count($items) < $matchedCount, 'reason' => $reason,
+            ...($query->role instanceof \Bitrix24\CLI\Application\Task\TaskRole ? ['roleFilter' => ['role' => $query->role->value, 'userId' => $userId]] : []),
             'order' => $query->order,
             ...($reason === 'scan-budget-exhausted' ? ['hint' => 'Increase --max-scan to inspect more tasks; --all only removes the output limit. An incomplete search does not prove that no duplicate exists.'] : []),
         ], $complete ? 0 : 3);
