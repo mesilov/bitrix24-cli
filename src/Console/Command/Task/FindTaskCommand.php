@@ -26,13 +26,19 @@ final class FindTaskCommand extends Command
     protected function configure(): void
     {
         $this->addOption('role', null, InputOption::VALUE_REQUIRED, 'Своя роль: responsible — делаю, accomplice — помогаю, creator — поручил, auditor — наблюдаю.', suggestedValues: array_column(TaskRole::cases(), 'value'));
-        $this->addOption('title', null, InputOption::VALUE_REQUIRED, 'Название.');
+        $this->addOption('title', null, InputOption::VALUE_REQUIRED, 'Обязательный буквальный фрагмент заголовка; Unicode без регистра.');
         $this->addOption('group-id', null, InputOption::VALUE_REQUIRED, 'Положительный ID группы/проекта (groupId); локальный фильтр.');
-        $this->addOption('limit', null, InputOption::VALUE_REQUIRED, 'Лимит вывода; не заменяет бюджет обхода.');
+        $this->addOption('id', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'ID для серверной выборки; флаг можно повторять.');
+        $this->addOption('responsible', null, InputOption::VALUE_REQUIRED, 'Локальный фильтр responsibleId.');
+        $this->addOption('status', null, InputOption::VALUE_REQUIRED, 'Локальный фильтр статуса.');
+        $this->addOption('due-before', null, InputOption::VALUE_REQUIRED, 'Локальный фильтр срока, ISO8601 с часовым поясом.');
+        $this->addOption('where', null, InputOption::VALUE_REQUIRED, 'Локальный фильтр равенств JSON object; отдельный режим.');
+        $this->addOption('where-file', null, InputOption::VALUE_REQUIRED, 'Локальный JSON filter из PATH или явного stdin -.');
+        $this->addOption('limit', null, InputOption::VALUE_REQUIRED, 'Лимит вывода (default 50); не заменяет бюджет обхода.');
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Снять только лимит вывода; бюджет остаётся конечным.');
         $this->addOption('order', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Сортировка FIELD:asc|desc; default id:desc (новые сначала).');
         $this->addOption('max-scan', null, InputOption::VALUE_REQUIRED, 'Максимум просмотренных задач (default 10000).');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: id, title. REST 3.0. Поиск title без регистра Unicode; --group-id ограничивает поиск группой/проектом локально. Обход и вывод по умолчанию id DESC (новые сначала); --order меняет оба порядка. meta.order показывает сортировку, meta.complete=false/exit3 означает неполный поиск и не доказывает отсутствие дублей; увеличьте --max-scan. --all снимает только лимит вывода. Пример: b24cli task:find --title "договор" --group-id 42 --json. --role относится к владельцу выбранного вебхука и сочетается с другими критериями через AND; статус не ограничивается. responsible/creator используют REST3; accomplice/auditor требуют REST1 чтения участников и недоступны при strict-rest3. Пример: b24cli task:find --title "договор" --group-id 42 --role accomplice --json');
+        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: id, title. REST 3.0. Обязательный title ищется буквально без регистра Unicode; title, --id, ordinary/where predicates и --role применяются через AND. Только --id фильтруется на сервере; groupId/responsibleId/status/deadline/title локальны и не обещают меньше API calls. --where/--where-file взаимоисключающие; where нельзя смешивать с --group-id/--responsible/--status/--due-before, но можно с --title/--id/--role. --where-file=- читает stdin явно и не может делить его с --config=-. Обход и вывод по умолчанию id DESC (новые сначала); --order меняет оба порядка. meta.order показывает сортировку, meta.complete=false/exit3 означает неполный поиск и не доказывает отсутствие дублей; увеличьте --max-scan. --all снимает только лимит вывода. Пример: b24cli task:find --title "договор" --group-id 42 --json. --role относится к владельцу выбранного вебхука и сочетается с другими критериями через AND; без явного --status роль не ограничивает статус. responsible/creator используют REST3; accomplice/auditor требуют REST1 чтения участников и недоступны при strict-rest3. Пример: b24cli task:find --title "договор" --group-id 42 --role accomplice --json');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

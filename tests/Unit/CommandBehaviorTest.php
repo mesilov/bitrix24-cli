@@ -183,7 +183,7 @@ final class CommandBehaviorTest extends TestCase
         $app = (new ApplicationFactory())->create(dirname(__DIR__, 2), new FakeApiTransport($fixturePortal->respond(...)));
         $run = ConsoleHarness::run($app, ['task:find', '--title', 'bad', '--plain']);
         self::assertSame("123\t<error>bad</error>\\tline\\nnext\\\\\n", $run->stdout);
-        self::assertSame('', $run->stderr);
+        self::assertStringContainsString('complete=true', $run->stderr);
         $run = ConsoleHarness::run($app, ['task:show', '123']);
         self::assertStringContainsString('<error>bad</error>', $run->stdout);
     }

@@ -11,7 +11,7 @@ use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-final class ResultPresenter
+final readonly class ResultPresenter
 {
     private const COLUMNS = [
         'user-card' => ['ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'EMAIL', 'UF_DEPARTMENT'],
@@ -27,6 +27,10 @@ final class ResultPresenter
         'mutation' => ['taskId', 'resourceId', 'action', 'changedFields'],
         'plan' => ['taskId', 'step', 'method', 'apiVersion', 'effect', 'fields'],
     ];
+
+    public function __construct(private TaskHumanRenderer $tasks = new TaskHumanRenderer())
+    {
+    }
 
     public function success(OperationResult $result, string $mode, OutputInterface $output, string $command, array $calls): void
     {
@@ -49,13 +53,23 @@ final class ResultPresenter
                 foreach ($rows as $row) {
                     $output->writeln(implode("\t", array_map($this->escape(...), $row)), OutputInterface::OUTPUT_RAW);
                 }
+            } elseif ($result->profile === 'task-card') {
+                $this->tasks->card($result->data['task'] ?? [], $output);
+            } elseif (in_array($result->profile, ['task-list', 'title-matches'], true)) {
+                $this->tasks->listing($result, $output);
             } else {
                 (new Table($output))->setHeaders($columns)->setRows(array_map(fn ($row): array => array_map(fn ($value): string => OutputFormatter::escape($this->string($value)), $row), $rows))->render();
             }
         }
 
+        if ($mode !== 'json' && in_array($result->profile, ['task-list', 'title-matches'], true)) {
+            $stream = $mode === 'plain' && $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
+            $this->tasks->summary($result->meta, $stream);
+        }
+
         if ($error !== null) {
-            $this->diagnostic($output, $error['message']);
+            $hint = $mode !== 'json' && in_array($result->profile, ['task-list', 'title-matches'], true) ? ' ' . $this->tasks->hint($result->meta['reason'] ?? '') : '';
+            $this->diagnostic($output, $error['message'] . $hint);
         }
 
         if ($mode === 'human' && in_array('1.0', $meta['apiVersions'], true)) {
