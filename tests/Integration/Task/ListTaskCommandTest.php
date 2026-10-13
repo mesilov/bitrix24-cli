@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bitrix24\CLI\Tests\Integration\Task;
 
 use Bitrix24\CLI\Tests\Support\LiveTaskCommandTestCase;
+use Bitrix24\CLI\Tests\Support\DeadlineReadOnlyCases;
 use Bitrix24\CLI\Tests\Support\TaskRoleFixtures;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -12,6 +13,7 @@ use PHPUnit\Framework\Attributes\Group;
 #[Group('command:task:list')]
 final class ListTaskCommandTest extends LiveTaskCommandTestCase
 {
+    use DeadlineReadOnlyCases;
     use TaskRoleFixtures;
 
     #[DataProvider('roleCases')]

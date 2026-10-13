@@ -12,6 +12,11 @@
 
 ### Добавлено
 
+- Календарные `--deadline-window`, `--overdue` и `--timezone` в `task:list`/`task:find`:
+  серверные диапазоны дедлайна через REST 1.0, AND с проектом/ролью/названием,
+  нормализованные lifecycle статусы и явный отказ strict-rest3 до запросов
+  ([#95](https://github.com/mesilov/bitrix24-cli/issues/95)).
+
 - POSIX installer для macOS arm64/Linux amd64: публичный Release, SHA-256,
   проверка версии перед заменой, notices, zsh/bash PATH, custom install directory
   и `--no-modify-path` ([#28](https://github.com/mesilov/bitrix24-cli/issues/28)).
@@ -40,6 +45,11 @@
   ([#63](https://github.com/mesilov/bitrix24-cli/issues/63)).
 
 ### Изменено
+
+- Подтверждена публичная Unix установка `0.1.0` с installer из `main`;
+  синхронизированы восемь требований binary-distribution и архивирован завершённый
+  OpenSpec change с native CI/public delivery evidence
+  ([#28](https://github.com/mesilov/bitrix24-cli/issues/28)).
 
 - Синхронизированы спецификации загрузки локальных файлов (default 500 MB и приоритет
   runtime `maxUploadBytes`) и архивирован завершённый OpenSpec change
