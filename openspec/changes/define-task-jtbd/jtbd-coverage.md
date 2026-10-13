@@ -1,5 +1,27 @@
 # Проверка потенциального CLI на полноту JTBD
 
+## Расширение 0.2.0 — результаты задачи (#61)
+
+Change: [add-task-results](../add-task-results/proposal.md), [delta JTBD](../add-task-results/specs/task-workflows/spec.md).
+Четыре команды `task:result:add/list/update/delete` реализованы через REST3.
+Локальные контракты проверяются в `tests/Unit/TaskResultsTest.php`; собственные
+portal cases находятся в `tests/Integration/Task/*TaskResult*CommandTest.php`.
+13.10.2026 на настроенном портале текущего webhook пользователя прошли 7 result cases (63 assertions), включая четыре собственных happy-path; cleanup успешен. [Evidence](../add-task-results/portal-evidence-2026-10-13.json). Denied-role matrix и live multi-page completeness отдельно не проверены.
+
+| JTBD / роль | Когда | Цель и действия | Признак успеха |
+| --- | --- | --- | --- |
+| PM-07 / руководитель проекта | Исполнитель предъявил работу | Получить результаты через `task:result:list` перед проверкой | Видны ID, текст, автор, дата, статус и доступные материалы этой задачи |
+| AM-07 / аккаунт менеджер | Команда подготовила материалы клиенту | Прочитать сохранённый итог через `task:result:list` для подготовки передачи | Результат, задача и автор определены; передача клиенту выполняется отдельно |
+| EMP-08 / сотрудник | Итог готов либо в нём обнаружена ошибка | Добавить, прочитать, исправить или удалить результат через `task:result:add/list/update/delete` | Подтверждена операция над результатом выбранной задачи |
+
+Все действия ограничены правами подключения. Update/delete проверяют taskId/id
+через list; `--force` отменяет только диалог. Пагинация имеет конечный budget и
+явно возвращает partial при неполном обходе. Эти команды не предоставляют
+result:from-message и не выполняют переход статуса или приёмку.
+Исходные PM-05/AM-05/EMP-05 сохраняют более широкие цели; четыре result-команды
+не доказывают их полное покрытие. Разделы ниже и 19/19 — историческая оценка
+планирования/MVP 0.1.0. Новые три JTBD записаны отдельно в JSON `extensions`.
+
 Дата: 2026-10-09. Основания: [основная spec](../../specs/task-workflows/spec.md), [каталог](cli-candidates.md), [JSON проверки](jtbd-coverage.json). Проверка статическая, на уровне проектирования; команд в приложении нет.
 
 Имена команд обновлены по [CLI Guidelines](https://github.com/cli-guidelines/cli-guidelines/tree/697d6a29fc8c93d3981a755c0c7683507ad39c3e): вызов `b24cli` плюс указанное имя команды Symfony Console с двоеточиями. [cli-experience](../../specs/cli-experience/spec.md) задаёт общий UX-контракт. Переименование и удобные flags не меняют API routes, условия покрытия или результаты acceptance.

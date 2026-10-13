@@ -552,5 +552,76 @@
     "mapping-reduced": 9,
     "no-remaining-mapped-commands": 4
   },
-  "mvp_mapping_definition": "Structural command partition after 29 user exclusions, not a full/partial JTBD acceptance score. remaining_commands includes candidates and API-policy-pending extensions."
+  "mvp_mapping_definition": "Structural command partition after 29 user exclusions, not a full/partial JTBD acceptance score. remaining_commands includes candidates and API-policy-pending extensions.",
+  "extensions": {
+    "task_results_0_2_0": {
+      "change": "add-task-results",
+      "issue": "https://github.com/mesilov/bitrix24-cli/issues/61",
+      "delta_spec": "openspec/changes/add-task-results/specs/task-workflows/spec.md",
+      "checked_on": "2026-10-13",
+      "status": "implemented-unit-and-configured-portal-happy-path-verified",
+      "coverage": [
+        {
+          "id": "PM-07",
+          "role": "Руководитель проекта",
+          "when": "Исполнитель предъявил работу; подготовка к проверке",
+          "goal": "Получить проверяемые результаты выбранной задачи",
+          "commands": [
+            "task:result:list"
+          ],
+          "success": "Видны id, текст, автор, даты, статус и доступные сведения о материалах выбранной задачи",
+          "api_version": "3.0",
+          "strict_rest3_status": "documented",
+          "local_contract": "tests/Unit/TaskResultsTest.php",
+          "portal_acceptance": "configured-portal-current-user-happy-path-verified",
+          "permission_boundary": "Права текущего подключения; роль JTBD дополнительных прав не даёт",
+          "portal_evidence": "openspec/changes/add-task-results/portal-evidence-2026-10-13.json"
+        },
+        {
+          "id": "AM-07",
+          "role": "Аккаунт менеджер",
+          "when": "Команда подготовила материалы по клиентскому запросу",
+          "goal": "Подготовить передачу результата клиенту",
+          "commands": [
+            "task:result:list"
+          ],
+          "success": "Получен сохранённый итог работы выбранной задачи; передача и принятие клиентом остаются отдельным процессом",
+          "api_version": "3.0",
+          "strict_rest3_status": "documented",
+          "local_contract": "tests/Unit/TaskResultsTest.php",
+          "portal_acceptance": "configured-portal-current-user-happy-path-verified",
+          "permission_boundary": "Права текущего подключения; роль JTBD дополнительных прав не даёт",
+          "portal_evidence": "openspec/changes/add-task-results/portal-evidence-2026-10-13.json"
+        },
+        {
+          "id": "EMP-08",
+          "role": "Сотрудник",
+          "when": "Итог работы готов либо обнаружена ошибка в предъявленном результате",
+          "goal": "Зафиксировать и поддерживать результат работы",
+          "commands": [
+            "task:result:add",
+            "task:result:list",
+            "task:result:update",
+            "task:result:delete"
+          ],
+          "success": "Операция подтверждена для результата выбранной задачи; статус задачи не изменяется CLI автоматически",
+          "api_version": "3.0",
+          "strict_rest3_status": "documented",
+          "local_contract": "tests/Unit/TaskResultsTest.php",
+          "portal_acceptance": "configured-portal-current-user-happy-path-verified",
+          "permission_boundary": "Права текущего подключения; роль JTBD дополнительных прав не даёт",
+          "portal_evidence": "openspec/changes/add-task-results/portal-evidence-2026-10-13.json"
+        }
+      ],
+      "counts": {
+        "jtbd": 3,
+        "commands": 4
+      },
+      "note": "Исходные 19 JTBD и counts сохраняют historical assessment MVP 0.1.0. Результаты не доказывают полное выполнение PM-05/AM-05/EMP-05.",
+      "limitations": [
+        "Role-specific denied permission matrix and live multi-page completeness are not verified.",
+        "PM-05/AM-05/EMP-05 broader lifecycle and acceptance are not proven by result CRUD."
+      ]
+    }
+  }
 }
