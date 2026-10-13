@@ -17,6 +17,10 @@
 
 ### Добавлено
 
+- Подготовлен OpenSpec-план перевода всей CLI-справки на русский и объединения
+  `completion`, `help` и `list` в единый блок «Общие»; реализация запланирована отдельно
+  ([#113](https://github.com/mesilov/bitrix24-cli/issues/113)).
+
 - `doctor:problem-trajectory`: защищённые локальные карточки, root telemetry
   (сбор true/лимит 100), публичные status/list/configure и snapshot analysis,
   даты weekly предложения/обработки, recovery journal и явный offline feedback
