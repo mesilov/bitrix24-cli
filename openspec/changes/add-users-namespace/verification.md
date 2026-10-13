@@ -77,4 +77,6 @@ Paths are relative to the repository. Existing MODIFIED scenarios remain intact;
 
 The mandatory Bitrix24 MCP was queried during planning and implementation: effective `codex mcp get bitrix24_dev --json` shows the enabled official endpoint, and real bitrix_search/method-details calls succeeded. Version-specific source links and scope limits are in design.md; API fields remain `ID`, `UF_DEPARTMENT`, `PARENT`, `UF_HEAD` and REST1 `AUDITORS`, while configured role selectors remain local CLI metadata outside REST3 fields.
 
+After the final dev synchronization, CHANGELOG.md was updated under Unreleased with the delivered users/role/observer scope and issue #63 link; its actual diff against origin/dev is checked before PR readiness. The dev synchronization changed documentation/workflow only, so source test receipts above remain applicable.
+
 Issue #63 retains milestone 0.2.0 and existing enhancement label with the active change path. No merge, release, deployment or platform binary acceptance follows from local/live source checks. Archive/spec sync and worktree cleanup follow confirmed delivery per maintainer workflow.
