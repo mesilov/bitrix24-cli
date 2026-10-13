@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-14",
+  "issue": {
+    "url": "https://github.com/mesilov/bitrix24-cli/issues/96",
+    "state": "CLOSED"
+  },
+  "implementation": {
+    "cli": {
+      "baseRefName": "dev",
+      "headRefOid": "3249d68c705072f27ba883b9be50f2a563b70aed",
+      "mergeCommit": {
+        "oid": "0a54ed3568d1fca43fea5dffcdfe7906e615e961"
+      },
+      "mergedAt": "2026-10-13T18:45:06Z",
+      "state": "MERGED",
+      "url": "https://github.com/mesilov/bitrix24-cli/pull/107"
+    },
+    "skill": {
+      "baseRefName": "main",
+      "headRefOid": "bbcb12646fc661effcbcc9a109314546e23a5e0b",
+      "mergeCommit": {
+        "oid": "eac69f1a4f9b80a08573c805e6efae17d9036953"
+      },
+      "mergedAt": "2026-10-13T18:37:44Z",
+      "state": "MERGED",
+      "url": "https://github.com/mesilov/bitrix24-cli-skill/pull/7"
+    }
+  },
+  "verification": {
+    "local": {
+      "unitTests": 739,
+      "assertions": 6543,
+      "php": "8.4.26 Docker",
+      "qualityGates": "pass",
+      "cliReferenceCommands": 47,
+      "publicCliSmoke": {
+        "stages": 7,
+        "network": "none"
+      }
+    },
+    "cliPreMergeCI": {
+      "head": "3249d68c705072f27ba883b9be50f2a563b70aed",
+      "checks": 13,
+      "allSucceeded": true
+    }
+  },
+  "openspec": {
+    "change": "analyze-agent-trajectories",
+    "archivePath": "openspec/changes/archive/2026-10-14-analyze-agent-trajectories",
+    "tasks": {
+      "complete": 18,
+      "total": 18
+    },
+    "syncedCapabilities": [
+      "agent-trajectory-feedback",
+      "connection-configuration"
+    ],
+    "deltaStrict": "pass",
+    "mainDefault": {
+      "passed": 16,
+      "failed": 0
+    },
+    "mainStrict": {
+      "passed": 12,
+      "failed": 4,
+      "lengthWarnings": 5,
+      "note": "Four pre-existing long requirement statements plus the updated Published configuration schema (496 to 521 characters). The complete agreed MODIFIED block is preserved."
+    }
+  },
+  "limits": {
+    "feedback": "offline mock only",
+    "nativeAgentUI": "not verified",
+    "nativeStandaloneDoctor": "not verified",
+    "release": "not published"
+  },
+  "archiveDelivery": "Follow-up MR to dev; final merge and cleanup receipt recorded in issue #96."
+}

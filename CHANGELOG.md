@@ -72,6 +72,11 @@
 
 ### Изменено
 
+- OpenSpec MVP проблемных сценариев синхронизирован с актуальными
+  `agent-trajectory-feedback` и `connection-configuration`; завершённый change
+  перенесён в архив `2026-10-14-analyze-agent-trajectories` с evidence доставки CLI
+  и скилла ([#96](https://github.com/mesilov/bitrix24-cli/issues/96)).
+
 - После merge [PR #110](https://github.com/mesilov/bitrix24-cli/pull/110) в `dev`
   и закрытия [#100](https://github.com/mesilov/bitrix24-cli/issues/100) синхронизированы
   требования общей справки и `--about` в `cli-experience`; завершённый change

@@ -34,3 +34,14 @@ CLI владеет командой, локальными файлами, кон
 
 - [#96](https://github.com/mesilov/bitrix24-cli/issues/96) — согласованный MVP, milestone `0.2.0`; этот change сохраняет идентификатор при сужении объёма.
 - [#15](https://github.com/mesilov/bitrix24-cli/issues/15), [#32](https://github.com/mesilov/bitrix24-cli/issues/32) — зависимость для feedback handoff и серверной публикации.
+
+## Delivery
+
+2026-10-14: [CLI MR #107](https://github.com/mesilov/bitrix24-cli/pull/107)
+merged в dev (`0a54ed3568d1fca43fea5dffcdfe7906e615e961`);
+[skill MR #7](https://github.com/mesilov/bitrix24-cli-skill/pull/7) merged в main
+(`eac69f1a4f9b80a08573c805e6efae17d9036953`). Issue #96 закрыт после подтверждения
+обеих частей. 18/18 tasks завершены; main specs синхронизированы.
+Фактический архив: `openspec/changes/archive/2026-10-14-analyze-agent-trajectories/`.
+Evidence и границы проверки — в delivery.json и verification.md; доставка самого
+архива в dev и очистка worktree подтверждаются отдельно в issue #96.
