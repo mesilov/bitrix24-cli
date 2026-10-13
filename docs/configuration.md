@@ -244,16 +244,15 @@ make unit TEST_ARGS="--filter ConfigSchemaContractTest"
 
 ## Лимит загрузки локального файла
 
-В runtime JSON, который выбирается через `--config PATH` (или `--config -` для JSON из stdin), поле `maxUploadBytes` задаёт positive integer в байтах. При отсутствии применяется **500 MB = 500000000 байт**. Явный config имеет приоритет над default: может уменьшить или увеличить лимит. `null`, строки, boolean, дробные числа, ноль и отрицательные значения дают usage-error до credentials/API.
+В runtime JSON, который выбирается через `--config PATH` (или `--config -` для JSON из stdin), поле `maxUploadBytes` задаёт положительное целое число в байтах. При отсутствии применяется **500 MB = 500000000 байт**. Явный config имеет приоритет над default: может уменьшить или увеличить лимит. `null`, строки, boolean, дробные числа, ноль и отрицательные значения дают usage-error до credentials/API.
 
-```json
+```sh
+cat > runtime.json <<'JSON'
 {
   "timeout": 120,
   "maxUploadBytes": 750000000
 }
-```
-
-```sh
+JSON
 b24cli --config ./runtime.json task:file:attach 123 --file './Отчёт.pdf' --folder-id 456 --dry-run --json
 ```
 
