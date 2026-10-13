@@ -26,9 +26,9 @@ final class ListTaskHistoryCommand extends Command
     protected function configure(): void
     {
         $this->addArgument('TASK_ID', InputArgument::REQUIRED, 'ID задачи.');
-        $this->addOption('params', null, InputOption::VALUE_REQUIRED, 'Ограниченный query JSON object.');
-        $this->addOption('params-file', null, InputOption::VALUE_REQUIRED, 'Ограниченный query JSON из PATH или -.');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: id, createdDate, userId, field, from, to. REST 1.0 companion route; strict-rest3 отклоняет вызов до подключения.  History не является перепиской. При отсутствии next/total непустой результат имеет complete=false и exit3. Пример: b24cli task:history:list 123 --json');
+        $this->addOption('params', null, InputOption::VALUE_REQUIRED, 'Ограниченный JSON запроса-объект.');
+        $this->addOption('params-file', null, InputOption::VALUE_REQUIRED, 'Ограниченный JSON запроса из PATH или -.');
+        $this->setHelp('JSON: структура data/meta/error; столбцы TSV при --plain: id, createdDate, userId, field, from, to. Дополнительный маршрут REST 1.0; strict-rest3 отклоняет вызов до подключения.  История не является перепиской. При отсутствии next/total непустой результат имеет complete=false и exit3. Пример: b24cli task:history:list 123 --json');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

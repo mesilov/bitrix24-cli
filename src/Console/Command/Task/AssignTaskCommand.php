@@ -28,7 +28,7 @@ final class AssignTaskCommand extends Command
         $this->addArgument('TASK_ID', InputArgument::REQUIRED, 'ID задачи.');
         $this->addOption('responsible', null, InputOption::VALUE_REQUIRED, 'ID ответственного.');
         $this->addOption('dry-run', null, InputOption::VALUE_NONE, 'Показать план без записи; проверочные чтения обозначены.');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: taskId, resourceId, action, changedFields. REST 3.0.   Пример: b24cli task:assign 123 --responsible 3');
+        $this->setHelp('JSON: структура data/meta/error; столбцы TSV при --plain: taskId, resourceId, action, changedFields. REST 3.0.   Пример: b24cli task:assign 123 --responsible 3');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

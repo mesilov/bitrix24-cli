@@ -24,7 +24,7 @@ final class CurrentUserCommand extends Command
     protected function configure(): void
     {
 
-        $this->setHelp('REST1; права user/department выбранного подключения. JSON data/meta/error; plain TSV: ID, NAME, SECOND_NAME, LAST_NAME, EMAIL, UF_DEPARTMENT. Поиск возвращает кандидатов; полный пустой результат exit0, неполный exit3. Пример: b24cli users:current --json');
+        $this->setHelp('REST1; права user/department выбранного подключения. JSON data/meta/error; TSV при --plain: ID, NAME, SECOND_NAME, LAST_NAME, EMAIL, UF_DEPARTMENT. Поиск возвращает кандидатов; полный пустой результат exit0, неполный exit3. Пример: b24cli users:current --json');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

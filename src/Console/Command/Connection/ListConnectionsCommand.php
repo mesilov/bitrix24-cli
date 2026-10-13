@@ -22,7 +22,7 @@ final class ListConnectionsCommand extends Command
 
     protected function configure(): void
     {
-        $this->setHelp('Локальный список: profile, name, hostname, default, source, path, isDefault. Не читает credentials и не обращается к порталу.');
+        $this->setHelp('Локальный список: profile, name, hostname, default, source, path, isDefault. Не читает учётные данные и не обращается к порталу.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

@@ -27,7 +27,7 @@ final class ShowTaskCommand extends Command
     {
         $this->addArgument('TASK_ID', InputArgument::REQUIRED, 'ID задачи.');
         $this->addOption('select', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Выбранное поле; флаг можно повторять.');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: field, value. Карточка: REST 3.0. Выбранные auditors/accomplices: явное чтение ID через REST 1.0 и user.get; user_brief для имён, user_basic/user для email. Поддержанные поля: id/name/email/gender/externalAuthId. Недоступные данные: partial (exit 3). strict-rest3 отклоняет обогащение до подключения. Примеры: b24cli task:show 123; b24cli task:show 123 --select title --select auditors --json');
+        $this->setHelp('JSON: структура data/meta/error; столбцы TSV при --plain: field, value. Карточка: REST 3.0. Выбранные auditors/accomplices: явное чтение ID через REST 1.0 и user.get; user_brief для имён, user_basic/user для email. Поддержанные поля: id/name/email/gender/externalAuthId. Недоступные данные: частичный результат partial (код завершения 3). strict-rest3 отклоняет обогащение до подключения. Примеры: b24cli task:show 123; b24cli task:show 123 --select title --select auditors --json');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
