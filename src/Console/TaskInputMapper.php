@@ -174,8 +174,8 @@ final readonly class TaskInputMapper
             }
         }
 
-        $order = ['id' => 'ASC'];
-        if (!$find && $input->getOption('order') !== []) {
+        $order = ['id' => 'DESC'];
+        if ($input->getOption('order') !== []) {
             $order = [];
             foreach ($input->getOption('order') as $value) {
                 $parts = explode(':', $value);

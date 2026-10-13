@@ -32,11 +32,11 @@ final class ListTaskCommand extends Command
         $this->addOption('where', null, InputOption::VALUE_REQUIRED, 'Локальный фильтр равенств JSON object.');
         $this->addOption('where-file', null, InputOption::VALUE_REQUIRED, 'Локальный JSON filter из PATH или -.');
         $this->addOption('select', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Выбранное поле; флаг можно повторять.');
-        $this->addOption('order', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'FIELD:asc или FIELD:desc; флаг можно повторять.');
+        $this->addOption('order', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'FIELD:asc или FIELD:desc; флаг можно повторять; default id:desc (новые сначала).');
         $this->addOption('limit', null, InputOption::VALUE_REQUIRED, 'Лимит вывода; не заменяет бюджет обхода.');
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Снять только лимит вывода; бюджет остаётся конечным.');
         $this->addOption('max-scan', null, InputOption::VALUE_REQUIRED, 'Максимум просмотренных задач (default 10000).');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: id, title, responsibleId, groupId, status, deadline. REST 3.0.   Пример: b24cli task:list --responsible 2 --group-id 42 --all');
+        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: id, title, responsibleId, groupId, status, deadline. REST 3.0. Обход и вывод по умолчанию id DESC (новые сначала); --order меняет оба порядка. Только --id фильтруется на сервере; остальные фильтры локальны. meta.order показывает сортировку; meta.complete=false/exit3 означает неполный обход. Увеличьте --max-scan для просмотра большего числа задач; --all снимает только лимит вывода. Пример: b24cli task:list --responsible 2 --group-id 42 --all');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
