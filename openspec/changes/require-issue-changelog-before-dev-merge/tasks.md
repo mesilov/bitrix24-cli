@@ -7,7 +7,7 @@
 
 ## 2. Проверка готовности
 
-- [ ] 2.1 Обновить ветку от remote dev перед MR, повторить проверки скилла и changelog, проверить локальные ссылки, выполнить openspec validate --strict и git diff --check, сверить issue ↔ change и сохранить результат verify.
+- [x] 2.1 Обновить ветку от remote dev перед MR, повторить проверки скилла и changelog, проверить локальные ссылки, выполнить openspec validate --strict и git diff --check, сверить issue ↔ change и сохранить результат verify.
 
 ## Workflow follow-up
 
