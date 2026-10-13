@@ -68,3 +68,25 @@ stale command map. Added public status/report examples and regenerated the map:
 47 public commands. Full suite now passes **739 tests / 6543 assertions**;
 make check/lint-all/cli-reference-check, strict OpenSpec validation and 7-stage
 offline documentation smoke pass. Earlier review evidence remains historical.
+
+## Confirmed implementation delivery and archive
+
+2026-10-14: #107 merged в dev (`0a54ed3`), #7 merged в skill main (`eac69f1`),
+issue #96 closed. Pre-merge head `3249d68` имел 13 успешных GitHub checks;
+local unit/quality/help-map/smoke evidence находится выше и в delivery.json.
+Change имеет 18/18 tasks и перенесён в
+`openspec/changes/archive/2026-10-14-analyze-agent-trajectories/`.
+
+Sync comparison подтвердил все 11 agent и 4 configuration delta requirements,
+канонические headings и Purpose нового spec; существующий Purpose и остальные
+requirements connection-configuration сохранены. Default main-spec validation:
+16 passed / 0 failed. Strict: 12 passed / 4 failed, пять length warnings —
+четыре прежних длинных statements и Published configuration schema, расширенный
+с 496 до 521 characters. Согласованный полный MODIFIED block сохранён по
+правилу sync; delta strict validation прошла перед переносом. Strict-all-specs
+не заявляется успешной. Runtime/feedback scope этим предупреждением не меняется.
+
+Архив доставляется отдельным MR в dev до удаления worktree. Предыдущие отметки
+«без merge/archive» описывают ранние этапы проверки, текущая доставка подтверждена
+этим receipt. Реальный HTTP feedback, native agent UI/standalone doctor и release
+publication по-прежнему не подтверждены.
