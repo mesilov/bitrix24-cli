@@ -82,3 +82,11 @@ Portal команды запускались отдельно с выбранн�
 Native CI и фактический merge проверяются отдельно на опубликованном итоговом HEAD.
 
 После повторной проверки diff исправлены разделители предложений в объединённой справке двух команд; runtime не менялся. Unit и lint-all повторно проверены перед публикацией.
+
+## Implementation delivery — 2026-10-13
+
+MR #85 merged в dev: `1a2ef638571d562a5006e5fdaf31a0b2a30cbb21`, 2026-10-13T11:28:36Z. Итоговый feature HEAD `3006c11e4158b40eede96368c36d4dca77db4fc9`: 17/17 GitHub checks SUCCESS, включая Linux amd64/macOS arm64/Windows amd64 и archive set. Native run: https://github.com/mesilov/bitrix24-cli/actions/runs/38389309228 . Issue #68 CLOSED/completed, 2026-10-13T11:28:48Z. API evidence сохранена в delivery-evidence-2026-10-13.json.
+
+Specs sync: новая capability task-role-filtering (5 requirements / 21 scenarios); task-console-runtime policy дополнен 3 ролевыми сценариями, все 3 исходных сохранены. Purpose и остальные требования существующей спецификации сохранены. Архивирование и доставка выполняются отдельным MR в dev.
+
+Post-sync validation: 11/11 main specs PASS; task-role-filtering и task-console-runtime strict PASS; active change strict PASS. Один предварительно существовавший warning длины description в task-mvp-scope не относится к #68 и сохранён. Сравнение всех ADDED/MODIFIED blocks с main specs: PASS; delta headers отсутствуют, исходные Purpose и сценарии сохранены.

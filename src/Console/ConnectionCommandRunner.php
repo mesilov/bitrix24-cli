@@ -81,6 +81,22 @@ final readonly class ConnectionCommandRunner
         }
 
         $task['allowsTimeTracking'] = $tracking === 'true';
+        $users = [];
+        foreach (['observer-id' => 'observerId', 'manager-id' => 'managerId'] as $flag => $field) {
+            if ($input->getOption($flag) !== null) {
+                $users[$field] = $this->mapper->id($input->getOption($flag), '--' . $flag);
+            }
+        }
+
+        $auto = $input->getOption('auto-add-observer');
+        if (!in_array($auto, ['true', 'false'], true) || ($auto === 'true' && !isset($users['observerId']))) {
+            throw Failure::usage('--auto-add-observer requires true or false; true also requires --observer-id.');
+        }
+
+        if ($users !== [] || $auto === 'true') {
+            $users['autoAddObserver'] = $auto === 'true';
+        }
+
         if ($input->getOption('webhook-stdin')) {
             $webhook = $this->reader->read('-', 1048576);
             if (strlen($webhook) > 1048576) {
@@ -100,7 +116,7 @@ final readonly class ConnectionCommandRunner
             throw Failure::usage('Provide a webhook through hidden input or --webhook-stdin.');
         }
 
-        return $this->profiles->add($directory, $alias, trim($webhook), $input->getOption('portal-domain'), $task);
+        return $this->profiles->add($directory, $alias, trim($webhook), $input->getOption('portal-domain'), $task, $users);
     }
 
     private function listing(string $directory): array
@@ -117,6 +133,7 @@ final readonly class ConnectionCommandRunner
     private function savedRow(string $directory, string $alias, array $profile): array
     {
         $profile['default']['task']['allowsTimeTracking'] ??= false;
+        $profile['default']['users']['autoAddObserver'] ??= false;
         return $this->row(['profile' => $alias, 'source' => 'profile', 'path' => $directory . '/config.json', ...$profile]);
     }
 

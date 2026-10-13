@@ -4,23 +4,29 @@ declare(strict_types=1);
 
 namespace Bitrix24\CLI\Application\Task\Handler;
 
+use Bitrix24\CLI\Application\Failure;
 use Bitrix24\CLI\Application\OperationResult;
 use Bitrix24\CLI\Application\PreparedOperation;
 use Bitrix24\CLI\Application\Route;
+use Bitrix24\CLI\Application\RuntimeState;
 use Bitrix24\CLI\Application\Task\Request\AddTaskRequest;
 use Bitrix24\CLI\Application\Task\Plan;
 use Bitrix24\CLI\Application\Task\FieldSchema;
 use Bitrix24\CLI\Application\Task\Port\TaskGateway;
+use Bitrix24\CLI\Application\Task\Port\ParticipantGateway;
 
 final readonly class AddTaskHandler
 {
-    public function __construct(private TaskGateway $tasks, private \Bitrix24\CLI\Application\Task\TaskTagMutation $tags)
+    public function __construct(private TaskGateway $tasks, private ParticipantGateway $participants, private RuntimeState $state, private \Bitrix24\CLI\Application\Task\TaskTagMutation $tags)
     {
     }
 
     public function routes(AddTaskRequest $request): array
     {
-        return [new Route('tasks.task.add', 3, 'write'), ...($request->TAGS !== null ? [new Route('tasks.task.update', 1, 'write')] : []), ...($request->advanced ? [new Route('tasks.task.field.list', 3)] : [])];
+        return [new Route('tasks.task.add', 3, 'write'), ...($request->advanced ? [new Route('tasks.task.field.list', 3)] : []),
+            ...($request->TAGS === null ? [] : [new Route('tasks.task.update', 1, 'write')]),
+            ...($request->observerId === null ? [] : [new Route('tasks.task.get', 1), new Route('tasks.task.update', 1, 'write')]),
+        ];
     }
 
     public function prepare(AddTaskRequest $request): PreparedOperation
@@ -29,15 +35,60 @@ final readonly class AddTaskHandler
             FieldSchema::validateWritable($this->tasks, $request->fields);
         }
 
-        $steps = [Plan::step(null, 'tasks.task.add', 3, 'write', $request->fields)];
+        $plan = [Plan::step(null, 'tasks.task.add', 3, 'write', $request->fields)];
         if ($request->TAGS !== null) {
-            $steps[] = [...Plan::step(null, 'tasks.task.update', 1, 'write', ['TAGS' => $request->TAGS], 2), 'taskIdFromStep' => 1];
+            $plan[] = [...Plan::step(null, 'tasks.task.update', 1, 'write', ['TAGS' => $request->TAGS], 2), 'taskIdFromStep' => 1];
         }
 
-        return new PreparedOperation($steps, function () use ($request): OperationResult {
+        if ($request->observerId !== null) {
+            $plan[] = [...Plan::step(null, 'tasks.task.get', 1, 'read', ['select' => ['ID', 'AUDITORS']], count($plan) + 1), 'taskIdSource' => 'created-task'];
+            $plan[] = [...Plan::step(null, 'tasks.task.update', 1, 'write', ['AUDITORS' => [$request->observerId]], count($plan) + 1), 'taskIdSource' => 'created-task', 'mergeWithExisting' => true];
+        }
+
+        return new PreparedOperation($plan, function () use ($request): OperationResult {
             $id = $this->tasks->add($request->fields);
             $result = OperationResult::mutation($id, $id, 'add', $request->fields);
-            return $request->TAGS === null ? $result : $this->tags->finish($id, $request->fields, $request->TAGS, 'add', $result->data['operation']);
+            if ($request->TAGS !== null) {
+                $result = $this->tags->finish($id, $request->fields, $request->TAGS, 'add', $result->data['operation']);
+            }
+
+            if ($request->observerId === null) {
+                return $result;
+            }
+
+            if ($result->exitStatus !== 0) {
+                return new OperationResult($result->profile, $result->data, [...$result->meta, 'observerId' => $request->observerId, 'ledger' => [...$result->meta['ledger'],
+                    ['method' => 'tasks.task.get', 'apiVersion' => '1.0', 'taskId' => $id, 'status' => 'skipped'],
+                    ['method' => 'tasks.task.update', 'apiVersion' => '1.0', 'taskId' => $id, 'status' => 'skipped'],
+                ]], $result->exitStatus);
+            }
+
+            $ledger = $result->meta['ledger'] ?? [['method' => 'tasks.task.add', 'apiVersion' => '3.0', 'taskId' => $id, 'status' => 'confirmed']];
+            $method = 'tasks.task.get';
+            try {
+                $this->state->checkCancellation();
+                $auditors = $this->participants->ids($id, ['auditors'])['auditors'];
+                $ledger[] = ['method' => $method, 'apiVersion' => '1.0', 'taskId' => $id, 'status' => 'confirmed'];
+                $method = 'tasks.task.update';
+                $this->state->checkCancellation();
+                $present = in_array($request->observerId, $auditors, true);
+                if (!$present) {
+                    $this->participants->set($id, null, [...$auditors, $request->observerId]);
+                }
+
+                $ledger[] = ['method' => $method, 'apiVersion' => '1.0', 'taskId' => $id, 'status' => $present ? 'already-present' : 'confirmed'];
+            } catch (Failure $failure) {
+                $ledger[] = ['method' => $method, 'apiVersion' => '1.0', 'taskId' => $id, 'status' => $failure->outcomeUnknown ? 'unknown' : 'failed'];
+                if ($method === 'tasks.task.get') {
+                    $ledger[] = ['method' => 'tasks.task.update', 'apiVersion' => '1.0', 'taskId' => $id, 'status' => 'skipped'];
+                }
+
+                return new OperationResult($result->profile, $result->data, ['complete' => false, 'ledger' => $ledger, 'observerId' => $request->observerId, 'outcomeUnknown' => $failure->outcomeUnknown,
+                    'reason' => 'Task ' . $id . ' was created; observer assignment is incomplete. ' . $failure->getMessage() . ' Inspect task:show ' . $id . ' before retrying.',
+                ], $failure->exitStatus === 130 ? 130 : 3);
+            }
+
+            return new OperationResult($result->profile, $result->data, ['complete' => true, 'ledger' => $ledger, 'observerId' => $request->observerId]);
         }, 'new task');
     }
 }

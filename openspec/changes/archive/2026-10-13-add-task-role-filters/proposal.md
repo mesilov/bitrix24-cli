@@ -36,3 +36,7 @@
 - [#68 — возможность отфильтровать задачи по логическим группам: делаю, помогаю, поручил, наблюдаю](https://github.com/mesilov/bitrix24-cli/issues/68): четыре ролевые выборки; milestone `0.2.0`, label `enhancement`. REST и GraphQL попытки назначения существующего типа Feature оставили type=null; стандартная categorization подтверждена label, отсутствие issue type не объявляется успехом его назначения.
 
 Обратная ссылка в описании issue указывает `add-task-role-filters`, `openspec/changes/add-task-role-filters/`; обе стороны проверены через GitHub API 2026-10-13 перед реализацией. Ветка обновлена до `origin/dev` `96ce502` перед apply без изменений основного checkout.
+
+## Archive delivery
+
+Реализация merged через [MR #85](https://github.com/mesilov/bitrix24-cli/pull/85) в dev; [#68](https://github.com/mesilov/bitrix24-cli/issues/68) закрыт. Актуальный путь change: `openspec/changes/archive/2026-10-13-add-task-role-filters/`; основной контракт синхронизирован с openspec/specs.

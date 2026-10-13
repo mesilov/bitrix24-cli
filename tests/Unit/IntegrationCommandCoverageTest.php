@@ -7,6 +7,7 @@ namespace Bitrix24\CLI\Tests\Unit;
 use Bitrix24\CLI\Bootstrap\CommandCatalog;
 use Bitrix24\CLI\Tests\Integration\Task\ShowTaskCommandTest;
 use Bitrix24\CLI\Tests\Support\LiveTaskCommandTestCase;
+use Bitrix24\CLI\Tests\Support\LiveCommandTestCase;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
@@ -28,14 +29,14 @@ final class IntegrationCommandCoverageTest extends TestCase
                 continue;
             }
 
-            self::assertTrue($class->isSubclassOf(LiveTaskCommandTestCase::class), $class->name);
+            self::assertTrue($class->isSubclassOf(LiveCommandTestCase::class), $class->name);
             $groups = array_map(static fn (\ReflectionAttribute $attribute): string => $attribute->newInstance()->name(), $class->getAttributes(Group::class));
             $commands = array_values(array_filter($groups, static fn (string $group): bool => str_starts_with($group, 'command:')));
             self::assertCount(1, $commands, 'Each integration class must belong to exactly one command: ' . $class->name);
             $command = substr($commands[0], strlen('command:'));
             self::assertArrayHasKey($command, CommandCatalog::COMMANDS);
             $commandClass = new \ReflectionClass(CommandCatalog::COMMANDS[$command]['class']);
-            self::assertSame('Bitrix24\\CLI\\Tests\\Integration\\Task\\' . $commandClass->getShortName() . 'Test', $class->name);
+            self::assertSame(str_replace('\\Console\\Command\\', '\\Tests\\Integration\\', $commandClass->name) . 'Test', $class->name);
             $happyPaths = [];
             foreach ($class->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
                 if (!str_starts_with($method->name, 'test') || $method->isStatic()) {

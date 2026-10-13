@@ -1,6 +1,6 @@
 # Конфигурация подключений b24cli
 
-Пользовательский `config.json` хранит параметры нескольких порталов и defaults создания задач. Полный webhook находится в отдельном credential file. Формат не зависит от расположения и версии бинарника.
+Пользовательский `config.json` хранит параметры нескольких порталов и defaults создания задач и рабочих адресатов. Полный webhook находится в отдельном credential file. Формат не зависит от расположения и версии бинарника.
 
 Машиночитаемый контракт: [config.schema.json](config.schema.json), [JSON Schema Draft 2020-12](https://json-schema.org/draft/2020-12/schema). Эта схема описывает пользовательский `config.json`. Глобальный `--config PATH` по-прежнему читает другой файл — runtime JSON с `timeout`, `apiPolicy`, `profile`, `maxUploadBytes`.
 
@@ -106,6 +106,7 @@ Credential file содержит `BITRIX24_WEBHOOK` с полным входящ
 | `connection.credentialFile` | Да | Относительная ссылка на managed credential file. |
 | `default` | Нет | Объект defaults выбранного профиля. |
 | `default.task` | Нет | Объект defaults только для `task:add`. |
+| `default.users` | Нет | Рабочие роли и флаг автодобавки наблюдателя. |
 
 Alias чувствителен к регистру: от 1 до 64 символов, первая буква ASCII, далее буквы, цифры, `_` или `-`. `work` и `Work` — разные профили.
 
@@ -139,6 +140,53 @@ b24cli --profile work task:add --fields '{"title":"Договор","allowsTimeTr
 Другие команды — включая `task:list/find/update/assign` — не наследуют `default.task`. При подключении через process env или env-file профильные defaults не читаются: это мог бы быть другой портал. Встроенный `allowsTimeTracking=false` для создания действует и без профиля.
 
 `groupId` на корне профиля и `authorId` запрещены. Используются только `default.task.groupId` и `default.task.creatorId`; aliases и автоматического переименования нет.
+
+## default.users
+
+Служебные настройки CLI относятся только к фактически выбранному сохранённому профилю:
+
+| Ключ | Тип | При отсутствии |
+| --- | --- | --- |
+| `observerId` | Положительный integer literal | Дефолтного наблюдателя нет. |
+| `managerId` | Положительный integer literal | Настроенного рабочего руководителя нет. |
+| `autoAddObserver` | Boolean | `false`; автоматическое назначение отключено. |
+
+`autoAddObserver=true` требует `observerId`. `managerId` может отличаться от руководителя по оргструктуре; получить его можно явно через `users:manager --source config`. Обычная `users:manager` использует оргструктуру. ID не вычисляются из webhook и не заменяют `creatorId`/`responsibleId`.
+
+```json
+{
+  "version": 1,
+  "defaultProfile": "work",
+  "profiles": {
+    "work": {
+      "name": "work.example",
+      "connection": {
+        "hostname": "work.example",
+        "credentialFile": "credentials/7d2d26f2.env"
+      },
+      "default": {
+        "users": {
+          "observerId": 5,
+          "managerId": 9,
+          "autoAddObserver": true
+        }
+      }
+    }
+  }
+}
+```
+
+```sh
+b24cli connection:add work --observer-id 5 --manager-id 9 --auto-add-observer true
+b24cli --profile work connection:show
+b24cli --profile work users:manager --source config
+```
+
+Для существующего профиля эти optional поля можно добавить в его `config.json`; сохраняйте защищённые права файла и проверяйте его по JSON Schema. Сохранение настроек не обращается к порталу. `observerId`/`managerId` являются локальными role selectors и не передаются как поля REST.
+
+При включённой автодобавке `task:add` создаёт задачу, читает существующих наблюдателей и добавляет `observerId`, сохраняя остальные ID. Назначение использует REST1 `AUDITORS`; read relation REST3 `auditors` не записывается. При ошибке после создания CLI возвращает partial/exit3 с ID задачи и ledger: проверяйте уже созданную задачу перед следующим действием. `false` или отсутствие флага не добавляет запросов. Env/file/process подключения не наследуют роли сохранённых профилей.
+
+Basic `task:add --dry-run` показывает будущие шаги без credentials/API; advanced `--fields` сохраняет remote schema preflight. Явно выбранная строгая API policy проверяется до создания задачи.
 
 ## Настройка и состояние файлов
 

@@ -28,9 +28,19 @@
   перекрывает default в обе стороны; большие файлы передаются потоково. Локальный ввод
   использует Symfony Filesystem/Path и Base64-кодировщик b24phpsdk
   ([#62](https://github.com/mesilov/bitrix24-cli/issues/62)).
+- Namespace `users`: текущий пользователь подключения, поиск сотрудников по ФИО/email,
+  коллеги текущего отдела и руководитель по оргструктуре либо из профиля.
+  Добавлены профильные `observerId`, `managerId` и флаг `autoAddObserver`:
+  при включении наблюдатель добавляется после создания задачи с сохранением
+  существующих участников и подтверждённого ID при частичном выполнении
+  ([#63](https://github.com/mesilov/bitrix24-cli/issues/63)).
 
 ### Изменено
 
+- Синхронизированы спецификации фильтрации задач по своей роли и API policy;
+  архивирован завершённый OpenSpec change `add-task-role-filters` с результатами
+  проверок и delivery evidence после merge реализации в `dev`
+  ([#68](https://github.com/mesilov/bitrix24-cli/issues/68)).
 - Синхронизированы спецификации тегов задач и архивирован проверенный change
   `add-task-tags` после merge реализации в `dev`
   ([#71](https://github.com/mesilov/bitrix24-cli/issues/71)).

@@ -23,51 +23,26 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Dotenv\Dotenv;
 
 /** Disposable SDK fixtures isolate each CLI command's integration cases. */
-abstract class LiveTaskCommandTestCase extends TestCase
+abstract class LiveTaskCommandTestCase extends LiveCommandTestCase
 {
-    protected B24Application $app;
-    protected int $userId;
-    protected SdkApiTransport $api;
     protected Rest3TaskAdapter $tasks;
     protected TaskChatAdapter $chat;
     protected Rest1TimeEntryAdapter $entries;
     protected Rest1ChecklistAdapter $checklists;
     protected Rest1ParticipantAdapter $participants;
-    private array $settings = [];
     private array $createdTasks = [];
     private array $ownedTaskIds = [];
     private array $createdDiskFiles = [];
-    private array $observedCommands = [];
     private array $createdDiskFolders = [];
 
     protected function setUp(): void
     {
-        $envConnectionResolver = new EnvConnectionResolver($this->root());
-        try {
-            $envConnectionResolver->webhook();
-        } catch (Failure $failure) {
-            if ($failure->errorCode === 'connection-unavailable') {
-                self::markTestSkipped('Live portal tests need BITRIX24_WEBHOOK in the selected root environment file.');
-            }
-
-            throw $failure;
-        }
-
-        $path = $envConnectionResolver->environmentFile();
-        if (is_file($path)) {
-            $this->settings = (new Dotenv())->parse(file_get_contents($path));
-        }
-
-        $runtimeState = new RuntimeState();
-        $this->api = new SdkApiTransport(new B24ClientProvider($envConnectionResolver, $runtimeState), $runtimeState);
+        parent::setUp();
         $this->tasks = new Rest3TaskAdapter($this->api);
         $this->chat = new TaskChatAdapter($this->api);
         $this->entries = new Rest1TimeEntryAdapter($this->api);
         $this->checklists = new Rest1ChecklistAdapter($this->api);
         $this->participants = new Rest1ParticipantAdapter($this->api);
-        $this->userId = (int) ($this->api->call('profile', 1, [])->result['ID'] ?? 0);
-        self::assertGreaterThan(0, $this->userId, 'Webhook profile must return the acting user ID.');
-        $this->app = (new ApplicationFactory())->create($this->root());
     }
 
     protected function tearDown(): void
@@ -119,38 +94,8 @@ abstract class LiveTaskCommandTestCase extends TestCase
         }
     }
 
-    protected function root(): string
+    protected function afterInvoke(array $argv, array $json): void
     {
-        return dirname(__DIR__, 2);
-    }
-
-    protected function setting(string $name): string
-    {
-        return getenv($name) ?: ($this->settings[$name] ?? '');
-    }
-
-    private function commandName(): string
-    {
-        $groups = array_map(static fn (\ReflectionAttribute $attribute): string => $attribute->newInstance()->name(), (new \ReflectionClass($this))->getAttributes(Group::class));
-        $commands = array_values(array_filter($groups, static fn (string $group): bool => str_starts_with($group, 'command:')));
-        if (count($commands) !== 1) {
-            throw new \LogicException('Each live test class must declare exactly one command group.');
-        }
-
-        return substr($commands[0], strlen('command:'));
-    }
-
-    private function isHappyPath(): bool
-    {
-        return array_any((new \ReflectionMethod($this, $this->name()))->getAttributes(Group::class), static fn (\ReflectionAttribute $attribute): bool => $attribute->newInstance()->name() === 'happy-path');
-    }
-
-    protected function invoke(array $argv, array $statuses = [0], ?B24Application $app = null): array
-    {
-        self::assertSame($this->commandName(), $argv[0], 'Fixtures and readback must use SDK helpers, not another CLI command.');
-        $run = ConsoleHarness::run($app ?? $this->app, ['--json', ...array_map(strval(...), $argv)]);
-        $json = $run->json();
-        $this->observedCommands[] = ['command' => $argv[0], 'status' => $run->status, 'apiCalls' => $json['meta']['apiCalls'] ?? [], 'complete' => $json['meta']['complete'] ?? null, 'reason' => $json['meta']['reason'] ?? null, 'errorCode' => $json['error']['code'] ?? null, 'apiErrorCode' => $json['error']['details']['apiErrorCode'] ?? null, ...(isset($json['meta']['roleFilter']) ? ['roleFilter' => $json['meta']['roleFilter']] : [])];
         if ($argv[0] === 'task:add') {
             foreach ($json['data']['items'] ?? [$json['data']['operation'] ?? []] as $operation) {
                 $id = $operation['resourceId'] ?? null;
@@ -168,15 +113,6 @@ abstract class LiveTaskCommandTestCase extends TestCase
             }
         }
 
-        self::assertContains($run->status, $statuses, $run->stdout . $run->stderr);
-        if ($run->status === 0) {
-            self::assertNull($json['error']);
-            if (array_key_exists('complete', $json['meta'])) {
-                self::assertTrue($json['meta']['complete']);
-            }
-        }
-
-        return $json;
     }
 
     protected function fixtureTitle(): string

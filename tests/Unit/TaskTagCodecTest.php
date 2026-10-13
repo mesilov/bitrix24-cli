@@ -67,8 +67,8 @@ final class TaskTagCodecTest extends TestCase
             return new MockResponse('{"result":{"item":{"id":123}}}');
         });
         $sdkApiTransport = new SdkApiTransport(new B24ClientProvider(new SpyConnectionResolver(), $runtimeState, $mockHttpClient), $runtimeState);
-        $addTaskHandler = new \Bitrix24\CLI\Application\Task\Handler\AddTaskHandler(new \Bitrix24\CLI\Infrastructure\Bitrix24\Rest3TaskAdapter($sdkApiTransport), new \Bitrix24\CLI\Application\Task\TaskTagMutation(new Rest1TaskTagAdapter($sdkApiTransport)));
-        $prepared = $addTaskHandler->prepare(new \Bitrix24\CLI\Application\Task\Request\AddTaskRequest(['title' => 'Fixture', 'creatorId' => 1, 'responsibleId' => 1], false, ['#плановая']));
+        $addTaskHandler = new \Bitrix24\CLI\Application\Task\Handler\AddTaskHandler(new \Bitrix24\CLI\Infrastructure\Bitrix24\Rest3TaskAdapter($sdkApiTransport), new \Bitrix24\CLI\Infrastructure\Bitrix24\Rest1ParticipantAdapter($sdkApiTransport), $runtimeState, new \Bitrix24\CLI\Application\Task\TaskTagMutation(new Rest1TaskTagAdapter($sdkApiTransport)));
+        $prepared = $addTaskHandler->prepare(new \Bitrix24\CLI\Application\Task\Request\AddTaskRequest(['title' => 'Fixture', 'creatorId' => 1, 'responsibleId' => 1], false, TAGS: ['#плановая']));
         $result = ($prepared->execute)();
         self::assertSame(130, $result->exitStatus);
         self::assertSame(123, $result->data['items'][0]['taskId']);
