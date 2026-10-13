@@ -1,0 +1,6 @@
+# Official Bitrix24 REST documentation MCP; no credentials are needed.
+# https://apidocs.bitrix24.ru/ai-tools/mcp.html
+[mcp_servers.bitrix24_dev]
+url = "https://mcp-dev.bitrix24.tech/mcp"
+enabled = true
+required = true
