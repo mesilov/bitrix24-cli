@@ -103,3 +103,9 @@ Merged origin/dev `fdb9148` (users namespace + role-filter archive) into source 
 - First portal rerun after merge: **7 cases/79 assertions, 2 failures, 1 skip**, both failures in the streamed fixture (transport-error/outcomeUnknown and missing happy-path confirmation). Its owned task6098/folder1632 were cleaned; no confirmed Disk ID/attach, no automatic retry. This failure receipt is retained.
 - Separate rerun with a fresh fixture and explicit stream-test timeout120: **7 cases/86 assertions, 6 passed + 1 restricted-role skip**; full10485762-byte SIZE/PARENT_ID/NAME readback and attach ACK succeeded. Other cases passed; all owned cleanupFailures arrays empty. CLI default timeout remains unchanged.
 - Native receipt for d57738c above is historical evidence before this dev merge. Required CI on the final merged PR head is checked separately before reporting readiness; this receipt does not replace it. No merge/release or live500MB claim.
+
+## Terminal implementation delivery — 13.10.2026
+
+- Final source661fafb: **17/17 checks SUCCESS**; native [workflow](https://github.com/mesilov/bitrix24-cli/actions/runs/38394173596) confirms original/compressed local-upload-config-limit on all three platforms and final archive set.
+- PR#74 merged into dev at `0f4a2681bb6a838a9356a8838f3fc87d5d6148fb`; issue62 closed. Existing limitations (restricted role, independent attachment membership, live500MB) remain explicit above.
+- Archive sync: task-file-upload10 new requirements; cli-experience, task-console-runtime and task-mvp-scope one modified requirement each. All existing scenarios/Purpose preserved; **14 main specs passed validation**, with non-failing long-description warnings on established requirements. Strict change validation passed. Total16/16 tasks complete; archive delivery handled through a separate dev PR.

@@ -38,3 +38,7 @@
 ## Evidence boundary
 
 13.10.2026 из checkout выполнены `codex mcp get bitrix24_dev --json` и реальные `bitrix-search` → `bitrix-method-details`. Подтверждены документированные контракты [Disk upload](https://apidocs.bitrix24.ru/api-reference/disk/folder/disk-folder-upload-file.html) и [REST3 attach](https://apidocs.bitrix24.ru/api-reference/tasks/rest-v3/tasks-task-file-attach.html). Это planning evidence; runtime, CI, live права и membership задачи пока не проверены. Исходная база — dev `6d9fe39b4f6d431c70680adefdab970cb0ad2db4`.
+
+## Delivery and archive
+
+Implementation delivered to dev by [PR #74](https://github.com/mesilov/bitrix24-cli/pull/74), merge commit `0f4a2681bb6a838a9356a8838f3fc87d5d6148fb`, 13.10.2026. Issue #62 closed as completed. Final implementation head `661fafbead57f470af1af1a46ea253b9e27a29f3` passed 17/17 checks, including native Linux/macOS/Windows and archive-set acceptance. Archive: `openspec/changes/archive/2026-10-13-upload-local-task-files/`; synchronized main specs include config precedence and default500MB.
