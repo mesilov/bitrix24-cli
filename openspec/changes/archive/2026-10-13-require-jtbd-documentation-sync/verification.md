@@ -13,3 +13,9 @@
 Проверка применимости правила: новый сценарий/изменение mapped команды требует синхронизации документа в том же MR; несвязанное изменение не требует её; наличие реализации или файла теста не заменяет сквозную/live-приёмку. Это просмотр инструкций, не behavioral eval агента.
 
 Полнота: 3/3 задачи. Design adherence и согласованность инструкций проверены. Spec coverage и runtime scenario coverage: Not applicable, docs-only. Runtime/live suites локально не запускались; CLI и tests не меняются. Критических замечаний к документационной правке нет. Архивирование после подтверждённого merge и закрытия #105.
+
+## Подтверждённая доставка 13.10.2026
+
+- PR #106 HEAD `555bca765e7d56de0f90642cd2e7d8c8a7b6e3bd`: 13/13 GitHub checks SUCCESS; перед merge проверены target dev, CLEAN, точный HEAD/base, ограниченный diff и содержательная запись CHANGELOG #105.
+- PR #106 MERGED в dev, merge `e1f1f6836291c69bf40aaf9419d9bd9eea37e342`; issue #105 CLOSED. CI/merge receipts в delivery.json.
+- Change docs-only: 3/3 задачи, no delta specs; архив доставляется отдельным MR до удаления worktree.
