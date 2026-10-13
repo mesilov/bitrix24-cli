@@ -46,6 +46,10 @@
 
 ### Изменено
 
+- Синхронизированы спецификации календарных фильтров дедлайна и архивирован
+  завершённый OpenSpec change `add-task-deadline-windows` после merge CLI/skill
+  и закрытия issue ([#95](https://github.com/mesilov/bitrix24-cli/issues/95)).
+
 - Подтверждена публичная Unix установка `0.1.0` с installer из `main`;
   синхронизированы восемь требований binary-distribution и архивирован завершённый
   OpenSpec change с native CI/public delivery evidence

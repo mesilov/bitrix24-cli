@@ -34,3 +34,12 @@ TaskInputMapper, TaskQuery, TaskListScanner, ListTaskCommand/FindTaskCommand, ga
 ## Evidence boundary
 
 2026-10-13 проверены официальные документы через MCP search/details и полные страницы методов. На текущем портале выполнены 4 read-only запроса: базовый REST3 успешен; REST3 deadline range отклонён (HTTP400, отсутствие Filterable); REST1 тот же range успешен (HTTP200, 5 задач, все внутри диапазона); противоречивый REST1 range дал 0. См. research.md и api-evidence.json. Это не проверка будущего CLI и не универсальная гарантия всех порталов.
+
+## Delivery and archive 2026-10-13
+
+- CLI [PR #98](https://github.com/mesilov/bitrix24-cli/pull/98) merged into dev; merge SHA 674ccc00983c0c35d5448c225a3b8712106a4978.
+- Skill [PR #5](https://github.com/mesilov/bitrix24-cli-skill/pull/5) merged into main; merge SHA 79c8176f504ac1a1a5a3840f85d79e1f5a4d06b2.
+- [Issue #95](https://github.com/mesilov/bitrix24-cli/issues/95) closed as completed; 11/11 tasks finished.
+- cli-experience: 3 modified requirements synced; task-deadline-windows: new main spec with 7 requirements. Main purpose and unrelated scenarios preserved.
+- Archive: openspec/changes/archive/2026-10-13-add-task-deadline-windows/.
+- No release/promotion to main of the CLI is performed by this delivery.
