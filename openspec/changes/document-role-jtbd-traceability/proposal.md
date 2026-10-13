@@ -1,0 +1,30 @@
+# Proposal
+
+## Why
+
+19 согласованных JTBD и их IDs находятся в OpenSpec; пользователям нужна доступная таблица в docs с группировкой по рабочим ролям и трассировкой на текущие команды и интеграционные тесты.
+
+## What Changes
+
+- Добавить `docs/task-jtbd.md`: руководитель отдела (PM-01…06), аккаунт-менеджер проекта (AM-01…06), рядовой исполнитель (EMP-01…07).
+- Сохранить исходные ID, ситуацию, работу, цель и признак успеха из task-workflows.
+- Показать текущие и планируемые команды по jtbd-coverage и CommandCatalog, ссылки класса/метода командных integration tests и пробелы сквозной приёмки.
+- Добавить README navigation и CHANGELOG Unreleased со ссылкой #80.
+
+## Capabilities
+
+### New Capabilities
+
+Нет: изменение только документации (`skip_specs: true`).
+
+### Modified Capabilities
+
+Нет: task-workflows и исходная матрица остаются источниками требований.
+
+## Impact
+
+`docs/task-jtbd.md`, README.md, CHANGELOG.md, артефакты этого change. Runtime, CLI flags, API contracts и тесты не меняются. Новые live-проверки и закрытие #42 вне области; наличие ссылок на тесты не доказывает их прохождение или полноту JTBD.
+
+## GitHub issues
+
+- [#80](https://github.com/mesilov/bitrix24-cli/issues/80) — таблица всех 19 JTBD, группировка по ролям, сохранение IDs и честная трассировка команд/тестов. Milestone 0.2.0, label documentation.

@@ -1,0 +1,21 @@
+{
+  "scenario_rows": 19,
+  "role_rows": {
+    "PM": 6,
+    "AM": 6,
+    "EMP": 7
+  },
+  "command_refs": 32,
+  "test_method_refs": 32,
+  "unique_commands": 19,
+  "unique_test_methods": 19,
+  "local_links": 90,
+  "no_runtime_mapping": [
+    "PM-05",
+    "AM-02",
+    "AM-03",
+    "AM-05"
+  ],
+  "canonical_texts": "matched",
+  "runtime_test_execution": "not_run_docs_only"
+}

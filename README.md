@@ -356,6 +356,8 @@ advanced fields сохраняют описанный preflight editable metadat
 
 ## CLI-команды
 
+[JTBD по ролям: сценарии, CLI-команды и интеграционные тесты](docs/task-jtbd.md).
+
 | Команда | Назначение |
 | --- | --- |
 | `connection:add` | Сохранить именованное подключение и defaults создания задачи |
