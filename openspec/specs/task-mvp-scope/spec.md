@@ -50,7 +50,7 @@ task:subtask:add
 - **THEN** отдельная task:subtask:add не регистрируется и не вызывается; task:add сохраняет явное поле, проверяет его допустимость и не выбирает parent неявно. Рабочее предположение касается удаления отдельной команды и уточняется при запросе полного запрета подзадач
 
 ### Requirement: API admission and future lifecycle acceptance remain explicit
-Каталог SHALL отделять release scope от API support: 59 операций = 30 кандидатов MVP, 0 API-policy-pending и 29 после MVP. Через REST1 явно допущены 4 time, 8 checklist/root/item, 2 participants/history команды и выбранные companion reads участников task:show. Для milestone 0.2.0 дополнительно SHALL допускаться REST1 tasks.task.update только с TAGS в task:add/task:update. В 0.2.0 дополнительно SHALL допускаться disk.folder.uploadFile REST1 только для явного локального режима task:file:attach. Права SHALL проверяться для кандидатов; lifecycle SHALL оставаться после MVP независимо от возможности записи status. Наличие команды в каталоге не SHALL означать принятие иных API exceptions, доказанную семантику или runtime readiness.
+Каталог SHALL отделять release scope от API support: 59 операций = 30 кандидатов MVP, 0 API-policy-pending и 29 после MVP. Права SHALL проверяться для кандидатов; lifecycle SHALL оставаться после MVP независимо от возможности записи status. Наличие команды в каталоге не SHALL означать принятие иных API exceptions, доказанную семантику или runtime readiness.
 
 #### Scenario: Legacy admission is limited to selected commands
 - **WHEN** вызывается legacy маршрут вне согласованных команд/companion reads/записи TAGS либо общий tasks.task.update используется для действий за пределами participants:set и записи TAGS в task:add/task:update
@@ -79,6 +79,27 @@ task:subtask:add
 #### Scenario: Scoped Disk upload admission
 - **WHEN** пользователь прикрепляет локальный файл через task:file:attach --file PATH --folder-id ID
 - **THEN** допускается только disk.folder.uploadFile REST1 с последующим attach REST3; каталог сохраняет 34 task команд, общий Disk API/произвольные методы не открываются, strict-rest3 запрещает mixed plan до credentials/API
+
+### Requirement: Initial scoped REST1 task admission
+Через REST1 SHALL быть явно допущены 4 time, 8 checklist/root/item, 2 participants/history команды и выбранные companion reads участников task:show.
+
+#### Scenario: Original legacy task scope
+- **WHEN** оценивается первоначальный REST1 admission для task-команд
+- **THEN** он ограничен согласованными 4 time, 8 checklist/root/item, 2 participants/history командами и выбранными companion reads task:show.
+
+### Requirement: Milestone tag write admission
+Для milestone 0.2.0 дополнительно SHALL допускаться REST1 tasks.task.update только с TAGS в task:add/task:update.
+
+#### Scenario: Narrow legacy tag field admission
+- **WHEN** task:add/task:update в task-v3 получает явные теги
+- **THEN** допускается REST1 tasks.task.update только с TAGS; это не расширяет остальные API exceptions или lifecycle scope.
+
+### Requirement: Milestone local Disk upload admission
+В 0.2.0 дополнительно SHALL допускаться disk.folder.uploadFile REST1 только для явного локального режима task:file:attach.
+
+#### Scenario: Explicit local file upload admission
+- **WHEN** пользователь выбирает локальный режим task:file:attach --file PATH --folder-id ID
+- **THEN** допускается только согласованный disk.folder.uploadFile REST1; это не означает допуск общего Disk API.
 
 ### Requirement: Time entries are included through explicit legacy routes
 MVP SHALL включать task:time:add/list/update/delete через явно согласованные REST 1.0 task.elapseditem.add/getlist/update/delete. Этот допуск SHALL ограничиваться четырьмя маршрутами, отражать API version в meta и сохранять запрет non-v3 запросов в strict-rest3. Update/delete SHALL проверять связь TASK_ID/ENTRY_ID и права подключения. Task:time:show SHALL сохранять свой REST3 маршрут.
