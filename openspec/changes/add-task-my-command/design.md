@@ -31,3 +31,7 @@
 ## Migration Plan
 
 Реализовать отдельной feature-веткой #118 от свежей dev после отдельного запроса apply. Проверить target tests/lint/live happy-path, update JTBD/docs, доставить через MR в dev. После merge и закрытия #118 sync/archive delta specs. Сейчас сохраняется только план.
+
+## Синхронизация planning branch
+
+Перед публикацией интегрирована dev f7dc2a7 (локализация help, #113). ListTasksHandler/TaskQuery/Scanner и задача task:my не изменились. При реализации использовать текущие русскоязычные help descriptors/группы и обновить docs/cli-command-map.md вместе с README и JTBD.

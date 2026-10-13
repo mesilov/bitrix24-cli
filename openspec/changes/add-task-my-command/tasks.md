@@ -9,7 +9,7 @@
 
 - [ ] 2.1 Реализовать MyTaskCommand через существующий ListTasksHandler, зарегистрировать CommandCatalog/routes; unit подтвердить offline help/list/completion, read-only strict-rest3, human/JSON/plain и актуальный inventory без потери других команд.
 - [ ] 2.2 Добавить MyTaskCommandTest.php с Group command:task:my и собственным happy-path; проверить выбранного исполнителя/open/deadline на SDK fixtures, readback/cleanup и guard IntegrationCommandCoverageTest. Live skip не считать прохождением.
-- [ ] 2.3 Обновить help/README и docs/task-jtbd.md для EMP-01 (ID, статус, файл теста, source snapshot/границы) и CHANGELOG #118; проверить примеры/ссылки и отсутствие обещания полной автоматической приоритизации.
+- [ ] 2.3 Обновить русскоязычный help/README, docs/cli-command-map.md и docs/task-jtbd.md для EMP-01 (ID, статус, файл теста, source snapshot/границы) и CHANGELOG #118; проверить примеры/ссылки и отсутствие обещания полной автоматической приоритизации.
 
 ## 3. Согласованная приёмка
 

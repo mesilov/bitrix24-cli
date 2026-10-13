@@ -8,3 +8,5 @@
 - Runtime registration delta сохраняет полное требование и все его сценарии с добавлением отдельной task:my (35 task-команд на этой базе); исходные 22 JTBD и EMP-01 не переименованы.
 - docs/task-jtbd.md остаётся планом до реализации. Будущая MyTaskCommandTest.php — задача, не существующий пройденный тест.
 - git diff --check PASS. Runtime/unit/live suites сейчас не запускались: опубликован только план.
+
+Перед draft PR интегрирована свежая dev f7dc2a7; git merge без конфликтов, CHANGELOG сохраняет обе записи. Strict validation повторена; итоговый diff к dev содержит только CHANGELOG и этот change.
