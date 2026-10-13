@@ -119,6 +119,10 @@ final class ProblemTrajectoryTest extends TestCase
         foreach (['https://portal.invalid/rest/1/RecognizableFixtureSecret/', 'person@example.test', '/Users/private/person/secret', 'C:\\Private\\record.txt', 'token=RecognizableFixtureSecret', 'Bearer RecognizableFixtureSecret', '+79991234567', 'responsibleId=123', 'python -c dangerous', '```code```', '$(dangerous)'] as $value) {
             yield $value => [$value];
         }
+
+        foreach (['tenant.bitrix24.kz', 'TENANT.BITRIX24.BY', 'tenant.example.cloud', 'tenant.internal.local', 'портал.рф', 'tenant.xn--p1ai', '192.0.2.10', '192.0.2.10:443', 'address:192.0.2.10', '2001:db8::10', '[::1]', '::ffff:192.0.2.10'] as $value) {
+            yield $value => [$value];
+        }
     }
 
     #[DataProvider('privateValues')]
@@ -130,6 +134,83 @@ final class ProblemTrajectoryTest extends TestCase
         self::assertSame(2, $run->status, $run->stdout);
         self::assertStringNotContainsString($value, $run->stdout . $run->stderr);
         self::assertDirectoryDoesNotExist($this->directory);
+    }
+
+    public function testSensitiveAnalysisDoesNotChangeSnapshotOrProcessingDate(): void
+    {
+        $id = $this->record();
+        foreach (['tenant.bitrix24.kz', '2001:db8::10'] as $private) {
+            $batch = ProblemTrajectoryFixtures::batch([$id]);
+            $batch['groups'][0]['actual'] = $private;
+            $run = $this->invoke('record-analysis', $batch);
+            self::assertSame(2, $run->status, $run->stdout);
+            self::assertStringNotContainsString($private, $run->stdout . $run->stderr);
+            self::assertNull($this->invoke('status')->json()['data']['telemetry']['lastProblemTrajectoryProcessingAt']);
+            self::assertSame('pending', $this->invoke('list')->json()['data']['items'][0]['state']);
+        }
+    }
+
+    public function testPublicationContainsCliAndKnownOrUnknownSkillVersions(): void
+    {
+        $report = ProblemTrajectoryFixtures::report();
+        $report['skillVersion'] = '0.2.0';
+        $known = $this->record($report);
+        $unknown = $this->record();
+        $run = $this->invoke('record-analysis', ProblemTrajectoryFixtures::batch([$known, $unknown]));
+        self::assertSame(0, $run->status);
+        $publication = $run->json()['data']['groups'][0]['publication']['body'];
+        self::assertStringContainsString('CLI versions: 0.1.0', $publication);
+        self::assertStringContainsString('skill versions: 0.2.0, unknown', $publication);
+        self::assertSame(0, $this->invoke('list', extra: ['--state', 'analyzed'])->status);
+    }
+
+    public function testMaximumValidGroupRemainsReadableAndCanBeSubmitted(): void
+    {
+        $id = $this->record();
+        $batch = ProblemTrajectoryFixtures::batch([$id]);
+        $batch['groups'][0]['syntheticReproduction'] = array_fill(0, 20, str_repeat('x', 4096));
+        $batch['groups'][0]['acceptanceCriteria'] = array_fill(0, 20, str_repeat('y', 4096));
+        self::assertLessThan(524288, strlen(json_encode($batch, JSON_THROW_ON_ERROR)));
+        $run = $this->invoke('record-analysis', $batch);
+        self::assertSame(0, $run->status);
+        self::assertGreaterThan(131072, strlen($run->json()['data']['groups'][0]['publication']['body']));
+        self::assertSame(0, $this->invoke('list', extra: ['--state', 'all'])->status);
+        $ref = $run->json()['data']['groups'][0]['groupRef'];
+        self::assertSame(0, $this->invoke('submit', ['groupRefs' => [$ref]], ['--confirm-publication', '--mock-feedback'])->status);
+    }
+
+    public function testDamagedReportedVersionIsCountedButNeverExposedOrDeleted(): void
+    {
+        $id = $this->record();
+        $path = $this->directory . '/.problem-trajectories/' . $id . '.json';
+        $card = json_decode(file_get_contents($path), true, flags: JSON_THROW_ON_ERROR);
+        $card['reportedCliVersion'] = 'sk-PrivateFixtureToken';
+        file_put_contents($path, json_encode($card, JSON_THROW_ON_ERROR));
+        foreach (['status', 'list'] as $action) {
+            $run = $this->invoke($action);
+            self::assertSame(3, $run->status);
+            self::assertSame(1, $run->json()['data']['corruptFileCount']);
+            self::assertStringNotContainsString('PrivateFixtureToken', $run->stdout . $run->stderr);
+        }
+
+        self::assertFileExists($path);
+        self::assertSame(1, $this->invoke('status')->json()['data']['fileCount']);
+    }
+
+    public function testRetryOfPartiallySupersededSnapshotCannotReturnAnActiveOldGroup(): void
+    {
+        $first = $this->record();
+        $second = $this->record();
+        $batch = ProblemTrajectoryFixtures::batch([$first, $second], 'original-snapshot');
+        self::assertSame(0, $this->invoke('record-analysis', $batch)->status);
+        $this->clock->time = $this->clock->time->modify('+1 day');
+        $current = $this->analyze([$first], 'replacement-snapshot');
+        $date = $this->invoke('status')->json()['data']['telemetry']['lastProblemTrajectoryProcessingAt'];
+        $retry = $this->invoke('record-analysis', $batch);
+        self::assertSame(2, $retry->status, $retry->stdout);
+        self::assertSame($date, $this->invoke('status')->json()['data']['telemetry']['lastProblemTrajectoryProcessingAt']);
+        $items = $this->invoke('list', extra: ['--state', 'all'])->json()['data']['items'];
+        self::assertSame($current, array_column($items, 'analysisRef', 'cardId')[$first]);
     }
 
     public function testToggleAndLimitPreserveUnfinishedAndMockCards(): void

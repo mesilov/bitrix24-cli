@@ -35,6 +35,8 @@
 - [x] 6.1 Прогнать offline end-to-end record → weekly offer → grouped analysis → consent → fake submit/reconcile на пакетах 1/2/3/20/50 и лимите 100; сохранить evidence для privacy, дат, счётчиков и числа пользовательских решений.
 - [x] 6.2 Проверить публичный mock handoff/reconcile без сети и реального issue; подтвердить различие mock/real receipt, сохранность mock карточек при cleanup и endpoint-unavailable по умолчанию; записать live handoff #32 как последующий внешний этап.
 - [x] 6.3 Выполнить openspec-verify-change, strict validation, проверки #96 ↔ proposal и CLI/skill/config contracts; подтвердить отсутствие требований/кода full-history collector или scheduler в MVP.
+- [x] 6.4 Исправить подтверждённые review-регрессии CLI: домены вне списка TLD/IP, версии CLI и скилла в publication, privacy повреждённого reportedCliVersion, повтор superseded snapshot и лимит чтения допустимого publication; повторить targeted/full tests и quality/schema/CLI smoke checks.
+- [x] 6.5 Исправить review пример скилла с постоянным registration key: явный уникальный opaque key для эпизода, сохранённый для retries; проверить skill structure, ссылки и два отдельных эпизода через публичный CLI.
 
 ## Workflow follow-up
 

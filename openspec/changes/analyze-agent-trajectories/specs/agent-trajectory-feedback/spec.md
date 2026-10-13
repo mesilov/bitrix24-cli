@@ -29,6 +29,10 @@ CLI SHALL предоставлять doctor:problem-trajectory с bounded struct
 - **WHEN** вход имеет неизвестные поля, превышает лимит, содержит узнаваемые секреты либо одновременно потребляет stdin несколькими опциями
 - **THEN** регистрация отклоняется без сохранения/эхо приватного входа и без ожидания интерактивного ввода
 
+#### Scenario: Maximum valid analysis remains readable
+- **WHEN** допустимый batch использует максимальные bounded списки syntheticReproduction и acceptanceCriteria
+- **THEN** сохранённый publication остаётся читаемым через list и пригодным для consent/mock submit; лимит чтения не меньше допустимого результата
+
 ### Requirement: Protected configuration adjacent storage
 Карточки SHALL храниться отдельными JSON files в .problem-trajectories рядом с пользовательским config.json, по существующему config directory resolver. Atomic writes и защита доступа MUST исключать lost update, path traversal и symlink обход. Каталог проекта, cwd и executable directory MUST NOT выбираться как неявный fallback.
 
@@ -39,6 +43,10 @@ CLI SHALL предоставлять doctor:problem-trajectory с bounded struct
 #### Scenario: Unsafe storage or concurrent writes
 - **WHEN** доступ небезопасен, найден symlink либо несколько invocations одновременно пишут карточки
 - **THEN** unsafe storage отклоняется; допустимые concurrent writes не повреждают конфиг/файлы и не перезаписывают чужие карточки
+
+#### Scenario: Damaged saved version metadata
+- **WHEN** reportedCliVersion сохранённой карточки содержит приватное значение или имеет неверную структуру
+- **THEN** status/list отмечают карточку повреждённой, не выводят её содержимое и не удаляют файл автоматически
 
 ### Requirement: Collection toggle and bounded retention
 collectProblemTrajectories=false MUST выключать новые записи без удаления накопленных карточек. maxProblemTrajectoryFiles SHALL ограничивать число card files, default 100. Для освобождения места SHALL удаляться только старейшие terminal cards с подтверждённой передачей/связью или явным dismiss. Незавершённые и повреждённые карточки MUST NOT молча удаляться.
@@ -88,8 +96,12 @@ collectProblemTrajectories=false MUST выключать новые записи
 - **WHEN** разбор не завершён либо после успешного разбора endpoint недоступен
 - **THEN** сбой разбора не обновляет processed timestamp, а сбой отправки не отменяет сохранённый анализ и не объявляет передачу успешной
 
+#### Scenario: Retry of a superseded analysis snapshot
+- **WHEN** хотя бы одна карточка ранее сохранённой группы уже относится к новому analysis snapshot
+- **THEN** повтор прежнего batch/group отклоняется без изменения даты и состояний, вместо возврата устаревшей группы как действующей
+
 ### Requirement: Grouped and evidence limited candidates
-Агент SHALL группировать похожие карточки, проверять версию/help и existing issues, различать CLI, skill/docs, environment и unclear. Кандидат MUST содержать expected/actual, synthetic reproduction, версии, число карточек и acceptance criteria. Синтетические шаги SHALL отличаться от наблюдений; карточки MUST NOT выдавать процент всех запусков или число пользователей.
+Агент SHALL группировать похожие карточки, проверять версию/help и existing issues, различать CLI, skill/docs, environment и unclear. Кандидат MUST содержать expected/actual, synthetic reproduction, версии CLI и скилла (неизвестная версия скилла обозначается явно), число карточек и acceptance criteria. Синтетические шаги SHALL отличаться от наблюдений; карточки MUST NOT выдавать процент всех запусков или число пользователей.
 
 #### Scenario: Repeated reports and existing command
 - **WHEN** несколько карточек описывают один gap либо команда уже доступна
@@ -106,6 +118,10 @@ collectProblemTrajectories=false MUST выключать новые записи
 - **WHEN** проверка выявила приватные данные во входе/пакете либо пакет не прошёл обязательные проверки
 - **THEN** запись/передача отклоняется или требует очистки; сырые данные не попадают в файл, логи, endpoint или issue
 - **AND** механическая проверка не объявляется гарантией анонимности любого свободного текста
+
+#### Scenario: Bare domain or IP address in report or batch
+- **WHEN** prose или technical metadata содержат узнаваемый bare domain (включая любой TLD/IDN) либо IPv4/IPv6 address
+- **THEN** record/record-analysis отклоняет вход без записи, эхо приватного значения и изменения Processing timestamp
 
 ### Requirement: Consent based feedback batch handoff
 CLI SHALL предоставлять submit с явным consent и feedback port. В согласованном MVP отправка SHALL работать только через явный --mock-feedback: mocked=true/delivered=false, тестовый receipt и mock-submitted, без сети/issues. Одна группа SHALL иметь один idempotency key. Без mock рабочий endpoint SHALL считаться недоступным; скилл MUST NOT делать HTTP обход CLI.

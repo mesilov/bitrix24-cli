@@ -6,7 +6,7 @@
 
 | Измерение | Результат |
 | --- | --- |
-| Completeness | 16/16 tasks выполнены по согласованному mock MVP. Новая capability имеет 11 requirements/23 scenarios; config delta — 4 requirements/8 scenarios. |
+| Completeness | 18/18 tasks выполнены по согласованному mock MVP, включая review follow-up. Новая capability имеет 11 requirements/27 scenarios; config delta — 4 requirements/8 scenarios. |
 | Correctness | Все 15 ADDED/MODIFIED requirements сопоставлены с кодом/skill instructions ниже. CLI runtime и state cases покрыты offline tests; skill instruction flow дополнительно проверен public CLI smoke. Native UI поведения Codex/Claude/OpenCode отдельно не проверялись. |
 | Coherence | Explicit command catalog, DI/Clock/feedback port, общий config lock, protected atomic publish/journal, стандартный envelope и skill-only public CLI. Config schema/runtime/fixtures согласованы; полная история/scheduler отсутствуют. |
 
@@ -50,3 +50,11 @@
 - Remote CI, review/merge and release publication are separate states. This report does not claim them.
 
 Assessment: no critical issues in local MVP verification; source/contract/CLI smoke checks passed. Platform binaries and native agent UI remain bounded limitations. Open review before integration; do not archive until verified delivery under maintainer rules.
+
+## Review follow-up
+
+После повторного ревью #107/#7 найдены и исправлены O1–O6; подробные
+before/after, regression names и границы проверки — в [review.md](review.md).
+Итоговый local suite: **734 tests / 6020 assertions**; `make check lint-all`,
+schema/skill validation и 7-stage public CLI smoke pass. Initial suite receipts
+выше сохраняются как история проверки и не заменяют новые regression cases.

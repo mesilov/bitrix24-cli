@@ -140,6 +140,7 @@ final readonly class ProblemTrajectoryStore
                         throw Failure::usage('A saved batch/group reference cannot be reused with different contents.');
                     }
 
+                    $this->activeGroup($existing, $scan);
                     $results[] = $this->publicGroup($existing);
                     continue;
                 }
@@ -293,10 +294,12 @@ final readonly class ProblemTrajectoryStore
     private function publication(array $group, array $cards): array
     {
         $versions = array_values(array_unique(array_column($cards, 'cliVersion')));
+        $skillVersions = array_values(array_unique(array_map(static fn (array $card): string => $card['skillVersion'] ?? 'unknown', $cards)));
         $body = '## Expected' . "\n" . $group['expected'] . "\n\n## Observed limitation\n" . $group['actual'];
         $body .= "\n\n## Synthetic reproduction\n- " . implode("\n- ", $group['syntheticReproduction']);
         $body .= "\n\n## Acceptance criteria\n- " . implode("\n- ", $group['acceptanceCriteria']);
         $body .= "\n\nOwner: " . $group['owner'] . '; confidence: ' . $group['confidence'] . '; local reports: ' . count($cards) . '; CLI versions: ' . implode(', ', $versions);
+        $body .= '; skill versions: ' . implode(', ', $skillVersions);
         $body .= "\nReport counts do not measure all agent runs or distinct users.";
         return ['title' => $group['title'], 'body' => $body];
     }
@@ -459,6 +462,7 @@ final readonly class ProblemTrajectoryStore
                 }
 
                 ProblemTrajectoryInput::report(array_intersect_key($card, array_flip($fields)));
+                ProblemTrajectoryInput::identifier($card['reportedCliVersion'] ?? null, 128, true);
                 if (($card['cardId'] ?? null) !== $matches[1] || !TelemetrySettings::timestamp($card['createdAt'] ?? null) || !in_array($card['state'] ?? null, ProblemTrajectoryInput::STATES, true) || preg_match('/^[a-f0-9]{64}$/D', $card['payloadHash'] ?? '') !== 1) {
                     throw Failure::usage('Invalid saved card metadata.');
                 }
@@ -522,7 +526,7 @@ final readonly class ProblemTrajectoryStore
             }
 
             ProblemTrajectoryInput::text($document['publication']['title'], 256);
-            ProblemTrajectoryInput::text($document['publication']['body'], 131072);
+            ProblemTrajectoryInput::text($document['publication']['body'], ProblemTrajectoryInput::MAX_BATCH_BYTES);
             if (($document['groupRef'] ?? null) !== substr($relative, 9, -5) || ($document['fingerprint'] ?? null) !== hash('sha256', json_encode($document['analysis'], JSON_THROW_ON_ERROR)) || !in_array($document['state'] ?? null, ProblemTrajectoryInput::STATES, true) || !TelemetrySettings::timestamp($document['createdAt'] ?? null)) {
                 throw new Failure('storage-error', 'Saved analysis metadata is damaged.');
             }

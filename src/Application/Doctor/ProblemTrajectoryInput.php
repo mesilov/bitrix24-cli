@@ -179,7 +179,8 @@ final class ProblemTrajectoryInput
         }
 
         $patterns = [
-            '~https?://|/rest/[0-9]+/|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+|\b(?:[a-z0-9-]+\.)+(?:ru|com|org|net|io|tech|test|invalid)\b~i',
+            '~https?://|/rest/[0-9]+/|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+~i',
+            '~(?<![\pL\pN_-])(?:[\pL\pN](?:[\pL\pN-]{0,61}[\pL\pN])?\.)+(?:[\pL]{2,63}|xn--[a-z0-9-]{2,59})(?![\pL\pN_-])~iu',
             '~(?:/Users/|/home/|/private/|/tmp/|/var/|[A-Za-z]:[\\\\/])~i',
             '~\b(?:token|password|secret|authorization|webhook|api[_-]?key)\s*[:=]|\bBearer\s+\S+|\bgh[pousr]_[A-Za-z0-9]+|\bsk-[A-Za-z0-9]+~i',
             '~\+?[0-9][0-9 ()-]{7,}[0-9]|\b(?:taskId|userId|groupId|responsibleId|creatorId)\s*[:=]\s*[0-9]+~i',
@@ -187,6 +188,13 @@ final class ProblemTrajectoryInput
         ];
         foreach ($patterns as $pattern) {
             if (preg_match($pattern, $value) === 1) {
+                throw Failure::usage('Problem text contains a recognizable private value or executable fragment; sanitize it before recording.');
+            }
+        }
+
+        preg_match_all('~(?<![\pL\pN_])(?:[0-9]{1,3}(?:\.[0-9]{1,3}){3}(?![\pL\pN_.])|[a-f0-9]*:[a-f0-9:.]*:[a-f0-9:.]*(?![\pL\pN_:]))~iu', $value, $addresses);
+        foreach ($addresses[0] as $address) {
+            if (filter_var(rtrim($address, '.'), FILTER_VALIDATE_IP) !== false) {
                 throw Failure::usage('Problem text contains a recognizable private value or executable fragment; sanitize it before recording.');
             }
         }
