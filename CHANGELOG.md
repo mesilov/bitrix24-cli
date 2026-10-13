@@ -76,6 +76,10 @@
 
 ### Изменено
 
+- Подготовлен OpenSpec-план отдельной read-only `task:my` для EMP-01 в milestone 0.2.0:
+  явный исполнитель, открытые задачи, срок и бюджет обхода поверх текущей list pipeline.
+  Команда пока не реализована ([#118](https://github.com/mesilov/bitrix24-cli/issues/118)).
+
 - OpenSpec MVP проблемных сценариев синхронизирован с актуальными
   `agent-trajectory-feedback` и `connection-configuration`; завершённый change
   перенесён в архив `2026-10-14-analyze-agent-trajectories` с evidence доставки CLI
