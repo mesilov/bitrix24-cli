@@ -200,7 +200,7 @@ make integration TEST_ARGS='--group command:task:update' # все cases одно
 make integration TEST_ARGS='--group happy-path'         # отдельный happy-path каждой команды
 ```
 
-Unit suite (`tests/Unit`, PHPUnit `unit-tests`) проверяет все 41 команду задач и четыре команды сотрудников, JSON-параметры, поиск/пагинацию, patches, binding, dry-run, API policy, вывод, env precedence, SDK ошибки, timeout и SIGINT в subprocess. GitHub Actions запускает только `make unit` без секретов. `make integration` запускается отдельно с реальным webhook. Прежние `make test`/`make test-integration` и `make make-unit`/`make make-integration` остаются aliases соответствующих запусков.
+Unit suite (`tests/Unit`, PHPUnit `unit-tests`) проверяет все 42 команды задач и четыре команды сотрудников, JSON-параметры, поиск/пагинацию, patches, binding, dry-run, API policy, вывод, env precedence, SDK ошибки, timeout и SIGINT в subprocess. GitHub Actions запускает только `make unit` без секретов. `make integration` запускается отдельно с реальным webhook. Прежние `make test`/`make test-integration` и `make make-unit`/`make make-integration` остаются aliases соответствующих запусков.
 
 Для каждой прикладной CLI-команды есть отдельный `tests/Integration/Task/<CommandClass>Test.php` с PHPUnit Group `command:<имя>` на классе. Минимум один метод помечен Group `happy-path`; новые позитивные/негативные cases добавляются в класс этой команды. Unit guard сравнивает классы и собственные happy-path методы с CommandCatalog, отклоняет объединение нескольких команд в одном классе и отсутствие покрытия. [Карта покрытия](../openspec/changes/archive/2026-10-12-design-task-console-architecture/command-map.md#integration-happy-path-coverage) описывает 30 исходных классов; четыре result-класса и их проверки описаны в [verification #61](../openspec/changes/archive/2026-10-13-add-task-results/verification.md). `TEST_ARGS` передаёт PHPUnit фильтры в выбранную suite, включая совместимые Make aliases.
 
@@ -326,3 +326,28 @@ REST3 list на тестовом портале возвращает groupId=nul
 на просмотренный ID и ограничен max-scan; scalar groupId из списка сохраняется
 при наличии. Недоступное чтение даёт partial/group-membership-unverified.
 REST1 маршруты не добавляются и strict-rest3 остаётся допустимой политикой.
+
+## Evidence для расчёта статусных длительностей
+
+`HistoryScanner::scan(..., withEvidence: true)` используется новой read-only
+командой `task:status:durations`. Внутренний результат сохраняет исходные
+нормализованные события, включая конфликтующие дубликаты ID, offsets и
+совокупность причин navigation/page-error/budget. Публичный `task:history:list`
+сохраняет прежний JSON/TSV и дедупликацию. Budget — 10000 событий; ID не является
+доказательством порядка событий с одинаковым timestamp.
+
+`StatusDurationCalculator` строит полуоткрытые интервалы в абсолютном времени;
+`from == to` не создаёт новый вход. При любой недоказанной границе/распределении
+`seconds` и `totals` равны `null`; `elapsedBetweenEventsSeconds` содержит только
+разницу меток. Календарь рабочих дней и учёт трудозатрат не применяются.
+Две REST3 карточки `status/statusChanged/changed` проверяют гонки, но не являются
+атомарным snapshot. STATUS-only не доказывает REAL_STATUS эквивалентность.
+
+Проверки: `make unit TEST_ARGS="--filter StatusDuration"` и
+`make integration TEST_ARGS="--group command:task:status:durations"`.
+Интеграционный happy-path требует навигацию, один NEW и канонические REAL_STATUS
+с двумя повторными открытиями. Невозможность доказать эти условия отмечается
+как **incomplete**, без успешного exact CLI вызова; это не точная приёмка.
+Отдельный live-тест проверяет null totals, исходную navigation reason и exit 3.
+SDK fixtures удаляются даже при incomplete. Обезличенные live-ограничения
+сохранены в OpenSpec `calculate-task-status-durations/live-contract-check.md`.

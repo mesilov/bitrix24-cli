@@ -41,6 +41,7 @@ return static function (ContainerBuilder $container, string $root, bool $package
         Bitrix24\CLI\Application\Task\TimeSupport::class,
         Bitrix24\CLI\Application\Task\ChecklistSupport::class,
         Bitrix24\CLI\Application\Task\HistoryScanner::class,
+        Bitrix24\CLI\Application\Task\StatusDurationCalculator::class,
         Bitrix24\CLI\Application\Task\TaskParticipantEnricher::class,
         Bitrix24\CLI\Application\Task\TaskMetadataService::class,
         Bitrix24\CLI\Application\Task\TaskTagMutation::class,
@@ -80,7 +81,7 @@ return static function (ContainerBuilder $container, string $root, bool $package
 
     foreach ([
         'AddTask', 'ShowTask', 'ListTasks', 'FindTasks', 'UpdateTask', 'DeleteTask', 'AttachTaskFiles',
-        'AddTaskChecklist', 'ListTaskChecklists', 'SetTaskParticipants', 'ListTaskHistory',
+        'AddTaskChecklist', 'ListTaskChecklists', 'SetTaskParticipants', 'ListTaskHistory', 'StatusDurationsTask',
     ] as $handler) {
         $container->register('Bitrix24\\CLI\\Application\\Task\\Handler\\' . $handler . 'Handler')->setAutowired(true);
     }

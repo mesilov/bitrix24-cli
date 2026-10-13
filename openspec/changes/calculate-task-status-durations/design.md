@@ -67,3 +67,7 @@ Unit: фиксированный reopening пример, conservation total, no-
 ## Migration Plan
 
 Аддитивная команда без persisted schema/dependencies. Поставить через issue MR в dev после verify; откат удаляет новую регистрацию/команду, не изменяя задачи или историю. После подтверждённой реализации и merge архивировать change и обновить путь в issue по maintainer workflow. Этот план публикуется draft PR и не запускает реализацию.
+
+## Live constraints recorded during apply
+
+See live-contract-check.md: STATUS-only numeric 2/3/5 is observable but equivalence to REAL_STATUS remains unverified. Canonical STATUS-only reports remain partial. Multiple NEW/DELETE boundaries are ambiguous. Current dev inventory is 41 task commands; adding this command gives 42. Exact live acceptance remains open if navigation cannot prove completeness.

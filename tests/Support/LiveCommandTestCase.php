@@ -132,9 +132,9 @@ abstract class LiveCommandTestCase extends TestCase
             mkdir($directory, 0700, true);
         }
 
-        $evidence = ['class' => static::class, 'test' => $this->name(), 'command' => $this->commandName(), 'happyPath' => $this->isHappyPath(), 'actingUserId' => $this->userId, 'commands' => $this->observedCommands, 'skipped' => $this->status()->isSkipped(), 'cleanupFailures' => []];
+        $evidence = ['class' => static::class, 'test' => $this->name(), 'command' => $this->commandName(), 'happyPath' => $this->isHappyPath(), 'incomplete' => $this->status()->isIncomplete(), 'actingUserId' => $this->userId, 'commands' => $this->observedCommands, 'skipped' => $this->status()->isSkipped(), 'cleanupFailures' => []];
         self::assertNotFalse(file_put_contents($directory . '/portal-evidence.jsonl', json_encode($evidence, JSON_THROW_ON_ERROR) . "\n", FILE_APPEND | LOCK_EX));
-        if ($this->isHappyPath() && !$this->status()->isSkipped()) {
+        if ($this->isHappyPath() && !$this->status()->isSkipped() && !$this->status()->isIncomplete()) {
             self::assertNotEmpty(array_filter($this->observedCommands, static fn (array $call): bool => $call['status'] === 0), 'The happy-path case must execute its own CLI command successfully.');
         }
     }

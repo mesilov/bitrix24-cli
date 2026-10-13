@@ -7,6 +7,7 @@ namespace Bitrix24\CLI\Bootstrap;
 final class CommandCatalog
 {
     public const COMMANDS = [
+        'task:status:durations' => ['class' => \Bitrix24\CLI\Console\Command\Task\StatusDurationsTaskCommand::class, 'effect' => 'read'],
         'task:start' => ['class' => \Bitrix24\CLI\Console\Command\Task\StartTaskCommand::class, 'effect' => 'write'],
         'task:pause' => ['class' => \Bitrix24\CLI\Console\Command\Task\PauseTaskCommand::class, 'effect' => 'write'],
         'task:defer' => ['class' => \Bitrix24\CLI\Console\Command\Task\DeferTaskCommand::class, 'effect' => 'write'],
@@ -69,6 +70,7 @@ final class CommandCatalog
     }
 
     public const ROUTES = [
+        'task:status:durations' => [['tasks.task.history.list', 1], ['tasks.task.get', 3]],
         'task:start' => [['tasks.task.get', 3], ['tasks.task.access.get', 3], ['tasks.task.start', 1]],
         'task:pause' => [['tasks.task.get', 3], ['tasks.task.access.get', 3], ['tasks.task.pause', 1]],
         'task:defer' => [['tasks.task.get', 3], ['tasks.task.access.get', 3], ['tasks.task.defer', 1]],
