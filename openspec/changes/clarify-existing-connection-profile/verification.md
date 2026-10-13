@@ -6,7 +6,7 @@ Date: 2026-10-13. Issue [#59](https://github.com/mesilov/bitrix24-cli/issues/59)
 
 | Dimension | Status |
 | --- | --- |
-| Completeness | Runtime/docs tasks 1.1–2.2 complete; 2/2 added requirements implemented. Delivery task 3.2 awaits publication and terminal CI evidence. |
+| Completeness | 7/7 tracked tasks complete; 2/2 added requirements implemented. PR #73 published as ready for review; runtime commit passed 17/17 remote checks. |
 | Correctness | 2/2 requirements mapped; 5/5 scenarios covered by tests, including two concurrent processes. |
 | Coherence | Early metadata check and locked duplicate check share one diagnostic; create-only behavior and replacement guidance agree across code, help, README and guide. |
 
@@ -43,6 +43,27 @@ The design's shared diagnostic, metadata-only early check, final locked assertio
 
 ## Findings and evidence limits
 
-No implementation critical issues, warnings or pattern deviations found in the local checks. Delivery verification remains pending until PR publication/CI task 3.2 completes.
+No critical issues, warnings or pattern deviations found. All applicable completeness, correctness and coherence checks ran; tracked tasks and scenario coverage are complete.
 
 Local controlled fixtures do not prove the published 0.1.0 binary or live portal acceptance. No portal was contacted or mutated. PR merge, release and archive are separate follow-up actions; the task worktree remains while PR #73 is open.
+
+## Remote CI receipt
+
+Runtime/test acceptance commit: `dc3990521b8c55397772542bf5a433fd23d0c416`. PR #73 remained OPEN, ready for review, base `dev`; issue #59 remained OPEN in milestone `0.2.0` with label `bug` and reciprocal OpenSpec link. Fresh `origin/dev` `96ce5028072f90afe70104660b67e02c528d63de` was merged before publication.
+
+All **17/17** check runs completed with SUCCESS for that PR head: duplicate push/PR license, schema, PHPStan, CS Fixer, Rector and unit runs; worktree isolation; three native package jobs and release-archive-set verification.
+
+- [composer-license-checker](https://github.com/mesilov/bitrix24-cli/actions/runs/38380086856) — SUCCESS.
+- [composer-license-checker](https://github.com/mesilov/bitrix24-cli/actions/runs/38380082189) — SUCCESS.
+- [Configuration schema contract, unit-tests](https://github.com/mesilov/bitrix24-cli/actions/runs/38380086815) — SUCCESS.
+- [Configuration schema contract, unit-tests](https://github.com/mesilov/bitrix24-cli/actions/runs/38380081789) — SUCCESS.
+- [PHPStan](https://github.com/mesilov/bitrix24-cli/actions/runs/38380086829) — SUCCESS.
+- [PHPStan](https://github.com/mesilov/bitrix24-cli/actions/runs/38380082416) — SUCCESS.
+- [packages / Linux amd64 package, packages / macOS arm64 package, packages / Windows amd64 package, packages / Verify release archive set](https://github.com/mesilov/bitrix24-cli/actions/runs/38380086839) — SUCCESS.
+- [PhpCsFixer](https://github.com/mesilov/bitrix24-cli/actions/runs/38380086908) — SUCCESS.
+- [PhpCsFixer](https://github.com/mesilov/bitrix24-cli/actions/runs/38380081763) — SUCCESS.
+- [Rector](https://github.com/mesilov/bitrix24-cli/actions/runs/38380086970) — SUCCESS.
+- [Rector](https://github.com/mesilov/bitrix24-cli/actions/runs/38380081797) — SUCCESS.
+- [linux](https://github.com/mesilov/bitrix24-cli/actions/runs/38380086823) — SUCCESS.
+
+This receipt is committed after CI completion as documentation only. Its commit changes only tasks.md and verification.md; runtime, tests, dependencies and package inputs are byte-identical to the accepted commit. New documentation-head CI is separate from the terminal runtime receipt above. No merge, published release or live portal acceptance is claimed. Archive/sync/worktree cleanup remain follow-up after confirmed merge and issue closure.

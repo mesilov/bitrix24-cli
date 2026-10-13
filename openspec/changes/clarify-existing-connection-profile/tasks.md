@@ -14,7 +14,7 @@
 ## 3. Общая проверка и доставка
 
 - [x] 3.1 Выполнить make test-unit, make lint-all и openspec validate clarify-existing-connection-profile --strict; через openspec-verify-change сопоставить delta scenarios и проверки, сохранить результаты и границы доказательств в verification.md. Не считать локальные fixture checks доказательством release binary или live portal acceptance.
-- [ ] 3.2 Проверить issue ↔ proposal, milestone 0.2.0 и label bug; перед implementation MR получить свежую origin/dev, разрешить расхождения без потери чужих изменений, выполнить необходимые повторные проверки и открыть/обновить PR в dev с актуальными результатами. Проверить base=dev, ссылку на #59, OpenSpec path и terminal CI status для точного commit.
+- [x] 3.2 Проверить issue ↔ proposal, milestone 0.2.0 и label bug; перед implementation MR получить свежую origin/dev, разрешить расхождения без потери чужих изменений, выполнить необходимые повторные проверки и открыть/обновить PR в dev с актуальными результатами. Проверить base=dev, ссылку на #59, OpenSpec path и terminal CI status для точного commit.
 
 ## Workflow follow-up
 
