@@ -503,6 +503,13 @@ delivered=false не означает отправку обращения или
 | `task:list` | Показать доступные задачи |
 | `task:my` | Показать задачи выбранного исполнителя |
 | `task:find` | Найти задачи по фрагменту заголовка |
+| `task:start` | Начать работу |
+| `task:pause` | Приостановить выполнение |
+| `task:defer` | Отложить задачу |
+| `task:renew` | Возобновить задачу |
+| `task:complete` | Завершить или передать на контроль |
+| `task:approve` | Принять результат при контроле |
+| `task:disapprove` | Вернуть на доработку при контроле |
 | `task:update` | Изменить явные поля, заменить или очистить теги |
 | `task:delete` | Удалить задачу |
 | `task:assign` | Сменить ответственного |
@@ -875,3 +882,52 @@ b24cli --profile work users:manager --source config --json
 Copyright © 2026 Maksim Mesilov <mesilov.maxim@gmail.com>.
 Лицензии сторонних компонентов сохранены в пакетах отдельно.
 Все упоминаемые товарные знаки принадлежат их владельцам.
+
+### Жизненный цикл и списки по статусу
+
+```sh
+b24cli task:start 123
+b24cli task:pause 123
+b24cli task:defer 123
+b24cli task:renew 123
+b24cli task:complete 123 --dry-run --json
+b24cli task:complete 123 --json
+b24cli task:approve 123
+b24cli task:disapprove 123
+
+# 42 — ваш ID; 99 — другой исполнитель; 7 — проект
+b24cli task:list --responsible 42 --status in_progress --all --json
+b24cli task:list --group-id 7 --status supposedly_completed --all --json
+b24cli task:list --responsible 99 --status deferred --all --json
+b24cli task:list --group-id 7 --responsible 99 --status pending --all --json
+```
+
+Фильтр `--status` принимает одно точное логическое значение: `pending`,
+`in_progress`, `supposedly_completed`, `completed`, `deferred`, `declined`.
+Все условия исполнителя/проекта/статуса объединяются через AND. Свои задачи
+выбираются вашим явным ID; автоматического `--me` нет. Числовые коды и опечатки
+в `--status` или `--where.status` отклоняются. `--all` снимает лимит вывода,
+но сохраняет `--max-scan` (по умолчанию 10000) и ограничения доступа подключения.
+
+Lifecycle команды используют явный REST 1.0 маршрут; `strict-rest3` запрещает их
+до запросов, включая dry-run. Проверяются текущее состояние, право действия и
+обязательный native result. `--dry-run` показывает условия и шаги без записи,
+включая возможность контроля и серверного завершения подзадач. Обычные переходы
+не требуют дополнительного подтверждения. Заметка или файл не заменяют native
+result при `requireResult=true`; CLI не создаёт его автоматически.
+
+После действия выводится фактический REST3 `status`. `supposedly_completed`
+означает ожидание контроля; `completed` — завершение. Постановщик может завершить
+задачу сразу, поэтому статус не вычисляется только из `needsControl` или команды.
+JSON содержит `data.operation` с `taskId/action/confirmed` и `data.task` с
+`id/status/needsControl/requireResult`. Plain TSV: `taskId`, `action`, `confirmed`,
+`status`, `needsControl`, `requireResult`. `meta.complete` означает полноту
+выполнения и чтения, а не завершение задачи. При подтверждённой записи и ошибке
+последующего чтения возвращается partial/exit3; при неизвестном исходе отправленной
+записи — `outcomeUnknown=true`. Запись не повторяется; состояние можно сверить
+через `task:show`. Изменение raw `status` через `task:update` запрещено.
+
+Если список не возвращает groupId для фильтра проекта, CLI проверяет group.id
+карточки подходящей по остальным условиям задачи. Эти REST3 чтения отражаются
+в meta.apiCalls и ограничиваются числом просмотренных задач; непроверенная
+принадлежность даёт partial вместо недостоверной пустой выборки.

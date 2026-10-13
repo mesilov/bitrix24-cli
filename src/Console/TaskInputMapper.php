@@ -199,7 +199,7 @@ final readonly class TaskInputMapper
         foreach (['responsible' => 'responsibleId', 'group-id' => 'groupId', 'status' => 'status'] as $flag => $field) {
             $value = $input->getOption($flag);
             if ($value !== null) {
-                $predicates[$field] = $flag === 'status' ? $value : $this->id($value, '--' . $flag);
+                $predicates[$field] = $flag === 'status' ? \Bitrix24\CLI\Application\Task\TaskStatus::validateFilter($value) : $this->id($value, '--' . $flag);
             }
         }
 
@@ -210,6 +210,10 @@ final readonly class TaskInputMapper
         foreach ($where ?? [] as $field => $value) {
             if (!in_array($field, ['id', 'title', 'creatorId', 'responsibleId', 'groupId', 'status', 'deadline'], true) || (!is_string($value) && !is_int($value))) {
                 throw Failure::usage('Unsupported --where field or value.');
+            }
+
+            if ($field === 'status') {
+                \Bitrix24\CLI\Application\Task\TaskStatus::validateFilter($value);
             }
 
             if (in_array($field, ['id', 'creatorId', 'responsibleId', 'groupId'], true)) {
@@ -263,6 +267,11 @@ final readonly class TaskInputMapper
     public function findTasks(InputInterface $input): Request\FindTasksRequest
     {
         return new Request\FindTasksRequest($this->query($input, true), trim($this->text($input, 'title')));
+    }
+
+    public function lifecycleRequest(InputInterface $input, \Bitrix24\CLI\Application\Task\LifecycleAction $action): Request\TaskLifecycleRequest
+    {
+        return new Request\TaskLifecycleRequest($this->taskId($input), $action);
     }
 
     public function taskReference(InputInterface $input): Request\TaskReference

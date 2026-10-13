@@ -120,9 +120,9 @@ abstract class LiveTaskCommandTestCase extends LiveCommandTestCase
         return 'b24cli-test-' . bin2hex(random_bytes(8));
     }
 
-    protected function createTask(?string $title = null): int
+    protected function createTask(?string $title = null, array $fields = []): int
     {
-        $id = $this->tasks->add(['title' => $title ?? $this->fixtureTitle(), 'creatorId' => $this->userId, 'responsibleId' => $this->userId, 'description' => 'original']);
+        $id = $this->tasks->add(['title' => $title ?? $this->fixtureTitle(), 'creatorId' => $this->userId, 'responsibleId' => $this->userId, 'description' => 'original', ...$fields]);
         $this->ownTask($id);
         return $id;
     }

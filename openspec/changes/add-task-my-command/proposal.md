@@ -18,11 +18,11 @@
 
 ### Modified Capabilities
 
-- `task-console-runtime`: явная регистрация task:my наряду с текущими 34 task-командами (35 на базе этого плана), сохранение users/local namespaces и правил per-command integration tests.
+- `task-console-runtime`: явная регистрация task:my наряду с текущими 41 task-командой (42 с task:my), сохранение users/local namespaces и правил per-command integration tests.
 
 ## Impact
 
-Реализация затрагивает TaskQuery, TaskListScanner, mapper/command, CommandCatalog, registration/unit/integration tests и docs. База реализации `f7dc2a7`; каталог после добавления содержит 35 task-команд и четыре users-команды.
+Реализация затрагивает TaskQuery, TaskListScanner, mapper/command, CommandCatalog, registration/unit/integration tests и docs. База реализации `f7dc2a7`; каталог после интеграции lifecycle и добавления task:my содержит 42 task-команды и четыре users-команды.
 
 ## GitHub issues
 

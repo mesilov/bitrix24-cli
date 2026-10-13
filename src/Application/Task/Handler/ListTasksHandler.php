@@ -17,7 +17,7 @@ final readonly class ListTasksHandler
 
     public function routes(ListTasksRequest $request): array
     {
-        return [new Route('tasks.task.list', $request->query->deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow ? 1 : 3, 'read'), ...($request->query->role?->participantField() === null ? [] : [new Route('tasks.task.get', 1, 'read')])];
+        return [new Route('tasks.task.list', $request->query->deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow ? 1 : 3, 'read'), ...(!$request->query->deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow && array_key_exists('groupId', $request->query->where) ? [new Route('tasks.task.get', 3, 'read')] : []), ...($request->query->role?->participantField() === null ? [] : [new Route('tasks.task.get', 1, 'read')])];
     }
 
     public function prepare(ListTasksRequest $request): PreparedOperation
