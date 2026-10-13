@@ -61,7 +61,7 @@
 | 🕓 План | `task:risks` | Нет |
 | 🕓 План | `task:dependency:list` | Нет |
 
-**Границы:** Проверяются список по ID и фильтры своей роли; сквозная оценка рисков, препятствий, зависимостей и полная выборка не проверены.
+**Границы:** Проверяются ID, своя роль, groupId, responsibleId и AND с логическими статусами. На портале проверены проект 234 и исполнитель 14. supposedly_completed означает ожидание контроля, completed — завершение. --all снимает только лимит вывода; неполный обход не доказывает полноту проекта. Сквозная оценка рисков/препятствий/зависимостей отдельно не проверена.
 
 <a id="pm-03"></a>
 
@@ -117,11 +117,11 @@
 | Статус | Команда | Тест |
 | --- | --- | --- |
 | ✅ Готово | [`task:result:list`](../src/Console/Command/Task/ListTaskResultsCommand.php) | [`ListTaskResultsCommandTest.php`](../tests/Integration/Task/ListTaskResultsCommandTest.php) |
-| 🕓 План | `task:approve` | Нет |
-| 🕓 План | `task:disapprove` | Нет |
+| ✅ Готово | [`task:approve`](../src/Console/Command/Task/ApproveTaskCommand.php) | [`ApproveTaskCommandTest.php`](../tests/Integration/Task/ApproveTaskCommandTest.php) |
+| ✅ Готово | [`task:disapprove`](../src/Console/Command/Task/DisapproveTaskCommand.php) | [`DisapproveTaskCommandTest.php`](../tests/Integration/Task/DisapproveTaskCommandTest.php) |
 | 🕓 План | `task:acceptance:record` | Нет |
 
-**Границы:** Чтение результатов доступно и имеет командный тест; approve/disapprove и сквозная внутренняя приёмка не реализованы.
+**Границы:** Чтение результатов доступно и имеет командный тест; approve/disapprove подтверждены на собственной задаче с контролем постановщика. Denied-role матрица требует ограниченного webhook; сквозная бизнес-приёмка отдельно не доказана.
 
 <a id="pm-06"></a>
 
@@ -194,11 +194,12 @@
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
+| ✅ Готово | [`task:list`](../src/Console/Command/Task/ListTaskCommand.php) | [`ListTaskCommandTest.php`](../tests/Integration/Task/ListTaskCommandTest.php) |
 | 🕓 План | `task:risks` | Нет |
 | 🕓 План | `task:report` | Нет |
 | 🕓 План | `task:context:set` | Нет |
 
-**Границы:** Нет реализованных mapped команд и соответствующих integration tests; клиентские обязательства и угрозы обещаниям не проверены.
+**Границы:** Выборка другого исполнителя через --responsible ID со статусом и необязательным --group-id проверена на портале (userId=14/groupId=234). Учитывается только доступная подключению выборка; risks/report/context остаются планом, клиентские обязательства отдельно не доказаны.
 
 <a id="am-03"></a>
 
@@ -313,7 +314,7 @@
 | ✅ Готово | [`task:list`](../src/Console/Command/Task/ListTaskCommand.php) | [`ListTaskCommandTest.php`](../tests/Integration/Task/ListTaskCommandTest.php) |
 | 🕓 План | `task:my` | Нет |
 
-**Границы:** Проверяются список по ID и фильтры своей роли; выбор очереди работ по приоритету целиком не проверяется.
+**Границы:** Свои задачи выбираются через --role responsible или явный --responsible ID; --status принимает pending, in_progress, supposedly_completed, completed, deferred, declined. Статус и проект сочетаются через AND; членство после complete/approve/disapprove/renew проверено. task:my остаётся планом, полная очередь по приоритету отдельно не доказана.
 
 <a id="emp-02"></a>
 
@@ -390,9 +391,9 @@
 | ✅ Готово | [`task:result:add`](../src/Console/Command/Task/AddTaskResultCommand.php) | [`AddTaskResultCommandTest.php`](../tests/Integration/Task/AddTaskResultCommandTest.php) |
 | ✅ Готово | [`task:file:attach`](../src/Console/Command/Task/AttachTaskFilesCommand.php) | [`AttachTaskFilesCommandTest.php`](../tests/Integration/Task/AttachTaskFilesCommandTest.php) |
 | 🕓 План | `task:result:from-message` | Нет |
-| 🕓 План | `task:complete` | Нет |
+| ✅ Готово | [`task:complete`](../src/Console/Command/Task/CompleteTaskCommand.php) | [`CompleteTaskCommandTest.php`](../tests/Integration/Task/CompleteTaskCommandTest.php) |
 
-**Границы:** Проверяются создание native результата и прикрепление существующего/загрузка локального файла. Independent attachment membership — #42; result:from-message, завершение и передача на контроль не реализованы.
+**Границы:** Проверяются создание native результата и прикрепление существующего/загрузка локального файла. Independent attachment membership — #42; task:complete проверяет обязательный native result и возвращает фактический completed либо supposedly_completed; оба исхода проверены на портале. Denied-role матрица и result:from-message остаются непроверенными/планируемыми.
 
 <a id="emp-06"></a>
 

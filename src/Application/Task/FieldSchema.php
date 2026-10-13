@@ -49,7 +49,7 @@ final class FieldSchema
             }
 
             if (!in_array($name, self::WRITABLE, true)) {
-                throw Failure::usage('Unsupported or read-only task field; status changes are outside MVP.');
+                throw Failure::usage('Unsupported or read-only task field; use lifecycle commands for status changes.');
             }
 
             if (in_array($name, ['creatorId', 'responsibleId', 'groupId', 'parentId', 'estimatedTime'], true) && (!is_int($value) || $value < 1)) {

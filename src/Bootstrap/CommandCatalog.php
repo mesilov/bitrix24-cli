@@ -7,6 +7,13 @@ namespace Bitrix24\CLI\Bootstrap;
 final class CommandCatalog
 {
     public const COMMANDS = [
+        'task:start' => ['class' => \Bitrix24\CLI\Console\Command\Task\StartTaskCommand::class, 'effect' => 'write'],
+        'task:pause' => ['class' => \Bitrix24\CLI\Console\Command\Task\PauseTaskCommand::class, 'effect' => 'write'],
+        'task:defer' => ['class' => \Bitrix24\CLI\Console\Command\Task\DeferTaskCommand::class, 'effect' => 'write'],
+        'task:renew' => ['class' => \Bitrix24\CLI\Console\Command\Task\RenewTaskCommand::class, 'effect' => 'write'],
+        'task:complete' => ['class' => \Bitrix24\CLI\Console\Command\Task\CompleteTaskCommand::class, 'effect' => 'write'],
+        'task:approve' => ['class' => \Bitrix24\CLI\Console\Command\Task\ApproveTaskCommand::class, 'effect' => 'write'],
+        'task:disapprove' => ['class' => \Bitrix24\CLI\Console\Command\Task\DisapproveTaskCommand::class, 'effect' => 'write'],
         'users:current' => ['class' => \Bitrix24\CLI\Console\Command\Users\CurrentUserCommand::class, 'effect' => 'read'],
         'users:find' => ['class' => \Bitrix24\CLI\Console\Command\Users\FindUsersCommand::class, 'effect' => 'read'],
         'users:colleagues' => ['class' => \Bitrix24\CLI\Console\Command\Users\ListColleaguesCommand::class, 'effect' => 'read'],
@@ -62,6 +69,13 @@ final class CommandCatalog
     }
 
     public const ROUTES = [
+        'task:start' => [['tasks.task.get', 3], ['tasks.task.access.get', 3], ['tasks.task.start', 1]],
+        'task:pause' => [['tasks.task.get', 3], ['tasks.task.access.get', 3], ['tasks.task.pause', 1]],
+        'task:defer' => [['tasks.task.get', 3], ['tasks.task.access.get', 3], ['tasks.task.defer', 1]],
+        'task:renew' => [['tasks.task.get', 3], ['tasks.task.access.get', 3], ['tasks.task.renew', 1]],
+        'task:complete' => [['tasks.task.get', 3], ['tasks.task.access.get', 3], ['tasks.task.complete', 1], ['tasks.task.result.list', 3]],
+        'task:approve' => [['tasks.task.get', 3], ['tasks.task.access.get', 3], ['tasks.task.approve', 1]],
+        'task:disapprove' => [['tasks.task.get', 3], ['tasks.task.access.get', 3], ['tasks.task.disapprove', 1]],
         'users:current' => [['user.current', 1]],
         'users:find' => [['user.get', 1]],
         'users:colleagues' => [['user.current', 1], ['user.get', 1]],
@@ -72,8 +86,8 @@ final class CommandCatalog
         'task:result:update' => [['tasks.task.result.list', 3], ['tasks.task.result.update', 3]],
         'task:result:delete' => [['tasks.task.result.list', 3], ['tasks.task.result.delete', 3]],
         'task:show' => [['tasks.task.get', 3], ['tasks.task.get', 1], ['user.get', 1]],
-        'task:list' => [['tasks.task.list', 3], ['tasks.task.list', 1], ['tasks.task.get', 1]],
-        'task:find' => [['tasks.task.list', 3], ['tasks.task.list', 1], ['tasks.task.get', 1]],
+        'task:list' => [['tasks.task.list', 3], ['tasks.task.list', 1], ['tasks.task.get', 1], ['tasks.task.get', 3]],
+        'task:find' => [['tasks.task.list', 3], ['tasks.task.list', 1], ['tasks.task.get', 1], ['tasks.task.get', 3]],
         'task:update' => [['tasks.task.update', 3], ['tasks.task.field.list', 3], ['tasks.task.update', 1]],
         'task:delete' => [['tasks.task.delete', 3], ['tasks.task.get', 3]],
         'task:fields:list' => [['tasks.task.field.list', 3], ['tasks.task.field.get', 3]],
