@@ -13,7 +13,7 @@
 
 ## 3. Согласованная приёмка
 
-- [ ] 3.1 Интегрировать свежую dev, пересчитать command inventory, выполнить целевые unit/integration/lint и strict OpenSpec; сохранить verification с отдельными local/native/live evidence и сверить issue ↔ change.
+- [x] 3.1 Интегрировать свежую dev, пересчитать command inventory, выполнить целевые unit/integration/lint и strict OpenSpec; сохранить verification с отдельными local/native/live evidence и сверить issue ↔ change.
 
 ## Workflow follow-up
 

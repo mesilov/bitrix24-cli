@@ -4,7 +4,7 @@ Date: 2026-10-14 (Asia/Bishkek). Implementation base: f7dc2a7.
 
 | Dimension | Result |
 | --- | --- |
-| Completeness | Implementation, catalog and docs delivered locally; final dev synchronization tracked by task 3.1 |
+| Completeness | 6/6 tasks complete; 6 requirements / 15 scenarios covered |
 | Correctness | All 6 requirements and 15 scenarios mapped to command/query/scanner and tests |
 | Coherence | Thin MyTaskCommand → ListTasksRequest/ListTasksHandler → shared scanner; no CLI chaining or new transport |
 
@@ -44,4 +44,8 @@ Date: 2026-10-14 (Asia/Bishkek). Implementation base: f7dc2a7.
 
 Official MCP was queried from the fresh implementation checkout: effective config enabled=true; bitrix-search followed by exact method/article details verified REST3 tasks.task.list and field names/types (responsibleId integer, status string enum, deadline datetime|null). SDK fixture methods were also checked. Source links are recorded in design.md.
 
-Native binaries/release packaging were not required or run: Docker source checks and portal acceptance do not prove a published 0.2.0 artifact. CI and merge status are reported separately when available. No applicable change-specific verification was skipped. Final archive assessment follows completion of task 3.1/dev synchronization.
+Native binaries/release packaging were not required or run: Docker source checks and portal acceptance do not prove a published 0.2.0 artifact. CI and merge status are reported separately when available. No applicable change-specific verification was skipped. Change verification: 0 critical issues, 0 warnings, 0 suggestions; all change-specific checks passed. Ready for archive after confirmed delivery to dev.
+
+## Fresh dev integration
+
+Before PR, fetched and merged origin/dev at 5ed0349 (Russian-help archive #113); merge was clean. Runtime files were unchanged by this sync. Repeated affected help/my/coverage tests: 37 tests, 4439 assertions; CLI map check 48 commands and strict change validation passed. Current diff contains #118 CHANGELOG entry, EMP-01 docs and only scoped implementation/planning/evidence. Existing global OpenSpec warnings remain separately tracked by #114.
