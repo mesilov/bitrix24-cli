@@ -34,4 +34,4 @@
 
 ## Evidence boundary
 
-План основан на коде dev `6d9fe39` и официальном MCP документации, проверенном 13.10.2026. REST 3.0 запрещает передачу tags в add/update. Сохранение TAGS в REST 1.0 add сообщено автором #58; новая проверка портала не выполнялась. Замена/очистка через REST 1.0 update и права должны получить отдельный portal receipt при реализации. Подготовленный план не является runtime proof.
+План основан на коде dev `6d9fe39` и официальном MCP документации, проверенном 13.10.2026. REST 3.0 запрещает передачу tags в add/update. Сохранение TAGS в REST 1.0 add сообщено автором #58. При реализации проверены REST3 add → REST1 update/replace/clear → REST3 readback на disposable fixture; см. api-contract.md, portal-contract-receipt.json и portal-cli-receipt.json. Доказательство относится к одному подключению/роли, без универсальной metadata-гарантии или denied-role acceptance.

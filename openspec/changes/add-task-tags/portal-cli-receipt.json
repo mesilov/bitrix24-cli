@@ -1,0 +1,126 @@
+{
+  "date": "2026-10-13",
+  "tests": 2,
+  "assertions": 37,
+  "cases": [
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AddTaskCommandTest",
+      "test": "testCreatesTaskWithTagsAndRest3Readback",
+      "command": "task:add",
+      "happyPath": true,
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        5892
+      ],
+      "ownedDiskFileIds": [],
+      "commands": [
+        {
+          "command": "task:add",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.add",
+              "apiVersion": "3.0",
+              "effect": "write"
+            },
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      }
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\UpdateTaskCommandTest",
+      "test": "testTagReplacementPreservationMixedUpdateAndClear",
+      "command": "task:update",
+      "happyPath": true,
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        5894
+      ],
+      "ownedDiskFileIds": [],
+      "commands": [
+        {
+          "command": "task:update",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:update",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ],
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:update",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "3.0",
+              "effect": "write"
+            },
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:update",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      }
+    }
+  ]
+}
