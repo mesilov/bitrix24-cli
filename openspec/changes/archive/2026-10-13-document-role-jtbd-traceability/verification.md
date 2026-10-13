@@ -34,3 +34,10 @@ Spec Coverage, Requirement Implementation Mapping и Scenario Coverage для н
 - Добавлены канонические PM-07/AM-07/EMP-08 и обновлены current/planned статусы native результатов по фактическому CommandCatalog. Исходные 19 IDs сохранены.
 - Сверка: 22 сценария, 22 таблицы, 41 ссылка команд/файлов, 23 уникальные команды/файла и 114 локальных ссылок.
 - Последний исходный HEAD `8337af9a0d6ef2c0c2ffd61aaede5b0010b6fa41`: 6/6 GitHub checks SUCCESS. После синхронизации требуется новый terminal CI на актуальном HEAD.
+
+## Доставка и архивирование 13.10.2026
+
+- PR #82 HEAD `89691eeb82b4987abadf2a6e50bebe9c30630b0a`: 13/13 GitHub checks COMPLETED/SUCCESS (push и PR, включая Worktree isolation); подробности в delivery.json.
+- Перед merge проверены неизменный HEAD, target dev, CLEAN, актуальная base `0ad4bad`, scope 9 documentation files и содержательная запись CHANGELOG с #80.
+- PR #82 подтверждён MERGED в dev, merge `717986d8c7bb03fd9a7854407d09c294999b6d7f`. Issue #80 CLOSED.
+- Change docs-only, 4/4 задачи, specs skipped: новые main specs не создаются. Архив доставляется отдельным MR в dev до удаления worktree.
