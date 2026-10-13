@@ -529,7 +529,7 @@ b24cli task:find --title "договор" --group-id 42 --json
 JSON и REST 3.0 используют `groupId`; для advanced input используйте `--fields '{"groupId":42}'`,
 для JSON-фильтра списка — `task:list --where '{"groupId":42}'`.
 Флаг и JSON-поля нельзя смешивать. В `task:list` и `task:find` фильтр группы
-выполняется локально при обходе доступных задач; `--max-scan` ограничивает обход,
+без новых временных флагов выполняется локально при обходе доступных задач; `--max-scan` ограничивает обход,
 `--limit` — число результатов. `task:find` совмещает `--group-id` с поиском
 по заголовку без учёта регистра; без флага ищет во всех доступных группах.
 При создании задачи выбранный профиль может задавать `default.task.groupId`;
@@ -546,14 +546,62 @@ b24cli task:find --title "договор" --group-id 42 --role accomplice --json
 b24cli task:list --role creator --where '{"responsibleId":9}' --json
 ```
 
-Роль сочетается с остальными допустимыми критериями через AND. Она не ограничивает
+Роль сочетается с остальными допустимыми критериями через AND. Сама по себе она не ограничивает
 статус: «делаю» включает и завершённые задачи, «поручил» включает задачи, поставленные
 себе. Группы могут пересекаться. ID берётся из выбранного подключения, а не из
 `default.task`; JSON содержит `meta.roleFilter` с `role` и `userId`.
-`responsible` и `creator` используют REST 3.0. `accomplice` и `auditor` добавляют
+Без временных флагов `responsible` и `creator` используют REST 3.0. `accomplice` и `auditor` добавляют
 REST 1.0 чтение ID участников каждой подходящей задачи и недоступны при
 `--api-policy strict-rest3`. Для ограничения обхода используйте `--group-id`,
 для списка также `--id`; `--all` не снимает `--max-scan`.
+
+### Календарные окна дедлайна
+
+`task:list` и `task:find` принимают `--deadline-window` (один раз), `--overdue`
+и `--timezone IANA`. Мнемоники: `today`, `tomorrow`, `yesterday`,
+`day-before-yesterday`, `this-week`, `this-month`, `this-quarter`.
+
+```sh
+b24cli task:list --group-id 42 --deadline-window today --timezone Asia/Bishkek --json
+b24cli task:list --group-id 42 --overdue --deadline-window this-week --timezone Asia/Bishkek --json
+b24cli task:list --overdue --timezone Asia/Bishkek --json
+b24cli task:find --title "отчёт" --group-id 42 --deadline-window this-month --overdue --timezone Asia/Bishkek --json
+```
+
+Окна календарные и полуоткрытые `[from, to)`: неделя начинается в понедельник,
+месяц и квартал охватываются целиком. `this-week` отличается от следующих семи дней.
+Границы учитывают DST и календарь. По умолчанию timezone берётся из `TZ`, затем из
+PHP timezone окружения; CLI не угадывает пояс портала. Для запросов «сегодня» от
+skill передавайте известный IANA timezone пользователя. Один `now` фиксируется
+на всю команду с точностью до секунды, включая все страницы.
+
+`--overdue` означает непустой дедлайн строго раньше `now`, исключает `completed`
+и `declined`, включает `deferred` и `supposedly_completed`. Этот lifecycle фильтр
+проверяется локально, а границы дат уходят в API. Без `--overdue` окно включает
+все статусы. «Должны были закрыть вчера» — `--deadline-window yesterday --overdue`;
+это не выборка по фактической дате закрытия. `deadline=null` не совпадает.
+`tomorrow --overdue` возвращает полный пустой результат без сетевых запросов.
+
+Временная выборка использует явный `tasks.task.list` REST 1.0: `>=DEADLINE`,
+`<DEADLINE` и `GROUP_ID` для `--group-id`. Это выбор маршрута до вызовов;
+`--api-policy strict-rest3` возвращает `policy-denied`/exit4 без fallback.
+Остальные критерии — AND; `task:find --status` задаёт локальный lifecycle статус.
+Не смешивайте новые флаги с `--due-before`, `--where`/`--where-file`;
+неверные/повторные окна и неизвестный timezone дают usage-error/exit2 до API.
+
+REST1 поддерживает общий набор `--select`: id, title, description, creatorId,
+responsibleId, groupId, deadline, status, created, started, changed, closed,
+activity, startPlan, endPlan, estimatedTime, priority, mark, allowsChangeDeadline,
+allowsTimeTracking. Для `--order` доступны поля этого набора кроме description,
+creatorId/responsibleId. Неподдерживаемые поля возвращают usage-error до API;
+CLI не отправляет придуманные имена и не делает скрытые запросы другой версии.
+
+JSON `meta.deadlineFilter` содержит window/overdue/timezone, now,
+fromInclusive/toExclusive, route, deadlineApplied/overdueStatusApplied/groupApplied.
+Форматы выдачи, `--limit`, `--all`, `--max-scan`, visible-task scope и partial/exit3
+сохраняются. Metadata отличает полный обход от ограниченного вывода; права
+подключения ограничивают видимость задач. Границы/маршрут доступны в JSON,
+при обычном выводе использование REST1 явно сообщается в stderr.
 
 Список и поиск обходят задачи от новых к старым (`id DESC`) и сохраняют этот
 порядок в результатах. Обе команды принимают повторяемый `--order FIELD:asc|desc`;

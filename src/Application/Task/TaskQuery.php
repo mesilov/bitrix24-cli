@@ -15,6 +15,7 @@ final readonly class TaskQuery
         public ?int $limit = 50,
         public int $maxScan = 10000,
         public ?TaskRole $role = null,
+        public ?DeadlineWindow $deadlineWindow = null,
     ) {
     }
 }

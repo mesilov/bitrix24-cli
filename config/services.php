@@ -20,6 +20,7 @@ return static function (ContainerBuilder $container, string $root, bool $package
         Bitrix24\CLI\Console\ConnectionCommandRunner::class,
         Bitrix24\CLI\Console\InputSourceReader::class,
         Bitrix24\CLI\Console\TaskInputMapper::class,
+        Bitrix24\CLI\Application\Task\DeadlineWindowResolver::class,
         Bitrix24\CLI\Console\UserInputMapper::class,
         Bitrix24\CLI\Application\User\UserScanner::class,
         Bitrix24\CLI\Application\User\UserDirectoryService::class,
@@ -56,6 +57,7 @@ return static function (ContainerBuilder $container, string $root, bool $package
     $container->setAlias(Bitrix24\CLI\Infrastructure\Bitrix24\ApiTransport::class, Bitrix24\CLI\Infrastructure\Bitrix24\SdkApiTransport::class);
     foreach ([
         'DiskUploadGateway' => 'Rest1DiskUploadAdapter',
+        'DeadlineTaskGateway' => 'Rest1TaskListAdapter',
         'TaskResultGateway' => 'Rest3TaskResultAdapter',
         'TaskGateway' => 'Rest3TaskAdapter', 'TaskTagGateway' => 'Rest1TaskTagAdapter', 'TaskChatGateway' => 'TaskChatAdapter', 'ChecklistGateway' => 'Rest1ChecklistAdapter',
         'TimeEntryGateway' => 'Rest1TimeEntryAdapter', 'ParticipantGateway' => 'Rest1ParticipantAdapter', 'TaskHistoryGateway' => 'Rest1TaskHistoryAdapter', 'UserGateway' => 'Rest1UserAdapter',

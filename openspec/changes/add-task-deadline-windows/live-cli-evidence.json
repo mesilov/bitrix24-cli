@@ -1,0 +1,640 @@
+{
+  "date": "2026-10-13",
+  "scope": "configured portal; public CLI read-only; positive project fixture absent",
+  "results": [
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\FindTaskCommandTest",
+      "test": "testReadOnlyWindowsOverdueAndProject",
+      "readOnly": true,
+      "commands": [
+        {
+          "command": "task:find",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "deadlineFilter": {
+            "window": "today",
+            "overdue": false,
+            "timezone": "Asia/Bishkek",
+            "now": "2026-10-13T19:57:24+06:00",
+            "fromInclusive": "2026-10-13T00:00:00+06:00",
+            "toExclusive": "2026-10-14T00:00:00+06:00",
+            "route": {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0"
+            },
+            "deadlineApplied": "server",
+            "overdueStatusApplied": null,
+            "groupApplied": null
+          },
+          "returned": 0
+        },
+        {
+          "command": "task:find",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "deadlineFilter": {
+            "window": "tomorrow",
+            "overdue": false,
+            "timezone": "Asia/Bishkek",
+            "now": "2026-10-13T19:57:24+06:00",
+            "fromInclusive": "2026-10-14T00:00:00+06:00",
+            "toExclusive": "2026-10-15T00:00:00+06:00",
+            "route": {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0"
+            },
+            "deadlineApplied": "server",
+            "overdueStatusApplied": null,
+            "groupApplied": null
+          },
+          "returned": 0
+        },
+        {
+          "command": "task:find",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "deadlineFilter": {
+            "window": "yesterday",
+            "overdue": false,
+            "timezone": "Asia/Bishkek",
+            "now": "2026-10-13T19:57:24+06:00",
+            "fromInclusive": "2026-10-12T00:00:00+06:00",
+            "toExclusive": "2026-10-13T00:00:00+06:00",
+            "route": {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0"
+            },
+            "deadlineApplied": "server",
+            "overdueStatusApplied": null,
+            "groupApplied": null
+          },
+          "returned": 0
+        },
+        {
+          "command": "task:find",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "deadlineFilter": {
+            "window": "day-before-yesterday",
+            "overdue": false,
+            "timezone": "Asia/Bishkek",
+            "now": "2026-10-13T19:57:26+06:00",
+            "fromInclusive": "2026-10-11T00:00:00+06:00",
+            "toExclusive": "2026-10-12T00:00:00+06:00",
+            "route": {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0"
+            },
+            "deadlineApplied": "server",
+            "overdueStatusApplied": null,
+            "groupApplied": null
+          },
+          "returned": 0
+        },
+        {
+          "command": "task:find",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "deadlineFilter": {
+            "window": "this-week",
+            "overdue": false,
+            "timezone": "Asia/Bishkek",
+            "now": "2026-10-13T19:57:26+06:00",
+            "fromInclusive": "2026-10-12T00:00:00+06:00",
+            "toExclusive": "2026-10-19T00:00:00+06:00",
+            "route": {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0"
+            },
+            "deadlineApplied": "server",
+            "overdueStatusApplied": null,
+            "groupApplied": null
+          },
+          "returned": 0
+        },
+        {
+          "command": "task:find",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "deadlineFilter": {
+            "window": "this-month",
+            "overdue": false,
+            "timezone": "Asia/Bishkek",
+            "now": "2026-10-13T19:57:26+06:00",
+            "fromInclusive": "2026-10-01T00:00:00+06:00",
+            "toExclusive": "2026-11-01T00:00:00+06:00",
+            "route": {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0"
+            },
+            "deadlineApplied": "server",
+            "overdueStatusApplied": null,
+            "groupApplied": null
+          },
+          "returned": 1
+        },
+        {
+          "command": "task:find",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "deadlineFilter": {
+            "window": "this-quarter",
+            "overdue": false,
+            "timezone": "Asia/Bishkek",
+            "now": "2026-10-13T19:57:27+06:00",
+            "fromInclusive": "2026-10-01T00:00:00+06:00",
+            "toExclusive": "2027-01-01T00:00:00+06:00",
+            "route": {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0"
+            },
+            "deadlineApplied": "server",
+            "overdueStatusApplied": null,
+            "groupApplied": null
+          },
+          "returned": 1
+        },
+        {
+          "command": "task:find",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "deadlineFilter": {
+            "window": "this-quarter",
+            "overdue": true,
+            "timezone": "Asia/Bishkek",
+            "now": "2026-10-13T19:57:27+06:00",
+            "fromInclusive": "2026-10-01T00:00:00+06:00",
+            "toExclusive": "2026-10-13T19:57:27+06:00",
+            "route": {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0"
+            },
+            "deadlineApplied": "server",
+            "overdueStatusApplied": "local",
+            "groupApplied": null
+          },
+          "returned": 1
+        },
+        {
+          "command": "task:find",
+          "status": 3,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": false,
+          "reason": "scan-budget-exhausted",
+          "errorCode": "partial-result",
+          "apiErrorCode": null,
+          "deadlineFilter": {
+            "window": null,
+            "overdue": true,
+            "timezone": "Asia/Bishkek",
+            "now": "2026-10-13T19:57:28+06:00",
+            "fromInclusive": null,
+            "toExclusive": "2026-10-13T19:57:28+06:00",
+            "route": {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0"
+            },
+            "deadlineApplied": "server",
+            "overdueStatusApplied": "local",
+            "groupApplied": null
+          },
+          "returned": 1
+        },
+        {
+          "command": "task:find",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "projectFixtureAvailable": false,
+          "returned": 0
+        },
+        {
+          "command": "task:find",
+          "status": 4,
+          "apiCalls": [],
+          "complete": null,
+          "reason": null,
+          "errorCode": "policy-denied",
+          "apiErrorCode": null
+        }
+      ]
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskCommandTest",
+      "test": "testReadOnlyWindowsOverdueAndProject",
+      "readOnly": true,
+      "commands": [
+        {
+          "command": "task:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "deadlineFilter": {
+            "window": "today",
+            "overdue": false,
+            "timezone": "Asia/Bishkek",
+            "now": "2026-10-13T19:57:29+06:00",
+            "fromInclusive": "2026-10-13T00:00:00+06:00",
+            "toExclusive": "2026-10-14T00:00:00+06:00",
+            "route": {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0"
+            },
+            "deadlineApplied": "server",
+            "overdueStatusApplied": null,
+            "groupApplied": null
+          },
+          "returned": 0
+        },
+        {
+          "command": "task:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "deadlineFilter": {
+            "window": "tomorrow",
+            "overdue": false,
+            "timezone": "Asia/Bishkek",
+            "now": "2026-10-13T19:57:30+06:00",
+            "fromInclusive": "2026-10-14T00:00:00+06:00",
+            "toExclusive": "2026-10-15T00:00:00+06:00",
+            "route": {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0"
+            },
+            "deadlineApplied": "server",
+            "overdueStatusApplied": null,
+            "groupApplied": null
+          },
+          "returned": 0
+        },
+        {
+          "command": "task:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "deadlineFilter": {
+            "window": "yesterday",
+            "overdue": false,
+            "timezone": "Asia/Bishkek",
+            "now": "2026-10-13T19:57:30+06:00",
+            "fromInclusive": "2026-10-12T00:00:00+06:00",
+            "toExclusive": "2026-10-13T00:00:00+06:00",
+            "route": {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0"
+            },
+            "deadlineApplied": "server",
+            "overdueStatusApplied": null,
+            "groupApplied": null
+          },
+          "returned": 0
+        },
+        {
+          "command": "task:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "deadlineFilter": {
+            "window": "day-before-yesterday",
+            "overdue": false,
+            "timezone": "Asia/Bishkek",
+            "now": "2026-10-13T19:57:30+06:00",
+            "fromInclusive": "2026-10-11T00:00:00+06:00",
+            "toExclusive": "2026-10-12T00:00:00+06:00",
+            "route": {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0"
+            },
+            "deadlineApplied": "server",
+            "overdueStatusApplied": null,
+            "groupApplied": null
+          },
+          "returned": 0
+        },
+        {
+          "command": "task:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "deadlineFilter": {
+            "window": "this-week",
+            "overdue": false,
+            "timezone": "Asia/Bishkek",
+            "now": "2026-10-13T19:57:31+06:00",
+            "fromInclusive": "2026-10-12T00:00:00+06:00",
+            "toExclusive": "2026-10-19T00:00:00+06:00",
+            "route": {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0"
+            },
+            "deadlineApplied": "server",
+            "overdueStatusApplied": null,
+            "groupApplied": null
+          },
+          "returned": 0
+        },
+        {
+          "command": "task:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "deadlineFilter": {
+            "window": "this-month",
+            "overdue": false,
+            "timezone": "Asia/Bishkek",
+            "now": "2026-10-13T19:57:31+06:00",
+            "fromInclusive": "2026-10-01T00:00:00+06:00",
+            "toExclusive": "2026-11-01T00:00:00+06:00",
+            "route": {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0"
+            },
+            "deadlineApplied": "server",
+            "overdueStatusApplied": null,
+            "groupApplied": null
+          },
+          "returned": 5
+        },
+        {
+          "command": "task:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "deadlineFilter": {
+            "window": "this-quarter",
+            "overdue": false,
+            "timezone": "Asia/Bishkek",
+            "now": "2026-10-13T19:57:32+06:00",
+            "fromInclusive": "2026-10-01T00:00:00+06:00",
+            "toExclusive": "2027-01-01T00:00:00+06:00",
+            "route": {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0"
+            },
+            "deadlineApplied": "server",
+            "overdueStatusApplied": null,
+            "groupApplied": null
+          },
+          "returned": 5
+        },
+        {
+          "command": "task:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "deadlineFilter": {
+            "window": "this-quarter",
+            "overdue": true,
+            "timezone": "Asia/Bishkek",
+            "now": "2026-10-13T19:57:32+06:00",
+            "fromInclusive": "2026-10-01T00:00:00+06:00",
+            "toExclusive": "2026-10-13T19:57:32+06:00",
+            "route": {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0"
+            },
+            "deadlineApplied": "server",
+            "overdueStatusApplied": "local",
+            "groupApplied": null
+          },
+          "returned": 5
+        },
+        {
+          "command": "task:list",
+          "status": 3,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": false,
+          "reason": "scan-budget-exhausted",
+          "errorCode": "partial-result",
+          "apiErrorCode": null,
+          "deadlineFilter": {
+            "window": null,
+            "overdue": true,
+            "timezone": "Asia/Bishkek",
+            "now": "2026-10-13T19:57:32+06:00",
+            "fromInclusive": null,
+            "toExclusive": "2026-10-13T19:57:32+06:00",
+            "route": {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0"
+            },
+            "deadlineApplied": "server",
+            "overdueStatusApplied": "local",
+            "groupApplied": null
+          },
+          "returned": 10
+        },
+        {
+          "command": "task:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "projectFixtureAvailable": false,
+          "returned": 0
+        },
+        {
+          "command": "task:list",
+          "status": 4,
+          "apiCalls": [],
+          "complete": null,
+          "reason": null,
+          "errorCode": "policy-denied",
+          "apiErrorCode": null
+        }
+      ]
+    }
+  ]
+}
