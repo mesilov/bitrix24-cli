@@ -33,3 +33,7 @@ Date: 2026-10-13. Initial base: `origin/dev` at `96ce502`; refreshed and merged 
 No critical issues, warnings or suggestions in the implementation/spec checks; no applicable local verification checks skipped. API contracts were checked through the required official documentation MCP and the current REST3 method page (see design.md). Runtime group/title filtering remains local.
 
 Live portal acceptance, native standalone builds and remote CI are separate evidence and are not implied by offline checks. The active #12 planning artifacts still describe their earlier ASC default; that future implementation must reconcile with the canonical #64 contract when rebasing, as recorded in design.md.
+
+## Merge recheck — 2026-10-13
+
+Integrated fresh origin/dev `ed54555` before authorized merge of PR #84. README and CHANGELOG conflicts were resolved by preserving #64 search documentation and all incoming tag/result/connection changes. Shared mapper/presenter auto-merges retain DESC/order/partial behavior. Full offline suite: **436 tests, 3143 assertions**, passed; make check and all four make lint-all gates passed. Canonical specs: 10 passed (one existing long-requirement warning in task-results), archive #64 unchanged and synchronized. Local ignored files are only reproducible vendor dependencies and var caches; no uncommitted user work was present in this worktree before merge.
