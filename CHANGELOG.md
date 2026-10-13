@@ -25,6 +25,10 @@
 
 ### Изменено
 
+- Синхронизированы спецификации фильтрации задач по своей роли и API policy;
+  архивирован завершённый OpenSpec change `add-task-role-filters` с результатами
+  проверок и delivery evidence после merge реализации в `dev`
+  ([#68](https://github.com/mesilov/bitrix24-cli/issues/68)).
 - Синхронизированы спецификации тегов задач и архивирован проверенный change
   `add-task-tags` после merge реализации в `dev`
   ([#71](https://github.com/mesilov/bitrix24-cli/issues/71)).
