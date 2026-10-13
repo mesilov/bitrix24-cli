@@ -27,7 +27,7 @@ final class GetManagerCommand extends Command
     {
         $this->addOption('source', null, InputOption::VALUE_REQUIRED, 'org: оргструктура; config: рабочий руководитель профиля.', 'org');
         $this->addOption('department-id', null, InputOption::VALUE_REQUIRED, 'Текущий отдел для org, обязателен при нескольких отделах.');
-        $this->setHelp('REST1; права user/department выбранного подключения. JSON data/meta/error; plain TSV: ID, NAME, SECOND_NAME, LAST_NAME, EMAIL, UF_DEPARTMENT. Поиск возвращает кандидатов; полный пустой результат exit0, неполный exit3. Пример: b24cli users:manager --source org --json; b24cli --profile work users:manager --source config');
+        $this->setHelp('REST1; права user/department выбранного подключения. JSON data/meta/error; TSV при --plain: ID, NAME, SECOND_NAME, LAST_NAME, EMAIL, UF_DEPARTMENT. Поиск возвращает кандидатов; полный пустой результат exit0, неполный exit3. Пример: b24cli users:manager --source org --json; b24cli --profile work users:manager --source config');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

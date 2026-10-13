@@ -30,7 +30,7 @@ final class UpdateTaskTimeEntryCommand extends Command
         $this->addOption('seconds', null, InputOption::VALUE_REQUIRED, 'Положительное число секунд.');
         $this->addOption('text', null, InputOption::VALUE_REQUIRED, 'Текст.');
         $this->addOption('dry-run', null, InputOption::VALUE_NONE, 'Показать план без записи; проверочные чтения обозначены.');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: taskId, resourceId, action, changedFields. REST 1.0 companion route; strict-rest3 отклоняет вызов до подключения.   Пример: b24cli task:time:update 123 --entry 30 --seconds 1800');
+        $this->setHelp('JSON: структура data/meta/error; столбцы TSV при --plain: taskId, resourceId, action, changedFields. Дополнительный маршрут REST 1.0; strict-rest3 отклоняет вызов до подключения.   Пример: b24cli task:time:update 123 --entry 30 --seconds 1800');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

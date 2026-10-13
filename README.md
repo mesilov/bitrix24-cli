@@ -2,7 +2,7 @@
 
 CLI для работы с задачами Битрикс24.
 
-[Первый релиз 0.1.0: возможности](CHANGELOG.md#010--2026-10-12) · [область приёмки и ограничения](docs/rc-0.1.0.md).
+[Первый релиз 0.1.0: возможности](CHANGELOG.md#010--2026-10-12) · [область приёмки и ограничения](docs/rc-0.1.0.md) · [JTBD по ролям](docs/task-jtbd.md).
 
 [![Allowed licenses](https://github.com/mesilov/bitrix24-cli/actions/workflows/license-check.yml/badge.svg?branch=dev&event=push)](https://github.com/mesilov/bitrix24-cli/actions/workflows/license-check.yml?query=branch%3Adev+event%3Apush)
 [![PHP-CS-Fixer](https://github.com/mesilov/bitrix24-cli/actions/workflows/php-cs-fixer.yml/badge.svg?branch=dev&event=push)](https://github.com/mesilov/bitrix24-cli/actions/workflows/php-cs-fixer.yml?query=branch%3Adev+event%3Apush)
@@ -50,10 +50,6 @@ curl -fsSL https://raw.githubusercontent.com/mesilov/bitrix24-cli/main/install.s
 . "$HOME/.local/share/b24cli/env"
 b24cli --version
 ```
-
-> URL `main/install.sh` станет доступен после доставки installer в `main`.
-> До этого используйте ручную установку ниже; наличие скрипта в feature/dev не
-> подтверждает доступность этой команды. Публичные archives уже доступны в Releases.
 
 Installer скачивает архив и `SHA256SUMS` одного [публичного Release](https://github.com/mesilov/bitrix24-cli/releases),
 проверяет SHA-256, notices и точную версию перед заменой executable.
@@ -434,7 +430,62 @@ Headless task-команды не спрашивают webhook и не сохр�
 Help/version/list/completion и offline dry-run не читают credential files и не пишут конфиг;
 advanced fields сохраняют описанный preflight editable metadata.
 
+## Справка и сведения о приложении
+
+```sh
+b24cli --help
+b24cli task:add --help
+b24cli help task:add
+b24cli --about
+b24cli --version
+```
+
+Общий `--help` (или `-h`) показывает назначение b24cli, список публичных команд,
+глобальные опции и примеры создания, просмотра и поиска задач. Первым идёт единый
+блок «Общие» с `completion`, `help` и `list`, затем — пространства имён команд
+в алфавитном порядке. Команды внутри каждого блока также упорядочены по имени.
+Вся справка написана на русском, включая заголовки, описания аргументов и опций,
+значения по умолчанию и пояснения встроенных команд. Имена команд, флагов,
+API/JSON-полей и значений параметров сохраняют точное написание. Справка выбранной
+команды содержит её аргументы, опции, ограничения и примеры; `list --help`
+описывает команду списка. Без аргументов b24cli выводит список команд.
+
+`b24cli help task:add --format=md` выводит справку в Markdown; доступны также
+`txt`, `xml` и `json`. Человеческие описания во всех форматах — на русском.
+`b24cli completion bash` (также `fish` или `zsh`) выводит скрипт автодополнения
+для выбранной оболочки. Установку смотрите в `b24cli completion --help`.
+
+`--about` показывает назначение приложения, фактическую версию сборки, автора,
+лицензию и ссылки на репозитории приложения и скилла. Версия совпадает с
+`--version`. Справка и сведения о приложении работают без подключения к порталу.
+
+[Агентский скилл b24cli](https://github.com/mesilov/bitrix24-cli-skill) помогает
+AI-агенту выполнять операции через публичные команды приложения.
+
 ## CLI-команды
+
+Полный список с назначением, примерами и ссылками на интеграционные тесты:
+[карта CLI-вызовов](docs/cli-command-map.md). Проверка установленной сборки —
+`b24cli list`; список ниже служит кратким обзором.
+
+[JTBD по ролям: сценарии, CLI-команды и интеграционные тесты](docs/task-jtbd.md).
+
+### Проблемные сценарии агента
+
+`doctor:problem-trajectory` регистрирует обезличенный сценарий нехватки публичной
+CLI-возможности и алгоритм необходимой обвязки словами. Карточки сохраняются
+локально рядом с user config; telemetry default true, лимит 100. Скилл проверяет
+`analysisDue` при запуске и предлагает weekly пакетный разбор. Сам CLI не запускает
+фоновый сбор и не читает истории чатов.
+
+```sh
+b24cli doctor:problem-trajectory --action status --json
+b24cli doctor:problem-trajectory --report-file report.json --json
+```
+
+[Контракт и примеры](docs/problem-trajectories.md). Feedback в MVP пока мокается
+только с явным `--mock-feedback` и подтверждением; результат mocked=true,
+delivered=false не означает отправку обращения или создание issue.
 
 | Команда | Назначение |
 | --- | --- |
@@ -451,6 +502,13 @@ advanced fields сохраняют описанный preflight editable metadat
 | `task:show` | Показать карточку задачи |
 | `task:list` | Показать доступные задачи |
 | `task:find` | Найти задачи по фрагменту заголовка |
+| `task:start` | Начать работу |
+| `task:pause` | Приостановить выполнение |
+| `task:defer` | Отложить задачу |
+| `task:renew` | Возобновить задачу |
+| `task:complete` | Завершить или передать на контроль |
+| `task:approve` | Принять результат при контроле |
+| `task:disapprove` | Вернуть на доработку при контроле |
 | `task:update` | Изменить явные поля, заменить или очистить теги |
 | `task:delete` | Удалить задачу |
 | `task:assign` | Сменить ответственного |
@@ -517,6 +575,61 @@ ACK привязки подтверждает метод, самостоятел
 
 Справка по параметрам и примерам: `b24cli help task:show`.
 
+### Справка и ошибки ввода
+
+`b24cli task:find --help` и `b24cli help task:find` показывают назначение,
+обычные примеры, затем параметры, defaults и advanced input/API ограничения.
+Help, список команд, version и completion работают без подключения.
+
+Опечатка `task:find --titel договор` возвращает `usage-error` и код 2 с подсказкой
+`--title` и корректным примером. Отсутствующее значение или обязательный аргумент
+называются явно; конфликтующие параметры требуют выбрать один способ ввода.
+Ошибочный ввод не выполняет API-запросов. Подсказки — только текст и не запускают
+команды автоматически; значения аргументов, webhook/token и stack trace не отражаются.
+
+### Карточки и форматы вывода
+
+```sh
+b24cli task:show 123
+b24cli task:show 123 --select id --select title --select status --select responsible.id --select responsible.name --select group.id --select group.name --select deadline --select description
+b24cli task:list --group-id 42 --limit 25
+```
+
+Карточка показывает название/ID, статус, ответственного, проект, срок и описание,
+затем дополнительные выбранные поля. Имена показываются вместе с ID только из
+полученных данных; при отсутствии имени выводится ID. Renderer не запрашивает
+дополнительные данные. `--select` задаёт полный набор выбранных полей; для карточки
+с именами явно выбирайте также ID relations. Длинный текст переносится по ширине
+терминала (при неизвестной ширине — 80 колонок), управляющие символы отображаются
+без исполнения. Узкий терминал использует вертикальный список, широкий — таблицу.
+
+Пример карточки на условных данных:
+
+```text
+123 · Подготовить договор
+Статус: В работе (in_progress)
+Ответственный: Анна Иванова (#42)
+Проект: #7
+Срок: 2026-10-15T18:00:00+06:00
+
+Описание
+Проверить реквизиты.
+```
+
+`task:list` и `task:find` показывают область доступных задач, число показанных,
+найденных и просмотренных задач, `complete`, `limitApplied` и фактический порядок.
+Полный пустой результат означает отсутствие совпадений в этой доступной выборке.
+Полный обход с ограниченным выводом возвращает 0; неполный обход — 3 с причиной и
+следующим действием. `--all` снимает только лимит вывода; при scan cap увеличьте
+`--max-scan`. Неполный поиск не доказывает отсутствие дублей или полный размер проекта.
+
+`--json` выводит один объект `data/meta/error` с `meta.schemaVersion=1` и без ANSI.
+`--plain` выводит TSV без заголовка: карточка — `field/value`, список —
+`id/title/responsibleId/groupId/status/deadline`, поиск — `id/title`.
+Tabs/newlines экранируются; сводка полноты plain отправляется в stderr.
+`--quiet` подавляет обычный вывод и сводки, сохраняя существенные ошибки в stderr;
+`--silent` подавляет весь вывод. Коды завершения сохраняются при обоих флагах.
+
 Группа/проект задаётся положительным целым ID:
 
 ```sh
@@ -529,7 +642,7 @@ b24cli task:find --title "договор" --group-id 42 --json
 JSON и REST 3.0 используют `groupId`; для advanced input используйте `--fields '{"groupId":42}'`,
 для JSON-фильтра списка — `task:list --where '{"groupId":42}'`.
 Флаг и JSON-поля нельзя смешивать. В `task:list` и `task:find` фильтр группы
-выполняется локально при обходе доступных задач; `--max-scan` ограничивает обход,
+без новых временных флагов выполняется локально при обходе доступных задач; `--max-scan` ограничивает обход,
 `--limit` — число результатов. `task:find` совмещает `--group-id` с поиском
 по заголовку без учёта регистра; без флага ищет во всех доступных группах.
 При создании задачи выбранный профиль может задавать `default.task.groupId`;
@@ -546,14 +659,62 @@ b24cli task:find --title "договор" --group-id 42 --role accomplice --json
 b24cli task:list --role creator --where '{"responsibleId":9}' --json
 ```
 
-Роль сочетается с остальными допустимыми критериями через AND. Она не ограничивает
+Роль сочетается с остальными допустимыми критериями через AND. Сама по себе она не ограничивает
 статус: «делаю» включает и завершённые задачи, «поручил» включает задачи, поставленные
 себе. Группы могут пересекаться. ID берётся из выбранного подключения, а не из
 `default.task`; JSON содержит `meta.roleFilter` с `role` и `userId`.
-`responsible` и `creator` используют REST 3.0. `accomplice` и `auditor` добавляют
+Без временных флагов `responsible` и `creator` используют REST 3.0. `accomplice` и `auditor` добавляют
 REST 1.0 чтение ID участников каждой подходящей задачи и недоступны при
 `--api-policy strict-rest3`. Для ограничения обхода используйте `--group-id`,
 для списка также `--id`; `--all` не снимает `--max-scan`.
+
+### Календарные окна дедлайна
+
+`task:list` и `task:find` принимают `--deadline-window` (один раз), `--overdue`
+и `--timezone IANA`. Мнемоники: `today`, `tomorrow`, `yesterday`,
+`day-before-yesterday`, `this-week`, `this-month`, `this-quarter`.
+
+```sh
+b24cli task:list --group-id 42 --deadline-window today --timezone Asia/Bishkek --json
+b24cli task:list --group-id 42 --overdue --deadline-window this-week --timezone Asia/Bishkek --json
+b24cli task:list --overdue --timezone Asia/Bishkek --json
+b24cli task:find --title "отчёт" --group-id 42 --deadline-window this-month --overdue --timezone Asia/Bishkek --json
+```
+
+Окна календарные и полуоткрытые `[from, to)`: неделя начинается в понедельник,
+месяц и квартал охватываются целиком. `this-week` отличается от следующих семи дней.
+Границы учитывают DST и календарь. По умолчанию timezone берётся из `TZ`, затем из
+PHP timezone окружения; CLI не угадывает пояс портала. Для запросов «сегодня» от
+skill передавайте известный IANA timezone пользователя. Один `now` фиксируется
+на всю команду с точностью до секунды, включая все страницы.
+
+`--overdue` означает непустой дедлайн строго раньше `now`, исключает `completed`
+и `declined`, включает `deferred` и `supposedly_completed`. Этот lifecycle фильтр
+проверяется локально, а границы дат уходят в API. Без `--overdue` окно включает
+все статусы. «Должны были закрыть вчера» — `--deadline-window yesterday --overdue`;
+это не выборка по фактической дате закрытия. `deadline=null` не совпадает.
+`tomorrow --overdue` возвращает полный пустой результат без сетевых запросов.
+
+Временная выборка использует явный `tasks.task.list` REST 1.0: `>=DEADLINE`,
+`<DEADLINE` и `GROUP_ID` для `--group-id`. Это выбор маршрута до вызовов;
+`--api-policy strict-rest3` возвращает `policy-denied`/exit4 без fallback.
+Остальные критерии — AND; `task:find --status` задаёт локальный lifecycle статус.
+Не смешивайте новые флаги с `--due-before`, `--where`/`--where-file`;
+неверные/повторные окна и неизвестный timezone дают usage-error/exit2 до API.
+
+REST1 поддерживает общий набор `--select`: id, title, description, creatorId,
+responsibleId, groupId, deadline, status, created, started, changed, closed,
+activity, startPlan, endPlan, estimatedTime, priority, mark, allowsChangeDeadline,
+allowsTimeTracking. Для `--order` доступны поля этого набора кроме description,
+creatorId/responsibleId. Неподдерживаемые поля возвращают usage-error до API;
+CLI не отправляет придуманные имена и не делает скрытые запросы другой версии.
+
+JSON `meta.deadlineFilter` содержит window/overdue/timezone, now,
+fromInclusive/toExclusive, route, deadlineApplied/overdueStatusApplied/groupApplied.
+Форматы выдачи, `--limit`, `--all`, `--max-scan`, visible-task scope и partial/exit3
+сохраняются. Metadata отличает полный обход от ограниченного вывода; права
+подключения ограничивают видимость задач. Границы/маршрут доступны в JSON,
+при обычном выводе использование REST1 явно сообщается в stderr.
 
 Список и поиск обходят задачи от новых к старым (`id DESC`) и сохраняют этот
 порядок в результатах. Обе команды принимают повторяемый `--order FIELD:asc|desc`;
@@ -577,6 +738,37 @@ REST 3.0 поддерживает серверную фильтрацию зад
 `--max-scan`. Пустой результат при неполном обходе **не доказывает отсутствие
 дубля**. При ошибке страницы или недостающих данных причина также указывается
 явно. Только полный пустой результат имеет `meta.complete=true` и код 0.
+
+### Поиск с несколькими критериями
+
+```sh
+b24cli task:find --title "договор" --group-id 7 --responsible 42
+b24cli task:find --title "договор" --status in_progress --order id:desc --limit 25
+b24cli task:find --title "договор" --id 123 --id 124 --due-before 2026-10-15T18:00:00+06:00 --json
+b24cli task:find --title "договор" --where '{"groupId":7,"responsibleId":42}' --all --json
+b24cli task:find --title "договор" --where-file filters.json --role responsible --all --json
+```
+
+`--title` обязателен: буквальная подстрока заголовка без регистра Unicode,
+без regex/wildcards и поиска по описанию. Все явно заданные критерии и роль
+пересекаются через AND на каждой просмотренной странице. `--id` можно повторять;
+он задаёт серверную выборку и scope `explicit-task-ids`. Остальные predicates
+локальные; результат поиска содержит только `id/title`, включая 0/1/many совпадений.
+
+`--where` и `--where-file` — отдельный режим равенств JSON object с ключами
+`id`, `title`, `creatorId`, `responsibleId`, `groupId`, `status`, `deadline`.
+Их нельзя смешивать друг с другом или с `--responsible`, `--group-id`, `--status`,
+`--due-before`; можно сочетать с `--title`, `--id`, `--role`, `--order` и лимитами.
+`--where-file=-` читает stdin явно; одновременный `--config=-` отклоняется.
+`--project` не поддерживается; идентификатор группы задаётся через `--group-id`.
+
+Роль проверяется относительно пользователя выбранного подключения. Без роли
+определение пользователя и чтение участников не добавляются. `responsible/creator`
+сохраняют REST3; `accomplice/auditor` используют явно выбранное REST1 чтение состава
+роли после остальных критериев и запрещены при `strict-rest3` (код 4 до API).
+При ошибке этого чтения сохраняются подтверждённые совпадения и partial/код 3.
+Default порядок — `id DESC`, лимит вывода — 50, scan budget — 10000;
+`--all` не отменяет scan budget и не обещает меньшую стоимость обхода.
 
 ### Теги задач
 
@@ -671,3 +863,52 @@ b24cli --profile work users:manager --source config --json
 Copyright © 2026 Maksim Mesilov <mesilov.maxim@gmail.com>.
 Лицензии сторонних компонентов сохранены в пакетах отдельно.
 Все упоминаемые товарные знаки принадлежат их владельцам.
+
+### Жизненный цикл и списки по статусу
+
+```sh
+b24cli task:start 123
+b24cli task:pause 123
+b24cli task:defer 123
+b24cli task:renew 123
+b24cli task:complete 123 --dry-run --json
+b24cli task:complete 123 --json
+b24cli task:approve 123
+b24cli task:disapprove 123
+
+# 42 — ваш ID; 99 — другой исполнитель; 7 — проект
+b24cli task:list --responsible 42 --status in_progress --all --json
+b24cli task:list --group-id 7 --status supposedly_completed --all --json
+b24cli task:list --responsible 99 --status deferred --all --json
+b24cli task:list --group-id 7 --responsible 99 --status pending --all --json
+```
+
+Фильтр `--status` принимает одно точное логическое значение: `pending`,
+`in_progress`, `supposedly_completed`, `completed`, `deferred`, `declined`.
+Все условия исполнителя/проекта/статуса объединяются через AND. Свои задачи
+выбираются вашим явным ID; автоматического `--me` нет. Числовые коды и опечатки
+в `--status` или `--where.status` отклоняются. `--all` снимает лимит вывода,
+но сохраняет `--max-scan` (по умолчанию 10000) и ограничения доступа подключения.
+
+Lifecycle команды используют явный REST 1.0 маршрут; `strict-rest3` запрещает их
+до запросов, включая dry-run. Проверяются текущее состояние, право действия и
+обязательный native result. `--dry-run` показывает условия и шаги без записи,
+включая возможность контроля и серверного завершения подзадач. Обычные переходы
+не требуют дополнительного подтверждения. Заметка или файл не заменяют native
+result при `requireResult=true`; CLI не создаёт его автоматически.
+
+После действия выводится фактический REST3 `status`. `supposedly_completed`
+означает ожидание контроля; `completed` — завершение. Постановщик может завершить
+задачу сразу, поэтому статус не вычисляется только из `needsControl` или команды.
+JSON содержит `data.operation` с `taskId/action/confirmed` и `data.task` с
+`id/status/needsControl/requireResult`. Plain TSV: `taskId`, `action`, `confirmed`,
+`status`, `needsControl`, `requireResult`. `meta.complete` означает полноту
+выполнения и чтения, а не завершение задачи. При подтверждённой записи и ошибке
+последующего чтения возвращается partial/exit3; при неизвестном исходе отправленной
+записи — `outcomeUnknown=true`. Запись не повторяется; состояние можно сверить
+через `task:show`. Изменение raw `status` через `task:update` запрещено.
+
+Если список не возвращает groupId для фильтра проекта, CLI проверяет group.id
+карточки подходящей по остальным условиям задачи. Эти REST3 чтения отражаются
+в meta.apiCalls и ограничиваются числом просмотренных задач; непроверенная
+принадлежность даёт partial вместо недостоверной пустой выборки.

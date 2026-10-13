@@ -30,7 +30,7 @@ final class UpdateTaskChatMessageCommand extends Command
         $this->addOption('text', null, InputOption::VALUE_REQUIRED, 'Текст.');
         $this->addOption('text-file', null, InputOption::VALUE_REQUIRED, 'Текст из PATH или - (stdin).');
         $this->addOption('dry-run', null, InputOption::VALUE_NONE, 'Показать план без записи; проверочные чтения обозначены.');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: taskId, resourceId, action, changedFields. REST 1.0 companion route; strict-rest3 отклоняет вызов до подключения.   Пример: b24cli task:chat:update 123 --message 900 --text "Договор согласован"');
+        $this->setHelp('JSON: структура data/meta/error; столбцы TSV при --plain: taskId, resourceId, action, changedFields. Дополнительный маршрут REST 1.0; strict-rest3 отклоняет вызов до подключения.   Пример: b24cli task:chat:update 123 --message 900 --text "Договор согласован"');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

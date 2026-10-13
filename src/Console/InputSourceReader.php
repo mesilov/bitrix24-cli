@@ -30,7 +30,7 @@ final class InputSourceReader
             $this->stdinUsed = true;
             $data = $maximum === null ? stream_get_contents($stream) : stream_get_contents($stream, $maximum + 1);
         } else {
-            $data = is_file($path) && is_readable($path) ? file_get_contents($path) : false;
+            $data = is_file($path) && is_readable($path) ? file_get_contents($path, false, null, 0, $maximum === null ? null : $maximum + 1) : false;
         }
 
         if ($maximum !== null && is_string($data) && strlen($data) > $maximum) {

@@ -26,10 +26,10 @@ final class ListTaskResultsCommand extends Command
     protected function configure(): void
     {
         $this->addArgument('TASK_ID', InputArgument::REQUIRED, 'ID задачи.');
-        $this->addOption('limit', null, InputOption::VALUE_REQUIRED, 'Лимит вывода (default 50); не заменяет бюджет обхода.');
+        $this->addOption('limit', null, InputOption::VALUE_REQUIRED, 'Лимит вывода (по умолчанию 50); не заменяет бюджет обхода.');
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Снять лимит вывода; бюджет остаётся конечным.');
-        $this->addOption('max-scan', null, InputOption::VALUE_REQUIRED, 'Бюджет просмотра результатов (default 10000).');
-        $this->setHelp('REST 3.0; strict-rest3 поддерживается. JSON: data/meta/error envelope; plain TSV columns: id, taskId, authorId, createdAt, status, text. Результаты задачи доступны в пределах прав подключения. Пример: b24cli task:result:list 123 --all');
+        $this->addOption('max-scan', null, InputOption::VALUE_REQUIRED, 'Бюджет просмотра результатов (по умолчанию 10000).');
+        $this->setHelp('REST 3.0; strict-rest3 поддерживается. JSON: структура data/meta/error; столбцы TSV при --plain: id, taskId, authorId, createdAt, status, text. Результаты задачи доступны в пределах прав подключения. Пример: b24cli task:result:list 123 --all');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

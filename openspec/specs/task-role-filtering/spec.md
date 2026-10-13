@@ -52,7 +52,7 @@
 
 ### Requirement: Role filters compose with existing query criteria
 
-Роль SHALL сочетаться с допустимыми критериями текущей команды через AND. `task:find` SHALL сохранять буквальный Unicode title поиск и groupId; `task:list` SHALL сохранять id, responsibleId, groupId, status, due-before и where. Роль SHALL оставаться отдельным критерием, не заменяя явные условия или меняя действующие конфликты обычных фильтров и where.
+Роль SHALL сочетаться с допустимыми критериями текущей команды через AND. `task:find` SHALL сочетать обязательный буквальный Unicode title поиск с id, responsibleId, groupId, status, due-before и where; `task:list` SHALL сохранять те же критерии без обязательного title. Роль SHALL оставаться отдельным критерием, не заменяя явные условия или меняя действующие конфликты обычных фильтров и where.
 
 #### Scenario: Role and list criteria
 - **WHEN** вызван `task:list --role auditor --group-id 42 --status in_progress`
@@ -68,7 +68,7 @@
 
 #### Scenario: Role and title search
 - **WHEN** вызван `task:find --title "ДОГОВОР" --group-id 42 --role accomplice`
-- **THEN** возвращаются только id/title задач с буквальным совпадением title без регистра Unicode, groupId 42 и подтверждённым текущим соисполнителем; поиск не добавляет остальные флаги из другого незавершённого change
+- **THEN** возвращаются только id/title задач с буквальным совпадением title без регистра Unicode, groupId 42 и подтверждённым текущим соисполнителем; дополнительно выбранные id/responsible/status/due-before/where SHALL пересекаться с title/groupId/ролью через AND с validation/conflicts task:list и прежним id/title output
 
 ### Requirement: Bounded and honest role verification
 

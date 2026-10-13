@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 
 final readonly class TaskInputMapper
 {
-    public function __construct(private InputSourceReader $reader, private ?\Bitrix24\CLI\Infrastructure\Connection\ConnectionManager $connections = null, private ?\Bitrix24\CLI\Application\Task\Port\LocalFileGateway $files = null)
+    public function __construct(private InputSourceReader $reader, private ?\Bitrix24\CLI\Infrastructure\Connection\ConnectionManager $connections = null, private ?\Bitrix24\CLI\Application\Task\Port\LocalFileGateway $files = null, private \Bitrix24\CLI\Application\Task\DeadlineWindowResolver $deadlines = new \Bitrix24\CLI\Application\Task\DeadlineWindowResolver())
     {
     }
 
@@ -178,34 +178,42 @@ final readonly class TaskInputMapper
 
     private function query(InputInterface $input, bool $find): TaskQuery
     {
+        $windows = $input->getOption('deadline-window');
+        if (count($windows) > 1) {
+            throw Failure::usage('Provide --deadline-window only once.');
+        }
+
+        $deadlineWindow = $this->deadlines->resolve($windows[0] ?? null, $input->getOption('overdue'), $input->getOption('timezone'));
+        if ($deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow && ($input->getOption('due-before') !== null || $input->getOption('where') !== null || $input->getOption('where-file') !== null)) {
+            throw Failure::usage('Do not mix --deadline-window/--overdue with --due-before or --where/--where-file.');
+        }
+
         $value = $input->getOption('role');
         $role = $value === null ? null : (is_string($value) ? TaskRole::tryFrom($value) : null);
         if ($value !== null && $role === null) {
             throw Failure::usage('Use --role responsible, accomplice, creator or auditor.');
         }
 
-        $where = $find ? [] : $this->json($input, 'where');
+        $where = $this->json($input, 'where');
         $predicates = [];
-        if ($find && $input->getOption('group-id') !== null) {
-            $predicates['groupId'] = $this->id($input->getOption('group-id'), '--group-id');
+        foreach (['responsible' => 'responsibleId', 'group-id' => 'groupId', 'status' => 'status'] as $flag => $field) {
+            $value = $input->getOption($flag);
+            if ($value !== null) {
+                $predicates[$field] = $flag === 'status' ? \Bitrix24\CLI\Application\Task\TaskStatus::validateFilter($value) : $this->id($value, '--' . $flag);
+            }
         }
 
-        if (!$find) {
-            foreach (['responsible' => 'responsibleId', 'group-id' => 'groupId', 'status' => 'status'] as $flag => $field) {
-                $value = $input->getOption($flag);
-                if ($value !== null) {
-                    $predicates[$field] = $flag === 'status' ? $value : $this->id($value, '--' . $flag);
-                }
-            }
-
-            if ($where !== null && ($predicates !== [] || $input->getOption('due-before') !== null)) {
-                throw Failure::usage('Choose --where or convenient filter flags.');
-            }
+        if ($where !== null && ($predicates !== [] || $input->getOption('due-before') !== null)) {
+            throw Failure::usage('Choose --where/--where-file or --responsible/--group-id/--status/--due-before; --title, --id and --role may be combined with either.');
         }
 
         foreach ($where ?? [] as $field => $value) {
             if (!in_array($field, ['id', 'title', 'creatorId', 'responsibleId', 'groupId', 'status', 'deadline'], true) || (!is_string($value) && !is_int($value))) {
                 throw Failure::usage('Unsupported --where field or value.');
+            }
+
+            if ($field === 'status') {
+                \Bitrix24\CLI\Application\Task\TaskStatus::validateFilter($value);
             }
 
             if (in_array($field, ['id', 'creatorId', 'responsibleId', 'groupId'], true)) {
@@ -229,14 +237,15 @@ final readonly class TaskInputMapper
         }
 
         return new TaskQuery(
-            $find ? [] : array_map(fn ($id): int => $this->id($id, '--id'), $input->getOption('id')),
-            $find ? $predicates : ($where ?? $predicates),
-            !$find && $input->getOption('due-before') !== null ? FieldSchema::date($input->getOption('due-before')) : null,
+            array_map(fn ($id): int => $this->id($id, '--id'), $input->getOption('id')),
+            $where ?? $predicates,
+            $input->getOption('due-before') !== null ? FieldSchema::date($input->getOption('due-before')) : null,
             $find ? ['id', 'title'] : FieldSchema::select($input->getOption('select')),
             $order,
             $this->limit($input, 50),
             $input->getOption('max-scan') === null ? 10000 : $this->id($input->getOption('max-scan'), '--max-scan'),
             $role,
+            $deadlineWindow,
         );
     }
 
@@ -248,6 +257,11 @@ final readonly class TaskInputMapper
     public function findTasks(InputInterface $input): Request\FindTasksRequest
     {
         return new Request\FindTasksRequest($this->query($input, true), trim($this->text($input, 'title')));
+    }
+
+    public function lifecycleRequest(InputInterface $input, \Bitrix24\CLI\Application\Task\LifecycleAction $action): Request\TaskLifecycleRequest
+    {
+        return new Request\TaskLifecycleRequest($this->taskId($input), $action);
     }
 
     public function taskReference(InputInterface $input): Request\TaskReference
