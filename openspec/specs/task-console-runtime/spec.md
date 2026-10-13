@@ -7,15 +7,15 @@
 ## Requirements
 
 ### Requirement: Exact MVP command registration
-Runtime SHALL предоставлять ровно 30 task-команд из MVP каталога define-task-jtbd, отдельно от локальных connection-команд capability connection-configuration и встроенных команд справки/completion. Регистрация SHALL строиться напрямую из единственного явного CommandCatalog без tags/compiler pass и массового сканирования. Unit-tests SHALL проверять уникальность имён/классов, совпадение AsCommand с каталогом и отсутствие post-MVP операций. Исключённые операции не SHALL возвращаться через aliases.
+Runtime SHALL предоставлять 30 исходных task-команд MVP и четыре result-команды из согласованного расширения 0.2.0, отдельно от connection и встроенных help/completion. Регистрация SHALL строиться из явного CommandCatalog без tags/compiler pass и массового сканирования. Unit-tests SHALL проверять уникальность имён/классов, совпадение AsCommand с каталогом и отсутствие остальных исключённых операций и aliases.
 
 #### Scenario: Root command inventory
 - **WHEN** пользователь запускает b24cli без имени команды либо list task без профиля подключения
-- **THEN** видны все 30 согласованных task-команд, отсутствуют 29 исключённых команд, включая task:subtask:add; API и чтение credentials не выполняются
+- **THEN** видны 34 task-команды, включая result:add/list/update/delete; остальные исключённые операции, включая result:from-message и subtask:add, отсутствуют; API и чтение credentials не выполняются
 
 #### Scenario: Explicit catalog consistency
 - **WHEN** запускаются unit-tests регистрации приложения
-- **THEN** проверяются все 30 имён и уникальных Command-классов, совпадение AsCommand и отсутствие aliases; compiler pass и console.command tags не требуются, credentials и API не читаются
+- **THEN** проверяются 34 имени и уникальных Command-класса, совпадение AsCommand и отсутствие aliases; compiler pass и console.command tags не требуются, credentials и API не читаются
 
 ### Requirement: Deferred connection resolution
 Runtime SHALL проверять синтаксис и локальные ограничения ввода до получения credentials и создания API клиента. Help, list, version и completion SHALL работать без подключения. Доступность команд не SHALL зависеть от роли пользователя на портале; серверные права проверяются при выполнении выбранной операции.

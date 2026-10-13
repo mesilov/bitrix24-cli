@@ -2,11 +2,11 @@
 
 ## Расширение 0.2.0 — результаты задачи (#61)
 
-Change: [add-task-results](../add-task-results/proposal.md), [delta JTBD](../add-task-results/specs/task-workflows/spec.md).
+Change: [add-task-results](../archive/2026-10-13-add-task-results/proposal.md), [delta JTBD](../archive/2026-10-13-add-task-results/specs/task-workflows/spec.md).
 Четыре команды `task:result:add/list/update/delete` реализованы через REST3.
 Локальные контракты проверяются в `tests/Unit/TaskResultsTest.php`; собственные
 portal cases находятся в `tests/Integration/Task/*TaskResult*CommandTest.php`.
-13.10.2026 на настроенном портале текущего webhook пользователя прошли 7 result cases (63 assertions), включая четыре собственных happy-path; cleanup успешен. [Evidence](../add-task-results/portal-evidence-2026-10-13.json). Denied-role matrix и live multi-page completeness отдельно не проверены.
+13.10.2026 на настроенном портале текущего webhook пользователя прошли 7 result cases (63 assertions), включая четыре собственных happy-path; cleanup успешен. [Evidence](../archive/2026-10-13-add-task-results/portal-evidence-2026-10-13.json). Denied-role matrix и live multi-page completeness отдельно не проверены.
 
 | JTBD / роль | Когда | Цель и действия | Признак успеха |
 | --- | --- | --- | --- |

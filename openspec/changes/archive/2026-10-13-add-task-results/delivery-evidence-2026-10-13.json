@@ -1,0 +1,172 @@
+{
+  "headSha": "6288235d25127cc82ce20e1c359450517992aaf5",
+  "pullRequest": "https://github.com/mesilov/bitrix24-cli/pull/76",
+  "base": "dev",
+  "state": "MERGED",
+  "ciChecks": [
+    {
+      "bucket": "pass",
+      "link": "https://github.com/mesilov/bitrix24-cli/actions/runs/38378305665/job/115235201346",
+      "name": "packages / Verify release archive set",
+      "state": "SUCCESS",
+      "workflow": "Package standalone binaries"
+    },
+    {
+      "bucket": "pass",
+      "link": "https://github.com/mesilov/bitrix24-cli/actions/runs/38378305665/job/115232468345",
+      "name": "packages / macOS arm64 package",
+      "state": "SUCCESS",
+      "workflow": "Package standalone binaries"
+    },
+    {
+      "bucket": "pass",
+      "link": "https://github.com/mesilov/bitrix24-cli/actions/runs/38378305665/job/115232468223",
+      "name": "packages / Linux amd64 package",
+      "state": "SUCCESS",
+      "workflow": "Package standalone binaries"
+    },
+    {
+      "bucket": "pass",
+      "link": "https://github.com/mesilov/bitrix24-cli/actions/runs/38378305665/job/115232467853",
+      "name": "packages / Windows amd64 package",
+      "state": "SUCCESS",
+      "workflow": "Package standalone binaries"
+    },
+    {
+      "bucket": "pass",
+      "link": "https://github.com/mesilov/bitrix24-cli/actions/runs/38378305615/job/115232126606",
+      "name": "unit-tests",
+      "state": "SUCCESS",
+      "workflow": "Command tests"
+    },
+    {
+      "bucket": "pass",
+      "link": "https://github.com/mesilov/bitrix24-cli/actions/runs/38378305671/job/115232127072",
+      "name": "PHPStan",
+      "state": "SUCCESS",
+      "workflow": "PHPStan lint checks"
+    },
+    {
+      "bucket": "pass",
+      "link": "https://github.com/mesilov/bitrix24-cli/actions/runs/38378305766/job/115232127152",
+      "name": "PhpCsFixer",
+      "state": "SUCCESS",
+      "workflow": "PhpCsFixer lint checks"
+    },
+    {
+      "bucket": "pass",
+      "link": "https://github.com/mesilov/bitrix24-cli/actions/runs/38378305550/job/115232127930",
+      "name": "linux",
+      "state": "SUCCESS",
+      "workflow": "Worktree isolation"
+    },
+    {
+      "bucket": "pass",
+      "link": "https://github.com/mesilov/bitrix24-cli/actions/runs/38378305666/job/115232128935",
+      "name": "composer-license-checker",
+      "state": "SUCCESS",
+      "workflow": "Allowed licenses checks"
+    },
+    {
+      "bucket": "pass",
+      "link": "https://github.com/mesilov/bitrix24-cli/actions/runs/38378305615/job/115232127206",
+      "name": "Configuration schema contract",
+      "state": "SUCCESS",
+      "workflow": "Command tests"
+    },
+    {
+      "bucket": "pass",
+      "link": "https://github.com/mesilov/bitrix24-cli/actions/runs/38378305505/job/115232126082",
+      "name": "Rector",
+      "state": "SUCCESS",
+      "workflow": "Rector lint checks"
+    },
+    {
+      "bucket": "pass",
+      "link": "https://github.com/mesilov/bitrix24-cli/actions/runs/38378299642/job/115232106401",
+      "name": "PHPStan",
+      "state": "SUCCESS",
+      "workflow": "PHPStan lint checks"
+    },
+    {
+      "bucket": "pass",
+      "link": "https://github.com/mesilov/bitrix24-cli/actions/runs/38378299668/job/115232106358",
+      "name": "PhpCsFixer",
+      "state": "SUCCESS",
+      "workflow": "PhpCsFixer lint checks"
+    },
+    {
+      "bucket": "pass",
+      "link": "https://github.com/mesilov/bitrix24-cli/actions/runs/38378299614/job/115232106217",
+      "name": "Rector",
+      "state": "SUCCESS",
+      "workflow": "Rector lint checks"
+    },
+    {
+      "bucket": "pass",
+      "link": "https://github.com/mesilov/bitrix24-cli/actions/runs/38378299650/job/115232106023",
+      "name": "unit-tests",
+      "state": "SUCCESS",
+      "workflow": "Command tests"
+    },
+    {
+      "bucket": "pass",
+      "link": "https://github.com/mesilov/bitrix24-cli/actions/runs/38378299650/job/115232106244",
+      "name": "Configuration schema contract",
+      "state": "SUCCESS",
+      "workflow": "Command tests"
+    },
+    {
+      "bucket": "pass",
+      "link": "https://github.com/mesilov/bitrix24-cli/actions/runs/38378299623/job/115232106137",
+      "name": "composer-license-checker",
+      "state": "SUCCESS",
+      "workflow": "Allowed licenses checks"
+    }
+  ],
+  "phar": {
+    "status": "passed",
+    "version": "dev-6288235d25127cc82ce20e1c359450517992aaf5",
+    "runtime": {
+      "php": "8.5.11",
+      "version": "dev-6288235d25127cc82ce20e1c359450517992aaf5",
+      "extensions": [
+        "phar",
+        "zlib",
+        "openssl",
+        "mbstring",
+        "bcmath",
+        "ctype",
+        "curl",
+        "filter",
+        "iconv",
+        "intl",
+        "tokenizer",
+        "pcntl",
+        "json"
+      ],
+      "unicode": "Привет, Битрикс24"
+    },
+    "checks": [
+      "version",
+      "help",
+      "list",
+      "usage-exit",
+      "34-task-commands",
+      "task-dry-run",
+      "missing-connection",
+      "task-SIGINT",
+      "autoload",
+      "extensions",
+      "unicode",
+      "trusted-https",
+      "rejected-certificate",
+      "clean-PATH",
+      "temporary-phar-cleanup"
+    ]
+  },
+  "mergeCommit": "d9b92f1b477194d9a4f89ff97db228d14c34a1f8",
+  "mergedAt": "2026-10-13T10:19:41Z",
+  "issueState": "CLOSED",
+  "issueClosedAt": "2026-10-13T10:20:15Z"
+}

@@ -557,7 +557,7 @@
     "task_results_0_2_0": {
       "change": "add-task-results",
       "issue": "https://github.com/mesilov/bitrix24-cli/issues/61",
-      "delta_spec": "openspec/changes/add-task-results/specs/task-workflows/spec.md",
+      "delta_spec": "openspec/changes/archive/2026-10-13-add-task-results/specs/task-workflows/spec.md",
       "checked_on": "2026-10-13",
       "status": "implemented-unit-and-configured-portal-happy-path-verified",
       "coverage": [
@@ -575,7 +575,7 @@
           "local_contract": "tests/Unit/TaskResultsTest.php",
           "portal_acceptance": "configured-portal-current-user-happy-path-verified",
           "permission_boundary": "Права текущего подключения; роль JTBD дополнительных прав не даёт",
-          "portal_evidence": "openspec/changes/add-task-results/portal-evidence-2026-10-13.json"
+          "portal_evidence": "openspec/changes/archive/2026-10-13-add-task-results/portal-evidence-2026-10-13.json"
         },
         {
           "id": "AM-07",
@@ -591,7 +591,7 @@
           "local_contract": "tests/Unit/TaskResultsTest.php",
           "portal_acceptance": "configured-portal-current-user-happy-path-verified",
           "permission_boundary": "Права текущего подключения; роль JTBD дополнительных прав не даёт",
-          "portal_evidence": "openspec/changes/add-task-results/portal-evidence-2026-10-13.json"
+          "portal_evidence": "openspec/changes/archive/2026-10-13-add-task-results/portal-evidence-2026-10-13.json"
         },
         {
           "id": "EMP-08",
@@ -610,7 +610,7 @@
           "local_contract": "tests/Unit/TaskResultsTest.php",
           "portal_acceptance": "configured-portal-current-user-happy-path-verified",
           "permission_boundary": "Права текущего подключения; роль JTBD дополнительных прав не даёт",
-          "portal_evidence": "openspec/changes/add-task-results/portal-evidence-2026-10-13.json"
+          "portal_evidence": "openspec/changes/archive/2026-10-13-add-task-results/portal-evidence-2026-10-13.json"
         }
       ],
       "counts": {

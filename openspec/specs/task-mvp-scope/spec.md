@@ -124,6 +124,13 @@ MVP SHALL включать task:participants:set через REST1 tasks.task.upd
 - **WHEN** сотрудник вызывает `b24cli task:list --responsible 42` в пределах своего доступа
 - **THEN** используется оставшийся базовый список с явной фильтрацией и контролем scan completeness; исключённая task:my не запускается и не требуется для этого вызова
 
+### Requirement: Task results admitted after the first release
+Расширение 0.2.0 SHALL включать `task:result:add/list/update/delete` через REST3 по capability task-results. Исходные 30 команд и 29 исключений MVP 0.1.0 SHALL сохраняться как историческая граница первого релиза; допуск четырёх результатов SHALL не включать result:from-message, шаблоны, lifecycle или события приёмки.
+
+#### Scenario: Task result commands in the development catalog
+- **WHEN** формируется каталог после реализации #61
+- **THEN** доступны 34 task-команды, включая четыре result-команды, и ни одна из них не выполняет скрытый lifecycle переход или результат из сообщения
+
 ## Решение о приёмке RC 0.1.0 — 12.10.2026
 
 По явному решению пользователя непроверенные части portal tasks 5.2–5.4 и связанного `define-task-jtbd` task 2.3 перенесены в milestone **0.2.0**, [#42](https://github.com/mesilov/bitrix24-cli/issues/42), change `complete-task-portal-acceptance` (`openspec/changes/complete-task-portal-acceptance/`). Они исключены из обязательной приёмки RC 0.1.0; перенос не является новым runtime proof. Уже выполненные 30 собственных happy-path и исходные records сохраняются.
