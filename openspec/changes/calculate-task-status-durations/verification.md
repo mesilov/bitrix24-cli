@@ -63,3 +63,5 @@ Implementation is reviewable as a **draft**, not complete acceptance. Task 3.3 r
 - CI-pinned jsonschema 4.25.1 checks passed in a disposable venv: 146 shared fixtures, 3 configuration examples; doctor 2 examples and 11 negative cases.
 - Remote CI is pending publication; read final PR checks against its exact head. This report does not assert remote CI passed.
 - OpenSpec progress: **7/8**, task 3.3 exact live acceptance remains open.
+
+- Concurrent remote plan commits fb97a06/b3f9b18 integrated without force-push: lifecycle integration scenario and planning receipts preserved; implementation tasks remain checked only against tests, 3.3 remains open. No runtime changes in this reconciliation.
