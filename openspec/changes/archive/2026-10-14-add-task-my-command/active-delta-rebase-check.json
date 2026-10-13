@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-14",
+  "mode": "temporary-copy-forward-sync",
+  "activeChange": "add-task-lifecycle",
+  "replayedRequirements": [
+    {
+      "capability": "task-console-runtime",
+      "requirement": "### Requirement: Exact MVP command registration"
+    },
+    {
+      "capability": "task-console-runtime",
+      "requirement": "### Requirement: Policy covers the complete route plan"
+    },
+    {
+      "capability": "task-mvp-scope",
+      "requirement": "### Requirement: Explicit exclusions from the task MVP"
+    },
+    {
+      "capability": "task-mvp-scope",
+      "requirement": "### Requirement: API admission and future lifecycle acceptance remain explicit"
+    }
+  ],
+  "strictMainSpecsPassed": 17,
+  "exitCode": 0,
+  "taskCommandsPreserved": 42,
+  "personalViewPreserved": true,
+  "validationOutput": "✓ spec/agent-trajectory-feedback\n✓ spec/binary-distribution\n✓ spec/ci-quality-checks\n✓ spec/cli-experience\n✓ spec/connection-configuration\n✓ spec/docker-cli-environment\n✓ spec/task-console-runtime\n✓ spec/task-deadline-windows\n✓ spec/task-file-upload\n✓ spec/task-mvp-scope\n✓ spec/task-personal-view\n✓ spec/task-results\n✓ spec/task-role-filtering\n✓ spec/task-workflows\n✓ spec/user-directory\n✓ spec/user-workflows\n✓ spec/worktree-development\nTotals: 17 passed, 0 failed (17 items)\n- Validating...\n"
+}

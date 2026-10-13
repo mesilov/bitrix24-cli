@@ -47,10 +47,14 @@ task:subtask:add
 
 #### Scenario: Lifecycle admitted after the first MVP
 - **WHEN** формируется каталог 0.2.0 по task-lifecycle
-- **THEN** семь task:start/pause/defer/renew/complete/approve/disapprove предоставляются как развитие после MVP; остальные 18 исключений (четыре result-команды уже допущены отдельно) сохраняются, исторический scope 0.1.0 не расширяется
+- **THEN** семь task:start/pause/defer/renew/complete/approve/disapprove предоставляются как развитие после MVP; остальные 17 исключений (четыре result-команды и task:my уже допущены отдельно) сохраняются, исторический scope 0.1.0 не расширяется
+
+#### Scenario: Personal view admitted separately after MVP
+- **WHEN** каталог 0.2.0 включает доставленную task:my по task-personal-view (#118)
+- **THEN** её read-only представление сохраняется наряду с семью lifecycle командами; исторический список исключений первого MVP не запрещает отдельно принятую команду 0.2.0
 
 ### Requirement: API admission and future lifecycle acceptance remain explicit
-Каталог SHALL отделять release scope от API support: 59 операций = 30 кандидатов MVP, 0 API-policy-pending и 29 после MVP. Через REST1 явно допущены 4 time, 8 checklist/root/item, 2 participants/history команды и выбранные companion reads участников task:show. Для milestone 0.2.0 дополнительно SHALL допускаться REST1 tasks.task.update только с TAGS в task:add/task:update. В 0.2.0 дополнительно SHALL допускаться disk.folder.uploadFile REST1 только для явного локального режима task:file:attach. Права SHALL проверяться для кандидатов; lifecycle SHALL оставаться после MVP; в 0.2.0 допуск семи явных команд определяется task-lifecycle независимо от возможности записи status. Наличие команды в каталоге не SHALL означать принятие иных API exceptions, доказанную семантику или runtime readiness.
+Каталог SHALL отделять release scope от API support: 59 операций = 30 кандидатов MVP, 0 API-policy-pending и 29 после MVP. Права SHALL проверяться для кандидатов; lifecycle SHALL оставаться после MVP независимо от возможности записи status. Наличие команды в каталоге не SHALL означать принятие иных API exceptions, доказанную семантику или runtime readiness.
 
 #### Scenario: Legacy admission is limited to selected commands
 - **WHEN** вызывается legacy маршрут вне согласованных команд/companion reads/записи TAGS/семи lifecycle маршрутов 0.2.0 либо общий tasks.task.update используется для действий за пределами participants:set и записи TAGS в task:add/task:update
@@ -78,7 +82,7 @@ task:subtask:add
 
 #### Scenario: Scoped Disk upload admission
 - **WHEN** пользователь прикрепляет локальный файл через task:file:attach --file PATH --folder-id ID
-- **THEN** допускается только disk.folder.uploadFile REST1 с последующим attach REST3; каталог содержит 41 task-команду после добавления lifecycle, общий Disk API/произвольные методы не открываются, strict-rest3 запрещает mixed plan до credentials/API
+- **THEN** допускается только disk.folder.uploadFile REST1 с последующим attach REST3; каталог содержит 42 task-команды после добавления lifecycle и task:my, общий Disk API/произвольные методы не открываются, strict-rest3 запрещает mixed plan до credentials/API
 
 #### Scenario: Required result read is an internal lifecycle preflight
 - **WHEN** task:complete проверяет requireResult=true в 0.2.0

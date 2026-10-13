@@ -70,3 +70,7 @@
 ### Осталось
 
 Два critical completeness gaps: 4.4 (ограниченное подключение наблюдателя) и 5.3 (итоговая verify после полной приёмки). Пользователь разрешил merge реализации с известными gaps. Change не готов к архивированию; checklist не помечается полностью выполненным. Issue #60 сохраняет активный путь change до завершения приёмки.
+
+## Concurrent task:my reconciliation — 2026-10-14
+
+The receipts above describe the lifecycle delivery snapshot (41 task commands); task:my was later delivered separately by #118/#122. Active lifecycle deltas now preserve 42 current task commands and 17 remaining future exclusions, including the personal-view admission scenario. This planning reconciliation changes no runtime and does not replace the earlier portal/native receipts. Forward-sync validation is recorded in the #118 archive delivery receipt.
