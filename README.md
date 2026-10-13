@@ -317,6 +317,23 @@ Webhook хранится целиком в отдельном plaintext dotenv; 
 Небезопасные права и symlinks приводят к ошибке, без автоматического исправления чужих файлов.
 
 `connection:add` не выбирает default; `connection:use` делает это явно.
+`connection:add NAME` создаёт только новый профиль. Существующий NAME отклоняется
+до ввода webhook: переданные параметры не применяются. Для изменения профиля
+сначала проверьте его defaults и обеспечьте доступ к webhook для повторного ввода:
+
+```sh
+b24cli connection:show work
+b24cli connection:remove work
+# Передайте все нужные defaults; webhook снова вводится скрыто в терминале.
+b24cli connection:add work --group-id 187 --creator-id 3 --responsible-id 2 --allows-time-tracking true
+# Если work должен быть подключением по умолчанию:
+b24cli connection:use work
+```
+
+При удалении стирается локальный credential file. Defaults удалённого профиля
+не переносятся: отсутствующие ID flags не сохраняют прежние значения,
+`--allows-time-tracking` без флага снова `false`. При использовании описательного
+домена задайте его заново через `--portal-domain`.
 Удаление текущего default оставляет `defaultProfile: null`. Webhook на портале не отзывается.
 `default.task` поддерживает только `groupId`, `creatorId`, `responsibleId` и boolean
 `allowsTimeTracking`. Defaults применяются только к `task:add` выбранного профиля.
