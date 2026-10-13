@@ -36,3 +36,7 @@ Runtime: изолированный Docker PHP 8.4.26, locked Composer dependenc
 ## Findings and assessment
 
 Critical implementation findings: 0. Warnings: 0. Suggestions: 0 в выполненной сверке требований и дизайна. Доставка implementation подтверждена PR #75: head feature/71-add-task-tags, base dev; перед публикацией свежий fetch/merge origin/dev — Already up to date. Remote CI проверяется отдельно; merge/release не заявляются. Change остаётся активным до review/merge и последующего maintainer archive workflow.
+
+## Dev sync after the first successful CI
+
+Во время native CI в dev вошёл PR #81 / issue #78 (обязательный issue-linked changelog). Первоначальный SHA `bca2a57f46a3b7c78f2cb43c0e1006340dcb1990` прошёл 17/17 checks, receipts опубликованы в PR/issue. Новый dev `de98df7` интегрирован через merge с сохранением двух секций changelog и добавлением ссылки #71 к обеим feature-записям. Runtime и тесты не изменены. После синхронизации повторены unit/OpenSpec/diff checks; CI проверяется заново на merge SHA.
