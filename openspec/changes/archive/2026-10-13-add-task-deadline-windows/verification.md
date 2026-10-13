@@ -48,3 +48,11 @@ No critical implementation issues identified. Native standalone artifacts, all-p
 ## Follow-up
 
 Keep the change active while PR is under review. After verified merge into dev and issue closure, archive/sync the change and preserve that result in dev before removing its worktree, following bitrix24-cli-maintainer.
+
+## Delivery receipt 2026-10-13
+
+Terminal GitHub state confirms CLI PR #98 MERGED into dev (674ccc00983c0c35d5448c225a3b8712106a4978), skill PR #5 MERGED into main (79c8176f504ac1a1a5a3840f85d79e1f5a4d06b2) and issue #95 CLOSED. All 13 implementation-head GitHub checks succeeded on 56bb0dca8b3c8469f773fff2571fee6bef9de736.
+
+Archive sync compared all 7 added and 3 modified requirements with their main specs; existing Purpose and unrelated requirement blocks preserved. openspec validate --specs: 15 passed, 0 failed, with pre-existing long-text style warnings in other requirement blocks. New task-deadline-windows main spec and the change pass strict validation.
+
+The archive/spec synchronization is delivered separately to dev through a follow-up PR before worktree cleanup. No release/native binary acceptance is inferred from merge.
