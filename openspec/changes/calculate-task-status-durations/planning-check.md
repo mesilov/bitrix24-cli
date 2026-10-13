@@ -13,3 +13,5 @@
 - Fixtures example checks expected calendar sum 30+50+40=120 with two reopen cycles; example is a proposed acceptance fixture, not an executed implementation test.
 - Portal calls/status event mapping/history completeness/calculator tests were not run. Existing title-history integration coverage does not prove complete status history.
 - Changes are planning files plus a substantive CHANGELOG entry linking #121. API code/main specs remain unchanged. Before implementation reconcile inventory with current dev/#118 and run live status acceptance.
+
+- Dev advanced again before push: integrated `2b24edd1a808150fb382812c52d22b235e25d940` (#122 task:my); resolved only CHANGELOG conflict retaining both entries. Current catalog baseline is 42, duration plan 43; preserved seven lifecycle commands and task:my. Earlier counts are dated checkpoints, not the current baseline. Validation repeated after this merge.

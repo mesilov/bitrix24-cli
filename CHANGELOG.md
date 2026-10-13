@@ -25,6 +25,13 @@
   повторных открытий, суммы по статусам, граница `asOf` и явная неизвестность
   при неполной истории; реализация команды ещё не начата
   ([#121](https://github.com/mesilov/bitrix24-cli/issues/121)).
+
+- `task:my --user ID`: задачи явного исполнителя с `--open`, строгим
+  `--due-before` и конечным `--max-scan` через существующий list scanner.
+  Общие форматы вывода, REST 3.0/strict-rest3, честный partial при неизвестных
+  данных или исчерпании бюджета; отдельные unit/live тесты и документация EMP-01
+  ([#118](https://github.com/mesilov/bitrix24-cli/issues/118)).
+
 - Семь команд жизненного цикла задачи: start/pause/defer/renew/complete/approve/disapprove,
   проверка прав действия и обязательного native result, фактический REST3 статус,
   dry-run и сохранение confirmed/partial/outcomeUnknown. Строгая проверка шести
