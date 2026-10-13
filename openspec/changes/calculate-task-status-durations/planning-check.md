@@ -1,0 +1,13 @@
+# Planning check — 14.10.2026
+
+- Issue: [#121](https://github.com/mesilov/bitrix24-cli/issues/121), OPEN, enhancement, milestone 0.2.0 (number 2).
+- Source dev: `5ed034980e58ed950c3c733f3f01ec5ca08dd990`.
+- Fresh isolated worktree effective MCP config: enabled bitrix24_dev, Streamable HTTP https://mcp-dev.bitrix24.tech/mcp; real search/method-details/history and search/article-details/REST3 fields answered.
+- Official sources are linked in proposal/design; get id/select/status/statusChanged/changed are REST3, history taskId/createdDate/field/value.from/to are REST1. REST3 get does not return created.
+- `openspec validate calculate-task-status-durations --strict`: PASS.
+- `openspec status --change calculate-task-status-durations`: 4/4 planning artifacts complete; implementation 0/8 tasks, no runtime changes.
+- `git diff --check`: PASS.
+- Reviewed against HistoryScanner/Rest1TaskHistoryAdapter, CommandCatalog, task-console-runtime, ResultPresenter/TaskHumanRenderer and ListTaskHistoryCommandTest.
+- Fixtures example checks expected calendar sum 30+50+40=120 with two reopen cycles; example is a proposed acceptance fixture, not an executed implementation test.
+- Portal calls/status event mapping/history completeness/calculator tests were not run. Existing title-history integration coverage does not prove complete status history.
+- Changes are planning files plus a substantive CHANGELOG entry linking #121. API code/main specs remain unchanged. Before implementation reconcile inventory with current dev/#118 and run live status acceptance.
