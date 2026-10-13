@@ -184,7 +184,7 @@ final readonly class TaskInputMapper
         }
 
         $deadlineWindow = $this->deadlines->resolve($windows[0] ?? null, $input->getOption('overdue'), $input->getOption('timezone'));
-        if ($deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow && !$find && ($input->getOption('due-before') !== null || $input->getOption('where') !== null || $input->getOption('where-file') !== null)) {
+        if ($deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow && ($input->getOption('due-before') !== null || $input->getOption('where') !== null || $input->getOption('where-file') !== null)) {
             throw Failure::usage('Do not mix --deadline-window/--overdue with --due-before or --where/--where-file.');
         }
 
@@ -194,27 +194,17 @@ final readonly class TaskInputMapper
             throw Failure::usage('Use --role responsible, accomplice, creator or auditor.');
         }
 
-        $where = $find ? [] : $this->json($input, 'where');
+        $where = $this->json($input, 'where');
         $predicates = [];
-        if ($find && $input->getOption('group-id') !== null) {
-            $predicates['groupId'] = $this->id($input->getOption('group-id'), '--group-id');
+        foreach (['responsible' => 'responsibleId', 'group-id' => 'groupId', 'status' => 'status'] as $flag => $field) {
+            $value = $input->getOption($flag);
+            if ($value !== null) {
+                $predicates[$field] = $flag === 'status' ? $value : $this->id($value, '--' . $flag);
+            }
         }
 
-        if ($find && $input->getOption('status') !== null) {
-            $predicates['status'] = $input->getOption('status');
-        }
-
-        if (!$find) {
-            foreach (['responsible' => 'responsibleId', 'group-id' => 'groupId', 'status' => 'status'] as $flag => $field) {
-                $value = $input->getOption($flag);
-                if ($value !== null) {
-                    $predicates[$field] = $flag === 'status' ? $value : $this->id($value, '--' . $flag);
-                }
-            }
-
-            if ($where !== null && ($predicates !== [] || $input->getOption('due-before') !== null)) {
-                throw Failure::usage('Choose --where or convenient filter flags.');
-            }
+        if ($where !== null && ($predicates !== [] || $input->getOption('due-before') !== null)) {
+            throw Failure::usage('Choose --where/--where-file or --responsible/--group-id/--status/--due-before; --title, --id and --role may be combined with either.');
         }
 
         foreach ($where ?? [] as $field => $value) {
@@ -243,9 +233,9 @@ final readonly class TaskInputMapper
         }
 
         return new TaskQuery(
-            $find ? [] : array_map(fn ($id): int => $this->id($id, '--id'), $input->getOption('id')),
-            $find ? $predicates : ($where ?? $predicates),
-            !$find && $input->getOption('due-before') !== null ? FieldSchema::date($input->getOption('due-before')) : null,
+            array_map(fn ($id): int => $this->id($id, '--id'), $input->getOption('id')),
+            $where ?? $predicates,
+            $input->getOption('due-before') !== null ? FieldSchema::date($input->getOption('due-before')) : null,
             $find ? ['id', 'title'] : FieldSchema::select($input->getOption('select')),
             $order,
             $this->limit($input, 50),

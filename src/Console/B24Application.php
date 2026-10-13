@@ -29,6 +29,11 @@ final class B24Application extends Application
         $this->setCatchErrors(false);
     }
 
+    protected function getDefaultCommands(): array
+    {
+        return array_map(static fn (Command $command): Command => $command instanceof \Symfony\Component\Console\Command\HelpCommand ? new TaskHelpCommand() : $command, parent::getDefaultCommands());
+    }
+
     protected function getDefaultInputDefinition(): InputDefinition
     {
         $definition = parent::getDefaultInputDefinition();
@@ -50,7 +55,8 @@ final class B24Application extends Application
         try {
             return parent::find($name);
         } catch (CommandNotFoundException | NamespaceNotFoundException) {
-            throw Failure::usage('Unknown or ambiguous command. Use b24cli list task to choose a full name.');
+            $suggestion = UsageDiagnostics::closest($name, array_keys($this->all()));
+            throw Failure::usage('Неизвестная или неоднозначная команда. ' . ($suggestion === null ? 'Используйте b24cli list для выбора полного имени.' : 'Возможно, нужна ' . $suggestion . '. ' . TaskUsage::advice($this->get($suggestion))));
         }
     }
 
@@ -96,9 +102,21 @@ final class B24Application extends Application
         try {
             return parent::run($input, $output);
         } catch (\Throwable $exception) {
+            $command = null;
+            try {
+                $name = $input->getFirstArgument();
+                $command = $name === null ? null : parent::find($name);
+            } catch (\Throwable) {
+                // Arbitrary input is never echoed while recovering command metadata.
+            }
+
             $failure = $exception instanceof Failure ? $exception : ($exception instanceof \Symfony\Component\Console\Exception\ExceptionInterface
-                ? Failure::usage('Invalid command arguments or options. Use the command --help for syntax.')
+                ? UsageDiagnostics::parser($exception, $command)
                 : new Failure('configuration-error', 'The CLI could not complete this operation; check configuration.'));
+            if ($exception instanceof Failure && $exception->errorCode === 'usage-error' && $command instanceof \Symfony\Component\Console\Command\Command) {
+                $failure = new Failure($exception->errorCode, $exception->getMessage() . ' ' . TaskUsage::advice($command), $exception->exitStatus, $exception->details, $exception->outcomeUnknown);
+            }
+
             $this->presenter->failure($failure, $input->hasParameterOption('--json', true) ? 'json' : 'human', $output, $this->state->calls);
             return $failure->exitStatus;
         }
