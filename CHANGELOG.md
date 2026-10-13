@@ -58,6 +58,10 @@
 
 ### Изменено
 
+- Архивирован завершённый OpenSpec change `require-jtbd-documentation-sync` после
+  доставки правила сопровождения JTBD и ссылки в шапке README через PR #106 в `dev`;
+  сохранены CI/merge receipts ([#105](https://github.com/mesilov/bitrix24-cli/issues/105)).
+
 - Закреплено обновление `docs/task-jtbd.md` в том же MR при реализации новых JTBD
   и изменении связанных команд: ID, роли, статусы, ссылки на файлы тестов и границы
   покрытия проверяются перед MR/merge. JTBD добавлены в верхнюю навигацию README
