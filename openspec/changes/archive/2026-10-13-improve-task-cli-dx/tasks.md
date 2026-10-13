@@ -1,6 +1,6 @@
 # Tasks
 
-План для [issue #12](https://github.com/mesilov/bitrix24-cli/issues/12), milestone 0.2.0. База origin/dev `0aeb25b68dad641be57e6356222373d4fc9782d3` сверена 2026-10-13. PR #11/#13 уже merged. Отмечаются только фактически завершённые задачи подготовки; реализация O1–O3 остаётся открытой. Перед apply повторно сверить origin/dev и при изменении контрактов обновить planning.
+План для [issue #12](https://github.com/mesilov/bitrix24-cli/issues/12), milestone 0.2.0. База origin/dev `0aeb25b68dad641be57e6356222373d4fc9782d3` сверена 2026-10-13. PR #11/#13 уже merged. Все 16 задач выполнены и проверены. Реализация O1–O3 доставлена PR #94 в dev; issue #12 закрыт. Перед архивом delta согласованы с current canonical specs после #95.
 
 ## 1. Проверить принятую базу
 

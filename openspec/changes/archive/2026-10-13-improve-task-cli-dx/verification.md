@@ -8,7 +8,7 @@ Runtime commit: `ab95cbf`; published integration commit: `5350b6dbbff93239b83589
 
 | Dimension | Result |
 | --- | --- |
-| Completeness | 16/16 tracked tasks; 6 MODIFIED requirements, 42 scenarios; no skipped applicable checks |
+| Completeness | 16/16 tracked tasks; 6 MODIFIED requirements, 44 scenarios; no skipped applicable checks |
 | Correctness | All 6 requirements mapped to code and offline checks; new scenarios plus retained baseline regression scenarios covered |
 | Coherence | Existing result/query/scanner contracts retained; pure renderer, shared mapper, native Symfony help/parser integration; no new dependencies or API routes |
 
@@ -18,12 +18,12 @@ Runtime commit: `ab95cbf`; published integration commit: `5350b6dbbff93239b83589
 | --- | ---: | --- | --- |
 | Discoverable help without remote operations | 3 | TaskHelpCommand, TaskHelpDescriptor, TaskUsage | UsageDiagnosticsTest checks every task command's direct/explicit help, ordinary examples before options/advanced details, native help formats, list/version and zero API/credentials; existing role/group/order completion checks retained |
 | Human output and composable structured output | 6 | ResultPresenter, TaskHumanRenderer | TaskPresentationTest checks semantic card, available names/ID fallback, additional nested fields, identical call ledger/select across human/plain/JSON, narrow Unicode and wide tables, literal markup/control handling; CommandBehaviorTest retains mutation/envelope/TSV contracts |
-| Explicit filtering and completeness of lists | 11 | Existing TaskListScanner; new summary/hints in renderer/presenter | TaskPresentationTest complete limited/empty and all current partial reasons/verbosity; CombinedTaskSearchTest first-page/next-page/role-read boundaries; RecentTaskScanTest id DESC, explicit order, scan cap and duplicate-check diagnostics in all modes |
+| Explicit filtering and completeness of lists | 12 | Existing TaskListScanner; new summary/hints in renderer/presenter | TaskPresentationTest complete limited/empty and all current partial reasons/verbosity; CombinedTaskSearchTest first-page/next-page/role-read boundaries; RecentTaskScanTest id DESC, explicit order, scan cap and duplicate-check diagnostics in all modes |
 | Actionable errors and stable exit status | 5 | UsageDiagnostics, B24Application, FieldSchema, TaskUsage | UsageDiagnosticsTest unknown/missing/extra/conflicting input, safe suggestions, secret-bearing argv, no API, NO_COLOR/TERM=dumb/quiet/silent; existing CommandBehaviorTest policy gates and runtime error/binding/cancellation tests retain exit semantics. Existing gated policy behavior is checked; this change does not add excluded lifecycle commands |
-| Bounded task search by title | 13 | FindTaskCommand and shared TaskInputMapper; unchanged TaskQuery/TaskListScanner | CombinedTaskSearchTest 0/1/many, predicates on page 2, repeatable server IDs, where-file stdin/role/AND/conflicts, explicit order/tie-breaker, fixed id/title JSON/TSV, cap/missing data and role policy; ScanningAndBindingTest and RecentTaskScanTest retain literal Unicode/empty/bounded search checks |
+| Bounded task search by title | 14 | FindTaskCommand and shared TaskInputMapper; unchanged TaskQuery/TaskListScanner | CombinedTaskSearchTest 0/1/many, predicates on page 2, repeatable server IDs, where-file stdin/role/AND/conflicts, explicit order/tie-breaker, fixed id/title JSON/TSV, cap/missing data and role policy; ScanningAndBindingTest and RecentTaskScanTest retain literal Unicode/empty/bounded search checks |
 | Role filters compose with existing query criteria | 4 | Shared query validation; unchanged role identity/scanner/routes | CombinedTaskSearchTest role+where/ordinary criteria, contradictory responsible, candidate-only participant reads and strict-rest3 before API; TaskRoleFilterTest retains list predicates, selected profile/identity, cancellation and partial membership behavior |
 
-All 21 original CLI scenarios are retained verbatim in five MODIFIED blocks. All four role-query scenarios remain, with the agreed expansion of Role and title search. Canonical specs are not overwritten before archive.
+The initial five MODIFIED blocks preserved all 21 original CLI scenarios. Final reconciliation retains current #95 temporal qualifications and both additional deadline scenarios, plus the #12 additions. All four role-query scenarios remain, with the agreed expansion of Role and title search. Canonical sync preserves existing title/Purpose and all unrelated requirements.
 
 ## Local validation
 
@@ -49,10 +49,19 @@ No critical issues, warnings or suggestions found in the applicable local comple
 
 Remote CI status is a separate check on the published SHA. Live portal acceptance remains [#42](https://github.com/mesilov/bitrix24-cli/issues/42); native release binaries and live platform terminals were not tested for this DX change. Local fixtures and documentation checks do not establish portal permissions or universal platform/provider support.
 
-Implementation is verified locally and submitted for review. Archive/sync and worktree removal follow confirmed merge into dev and closure of #12; the change remains active while PR #94 is open.
+Implementation PR #94 is confirmed merged into dev; issue #12 is closed. Canonical specs are synchronized and this change is archived. Archive delivery is performed through a separate PR before removing the task worktree.
 
 ## Final pre-merge integration and live smoke
 
 2026-10-13: current dev `674ccc0` includes PR #98. The two overlapping query/help files were merged preserving both changes; temporal flags reject where/where-file/due-before in both commands. `make test` passed with **667 tests, 5433 assertions**; `make check`, all four `make lint-all` checks, strict change validation and diff whitespace checks passed. CHANGELOG records #12 in Unreleased.
 
 Read-only public CLI calls on the configured test portal showed tasks 5286 and 5284, task 5286 card with responsible.name, combined title/responsible/status/due-before yielding one result, conflicting status yielding zero complete results, and a scan cap yielding partial/exit3. No tasks were changed. This smoke covers those reads only; it does not complete #42 or prove native release acceptance.
+
+## Archive and delivery receipt
+
+- PR #94: MERGED into `dev` at 2026-10-13T14:34:10Z; merge SHA `2f8c15a5daf70fb721702df96c80f5d360e9899b`; checked head `c18fdf551a5b1327ed6dc457337d5f3d3da76bb6` with 13/13 CI SUCCESS.
+- Issue #12: CLOSED/completed, verified 2026-10-13 at 14:34:28 UTC.
+- All four planning artifacts done; 16/16 tracked tasks complete.
+- Canonical sync: five cli-experience and one task-role-filtering requirements, 44 scenarios; preserved existing Purpose/title, 14 unaffected requirements and current #95 deadline scenarios/qualifications.
+- `openspec validate --specs`: 15 passed, 0 failed. Existing long-description warnings in cli-experience/task-console-runtime/task-mvp-scope are outside changed requirement descriptions and preserved. Strict change validation and git diff whitespace checks passed.
+- Archive: `openspec/changes/archive/2026-10-13-improve-task-cli-dx/`. A separate archive PR delivers this directory and canonical specs to dev; cleanup follows its confirmed merge.

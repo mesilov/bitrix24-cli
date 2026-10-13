@@ -52,6 +52,11 @@
 
 ### Изменено
 
+- Синхронизированы требования читаемого вывода, диагностики и комбинированного
+  поиска с сохранением актуальных фильтров дедлайнов; архивирован завершённый
+  OpenSpec change `improve-task-cli-dx` после merge реализации в `dev`
+  ([#12](https://github.com/mesilov/bitrix24-cli/issues/12)).
+
 - Синхронизированы спецификации календарных фильтров дедлайна и архивирован
   завершённый OpenSpec change `add-task-deadline-windows` после merge CLI/skill
   и закрытия issue ([#95](https://github.com/mesilov/bitrix24-cli/issues/95)).
