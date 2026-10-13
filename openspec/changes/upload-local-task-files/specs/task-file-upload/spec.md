@@ -20,15 +20,15 @@ CLI SHALL принимать `task:file:attach TASK_ID --file PATH --folder-id I
 - **THEN** CLI прикрепляет существующие файлы через REST3 без загрузки, чтения локального файла и вызовов Disk API; strict-rest3 остаётся допустимым
 
 ### Requirement: Bounded local binary file input
-CLI MUST принимать только читаемый обычный локальный файл размером от 0 до 10485760 байт включительно. URL/stream wrappers, stdin `-`, каталоги и специальные файлы SHALL отклоняться с usage-error/exit2 до credentials/API. Размер и доступность SHALL проверяться до загрузки; рост/замена файла не SHALL обходить лимит. Бинарные данные MUST передаваться без преобразования текста.
+CLI MUST принимать только читаемый обычный локальный файл от 0 до effective limit включительно, определённого Configured upload limit. URL/wrappers, stdin `-`, каталоги и специальные файлы SHALL отклоняться с usage-error/exit2 до credentials/API. Размер/доступность MUST проверяться до загрузки; рост/замена не SHALL обходить лимит, бинарные bytes не SHALL преобразовываться как текст.
 
 #### Scenario: Invalid path or size
-- **WHEN** путь отсутствует/нечитаем, указывает на каталог/FIFO/URL/wrapper/`-` либо файл больше 10 MiB
+- **WHEN** путь отсутствует/нечитаем, указывает на каталог/FIFO/URL/wrapper/`-` либо файл больше effective limit
 - **THEN** CLI возвращает exit2 без API и без ожидания чтения специального файла, указывает лимит CLI или проблему источника
 
 #### Scenario: Binary bytes and portable paths
 - **WHEN** файл содержит нулевые байты либо путь включает пробелы/Unicode на Windows, macOS или Linux
-- **THEN** CLI принимает локальный путь и передаёт точные байты файла; пустой и ровно 10 MiB файл проходят локальную проверку, серверное принятие проверяется отдельно
+- **THEN** CLI принимает локальный путь и передаёт точные байты файла; пустой и ровно effective limit файл проходят локальную проверку, серверное принятие проверяется отдельно
 
 #### Scenario: File changes during preparation
 - **WHEN** файл растёт сверх лимита либо становится недоступным при чтении перед upload
@@ -107,3 +107,25 @@ CLI SHALL сохранять envelope schemaVersion 1 и обычные mutation
 #### Scenario: Separate portal evidence
 - **WHEN** unit fixtures подтверждают upload payload и ACK handling
 - **THEN** результат фиксируется как локальная проверка; права disk/tasks, квота/коллизии и сохранение файла на конкретном портале требуют отдельного live evidence
+
+### Requirement: Configured upload limit overrides the default
+Runtime --config SHALL принимать maxUploadBytes как positive integer в байтах. При отсутствии SHALL применяться 500000000. Effective limit MUST использоваться при stat/read/preview для одной invocation; null, boolean, float, string, zero и negative SHALL отклоняться до credentials/API. Настройка SHALL оставаться CLI metadata и не отправляться в Bitrix24 payload.
+
+#### Scenario: Configured limit below or above default
+- **WHEN** config задаёт maxUploadBytes ниже либо выше 500000000
+- **THEN** exact configured limit принимается, limit+1 отклоняется; default не становится дополнительным hard cap
+
+#### Scenario: Invalid or absent configured limit
+- **WHEN** maxUploadBytes отсутствует либо содержит invalid type/value
+- **THEN** absence использует 500000000, invalid config даёт usage-error/exit2 без credential/API reads
+
+### Requirement: Large uploads preserve bounded memory and SDK transport
+CLI SHALL загружать допустимый файл 500 MB при PHP memory_limit=128M без полного содержимого/Base64/JSON в памяти. Большие файлы SHALL кодироваться и передаваться bounded chunks с теми же API fields/version через SDK transport; Content-Length MUST соответствовать отправленным байтам. Dry-run SHALL оставаться metadata-only; изменение источника и Ctrl-C MUST останавливать дальнейшую передачу без retry.
+
+#### Scenario: Full default-limit file under constrained memory
+- **WHEN** CLI передаёт 500000000-byte файл с memory_limit=128M
+- **THEN** отправленные bytes/Base64 точны, память ограничена буферами, framing/Content-Length валидны; source checks не снимаются
+
+#### Scenario: Changed source or cancellation while streaming
+- **WHEN** source изменился либо Ctrl-C поступил во время отправки chunks
+- **THEN** новые chunks/attach не отправляются; sent upload учитывается как outcomeUnknown при потерянном подтверждении, без automatic retry

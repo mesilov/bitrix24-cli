@@ -4,13 +4,13 @@
 
 Мотивация и объём описаны в proposal.md. На dev `6d9fe39` AttachTaskFilesCommand принимает TASK_ID и repeatable --file-id. TaskInputMapper строит AttachTaskFilesRequest(taskId, fileIds); handler создаёт PreparedOperation и выполняет REST3 attach с ExecutionLedger. Runtime policy использует CommandCatalog::ROUTES; ApiTransport вызывает Core SDK с явной ApiVersion. ResultPresenter поддерживает mutation rows и общий data/meta/error envelope, API versions и partial/interrupted. Метаданные плана сейчас видны пользователю: Base64 в Plan::fields недопустим.
 
-`improve-task-cli-dx` исключает local upload (O8), поэтому данный change владеет новым режимом. Исходные 30 команд и --file-id контракт не меняются; delta specs обновляют scoped Disk admission и исключение бинарного --file из текстового stdin правила.
+`improve-task-cli-dx` исключает local upload (O8), поэтому данный change владеет новым режимом. Текущий каталог из 34 task команд (с результатами из актуальной dev) и --file-id контракт не меняются; delta specs обновляют scoped Disk admission и исключение бинарного --file из текстового stdin правила.
 
 ## Goals / Non-Goals
 
 Цель — один явный вызов CLI для передачи локального файла и привязки, с честным результатом двух записей. Данные пользователя не выводятся как payload.
 
-Не добавляются Disk namespace, discovery/creation/default folder, автоматические ACL, background upload, multipart/chunking, stdin и несколько локальных файлов за один вызов. Папка задаётся пользователем явно; её доступность и права на task attachment проверяются сервером. Предварительное чтение задачи/папки не считается гарантией возможности записать и в этот scope не входит.
+Не добавляются Disk namespace, discovery/creation/default folder, автоматические ACL, background upload, multipart, stdin и несколько локальных файлов за один вызов. Папка задаётся пользователем явно; её доступность и права на task attachment проверяются сервером. Предварительное чтение задачи/папки не считается гарантией возможности записать и в этот scope не входит.
 
 ## Decisions
 
@@ -51,7 +51,7 @@ b24cli task:file:attach 123 --file-id 789
 | Кандидат | Решение и причина | Проверка |
 |---|---|---|
 | Symfony Filesystem/Path v8.1.6 | Reuse: внедрённый LocalFileSource, exists и OS-aware normalize/isLocal; прямой require ^8.0, locked version не изменён | LocalFileUploadTest: Unicode/space/local paths, invalid paths, unreadable/directory/symlink; packaging smoke preview |
-| SDK Base64Encoder::encodeString | Reuse готового SDK API с Symfony Mime encoder и NullLogger после bounded read | Exact binary round-trip включая NUL/0xff, zero и 10 MiB; API payload не попадает в stdout |
+| SDK Base64Encoder::encodeString | Reuse готового SDK API с Symfony Mime encoder и NullLogger после bounded read | Exact binary round-trip включая NUL/0xff, zero и 500 MB; API payload не попадает в stdout |
 | SDK encodeFile и Symfony readFile | Не используем чтение целиком: нет ограничения размера/handle identity. Собственное чтение limit+1/fstat изолировано внутри LocalFileSource | Growth/replacement/deletion/limit+1/regular file checks до upload |
 | Folder::uploadFile | Переиспользован подход payload через Rest1DiskUploadAdapter/ApiTransport; прямой wrapper обходит RuntimeState call accounting/cancellation и передаёт lower-case route/default version | Контракт точных id/data.NAME/fileContent/generateUniqueName, method/version и strict-rest3; live mixed calls |
 | UploadedFileResult | Переиспользован контракт ID/NAME, без unchecked getId int cast; возвращаются только эти поля | Positive numeric-string ID/overflow/malformed/FILE_ID tests, unknown + skipped attach |
@@ -59,7 +59,7 @@ b24cli task:file:attach 123 --file-id 789
 
 Все source references выше относятся к версии composer.lock. При использовании текущих SDK API не копируется vendor код; state/вывод остаются CLI ответственностью.
 
-Прямая Base64 загрузка избегает отдельного uploadUrl bearer flow/multipart транспорта. Цена — рост памяти и размера payload. Установить фиксированный лимит CLI **10 MiB (10485760 bytes)**; это проектное решение, не заявленный лимит Bitrix24. Проверить local regular/readable файл, размер и имя, затем читать максимум limit+1 с защитой от специальных файлов/подмены. Чтение exact bytes/кодирование происходит до первой записи и только при реальном execute; dry-run достаточно безопасной локальной проверки/статистики. Reject URLs/wrappers/`-`; Windows drive paths не путать с URI schemes. Unicode/space paths и zero-byte файла не менять. Symlink допускается только если разрешается в читаемый regular local file; повторная проверка открытого handle/fstat защищает от подмены на FIFO/роста.
+Прямая Base64 загрузка избегает отдельного uploadUrl bearer flow/multipart транспорта. До 10 MiB используется готовое SDK encodeString; большие файлы кодируются тем же SDK порциями и отправляются потоковым JSON body через Symfony HttpClient, без полной строки Base64 в памяти. Default лимит CLI — **500 MB (500000000 bytes)**; positive integer `maxUploadBytes` в runtime --config JSON имеет приоритет и может быть ниже/выше default; это проектное решение, не заявленный лимит Bitrix24. Проверить local regular/readable файл, размер и имя, читать bounded chunks с cumulative size/identity checks. Проверка metadata происходит до записи; чтение/кодирование больших файлов происходит при отправке body и только при реальном execute; dry-run достаточно безопасной локальной проверки/статистики. Reject URLs/wrappers/`-`; Windows drive paths не путать с URI schemes. Unicode/space paths и zero-byte файла не менять. Symlink допускается только если разрешается в читаемый regular local file; повторная проверка открытого handle/fstat защищает от подмены на FIFO/роста.
 
 Имя — --name либо basename, UTF-8, непустое, не . или .., максимум 255 символов, без обоих separators/control characters. Использовать одинаковый NAME и fileContent[0]; unique name запрашивается всегда, итоговое NAME берётся из результата сервера.
 
@@ -79,7 +79,7 @@ Upload server denial: attach skipped, exit1 без подтверждённог�
 
 ### 5. Проверки и источники
 
-Offline tests проходят через production bootstrap с fake ApiTransport: modes/IDs/path/name/limit, exact payload, Disk ID vs FILE_ID, dynamic policy, no-credentials preview, binary preservation, upload deny/malformed/timeout, attach deny/unknown, cancellation и secret/content non-disclosure во всех форматах. Existing --file-id contract и 30-command registration остаются в regression suite.
+Offline tests проходят через production bootstrap с fake ApiTransport: modes/IDs/path/name/limit, exact payload, Disk ID vs FILE_ID, dynamic policy, no-credentials preview, binary preservation, upload deny/malformed/timeout, attach deny/unknown, cancellation и secret/content non-disclosure во всех форматах. Existing --file-id contract и 34-command registration остаются в regression suite.
 
 Live case добавить в существующий AttachTaskFilesCommandTest, group command:task:file:attach/happy-path. Fixtures и cleanup — SDK, disposable задача/папка/локальный файл; cleanup только собственных fixtures и только с известными ID. Disk file readback подтверждает сохранённый NAME/SIZE/PARENT_ID, attach ACK отдельно от membership. Новое разрешение `disk` на webhook требуется для local mode; missing scope/недоступная папка/attachment права — отдельные негативные live cases при доступных fixtures. Unit/integration skip/CI не считаются portal evidence.
 
@@ -96,7 +96,7 @@ Live case добавить в существующий AttachTaskFilesCommandTes
 
 ## Risks / Trade-offs
 
-- Base64 payload/memory overhead → bounded 10 MiB и отказ до первой записи; большие файлы требуют отдельного change.
+- Base64 payload/memory overhead → SDK chunk encoding + streaming JSON for large files, Content-Length по размеру, fixed-size buffers; limit определяется config перед проверкой файла.
 - Task attachment denial после успешной загрузки → durable Disk ID, partial ledger, ручная привязка существующего файла.
 - Потерянный upload response → outcomeUnknown без автоматического повторения; проверить целевую папку в портале.
 - Не хватает disk scope/квоты/ACL → безопасная серверная ошибка, без смены профиля и расширения rights.
@@ -110,3 +110,13 @@ Live case добавить в существующий AttachTaskFilesCommandTes
 ## Live fixture documentation
 
 13.10.2026 обязательным MCP проверены [disk.folder.addSubFolder](https://apidocs.bitrix24.ru/api-reference/disk/folder/disk-folder-add-subfolder.html) и [disk.folder.deleteTree](https://apidocs.bitrix24.ru/api-reference/disk/folder/disk-folder-delete-tree.html). Эти REST1 маршруты используются только SDK fixture setup/cleanup, не добавлены в пользовательский CommandCatalog. Cleanup удаляет только известную созданную дочернюю папку, никогда root storage или ранее существовавшую папку.
+
+## Revision: 500 MB and config precedence — 13.10.2026
+
+User requested a 500 MB default and config precedence. Use decimal MB: 500000000 bytes. Runtime --config accepts maxUploadBytes as a strict positive JSON integer; it overrides default in both directions. This is runtime metadata, not a Bitrix24 field or default.task. Invalid values fail before credentials/API. The effective value is passed through InvocationContext into local-file validation and stored in the immutable source descriptor; preview records maxUploadBytes.
+
+The verified CLI PHP memory_limit is 128M. A full 500 MB Base64 string plus JSON would exceed it. Files up to the existing small-file threshold (10 MiB) use SDK encodeString directly. Larger files are encoded with the same SDK encoder in 60000-byte chunks (aligned to Base64 groups); a StreamingBase64 descriptor is carried through the existing SDK Core transport. A Symfony HttpClient decorator converts only that descriptor in fileContent[1] into a streaming JSON body with exact Content-Length. All other requests pass through unchanged; method/version, metadata, redirects, timeout, accounting, and server response handling remain SDK/CLI controlled. No multipart uploadUrl route or new API exception is needed.
+
+Raw native file-handle reads remain isolated in LocalFileSource, with original/effective limit, identity/size checks and RuntimeState cancellation before chunks. SDK MIME CRLF is removed from each chunk to form a valid continuous Base64 JSON string; ordinary Base64 padding occurs only at EOF. Partial source growth/change or Ctrl-C during upload aborts the body; a sent upload without confirmation retains outcomeUnknown and never attaches/retries. Metadata-only dry-run does not encode/read large content.
+
+Verification must drain an actual 500000000-byte file through the production SDK/HttpClient path at memory_limit=128M, asserting exact byte hash and wire Content-Length without buffering the request. Boundary metadata tests use sparse files for configured max/max+1, including config >500 MB. This is local transport proof, not a claim that a portal quota or upload timeout permits 500 MB.

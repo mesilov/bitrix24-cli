@@ -8,7 +8,7 @@
 
 - Расширить существующую `task:file:attach TASK_ID` отдельным режимом `--file PATH --folder-id ID`: загрузить один локальный файл в явно выбранную папку Диска и прикрепить полученный Disk ID к задаче.
 - Разделить режимы: повторяемый `--file-id` для существующих файлов либо один `--file` с обязательным `--folder-id`. Для локального режима предложить optional `--name NAME`, иначе basename пути; при совпадении имени запросить `generateUniqueName=true`, без перезаписи.
-- Ввести ограничение прямой Base64 загрузки 10 MiB на файл как лимит CLI, локальную проверку пути и безопасный dry-run без содержимого файла.
+- Использовать default лимит 500 MB (500000000 bytes) с приоритетом maxUploadBytes в runtime --config, потоковую Base64/JSON передачу крупных файлов через SDK/HttpClient, локальную проверку пути и безопасный dry-run без содержимого файла.
 - Явно допустить REST1 `disk.folder.uploadFile` только для локального режима в task-v3 policy. Сохранить REST3 attach, предварительное отклонение mixed plan в strict-rest3 и существующий формат data/meta/error.
 - Учесть два неатомарных шага, сохранение Disk ID после успешной загрузки, partial/outcomeUnknown/Ctrl-C и восстановление привязки через `--file-id` без повторной загрузки.
 - Использовать Symfony Filesystem/Path для локальной работы с файлами. До реализации оценить файловые helpers, Disk upload services/results и тестовые подходы зафиксированного b24phpsdk; переиспользовать совместимые наработки, причины собственного кода зафиксировать в design.
@@ -28,7 +28,7 @@
 
 ## Impact
 
-Затронуты AttachTaskFilesCommand, TaskInputMapper, request/handler, application port и SDK adapter, CommandCatalog::ROUTES, preview/ledger/presentation, unit/integration tests и command catalog/README. Используются Symfony Filesystem и совместимые helpers/services b24phpsdk через существующие runtime boundaries; symfony/filesystem уже есть в lockfile транзитивно, при прямом использовании объявить прямую зависимость. Другие новые dependencies и обход через внешний curl/MCP для портальных операций не нужны. Общая Disk namespace, выбор/создание папок, автоматический личный диск, multipart/большие файлы, streaming/stdin, произвольные ACL и массовая загрузка вне scope.
+Затронуты AttachTaskFilesCommand, TaskInputMapper, request/handler, application port и SDK adapter, CommandCatalog::ROUTES, preview/ledger/presentation, unit/integration tests и command catalog/README. Используются Symfony Filesystem и совместимые helpers/services b24phpsdk через существующие runtime boundaries; symfony/filesystem уже есть в lockfile транзитивно, при прямом использовании объявить прямую зависимость. Другие новые dependencies и обход через внешний curl/MCP для портальных операций не нужны. Общая Disk namespace, выбор/создание папок, автоматический личный диск, multipart/stdin, произвольные ACL и массовая загрузка вне scope.
 
 ## GitHub issues
 

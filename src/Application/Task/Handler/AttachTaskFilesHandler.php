@@ -58,7 +58,7 @@ final readonly class AttachTaskFilesHandler
         }
 
         $steps = [
-            Plan::step($request->taskId, 'disk.folder.uploadFile', 1, 'write', ['id' => $folderId, 'data' => ['NAME' => $file->name], 'sizeBytes' => $file->sizeBytes, 'generateUniqueName' => true]),
+            Plan::step($request->taskId, 'disk.folder.uploadFile', 1, 'write', ['id' => $folderId, 'data' => ['NAME' => $file->name], 'sizeBytes' => $file->sizeBytes, 'maxUploadBytes' => $file->maxUploadBytes, 'generateUniqueName' => true]),
             Plan::step($request->taskId, 'tasks.task.file.attach', 3, 'write', ['taskId' => $request->taskId, 'fileIds' => ['<Disk ID returned by upload>']], 2),
         ];
         return new PreparedOperation($steps, function () use ($request, $file, $folderId): OperationResult {

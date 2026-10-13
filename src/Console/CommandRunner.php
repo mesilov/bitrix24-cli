@@ -35,7 +35,7 @@ final readonly class CommandRunner
         $context = $this->context($input);
         $this->state->begin($context->timeout);
         $this->connections->selected($context->dryRun);
-        $request = $requestFactory();
+        $request = $requestFactory($context);
         $plan = $routes($request);
         $this->guard->validate($command, $plan, $context->policy);
         $tty = defined('STDIN') && stream_isatty(STDIN);
@@ -94,13 +94,18 @@ final readonly class CommandRunner
         $config = [];
         if ($input->getOption('config') !== null) {
             $config = $this->reader->object($this->reader->read($input->getOption('config')));
-            if (array_diff(array_keys($config), ['timeout', 'apiPolicy', 'profile']) !== []) {
-                throw Failure::usage('Config supports timeout, apiPolicy and profile only; credentials belong in a credential file.');
+            if (array_diff(array_keys($config), ['timeout', 'apiPolicy', 'profile', 'maxUploadBytes']) !== []) {
+                throw Failure::usage('Config supports timeout, apiPolicy, profile and maxUploadBytes only; credentials belong in a credential file.');
             }
         }
 
         if (array_key_exists('profile', $config) && (!is_string($config['profile']) || $config['profile'] === '')) {
             throw Failure::usage('Runtime config profile must be a nonempty string.');
+        }
+
+        $maxUploadBytes = $config['maxUploadBytes'] ?? \Bitrix24\CLI\Application\Task\LocalFile::DEFAULT_MAX_BYTES;
+        if (array_key_exists('maxUploadBytes', $config) && (!is_int($config['maxUploadBytes']) || $config['maxUploadBytes'] < 1)) {
+            throw Failure::usage('Runtime config maxUploadBytes must be a positive JSON integer in bytes.');
         }
 
         $profile = $input->getOption('profile') ?? $config['profile'] ?? null;
@@ -120,6 +125,6 @@ final readonly class CommandRunner
             throw Failure::usage('Timeout must be a positive number up to 300 seconds (default 30).');
         }
 
-        return new InvocationContext($input->getOption('json') ? 'json' : ($input->getOption('plain') ? 'plain' : 'human'), $policy, (float) $timeout, $input->hasOption('dry-run') && $input->getOption('dry-run'));
+        return new InvocationContext($input->getOption('json') ? 'json' : ($input->getOption('plain') ? 'plain' : 'human'), $policy, (float) $timeout, $input->hasOption('dry-run') && $input->getOption('dry-run'), $maxUploadBytes);
     }
 }

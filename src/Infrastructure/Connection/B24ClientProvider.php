@@ -46,7 +46,7 @@ final class B24ClientProvider
             $core = (new CoreBuilder())->withLogger($nullLogger)
                 ->withEventDispatcher($eventDispatcher)
                 ->withCredentials(Credentials::createFromWebhook(new WebhookUrl($webhook)))
-                ->withHttpClient($this->httpClient ?? HttpClient::create(['timeout' => $this->state->timeout, 'max_duration' => $this->state->timeout]))
+                ->withHttpClient(new \Bitrix24\CLI\Infrastructure\Bitrix24\StreamingJsonHttpClient($this->httpClient ?? HttpClient::create(['timeout' => $this->state->timeout, 'max_duration' => $this->state->timeout])))
                 ->build();
             $batch = new Batch($core, $nullLogger);
             $this->builder = new ServiceBuilder($core, $batch, (new BulkItemsReaderBuilder($core, $batch, $nullLogger))->build(), $nullLogger);

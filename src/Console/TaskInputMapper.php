@@ -273,7 +273,7 @@ final readonly class TaskInputMapper
         return new Request\DeleteTaskChatMessageRequest($this->taskId($input), $this->id($input->getOption('message'), '--message'));
     }
 
-    public function attachTaskFiles(InputInterface $input): Request\AttachTaskFilesRequest
+    public function attachTaskFiles(InputInterface $input, int $maxUploadBytes = \Bitrix24\CLI\Application\Task\LocalFile::DEFAULT_MAX_BYTES): Request\AttachTaskFilesRequest
     {
         $taskId = $this->taskId($input);
         $path = $input->getOption('file');
@@ -290,7 +290,7 @@ final readonly class TaskInputMapper
             }
 
             $folderId = $this->id($folder, '--folder-id');
-            return new Request\AttachTaskFilesRequest($taskId, [], $this->files->inspect($path, $name), $folderId);
+            return new Request\AttachTaskFilesRequest($taskId, [], $this->files->inspect($path, $name, $maxUploadBytes), $folderId);
         }
 
         if ($folder !== null || $name !== null || $ids === []) {

@@ -171,14 +171,16 @@ final class LocalFileUploadTest extends TestCase
     public function testSizeBoundsSpecialFilesAndSdkRoundTrip(): void
     {
         $source = $this->source();
-        foreach ([0, LocalFileSource::MAX_BYTES] as $size) {
+        foreach ([0, LocalFileSource::DIRECT_ENCODING_BYTES] as $size) {
             $this->filesystem->dumpFile($this->path, str_repeat("\0", $size));
             $file = $source->inspect($this->path, str_repeat('я', 255));
             self::assertSame($size, $file->sizeBytes);
             self::assertSame(str_repeat("\0", $size), base64_decode($source->encode($file), true));
         }
 
-        $this->filesystem->dumpFile($this->path, str_repeat('x', LocalFileSource::MAX_BYTES + 1));
+        $handle = fopen($this->path, 'wb');
+        ftruncate($handle, LocalFileSource::MAX_BYTES + 1);
+        fclose($handle);
         foreach ([$this->path, $this->directory] as $path) {
             try {
                 $source->inspect($path);
@@ -255,7 +257,9 @@ final class LocalFileUploadTest extends TestCase
 
         $source = $this->source();
         $file = $source->inspect($this->path);
-        $this->filesystem->dumpFile($this->path, str_repeat('x', LocalFileSource::MAX_BYTES + 1));
+        $handle = fopen($this->path, 'wb');
+        ftruncate($handle, LocalFileSource::MAX_BYTES + 1);
+        fclose($handle);
         $this->expectException(Failure::class);
         $source->encode($file);
     }

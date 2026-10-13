@@ -8,6 +8,6 @@ use Bitrix24\CLI\Application\Task\LocalFile;
 
 interface LocalFileGateway
 {
-    public function inspect(string $path, ?string $name = null): LocalFile;
-    public function encode(LocalFile $file): string;
+    public function inspect(string $path, ?string $name = null, int $maxUploadBytes = LocalFile::DEFAULT_MAX_BYTES): LocalFile;
+    public function encode(LocalFile $file): string|\Bitrix24\CLI\Application\Task\StreamingBase64;
 }

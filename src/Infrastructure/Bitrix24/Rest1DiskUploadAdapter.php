@@ -13,7 +13,7 @@ final readonly class Rest1DiskUploadAdapter implements DiskUploadGateway
     {
     }
 
-    public function upload(int $folderId, string $name, string $base64): array
+    public function upload(int $folderId, string $name, string|\Bitrix24\CLI\Application\Task\StreamingBase64 $base64): array
     {
         // SDK Folder::uploadFile parameter shape, through the CLI's guarded transport.
         $result = $this->api->call('disk.folder.uploadFile', 1, [

@@ -2,7 +2,7 @@
 
 Пользовательский `config.json` хранит параметры нескольких порталов и defaults создания задач. Полный webhook находится в отдельном credential file. Формат не зависит от расположения и версии бинарника.
 
-Машиночитаемый контракт: [config.schema.json](config.schema.json), [JSON Schema Draft 2020-12](https://json-schema.org/draft/2020-12/schema). Эта схема описывает пользовательский `config.json`. Глобальный `--config PATH` по-прежнему читает другой файл — runtime JSON с `timeout`, `apiPolicy`, `profile`.
+Машиночитаемый контракт: [config.schema.json](config.schema.json), [JSON Schema Draft 2020-12](https://json-schema.org/draft/2020-12/schema). Эта схема описывает пользовательский `config.json`. Глобальный `--config PATH` по-прежнему читает другой файл — runtime JSON с `timeout`, `apiPolicy`, `profile`, `maxUploadBytes`.
 
 ## Каталог и файлы
 
@@ -241,3 +241,20 @@ make unit TEST_ARGS="--filter ConfigSchemaContractTest"
 ```
 
 Парные fixture expectations явно отделяют структурные ограничения от дополнительных runtime checks. Эта проверка не делает запросов к порталу.
+
+## Лимит загрузки локального файла
+
+В runtime JSON, который выбирается через `--config PATH` (или `--config -` для JSON из stdin), поле `maxUploadBytes` задаёт positive integer в байтах. При отсутствии применяется **500 MB = 500000000 байт**. Явный config имеет приоритет над default: может уменьшить или увеличить лимит. `null`, строки, boolean, дробные числа, ноль и отрицательные значения дают usage-error до credentials/API.
+
+```json
+{
+  "timeout": 120,
+  "maxUploadBytes": 750000000
+}
+```
+
+```sh
+b24cli --config ./runtime.json task:file:attach 123 --file './Отчёт.pdf' --folder-id 456 --dry-run --json
+```
+
+Лимит применяется к локальному исходному файлу, включая preview. Runtime настройка не передаётся в Bitrix24 payload и не относится к `default.task` или schema пользовательского `config.json`. Портальные квоты/права и timeout проверяются независимо; локальный лимит не обещает серверное принятие файла такого размера.

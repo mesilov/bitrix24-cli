@@ -44,6 +44,24 @@ final class AttachTaskFilesCommandTest extends LiveTaskCommandTestCase
         });
     }
 
+    #[Group('happy-path')]
+    public function testStreamedUploadReadsBackFullDiskSize(): void
+    {
+        $folderId = $this->createDiskFolder();
+        $taskId = $this->createTask();
+        $bytes = str_repeat('x', \Bitrix24\CLI\Infrastructure\Filesystem\LocalFileSource::DIRECT_ENCODING_BYTES) . "\0\xff";
+        $this->withLocalFile($bytes, function (string $path) use ($folderId, $taskId, $bytes): void {
+            $result = $this->invoke(['task:file:attach', $taskId, '--file', $path, '--folder-id', $folderId]);
+            $id = $result['data']['items'][0]['resourceId'];
+            $file = $this->api->call('disk.file.get', 1, ['id' => $id])->result;
+            self::assertSame(strlen($bytes), (int) $file['SIZE']);
+            self::assertSame($folderId, (int) $file['PARENT_ID']);
+            self::assertSame(basename($path), $file['NAME']);
+            self::assertTrue($result['data']['items'][1]['confirmed']);
+            self::assertSame(['1.0', '3.0'], $result['meta']['apiVersions']);
+        });
+    }
+
     public function testCollisionGeneratesUniqueNameWithoutReplacingFile(): void
     {
         $folderId = $this->createDiskFolder();

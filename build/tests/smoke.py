@@ -116,6 +116,15 @@ def main():
         blocked = json.loads(invoke('b24cli', upload_args + ['--api-policy', 'strict-rest3', '--dry-run'], 4))
         check(blocked['error']['code'] == 'policy-denied' and blocked['meta']['apiCalls'] == [],
               'Strict policy allowed local Disk upload')
+        upload_config = clean / 'upload-runtime.json'
+        upload_config.write_text(json.dumps({'maxUploadBytes': local_file.stat().st_size - 1}))
+        limited = json.loads(invoke('b24cli', ['--config', str(upload_config), *upload_args, '--dry-run'], 2))
+        check(limited['error']['code'] == 'usage-error' and limited['meta']['apiCalls'] == [],
+              'Configured upload limit did not override default before credentials')
+        upload_config.write_text(json.dumps({'maxUploadBytes': 750000000}))
+        configured = json.loads(invoke('b24cli', ['--config', str(upload_config), *upload_args, '--dry-run']))
+        check(configured['data']['plan']['steps'][0]['fields']['maxUploadBytes'] == 750000000,
+              'Config above 500 MB default was capped or ignored')
         missing = json.loads(invoke("b24cli", ["task:show", "123", "--json", "--no-ansi"], 1))
         check(missing["error"]["code"] == "connection-unavailable" and missing["meta"]["apiCalls"] == [],
               "Missing connection did not stop before API calls")
@@ -175,7 +184,7 @@ def main():
         check(all(path.name in allowed_phars for path in clean.glob("*.phar")),
               "Temporary application PHAR was not removed")
         print(json.dumps({"status": "passed", "version": args.expected_version, "runtime": probe,
-                          "checks": ["version", "help", "list", "usage-exit", "34-task-commands", "task-dry-run", "local-upload-dry-run", "local-upload-strict-policy",
+                          "checks": ["version", "help", "list", "usage-exit", "34-task-commands", "task-dry-run", "local-upload-dry-run", "local-upload-strict-policy", "local-upload-config-limit",
                                      "missing-connection", *( ["task-SIGINT"] if os.name != 'nt' else [] ),
                                      "autoload", "extensions", "unicode",
                                      "trusted-https", "rejected-certificate", "clean-PATH", "temporary-phar-cleanup"]}, ensure_ascii=False))

@@ -18,9 +18,10 @@
 - Явные составные dry-run планы REST 3.0 и записи `TAGS` через REST 1.0,
   ранний отказ strict-rest3 и частичный результат с ID задачи для восстановления
   без повторного создания ([#71](https://github.com/mesilov/bitrix24-cli/issues/71)).
-- `task:file:attach --file PATH --folder-id ID` загружает один локальный файл до 10 MiB
+- `task:file:attach --file PATH --folder-id ID` загружает один локальный файл до 500 MB
   на Диск и прикрепляет к задаче; поддерживает имя через `--name`, безопасный dry-run
-  и сохранение Disk ID для восстановления после частичной привязки. Локальный ввод
+  и сохранение Disk ID для восстановления после частичной привязки. Runtime `maxUploadBytes`
+  перекрывает default в обе стороны; большие файлы передаются потоково. Локальный ввод
   использует Symfony Filesystem/Path и Base64-кодировщик b24phpsdk
   ([#62](https://github.com/mesilov/bitrix24-cli/issues/62)).
 
