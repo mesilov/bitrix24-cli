@@ -78,6 +78,12 @@
 
 ### Изменено
 
+- После merge [PR #116](https://github.com/mesilov/bitrix24-cli/pull/116) в `dev`
+  и закрытия [#113](https://github.com/mesilov/bitrix24-cli/issues/113) требования
+  русской CLI-справки и единого блока «Общие» синхронизированы в `cli-experience`;
+  завершённый change `localize-cli-help-and-group-common-commands` перенесён
+  в архив от 14.10.2026.
+
 - OpenSpec MVP проблемных сценариев синхронизирован с актуальными
   `agent-trajectory-feedback` и `connection-configuration`; завершённый change
   перенесён в архив `2026-10-14-analyze-agent-trajectories` с evidence доставки CLI

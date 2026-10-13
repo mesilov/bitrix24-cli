@@ -40,3 +40,12 @@ README, docs/development и генерируемая CLI-карта описыв
 CRITICAL: 0. WARNING: 0. SUGGESTION: 0. Пропущенных применимых проверок нет; проверка change пройдена. GitHub CI и merge реализации подтверждаются отдельно после публикации PR. Архивирование следует после доставки реализации и закрытия #113.
 
 Релизные артефакты 0.2.0 не собирались. Повторная проверка финальных сборок и при необходимости актуализация остаётся в [#109](https://github.com/mesilov/bitrix24-cli/issues/109).
+
+## Delivery and archive receipt — 14.10.2026
+
+- [PR #116](https://github.com/mesilov/bitrix24-cli/pull/116) merged в `dev`: `f7dc2a7078f84b9d8b66780c21df3e930820dd73`; 13/13 CI checks SUCCESS на head `d9bf89a10bbe39ae037c54f083855983558aafd0`. Inline review findings отсутствуют.
+- [Issue #113](https://github.com/mesilov/bitrix24-cli/issues/113) CLOSED после merge. Все 8/8 задач завершены.
+- Два ADDED требования и все шесть сценариев полностью синхронизированы в `openspec/specs/cli-experience/spec.md`; прежние title/Purpose/requirements сохранены без изменения.
+- `openspec validate --specs`: 16 passed, 0 failed. Strict проверка канонического cli-experience сообщает прежнее предупреждение для `Explicit file and structured input` (>500 символов), существовавшее до sync; новые требования укладываются в 500 символов. Прочие прежние предупреждения общей проверки не относятся к этой архивной правке; их устранение ведётся отдельно в #114.
+- Архив: `openspec/changes/archive/2026-10-14-localize-cli-help-and-group-common-commands/`. Архивный PR содержит только перенос change, sync спецификации и запись CHANGELOG.
+- Сборка релиза 0.2.0 не запускалась; повторная проверка финальных артефактов остаётся в #109.
