@@ -14,7 +14,7 @@
 - [x] 3.1 Update Russian help, README/configuration/development and Unreleased CHANGELOG for #58; verify offline help and documented native examples.
 - [x] 3.2 Run targeted and full unit tests, make check and make lint-all; record exact results and validate OpenSpec --strict.
 - [x] 3.3 Perform fresh CLI portal create/update/readback for existing string/numeric/multiple custom values, clearing, required/unknown field errors, ordinary advanced equivalence and strict/dry-run; remove all owned fixtures and record bounded evidence.
-- [ ] 3.4 Verify requirements/design/task coverage, refresh and merge dev, confirm issue #58 milestone/type/links and changelog diff; publish PR to dev and record current CI separately.
+- [x] 3.4 Verify requirements/design/task coverage, refresh and merge dev, confirm issue #58 milestone/type/links and changelog diff; publish PR to dev and record current CI separately.
 
 ## Workflow follow-up
 

@@ -6,7 +6,7 @@ Verified on 2026-10-14 using `openspec-verify-change`. Change: `support-task-use
 
 | Dimension | Result |
 |---|---|
-| Completeness | Implementation/check tasks 8/9 completed; remaining task is publishing the requested PR and recording its CI. Ten added/modified requirements are mapped below. |
+| Completeness | All 9/9 tracked tasks completed; PR #127 is OPEN to dev and its initial head/CI snapshot is saved in delivery.json. Ten added/modified requirements are mapped below. |
 | Correctness | Local unit/contract and four live CLI cases cover the declared behavior; strict OpenSpec validation passes. |
 | Coherence | Single REST1 custom create, exact native JSON, bounded scalar/list input, explicit schema read and versions, documented partial semantics and existing tag/observer behavior match the accepted revised design. |
 
@@ -45,3 +45,5 @@ Owned task IDs **6296, 6298, 6300, 6302** were all deleted with no cleanup failu
 ## Delivery
 
 Requested scope is a reviewed implementation PR to dev, not merge or release. The active change is retained until merged completion; then archive/sync/issue-path update/worktree cleanup follow maintainer instructions. CI state must be read from the published head, not inferred from local or portal checks.
+
+PR: https://github.com/mesilov/bitrix24-cli/pull/127. Initial head d5c0a48c7e1e1a5d2289360317821d51da7e4ef8; terminal CI must be verified against the final published head. The PR is not merged and no release is published.
