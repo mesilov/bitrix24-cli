@@ -58,3 +58,13 @@ before/after, regression names и границы проверки — в [review
 Итоговый local suite: **734 tests / 6020 assertions**; `make check lint-all`,
 schema/skill validation и 7-stage public CLI smoke pass. Initial suite receipts
 выше сохраняются как история проверки и не заменяют новые regression cases.
+
+## Pre-merge integration with current dev, 2026-10-14
+
+Current dev added application help/about and a generated command map (#100).
+CHANGELOG conflict was resolved by retaining both additions. Existing
+HelpAndAboutTest exposed two integration failures: missing doctor example and
+stale command map. Added public status/report examples and regenerated the map:
+47 public commands. Full suite now passes **739 tests / 6543 assertions**;
+make check/lint-all/cli-reference-check, strict OpenSpec validation and 7-stage
+offline documentation smoke pass. Earlier review evidence remains historical.

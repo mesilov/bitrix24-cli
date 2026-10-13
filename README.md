@@ -2,7 +2,7 @@
 
 CLI для работы с задачами Битрикс24.
 
-[Первый релиз 0.1.0: возможности](CHANGELOG.md#010--2026-10-12) · [область приёмки и ограничения](docs/rc-0.1.0.md).
+[Первый релиз 0.1.0: возможности](CHANGELOG.md#010--2026-10-12) · [область приёмки и ограничения](docs/rc-0.1.0.md) · [JTBD по ролям](docs/task-jtbd.md).
 
 [![Allowed licenses](https://github.com/mesilov/bitrix24-cli/actions/workflows/license-check.yml/badge.svg?branch=dev&event=push)](https://github.com/mesilov/bitrix24-cli/actions/workflows/license-check.yml?query=branch%3Adev+event%3Apush)
 [![PHP-CS-Fixer](https://github.com/mesilov/bitrix24-cli/actions/workflows/php-cs-fixer.yml/badge.svg?branch=dev&event=push)](https://github.com/mesilov/bitrix24-cli/actions/workflows/php-cs-fixer.yml?query=branch%3Adev+event%3Apush)
@@ -430,7 +430,33 @@ Headless task-команды не спрашивают webhook и не сохр�
 Help/version/list/completion и offline dry-run не читают credential files и не пишут конфиг;
 advanced fields сохраняют описанный preflight editable metadata.
 
+## Справка и сведения о приложении
+
+```sh
+b24cli --help
+b24cli task:add --help
+b24cli help task:add
+b24cli --about
+b24cli --version
+```
+
+Общий `--help` (или `-h`) показывает назначение b24cli, список публичных команд,
+глобальные опции и примеры создания, просмотра и поиска задач. Справка выбранной
+команды содержит её аргументы, опции, ограничения и примеры; `list --help`
+описывает команду списка. Без аргументов b24cli выводит список команд.
+
+`--about` показывает назначение приложения, фактическую версию сборки, автора,
+лицензию и ссылки на репозитории приложения и скилла. Версия совпадает с
+`--version`. Справка и сведения о приложении работают без подключения к порталу.
+
+[Агентский скилл b24cli](https://github.com/mesilov/bitrix24-cli-skill) помогает
+AI-агенту выполнять операции через публичные команды приложения.
+
 ## CLI-команды
+
+Полный список с назначением, примерами и ссылками на интеграционные тесты:
+[карта CLI-вызовов](docs/cli-command-map.md). Проверка установленной сборки —
+`b24cli list`; список ниже служит кратким обзором.
 
 [JTBD по ролям: сценарии, CLI-команды и интеграционные тесты](docs/task-jtbd.md).
 

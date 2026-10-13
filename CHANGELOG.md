@@ -18,6 +18,14 @@
   mock с идемпотентными тестовыми receipts. Реальный endpoint не включён
   ([#96](https://github.com/mesilov/bitrix24-cli/issues/96)).
 
+- Общая справка `--help`/`-h` с назначением b24cli, полным списком публичных команд
+  и примерами задач; `--about` с версией, автором, лицензией и ссылками на приложение
+  и скилл. Обновлены командные примеры, README/JTBD и проверяемая карта CLI-вызовов
+  ([#100](https://github.com/mesilov/bitrix24-cli/issues/100)).
+- План сборки релиза 0.2.0 с повторной проверкой и актуализацией справки/about,
+  документации и скилла на финальных артефактах
+  ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
+
 - [JTBD задач по ролям](docs/task-jtbd.md): все 22 существующих сценариев в списках с ID,
   общими таблицами «Статус / Команда / Тест» для текущих и планируемых команд,
   статусами ✅ Готово / 🕓 План и навигацией по описаниям ролей,
@@ -63,6 +71,15 @@
   ([#63](https://github.com/mesilov/bitrix24-cli/issues/63)).
 
 ### Изменено
+
+- Архивирован завершённый OpenSpec change `require-jtbd-documentation-sync` после
+  доставки правила сопровождения JTBD и ссылки в шапке README через PR #106 в `dev`;
+  сохранены CI/merge receipts ([#105](https://github.com/mesilov/bitrix24-cli/issues/105)).
+
+- Закреплено обновление `docs/task-jtbd.md` в том же MR при реализации новых JTBD
+  и изменении связанных команд: ID, роли, статусы, ссылки на файлы тестов и границы
+  покрытия проверяются перед MR/merge. JTBD добавлены в верхнюю навигацию README
+  ([#105](https://github.com/mesilov/bitrix24-cli/issues/105)).
 
 - Архивирован завершённый OpenSpec change `document-role-jtbd-traceability` после merge
   документации 22 JTBD в `dev` и закрытия [#80](https://github.com/mesilov/bitrix24-cli/issues/80);
