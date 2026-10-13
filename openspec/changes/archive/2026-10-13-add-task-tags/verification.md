@@ -40,3 +40,11 @@ Critical implementation findings: 0. Warnings: 0. Suggestions: 0 в выполн
 ## Dev sync after the first successful CI
 
 Во время native CI в dev вошёл PR #81 / issue #78 (обязательный issue-linked changelog). Первоначальный SHA `bca2a57f46a3b7c78f2cb43c0e1006340dcb1990` прошёл 17/17 checks, receipts опубликованы в PR/issue. Новый dev `de98df7` интегрирован через merge с сохранением двух секций changelog и добавлением ссылки #71 к обеим feature-записям. Runtime и тесты не изменены. После синхронизации повторены unit/OpenSpec/diff checks; CI проверяется заново на merge SHA.
+
+## Completion receipt — 13.10.2026
+
+PR #75 merged to dev at `e6accd2c8b96177f08b84e458f7f2f18fc408af4`; issue #71 CLOSED. Before merge, HEAD `3c473bee0a9d35741ca4a7d0b9431ff453a0884d` passed 17/17 CI checks. New dev changes #59/#61/#78 were preserved during conflict resolution; combined suite: 422 tests / 2789 assertions, all quality and startup checks passed. Tag integration repeated: 2 tests / 37 assertions, cleanup confirmed.
+
+Archive sync: 4 runtime requirements added, 1 MVP API admission requirement updated. Existing titles/Purpose and requirements not named in the deltas were preserved. `openspec validate --specs` succeeded; all five resulting requirement blocks match the delta specs. Original failure and earlier success receipts remain above. Archive is delivered through a separate PR to dev; its merge and worktree removal are confirmed in the final GitHub receipt.
+
+Validation boundary: normal main-spec validation passed 9/9 specs, with one non-blocking warning that the complete modified API admission requirement exceeds 500 characters. Its normative text/scenarios were preserved rather than shortened; the archive does not claim strict global-spec validation passed.
