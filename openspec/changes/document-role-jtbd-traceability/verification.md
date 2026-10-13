@@ -11,7 +11,7 @@
 ## Проверки
 
 - Статическая сверка Markdown списков и таблиц команд с task-workflows, coverage JSON, CommandCatalog и исходниками integration tests: PASS; результат в validation.json.
-- Проверены 38 таблиц с тремя колонками; «✅ Реализована» у 32 текущих связей, «🕓 Планируется» у всех планируемых, «➖ Нет реализации» у четырёх пустых current mappings и «➖ Нет планов в исходном mapping» при отсутствии planned связей. Проверены 3 ссылки блока «Роли» на role-* anchors. Статус не объявляет прохождение теста.
+- Проверены 38 таблиц с тремя колонками; «✅ Готово» у 32 текущих связей, «🕓 План» у всех планируемых, «➖ Нет реализации» у четырёх пустых current mappings и «➖ Нет планов в исходном mapping» при отсутствии planned связей. Проверены 3 ссылки блока «Роли» на role-* anchors. Статус не объявляет прохождение теста.
 - Проверены объявления Class::method, command group и happy-path каждого referenced метода; число test references равно числу текущих command references в каждом сценарии.
 - `openspec validate document-role-jtbd-traceability --strict`: PASS.
 - `git diff --check`: PASS.
