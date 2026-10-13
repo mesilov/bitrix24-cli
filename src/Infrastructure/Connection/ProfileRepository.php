@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bitrix24\CLI\Infrastructure\Connection;
 
+use Bitrix24\CLI\Application\Doctor\TelemetrySettings;
 use Bitrix24\CLI\Application\Failure;
 
 final readonly class ProfileRepository
@@ -41,13 +42,17 @@ final readonly class ProfileRepository
                 throw new \RuntimeException();
             }
 
+            if (property_exists($object, 'telemetry') && !$object->telemetry instanceof \stdClass) {
+                throw new \RuntimeException();
+            }
+
             foreach (get_object_vars($object->profiles) as $profile) {
                 if (!$profile instanceof \stdClass || !($profile->connection ?? null) instanceof \stdClass) {
                     throw new \RuntimeException();
                 }
 
                 if (property_exists($profile, 'default')) {
-                    if (!$profile->default instanceof \stdClass || (property_exists($profile->default, 'task') && !$profile->default->task instanceof \stdClass)) {
+                    if (!$profile->default instanceof \stdClass || (property_exists($profile->default, 'task') && !$profile->default->task instanceof \stdClass) || (property_exists($profile->default, 'users') && !$profile->default->users instanceof \stdClass)) {
                         throw new \RuntimeException();
                     }
                 }
@@ -57,7 +62,7 @@ final readonly class ProfileRepository
             $this->validate($config);
             return $config;
         } catch (\Throwable) {
-            throw new Failure('configuration-error', 'Invalid config.json schema version 1; check profile name, connection and default.task fields (groupId belongs in default.task.groupId).');
+            throw new Failure('configuration-error', 'Invalid config.json schema version 1; check profile name, connection, default.task, default.users and root telemetry fields (groupId belongs in default.task.groupId).');
         }
     }
 
@@ -72,7 +77,20 @@ final readonly class ProfileRepository
         return $profile;
     }
 
-    public function add(string $directory, string $alias, string $webhook, ?string $name, array $task): array
+    public function assertCanAdd(string $directory, string $alias): void
+    {
+        self::alias($alias);
+        $this->assertUnusedAlias($this->load($directory), $alias);
+    }
+
+    private function assertUnusedAlias(array $config, string $alias): void
+    {
+        if (isset($config['profiles'][$alias])) {
+            throw new Failure('configuration-error', sprintf('Profile "%s" already exists. Parameters were not applied. Inspect it with connection:show %s; to replace it, use connection:remove %s, then connection:add %s with the webhook and all desired defaults. Removal clears a matching defaultProfile; restore it with connection:use %s if needed.', $alias, $alias, $alias, $alias, $alias));
+        }
+    }
+
+    public function add(string $directory, string $alias, string $webhook, ?string $name, array $task, array $users = []): array
     {
         self::alias($alias);
         $hostname = FileCredentialStore::hostname($webhook);
@@ -81,14 +99,17 @@ final readonly class ProfileRepository
             throw Failure::usage('--portal-domain must be a bare domain.');
         }
 
-        return $this->locked($directory, function () use ($directory, $alias, $webhook, $hostname, $name, $task): array {
+        $this->validateUsers($users);
+        return $this->locked($directory, function () use ($directory, $alias, $webhook, $hostname, $name, $task, $users): array {
             $config = $this->load($directory);
-            if (isset($config['profiles'][$alias])) {
-                throw new Failure('configuration-error', 'Profile already exists; remove it explicitly before adding a replacement.');
-            }
+            $this->assertUnusedAlias($config, $alias);
 
             $reference = $this->credentials->write($directory, $webhook);
             $profile = ['name' => $name, 'connection' => ['hostname' => $hostname, 'credentialFile' => $reference], 'default' => ['task' => $task]];
+            if ($users !== []) {
+                $profile['default']['users'] = $users;
+            }
+
             $config['profiles'][$alias] = $profile;
             try {
                 $this->publish($directory, $config);
@@ -130,8 +151,16 @@ final readonly class ProfileRepository
 
     private function validate(array $config): void
     {
-        if (array_diff(array_keys($config), ['version', 'defaultProfile', 'profiles']) !== [] || ($config['version'] ?? null) !== 1 || !array_key_exists('defaultProfile', $config) || !is_array($config['profiles'] ?? null)) {
+        if (array_diff(array_keys($config), ['version', 'defaultProfile', 'profiles', 'telemetry']) !== [] || ($config['version'] ?? null) !== 1 || !array_key_exists('defaultProfile', $config) || !is_array($config['profiles'] ?? null)) {
             throw new \RuntimeException();
+        }
+
+        if (array_key_exists('telemetry', $config)) {
+            if (!is_array($config['telemetry'])) {
+                throw new \RuntimeException();
+            }
+
+            TelemetrySettings::validate($config['telemetry']);
         }
 
         $references = [];
@@ -153,8 +182,16 @@ final readonly class ProfileRepository
             $references[] = $connection['credentialFile'];
             if (array_key_exists('default', $profile)) {
                 $default = $profile['default'];
-                if (!is_array($default) || array_diff(array_keys($default), ['task']) !== []) {
+                if (!is_array($default) || array_diff(array_keys($default), ['task', 'users']) !== []) {
                     throw new \RuntimeException();
+                }
+
+                if (array_key_exists('users', $default)) {
+                    if (!is_array($default['users'])) {
+                        throw new \RuntimeException();
+                    }
+
+                    $this->validateUsers($default['users']);
                 }
 
                 if (array_key_exists('task', $default)) {
@@ -174,6 +211,23 @@ final readonly class ProfileRepository
 
         if ($config['defaultProfile'] !== null && (!is_string($config['defaultProfile']) || !isset($config['profiles'][$config['defaultProfile']]))) {
             throw new \RuntimeException();
+        }
+    }
+
+    private function validateUsers(array $users): void
+    {
+        if (array_diff(array_keys($users), ['observerId', 'managerId', 'autoAddObserver']) !== []) {
+            throw new \RuntimeException('Unknown default.users key.');
+        }
+
+        foreach ($users as $field => $value) {
+            if ($field === 'autoAddObserver' ? !is_bool($value) : (!is_int($value) || $value < 1)) {
+                throw new \RuntimeException('Invalid default.users value.');
+            }
+        }
+
+        if (($users['autoAddObserver'] ?? false) && !isset($users['observerId'])) {
+            throw new \RuntimeException('autoAddObserver requires observerId.');
         }
     }
 
@@ -206,10 +260,51 @@ final readonly class ProfileRepository
         }
     }
 
+    /** The callback receives config by reference; afterCommit runs under the same lock. */
+    public function transaction(string $directory, \Closure $operation, ?\Closure $afterCommit = null): array
+    {
+        return $this->locked($directory, function () use ($directory, $operation, $afterCommit): array {
+            $config = $this->load($directory);
+            $result = $operation($config);
+            $this->publish($directory, $config);
+            if ($afterCommit instanceof \Closure) {
+                $afterCommit();
+            }
+
+            return $result;
+        });
+    }
+
+    public function readTransaction(string $directory, \Closure $operation): array
+    {
+        $path = $directory . '/.lock';
+        $this->protection->noLinks($path);
+        if (!file_exists($path)) {
+            return $operation($this->load($directory));
+        }
+
+        $this->protection->check($path);
+        $stream = @fopen($path, 'rb');
+        if ($stream === false || !flock($stream, LOCK_SH)) {
+            throw new Failure('configuration-error', 'Cannot read configuration under its storage lock.');
+        }
+
+        try {
+            return $operation($this->load($directory));
+        } finally {
+            flock($stream, LOCK_UN);
+            fclose($stream);
+        }
+    }
+
     private function publish(string $directory, array $config): void
     {
         $this->validate($config);
         foreach ($config['profiles'] as &$profile) {
+            if (isset($profile['default']['users'])) {
+                $profile['default']['users'] = (object) $profile['default']['users'];
+            }
+
             if (isset($profile['default']['task'])) {
                 $profile['default']['task'] = (object) $profile['default']['task'];
             }
@@ -221,6 +316,10 @@ final readonly class ProfileRepository
 
         unset($profile);
         $config['profiles'] = (object) $config['profiles'];
+        if (isset($config['telemetry'])) {
+            $config['telemetry'] = (object) $config['telemetry'];
+        }
+
         $data = json_encode($config, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n";
         $temporary = $directory . '/.config-' . bin2hex(random_bytes(12));
         $stream = $this->protection->create($temporary);

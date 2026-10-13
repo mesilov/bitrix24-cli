@@ -8,11 +8,12 @@ use Bitrix24\CLI\Application\Failure;
 use Bitrix24\CLI\Application\Task\FieldSchema;
 use Bitrix24\CLI\Application\Task\Request;
 use Bitrix24\CLI\Application\Task\TaskQuery;
+use Bitrix24\CLI\Application\Task\TaskRole;
 use Symfony\Component\Console\Input\InputInterface;
 
 final readonly class TaskInputMapper
 {
-    public function __construct(private InputSourceReader $reader, private ?\Bitrix24\CLI\Infrastructure\Connection\ConnectionManager $connections = null)
+    public function __construct(private InputSourceReader $reader, private ?\Bitrix24\CLI\Infrastructure\Connection\ConnectionManager $connections = null, private ?\Bitrix24\CLI\Application\Task\Port\LocalFileGateway $files = null, private \Bitrix24\CLI\Application\Task\DeadlineWindowResolver $deadlines = new \Bitrix24\CLI\Application\Task\DeadlineWindowResolver())
     {
     }
 
@@ -56,9 +57,13 @@ final readonly class TaskInputMapper
         return $value === null ? null : $this->reader->object($value);
     }
 
-    private function patch(InputInterface $input, bool $create): array
+    private function patch(InputInterface $input, bool $create, ?array $TAGS = null): array
     {
         $advanced = $this->json($input, 'fields');
+        if ($advanced !== null && $TAGS !== null) {
+            throw Failure::usage('Advanced --fields/--fields-file cannot be mixed with --tag/--clear-tags.');
+        }
+
         $fields = [];
         foreach (['title' => 'title', 'description' => 'description', 'creator' => 'creatorId', 'responsible' => 'responsibleId', 'group-id' => 'groupId', 'deadline' => 'deadline'] as $flag => $field) {
             if (!$input->hasOption($flag)) {
@@ -101,14 +106,41 @@ final readonly class TaskInputMapper
             }
         }
 
-        FieldSchema::localPatch($fields, $create);
+        if ($fields !== [] || $create || $TAGS === null) {
+            FieldSchema::localPatch($fields, $create);
+        }
+
         return [$fields, $advanced !== null];
+    }
+
+    private function TAGS(InputInterface $input): ?array
+    {
+        $values = $input->getOption('tag');
+        $clear = $input->hasOption('clear-tags') && $input->getOption('clear-tags');
+        if ($clear && $values !== []) {
+            throw Failure::usage('Choose --tag or --clear-tags.');
+        }
+
+        foreach ($values as $value) {
+            if (!is_string($value) || preg_match('/(*UCP)\\S/u', $value) !== 1) {
+                throw Failure::usage('Provide a nonempty UTF-8 --tag name.');
+            }
+        }
+
+        return $clear ? [] : ($values === [] ? null : array_values(array_unique($values)));
     }
 
     public function addTask(InputInterface $input): Request\AddTaskRequest
     {
-        [$fields, $advanced] = $this->patch($input, true);
-        return new Request\AddTaskRequest($fields, $advanced);
+        $TAGS = $this->TAGS($input);
+        [$fields, $advanced] = $this->patch($input, true, $TAGS);
+        $roles = $this->connections?->userDefaults($input->getOption('dry-run')) ?? [];
+        $observer = ($roles['autoAddObserver'] ?? false) ? $roles['observerId'] : null;
+        if ($observer !== null && $this->connections instanceof \Bitrix24\CLI\Infrastructure\Connection\ConnectionManager) {
+            $this->connections->fieldSources['default.users.observerId'] = 'profile-default';
+        }
+
+        return new Request\AddTaskRequest($fields, $advanced, $observer, $TAGS);
     }
 
     public function showTask(InputInterface $input): Request\ShowTaskRequest
@@ -120,8 +152,9 @@ final readonly class TaskInputMapper
 
     public function updateTask(InputInterface $input): Request\UpdateTaskRequest
     {
-        [$fields, $advanced] = $this->patch($input, false);
-        return new Request\UpdateTaskRequest($this->taskId($input), $fields, $advanced, 'task:update');
+        $TAGS = $this->TAGS($input);
+        [$fields, $advanced] = $this->patch($input, false, $TAGS);
+        return new Request\UpdateTaskRequest($this->taskId($input), $fields, $advanced, 'task:update', $TAGS);
     }
 
     public function assignTask(InputInterface $input): Request\UpdateTaskRequest
@@ -145,23 +178,33 @@ final readonly class TaskInputMapper
 
     private function query(InputInterface $input, bool $find): TaskQuery
     {
-        $where = $find ? [] : $this->json($input, 'where');
-        $predicates = [];
-        if ($find && $input->getOption('group-id') !== null) {
-            $predicates['groupId'] = $this->id($input->getOption('group-id'), '--group-id');
+        $windows = $input->getOption('deadline-window');
+        if (count($windows) > 1) {
+            throw Failure::usage('Provide --deadline-window only once.');
         }
 
-        if (!$find) {
-            foreach (['responsible' => 'responsibleId', 'group-id' => 'groupId', 'status' => 'status'] as $flag => $field) {
-                $value = $input->getOption($flag);
-                if ($value !== null) {
-                    $predicates[$field] = $flag === 'status' ? \Bitrix24\CLI\Application\Task\TaskStatus::validateFilter($value) : $this->id($value, '--' . $flag);
-                }
-            }
+        $deadlineWindow = $this->deadlines->resolve($windows[0] ?? null, $input->getOption('overdue'), $input->getOption('timezone'));
+        if ($deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow && ($input->getOption('due-before') !== null || $input->getOption('where') !== null || $input->getOption('where-file') !== null)) {
+            throw Failure::usage('Do not mix --deadline-window/--overdue with --due-before or --where/--where-file.');
+        }
 
-            if ($where !== null && ($predicates !== [] || $input->getOption('due-before') !== null)) {
-                throw Failure::usage('Choose --where or convenient filter flags.');
+        $value = $input->getOption('role');
+        $role = $value === null ? null : (is_string($value) ? TaskRole::tryFrom($value) : null);
+        if ($value !== null && $role === null) {
+            throw Failure::usage('Use --role responsible, accomplice, creator or auditor.');
+        }
+
+        $where = $this->json($input, 'where');
+        $predicates = [];
+        foreach (['responsible' => 'responsibleId', 'group-id' => 'groupId', 'status' => 'status'] as $flag => $field) {
+            $value = $input->getOption($flag);
+            if ($value !== null) {
+                $predicates[$field] = $flag === 'status' ? \Bitrix24\CLI\Application\Task\TaskStatus::validateFilter($value) : $this->id($value, '--' . $flag);
             }
+        }
+
+        if ($where !== null && ($predicates !== [] || $input->getOption('due-before') !== null)) {
+            throw Failure::usage('Choose --where/--where-file or --responsible/--group-id/--status/--due-before; --title, --id and --role may be combined with either.');
         }
 
         foreach ($where ?? [] as $field => $value) {
@@ -178,8 +221,8 @@ final readonly class TaskInputMapper
             }
         }
 
-        $order = ['id' => 'ASC'];
-        if (!$find && $input->getOption('order') !== []) {
+        $order = ['id' => 'DESC'];
+        if ($input->getOption('order') !== []) {
             $order = [];
             foreach ($input->getOption('order') as $value) {
                 $parts = explode(':', $value);
@@ -194,13 +237,15 @@ final readonly class TaskInputMapper
         }
 
         return new TaskQuery(
-            $find ? [] : array_map(fn ($id): int => $this->id($id, '--id'), $input->getOption('id')),
-            $find ? $predicates : ($where ?? $predicates),
-            !$find && $input->getOption('due-before') !== null ? FieldSchema::date($input->getOption('due-before')) : null,
+            array_map(fn ($id): int => $this->id($id, '--id'), $input->getOption('id')),
+            $where ?? $predicates,
+            $input->getOption('due-before') !== null ? FieldSchema::date($input->getOption('due-before')) : null,
             $find ? ['id', 'title'] : FieldSchema::select($input->getOption('select')),
             $order,
             $this->limit($input, 50),
             $input->getOption('max-scan') === null ? 10000 : $this->id($input->getOption('max-scan'), '--max-scan'),
+            $role,
+            $deadlineWindow,
         );
     }
 
@@ -256,13 +301,51 @@ final readonly class TaskInputMapper
         return new Request\DeleteTaskChatMessageRequest($this->taskId($input), $this->id($input->getOption('message'), '--message'));
     }
 
-    public function attachTaskFiles(InputInterface $input): Request\AttachTaskFilesRequest
+    public function attachTaskFiles(InputInterface $input, int $maxUploadBytes = \Bitrix24\CLI\Application\Task\LocalFile::DEFAULT_MAX_BYTES): Request\AttachTaskFilesRequest
     {
-        if ($input->getOption('file-id') === []) {
-            throw Failure::usage('Provide at least one --file-id of an existing Disk file.');
+        $taskId = $this->taskId($input);
+        $path = $input->getOption('file');
+        $folder = $input->getOption('folder-id');
+        $name = $input->getOption('name');
+        $ids = $input->getOption('file-id');
+        if ($path !== null) {
+            if ($ids !== [] || $folder === null) {
+                throw Failure::usage('Choose --file-id or --file PATH with --folder-id ID.');
+            }
+
+            if (!$this->files instanceof \Bitrix24\CLI\Application\Task\Port\LocalFileGateway) {
+                throw new Failure('configuration-error', 'Local file source is not configured.');
+            }
+
+            $folderId = $this->id($folder, '--folder-id');
+            return new Request\AttachTaskFilesRequest($taskId, [], $this->files->inspect($path, $name, $maxUploadBytes), $folderId);
         }
 
-        return new Request\AttachTaskFilesRequest($this->taskId($input), array_values(array_unique(array_map(fn ($id): int => $this->id($id, '--file-id'), $input->getOption('file-id')))));
+        if ($folder !== null || $name !== null || $ids === []) {
+            throw Failure::usage('Provide --file-id, or --file PATH with --folder-id ID; --name belongs to the local file mode.');
+        }
+
+        return new Request\AttachTaskFilesRequest($taskId, array_values(array_unique(array_map(fn ($id): int => $this->id($id, '--file-id'), $ids))));
+    }
+
+    public function addTaskResult(InputInterface $input): Request\AddTaskResultRequest
+    {
+        return new Request\AddTaskResultRequest($this->taskId($input), $this->text($input, 'text'));
+    }
+
+    public function listTaskResults(InputInterface $input): Request\ListTaskResultsRequest
+    {
+        return new Request\ListTaskResultsRequest($this->taskId($input), $this->limit($input, 50), $input->getOption('max-scan') === null ? 10000 : $this->id($input->getOption('max-scan'), '--max-scan'));
+    }
+
+    public function updateTaskResult(InputInterface $input): Request\UpdateTaskResultRequest
+    {
+        return new Request\UpdateTaskResultRequest($this->taskId($input), $this->id($input->getOption('result'), '--result'), $this->text($input, 'text'));
+    }
+
+    public function deleteTaskResult(InputInterface $input): Request\DeleteTaskResultRequest
+    {
+        return new Request\DeleteTaskResultRequest($this->taskId($input), $this->id($input->getOption('result'), '--result'));
     }
 
 

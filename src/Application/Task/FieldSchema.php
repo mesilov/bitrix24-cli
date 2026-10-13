@@ -44,6 +44,10 @@ final class FieldSchema
         }
 
         foreach ($fields as $name => $value) {
+            if (in_array($name, ['tags', 'TAGS'], true)) {
+                throw Failure::usage('Tags are read-only in REST 3.0 fields; use --tag or --clear-tags.');
+            }
+
             if (!in_array($name, self::WRITABLE, true)) {
                 throw Failure::usage('Unsupported or read-only task field; use lifecycle commands for status changes.');
             }
@@ -70,7 +74,7 @@ final class FieldSchema
         }
 
         if ($create && array_diff(['title', 'creatorId', 'responsibleId'], array_keys($fields)) !== []) {
-            throw Failure::usage('Missing required creation fields: ' . implode(', ', array_diff(['title', 'creatorId', 'responsibleId'], array_keys($fields))) . '. Supply explicit values or matching profile defaults.');
+            throw Failure::usage('Missing required creation fields: ' . implode(', ', array_diff(['title', 'creatorId', 'responsibleId'], array_keys($fields))) . '. Supply --title, --creator and --responsible or matching profile defaults.');
         }
     }
 

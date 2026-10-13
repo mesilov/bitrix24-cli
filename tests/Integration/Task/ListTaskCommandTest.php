@@ -7,11 +7,27 @@ namespace Bitrix24\CLI\Tests\Integration\Task;
 use Bitrix24\CLI\Tests\Support\LiveTaskLifecycleTestCase;
 use Bitrix24\CLI\Application\Task\LifecycleAction;
 use Bitrix24\CLI\Infrastructure\Bitrix24\Rest1TaskLifecycleAdapter;
+use Bitrix24\CLI\Tests\Support\DeadlineReadOnlyCases;
+use Bitrix24\CLI\Tests\Support\TaskRoleFixtures;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
 #[Group('command:task:list')]
 final class ListTaskCommandTest extends LiveTaskLifecycleTestCase
 {
+    use DeadlineReadOnlyCases;
+    use TaskRoleFixtures;
+
+    #[DataProvider('roleCases')]
+    public function testRoleIncludesOnlyTheMatchingOwnedFixture(string $role): void
+    {
+        [$included, $excluded] = $this->roleTaskPair($role, $this->fixtureTitle());
+        $result = $this->invoke(['task:list', '--id', $included, '--id', $excluded, '--role', $role]);
+        self::assertSame([$included], array_column($result['data']['items'], 'id'));
+        self::assertSame(['role' => $role, 'userId' => $this->userId], $result['meta']['roleFilter']);
+        self::assertSame(1, $result['meta']['matched']);
+    }
+
     #[Group('lifecycle')]
     public function testReviewAndRenewListsMatchIndependentTaskState(): void
     {
@@ -70,7 +86,7 @@ final class ListTaskCommandTest extends LiveTaskLifecycleTestCase
         $unfiltered = $this->invoke(['task:list', '--id', $otherTask]);
         self::assertSame('pending', $card['status'], json_encode($card, JSON_THROW_ON_ERROR));
         foreach ([
-            [['--group-id', $group], [$own, $otherTask]],
+            [['--group-id', $group], [$otherTask, $own]],
             [['--responsible', $other], [$otherTask]],
             [['--group-id', $group, '--responsible', $other], [$otherTask]],
         ] as [$filters, $expected]) {

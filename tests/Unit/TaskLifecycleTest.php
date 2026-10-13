@@ -237,6 +237,37 @@ final class TaskLifecycleTest extends TestCase
         }
     }
 
+    public function testGroupCompanionComposesWithRolesAndFindWithoutReadingExcludedRows(): void
+    {
+        foreach (['task:list', 'task:find'] as $command) {
+            foreach (['responsible', 'auditor'] as $role) {
+                $api = new FakeApiTransport(static function (string $method, int $version, array $params): ApiResponse {
+                    if ($method === 'tasks.task.list') {
+                        return new ApiResponse(['items' => [
+                            ['id' => 1, 'title' => 'Match', 'responsibleId' => 1, 'groupId' => 8, 'status' => 'pending'],
+                            ['id' => 2, 'title' => 'Match', 'responsibleId' => 1, 'groupId' => null, 'status' => 'pending'],
+                            ['id' => 2, 'title' => 'Match', 'responsibleId' => 1, 'groupId' => null, 'status' => 'pending'],
+                            ['id' => 3, 'title' => 'Match', 'responsibleId' => 9, 'groupId' => null, 'status' => 'pending'],
+                        ]]);
+                    }
+
+                    if ($version === 1) {
+                        self::assertSame(2, $params['taskId']);
+                        return new ApiResponse(['task' => ['id' => '2', 'auditors' => ['1']]]);
+                    }
+
+                    self::assertSame(2, $params['id']);
+                    return new ApiResponse(['item' => ['id' => 2, 'group' => ['id' => 7]]]);
+                });
+                $run = ConsoleHarness::run((new ApplicationFactory())->create(dirname(__DIR__, 2), $api, new SpyConnectionResolver()), ['--json', $command, ...($command === 'task:find' ? ['--title', 'Match'] : []), '--role', $role, '--responsible', '1', '--group-id', '7', '--status', 'pending']);
+                self::assertSame(0, $run->status, $run->stdout);
+                self::assertSame([2], array_column($run->json()['data']['items'], 'id'));
+                self::assertSame($role === 'auditor' ? [3, 1, 3] : [3, 3], array_column($api->calls, 'version'));
+                self::assertTrue($run->json()['meta']['complete']);
+            }
+        }
+    }
+
     public function testNullListGroupIsVerifiedFromCardWithoutLegacyFallback(): void
     {
         foreach ([true, false] as $verified) {

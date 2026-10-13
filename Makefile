@@ -16,6 +16,13 @@ TEST_ARGS ?=
 
 .PHONY: package-phar package package-macos package-windows test-package
 
+.PHONY: cli-reference cli-reference-check
+cli-reference:
+	$(RUN) php scripts/cli-reference.php --write
+
+cli-reference-check:
+	$(RUN) php scripts/cli-reference.php --check
+
 package-phar:
 	bash build/package-linux.sh phar
 
@@ -52,6 +59,8 @@ help:
 	  'composer-validate    Validate composer.json and composer.lock' \
 	  'php-cli-bash         Open a shell in the PHP container' \
 	  'cli ARGS="..."       Run bin/b24cli (default: command list)' \
+	  'cli-reference       Update docs/cli-command-map.md from public commands' \
+	  'cli-reference-check Check the command map matches the current CLI' \
 	  'package-phar         Build the locked production PHAR in Docker' \
 	  'package              Build a test Linux binary from any clean checkout commit (Docker)' \
 	  'package-macos        Build the native macOS arm64 binary' \

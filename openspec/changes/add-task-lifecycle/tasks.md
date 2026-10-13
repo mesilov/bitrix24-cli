@@ -5,7 +5,7 @@
 ## 1. Команды, registration и policy
 
 - [x] 1.1 Добавить семь lifecycle Command-классов, input mapping и закрытый request/action contract. Проверка: offline help/list, положительный TASK_ID и negative/overflow/unknown-option cases через ConsoleHarness дают ожидаемый ввод либо exit2 до credentials/API.
-- [x] 1.2 Зарегистрировать команды и DI, объявить точные REST1 lifecycle и REST3 preflight/post-read маршруты в CommandCatalog. Проверка: catalog/AsCommand uniqueness, 37 task-команд, прежние 5 connection-команд, 22 исключения и raw status denial; strict-rest3 всех семи действий, включая dry-run, даёт exit4 без provider/API.
+- [x] 1.2 Зарегистрировать команды и DI, объявить точные REST1 lifecycle и REST3 preflight/post-read маршруты в CommandCatalog. Проверка: catalog/AsCommand uniqueness, 41 task-команд и четыре users-команды, прежние 5 connection-команд, 18 исключений и raw status denial; strict-rest3 всех семи действий, включая dry-run, даёт exit4 без provider/API.
 - [x] 1.3 Добавить семь команд в README/development catalogue и help с TASK_ID, REST1 ограничением и примерами; документировать task:list для своего ID, проекта, другого исполнителя и их AND комбинаций со всеми шестью логическими статусами. Проверка: названия/количество совпадают с CommandCatalog, примеры соответствуют mapper, --all/max-scan и visible scope указаны; current-user discovery и неподдержанный --me не обещаются.
 
 ## 2. Gateway и preflight

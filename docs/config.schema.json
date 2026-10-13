@@ -38,6 +38,10 @@
         "$ref": "#/$defs/profile"
       },
       "description": "Independent portal profiles. An empty object is valid; an array is not."
+    },
+    "telemetry": {
+      "$ref": "#/$defs/telemetry",
+      "description": "Local problem cards and analysis dates, independent of portal profiles. Collection never enables automatic transmission."
     }
   },
   "$defs": {
@@ -101,9 +105,12 @@
           "properties": {
             "task": {
               "$ref": "#/$defs/taskDefaults"
+            },
+            "users": {
+              "$ref": "#/$defs/userDefaults"
             }
           },
-          "description": "Optional operation defaults for this profile; only task creation consumes task defaults."
+          "description": "Optional task creation defaults and local user working-role selectors for this profile."
         }
       }
     },
@@ -130,6 +137,80 @@
         }
       },
       "description": "Optional defaults. Missing participant IDs still require explicit creatorId/responsibleId at task creation; the webhook user is not inferred."
+    },
+    "userDefaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "observerId": {
+          "$ref": "#/$defs/positiveId",
+          "description": "Local CLI role selector for the default observer, never sent as an API field."
+        },
+        "managerId": {
+          "$ref": "#/$defs/positiveId",
+          "description": "Local working manager, selected explicitly by users:manager --source config."
+        },
+        "autoAddObserver": {
+          "type": "boolean",
+          "default": false,
+          "description": "Opt in to assigning observerId after task creation; requires observerId when true."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "autoAddObserver"
+            ],
+            "properties": {
+              "autoAddObserver": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "observerId"
+            ]
+          }
+        }
+      ]
+    },
+    "utcTimestamp": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-5][0-9]:[0-5][0-9]Z$"
+        }
+      ]
+    },
+    "telemetry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "collectProblemTrajectories": {
+          "type": "boolean",
+          "default": true
+        },
+        "maxProblemTrajectoryFiles": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807,
+          "default": 100
+        },
+        "lastProblemTrajectoryProcessingAt": {
+          "$ref": "#/$defs/utcTimestamp",
+          "default": null
+        },
+        "lastProblemTrajectoryAnalysisOfferedAt": {
+          "$ref": "#/$defs/utcTimestamp",
+          "default": null
+        }
+      }
     }
   }
 }

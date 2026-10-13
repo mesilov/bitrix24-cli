@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "519e93936cc06256fd1be14dbf09cb42",
+    "content-hash": "a1fbf36ba8bab17fbbc23eef1a2ff3b4",
     "packages": [
         {
             "name": "bitrix24/b24phpsdk",

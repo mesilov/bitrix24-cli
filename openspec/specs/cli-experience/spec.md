@@ -22,7 +22,7 @@ CLI SHALL использовать b24cli и Symfony имена task:<action>/ta
 - **THEN** CLI завершает вызов с ошибкой использования и предлагает известное имя без выполнения записи
 
 ### Requirement: Discoverable help without remote operations
-CLI SHALL поддерживать `-h`/`--help`, `b24cli help COMMAND`, `b24cli list [NAMESPACE]` и `--version`/`-V`. Справка SHALL показывать краткое назначение, примеры обычных действий, обязательные флаги, значения по умолчанию, ограничения и ссылку на документацию. Справка и версия SHALL работать без авторизации и запросов на портал.
+CLI SHALL поддерживать `-h`/`--help`, `b24cli help COMMAND`, `b24cli list [NAMESPACE]` и `--version`/`-V`. Справка SHALL показывать краткое назначение, примеры обычных действий, обязательные флаги, значения по умолчанию, ограничения и ссылку на документацию. Справка и версия SHALL работать без авторизации и запросов на портал. Корневой `--help`/`-h` SHALL показывать обзор b24cli с актуальным списком публичных команд и примерами работы с задачами вместо справки `list`.
 
 #### Scenario: Root or group invocation
 - **WHEN** пользователь вызывает `b24cli` либо `b24cli list task`
@@ -31,6 +31,26 @@ CLI SHALL поддерживать `-h`/`--help`, `b24cli help COMMAND`, `b24cli
 #### Scenario: Command help
 - **WHEN** пользователь вызывает `b24cli task:update --help` или `b24cli help task:update`
 - **THEN** оба вызова показывают одну справку с примерами изменения заголовка, ответственного и описания, без требования TASK_ID
+
+#### Scenario: Examples precede advanced details
+- **WHEN** пользователь открывает task:find --help или help обычной команды задач
+- **THEN** после назначения SHALL идти обычные корректные примеры, затем сведения о флагах/defaults и advanced input/API ограничениях; пример task:find SHALL объединять --title с --group-id и --responsible, справка не выполняет portal requests
+
+#### Scenario: Root application help
+- **WHEN** пользователь вызывает `b24cli --help` или `b24cli -h` без имени команды и без настроенного подключения
+- **THEN** оба вызова возвращают 0 и показывают одинаковый обзор: назначение b24cli для работы с Битрикс24, синтаксис вызова приложения, актуальный список всех зарегистрированных публичных команд с краткими описаниями, глобальные опции, примеры создания (`task:add` с обязательными полями и `--dry-run`), просмотра (`task:show`) и поиска (`task:find`) задач, способы получить командную справку и ссылку на документацию; вывод не подменяется справкой list, не содержит шаблонного примера `list test`, не выполняет примеры, не требует credentials и не обращается к порталу
+
+#### Scenario: Root command list remains current
+- **WHEN** в проверяемой версии добавлена или удалена публичная команда
+- **THEN** список в корневом `--help` SHALL соответствовать фактически доступным публичным командам `b24cli list`, включая стандартные команды; планируемые и недоступные команды SHALL не включаться
+
+#### Scenario: Explicit list help
+- **WHEN** пользователь вызывает `b24cli list --help` или `b24cli help list`
+- **THEN** оба вызова показывают справку именно list с её аргументом namespace и опциями, возвращают 0 и не выполняют удалённых операций; обзор приложения не подменяет эту командную справку
+
+#### Scenario: Task creation help remains command specific
+- **WHEN** пользователь вызывает `b24cli task:add --help` или `b24cli help task:add`
+- **THEN** оба вызова показывают справку создания задачи с назначением, примерами и опциями task:add без требования обязательных полей, возвращают 0 и не выполняют API-запросов; корневой обзор не подменяет справку команды
 
 ### Requirement: Convenient and explicit task field updates
 CLI SHALL предоставлять `--title`, `--creator`, `--responsible`, `--group-id`, `--deadline`, `--description` и `--description-file` для создания и применимые флаги для изменения. `task:update` SHALL принимать хотя бы одно явное изменение и отправлять только заданные поля. `task:assign` SHALL изменять только responsibleId; остальные флаги SHALL отображаться на документированные writable REST3 поля.
@@ -48,7 +68,7 @@ CLI SHALL предоставлять `--title`, `--creator`, `--responsible`, `-
 - **THEN** первый вызов задаёт пустое описание, а второй сохраняет существующее; пустой заголовок отклоняется
 
 ### Requirement: Explicit file and structured input
-CLI SHALL различать литеральный текст, JSON в `--fields` и файл JSON в `--fields-file`; файловые флаги SHALL принимать PATH или `-` для stdin. `--fields` и `--fields-file` SHALL быть отдельным advanced режимом без смешивания с флагами редактирования полей. CLI SHALL проверять формат и доступность ввода до записи, не читать stdin неявно и не разрешать два потребителя stdin.
+CLI SHALL различать литеральный текст, JSON в `--fields` и файл JSON в `--fields-file`; текстовые и JSON файловые флаги SHALL принимать PATH или `-` для stdin. Бинарный `task:file:attach --file` SHALL принимать только локальный PATH с ограничениями task-file-upload, без stdin `-`. `--fields` и `--fields-file` SHALL быть отдельным advanced режимом без смешивания с флагами редактирования полей. CLI SHALL проверять формат и доступность ввода до записи, не читать stdin неявно и не разрешать два потребителя stdin.
 
 #### Scenario: Description from a file or pipe
 - **WHEN** пользователь задаёт `--description-file brief.md` либо передаёт текст в pipe и задаёт `--description-file -`
@@ -61,6 +81,10 @@ CLI SHALL различать литеральный текст, JSON в `--field
 #### Scenario: Terminal is not a file payload
 - **WHEN** файловый флаг содержит `-`, но stdin является терминалом, либо два файловых флага требуют stdin
 - **THEN** CLI немедленно завершает вызов с ошибкой использования и объясняет способ передать файл или pipe
+
+#### Scenario: Local binary attachment input
+- **WHEN** task:file:attach получает --file PATH либо --file -
+- **THEN** обычный локальный файл проверяется по task-file-upload; `-` отклоняется с usage-error/exit2 без чтения stdin/credentials/API, текстовые и JSON файловые флаги сохраняют собственный stdin режим
 
 ### Requirement: Human output and composable structured output
 При обычной verbosity CLI SHALL выводить компактные карточки или таблицы для человека; --quiet/--silent подавляют вывод по нативным правилам Symfony. `--plain` SHALL давать стабильный текст без оформления, `--json` — один JSON object с data, meta и error; meta SHALL содержать schemaVersion. Результат SHALL идти в stdout, диагностика и progress — в stderr. `--json` и `--plain` SHALL исключать друг друга.
@@ -77,11 +101,23 @@ CLI SHALL различать литеральный текст, JSON в `--field
 - **WHEN** пользователь вызывает список с `--plain`
 - **THEN** вывод содержит стабильные TSV columns без заголовка и по одной строке на запись; tabs/newlines в значениях экранируются, порядок и поля описаны в справке
 
+#### Scenario: Ordered task card without rendering requests
+- **WHEN** пользователь читает task:show TASK_ID в human режиме
+- **THEN** карточка SHALL показывать доступные данные в порядке title/ID, status, responsible/project/deadline, description и link; неизвестные selected поля сохраняются после основных данных. Имя SHALL показываться с ID только при наличии в полученном результате, иначе ID; оформление не вызывает API и не выбирает незапрошенные relations
+
+#### Scenario: Long Unicode text and terminal controls
+- **WHEN** human карточка или таблица содержит длинное русское описание, заголовок, markup либо управляющие символы в узком терминале
+- **THEN** CLI SHALL переносить текст по доступной ширине, сохранять читаемость Unicode, показывать markup как данные и обезвреживать управляющие последовательности; non-TTY/NO_COLOR/TERM=dumb/--no-ansi не содержат ANSI, native quiet/silent сохраняются
+
+#### Scenario: Stable machine formats after presentation changes
+- **WHEN** пользователь повторяет существующие вызовы task:show/list/find в --plain или --json
+- **THEN** CLI SHALL сохранять schemaVersion 1, data/meta/error и текущие формы данных/TSV columns; human пояснения не добавляются в stdout machine форматов, а обязательная plain диагностика полноты идёт в stderr
+
 ### Requirement: Explicit filtering and completeness of lists
-Списки SHALL различать серверный фильтр id и локальные фильтры REST3; --limit ограничивает результат, --all снимает этот предел, --max-scan ограничивает просмотр. CLI SHALL сообщать scope доступных задач, scanned count и полноту. Достигнутый scan cap, ошибка страницы или недостающие данные SHALL означать partial; полнота видимых задач не SHALL выдаваться за полноту проекта.
+Без новых временных флагов списки SHALL различать серверный фильтр id и локальные фильтры REST3; --limit ограничивает результат, --all снимает этот предел, --max-scan ограничивает просмотр. CLI SHALL сообщать scope доступных задач, scanned count и полноту. Достигнутый scan cap, ошибка страницы или недостающие данные SHALL означать partial; полнота видимых задач не SHALL выдаваться за полноту проекта.
 
 #### Scenario: Responsible or project filter
-- **WHEN** пользователь задаёт `task:list --responsible 42 --group-id 7`
+- **WHEN** пользователь задаёт `task:list --responsible 42 --group-id 7` без новых временных флагов
 - **THEN** CLI фильтрует соответствующие selected fields локально, проверяет все страницы в установленном scan budget и не отправляет неподдерживаемый v3 filter или скрытый legacy request
 
 #### Scenario: Scan cap reached
@@ -91,6 +127,42 @@ CLI SHALL различать литеральный текст, JSON в `--field
 #### Scenario: Empty complete result
 - **WHEN** полная разрешённая выборка не содержит совпадений
 - **THEN** CLI возвращает 0, пустые данные и complete=true; пустой результат не считается ошибкой
+
+#### Scenario: Fresh tasks are scanned first
+- **WHEN** task:list запускается без --order и новых временных флагов на портале с более чем 10000 задач
+- **THEN** сервер получает order {"id":"DESC"}; новые задачи просматриваются первыми, вывод сохраняет порядок страниц, --id остаётся единственным серверным фильтром
+
+#### Scenario: Explicit list order
+- **WHEN** task:list получает повторяемый --order title:asc --order id:desc без новых временных флагов
+- **THEN** указанный порядок передаётся в REST3 без замены на default; если id не указан, добавляется id ASC для устойчивого порядка
+
+#### Scenario: Incomplete duplicate check diagnostics
+- **WHEN** task:list либо task:find исчерпывает --max-scan, в том числе без совпадений
+- **THEN** JSON содержит meta.complete=false, reason=scan-budget-exhausted, scanned и фактический meta.order; error.code=partial-result и exit3 сохраняются; диагностика во всех форматах содержит причину, scanned, order и совет увеличить --max-scan, предупреждая, что неполный поиск не доказывает отсутствие дублей; --all не снимает budget
+
+#### Scenario: Explicit deadline route
+- **WHEN** task:list получает --deadline-window или --overdue
+- **THEN** выбирается заранее объявленный REST1 tasks.task.list с серверными границами DEADLINE по task-deadline-windows; metadata показывает маршрут и интервал; strict-rest3 запрещает его до запросов; limit/all/max-scan/partial продолжают действовать
+
+#### Scenario: Visible complete scan with limited output
+- **WHEN** task:list или task:find завершила обход видимой выборки, но returned меньше matched из-за --limit
+- **THEN** human вывод SHALL явно показывать scope, returned, matched, scanned, complete=true и limitApplied=true; код остаётся 0, ограничение вывода не называется неполным обходом, размер проекта не выдумывается
+
+#### Scenario: Readable partial explanation and next step
+- **WHEN** scan cap, page failure, missing predicate data или отсутствие progress прервали task:list/find
+- **THEN** CLI SHALL сохранить полученные записи и exit 3, human/plain диагностика SHALL назвать причину и следующий шаг: увеличить --max-scan для cap, повторить чтение для page failure либо проверить данные/доступ для отсутствующих полей; --all не обещает снять scan cap
+
+#### Scenario: Complete empty selection explained to a person
+- **WHEN** complete=true и matched=0 в human task:list/find
+- **THEN** CLI SHALL сообщить об отсутствии совпадений в scope подключения, показать counters и вернуть 0; JSON data.items остаётся [], plain stdout не содержит поясняющей строки
+
+#### Scenario: Failure boundaries and current partial reasons
+- **WHEN** task:list/find получает ошибку первой страницы, Ctrl-C либо после чтения части выборки page-error/role-read-error/missing-id/missing-predicate-field/pagination-no-progress
+- **THEN** CLI SHALL сохранять execution error/exit1 для первой страницы и interrupted/exit130 для Ctrl-C; остальные неполные результаты SHALL сохранять exit3, scope/counters/order, доступные данные и конкретный следующий шаг по причине; неполная выборка не доказывает отсутствие дублей
+
+#### Scenario: Completeness summaries obey streams and verbosity
+- **WHEN** task:list/find выводит summary в human/plain/JSON при обычной verbosity, --quiet или --silent
+- **THEN** human SHALL показывать summary рядом с таблицей, plain SHALL сохранять только TSV в stdout и отправлять summary в stderr, JSON SHALL сохранять один envelope без декоративных строк; --quiet SHALL подавлять обычные summaries/stdout, сохранять существенную partial диагностику в stderr, --silent SHALL подавлять весь вывод при неизменном exit status
 
 ### Requirement: Actionable errors and stable exit status
 CLI SHALL возвращать 0 при успехе, 1 при ошибке выполнения, 2 при неверном вводе, 3 при частичном результате, 4 при недоступном gated действии или запрещённой API политике, 130 при Ctrl-C. Ошибка SHALL объяснять действие, причину и возможное исправление без секретов. В JSON режиме error SHALL иметь стабильный code; новые коды не SHALL менять значение существующих.
@@ -106,6 +178,14 @@ CLI SHALL возвращать 0 при успехе, 1 при ошибке вы
 #### Scenario: Permission or transport failure
 - **WHEN** сервер отказывает в правах либо запрос завершается ошибкой
 - **THEN** CLI возвращает 1, указывает операцию и безопасный следующий шаг; webhook/token и stack trace не попадают в обычный вывод
+
+#### Scenario: Safe concrete parser error
+- **WHEN** пользователь вызывает task:find --titel договор либо задаёт отсутствующий/конфликтующий аргумент
+- **THEN** CLI SHALL вернуть usage-error/exit 2 до подключения, назвать безопасное имя неверного или нужного флага/аргумента и корректный пример; если доступна однозначная suggestion, она SHALL быть подсказкой без автоматического выполнения
+
+#### Scenario: Sensitive argument values are not echoed
+- **WHEN** argv ошибочного вызова содержит webhook URL, token или произвольный текст с секретом
+- **THEN** CLI SHALL строить диагностику из безопасных имён, категорий и известных примеров, без raw argv/секретных значений/stack trace; JSON сохраняет code usage-error, остальные error codes и exit status не переопределяются
 
 ### Requirement: Controlled remote deletion and dry run
 Удаление удалённого объекта SHALL требовать явного подтверждения в TTY либо --force без диалога. --force SHALL отменять только подтверждение, сохраняя validation, права и API gates. Команды записи SHALL поддерживать --dry-run: показать цель, поля и шаги без mutating requests; неизбранный provider или недоказанный маршрут SHALL оставаться gated и в dry-run.
@@ -179,7 +259,7 @@ MVP SHALL включать task:find --title TEXT: буквальная подс
 
 #### Scenario: Find tasks by a title fragment
 - **WHEN** пользователь вызывает b24cli task:find --title "ДОГОВОР"
-- **THEN** CLI находит заголовок "Согласовать договор" и другие совпадения без учёта регистра; совпадение только в description не включает задачу, порядок результата — id ASC
+- **THEN** CLI находит заголовок "Согласовать договор" и другие совпадения без учёта регистра; совпадение только в description не включает задачу, порядок обхода и результата по умолчанию — id DESC
 
 #### Scenario: Literal title query and empty query
 - **WHEN** пользователь передаёт --title "*договор*" либо пустой/пробельный --title
@@ -196,6 +276,42 @@ MVP SHALL включать task:find --title TEXT: буквальная подс
 #### Scenario: Title search always returns a list
 - **WHEN** task:find находит ноль, одну или несколько задач и пользователь выбирает обычный, --plain или --json формат
 - **THEN** результат остаётся списком: обычная таблица ID/TITLE, plain TSV id/title без заголовка либо JSON data.items с массивом объектов id/title; при отсутствии совпадений массив пуст, а единственное совпадение не превращается в карточку или автоматически открытую задачу
+
+#### Scenario: Fresh group task within a small scan budget
+- **WHEN** без новых временных флагов среди более 10000 видимых задач самая новая задача содержит буквальный Unicode фрагмент title и относится к выбранной --group-id
+- **THEN** task:find видит её на первой странице id DESC и возвращает её даже с малым --max-scan; groupId/title фильтруются локально, неполный обход сохраняет complete=false и exit3
+
+#### Scenario: Explicit search order
+- **WHEN** task:find без новых временных флагов получает повторяемый --order FIELD:asc|desc
+- **THEN** поддерживается тот же allowlist и id ASC tie-breaker, что в task:list; порядок выдачи совпадает с порядком обхода, неподдерживаемое поле/направление отклоняется до API
+
+#### Scenario: Search inside a deadline window
+- **WHEN** task:find --title TEXT получает --deadline-window или --overdue
+- **THEN** серверный интервал выбирается через явный REST1 маршрут по task-deadline-windows; title по-прежнему проверяется локально как буквальная Unicode подстрока, без серверного wildcard; id/title output и partial сохраняются; это объявленный маршрут, не legacy fallback
+
+#### Scenario: Title and convenient filters compose with AND
+- **WHEN** пользователь вызывает task:find --title "договор" --group-id 7 --responsible 42 либо добавляет --status/--due-before/повторяемый --id
+- **THEN** CLI SHALL принять фильтры с validation и семантикой task:list и вернуть только задачи, удовлетворяющие title и всем критериям; --id использует документированный серверный id filter, остальные unsupported server predicates проверяются локально на всех просмотренных страницах
+
+#### Scenario: Advanced search filters preserve conflicts and explicit stdin
+- **WHEN** task:find объединяет --title с --where JSON либо --where-file PATH/- или пользователь смешивает where с convenient predicate flags
+- **THEN** title SHALL применяться через AND с валидированными equality predicates; conflicting where/convenient flags и несколько stdin consumers SHALL дать usage-error/exit 2 без API, файл/stdin не читаются неявно
+
+#### Scenario: Predicate fields do not change search result shape
+- **WHEN** combined search выбирает дополнительные поля для проверки groupId/responsibleId/status/deadline, а поле отсутствует либо совпадение находится после первой страницы
+- **THEN** CLI SHALL проверить следующие страницы в budget, отсутствие обязательного predicate field SHALL означать partial/exit 3; результат SHALL оставаться id/title array в JSON, двумя TSV columns или таблицей ID/TITLE, без auto-select и новых API routes
+
+#### Scenario: Combined search preserves role and order
+- **WHEN** task:find получает --title "договор" --group-id 7 --responsible 42 --role responsible --order title:asc либо --where-file filters.json --role auditor --order id:desc
+- **THEN** CLI SHALL применять title, ID/where/ordinary predicates и выбранную роль через AND на всех страницах, сохранять явную сортировку и id ASC tie-breaker при отсутствии id; role identity, metadata, права и API policy SHALL соответствовать task-role-filtering, дополнительные predicate поля не попадают в id/title output
+
+#### Scenario: Participant role reads remain explicit
+- **WHEN** combined task:find запускается без --role, с responsible/creator либо с accomplice/auditor при strict-rest3
+- **THEN** отсутствие роли SHALL не добавлять чтение current user/участников; responsible/creator SHALL сохранять REST3 list и identity выбранного подключения; accomplice/auditor SHALL сохранять заранее выбранное REST1 чтение участников при разрешённой политике и exit4 до API при strict-rest3, без скрытого fallback или новых routes
+
+#### Scenario: Existing option and default contracts survive combined search
+- **WHEN** task:find использует новые фильтры без --order/--limit/--max-scan, повторяемый --id либо неподдерживаемый --project
+- **THEN** CLI SHALL сохранять id DESC, limit 50 и max-scan 10000; --id SHALL задавать server ID selection и scope explicit-task-ids, остальные вызовы сохраняют scope tasks-visible-to-connection; --project SHALL давать usage-error/exit2 без alias и API, --group-id остаётся единственным group option
 
 ### Requirement: Consistent group identifier option
 The CLI SHALL use --group-id as the only explicit group identifier option in every command that provides one. JSON and REST 3.0 fields and filters MUST remain groupId. The old --project option MUST be rejected with usage-error/exit 2 before API requests, without alias or fallback. Current help, completion and examples MUST present --group-id; migration notes MUST explain the replacement.
@@ -222,14 +338,14 @@ The CLI SHALL use --group-id as the only explicit group identifier option in eve
 - **AND** mixing advanced JSON and ordinary field flags remains rejected; task:find keeps its existing title search when --group-id is omitted
 
 ### Requirement: Group-scoped title search
-The CLI SHALL accept task:find --group-id as a positive integer and combine a local groupId filter with the existing Unicode case-insensitive title substring search. Omitting the option MUST preserve existing behavior. The search MUST retain id/title output, scan budget, limit/all, visible-task scope and partial exit 3; groupId MUST NOT be sent as a REST3 server filter.
+The CLI SHALL accept task:find --group-id as a positive integer and combine a local groupId filter for queries without new temporal options with the existing Unicode case-insensitive title substring search. Omitting the option MUST preserve existing behavior. The search MUST retain id/title output, scan budget, limit/all, visible-task scope and partial exit 3; groupId MUST NOT be sent as a REST3 server filter.
 
 #### Scenario: Search only the selected group
-- **WHEN** task:find --title "договор" --group-id 42 scans tasks from multiple groups
+- **WHEN** task:find --title "договор" --group-id 42 without new temporal options scans tasks from multiple groups
 - **THEN** it returns only matching titles from groupId 42, selecting groupId locally while preserving id/title output
 
 #### Scenario: Search without a group filter
-- **WHEN** task:find receives a title without --group-id
+- **WHEN** task:find receives a title without --group-id or new temporal options
 - **THEN** it searches all visible tasks within the existing scan budget
 
 #### Scenario: Invalid search group identifier
@@ -239,3 +355,22 @@ The CLI SHALL accept task:find --group-id as a positive integer and combine a lo
 #### Scenario: Search limits and incomplete scan
 - **WHEN** a group-scoped search uses --limit, --all or reaches --max-scan before all pages are scanned
 - **THEN** output limits and scan budgets remain independent and an incomplete scan returns partial/exit 3 with scanned count and reason
+
+#### Scenario: Temporal group scope
+- **WHEN** task:find --title TEXT --group-id 42 получает новый временной флаг
+- **THEN** явный REST1 маршрут получает GROUP_ID=42 и диапазон DEADLINE; REST3 groupId filter не отправляется; результат нормализуется в public CLI contract
+
+### Requirement: Application information without remote operations
+CLI SHALL поддерживать корневой `b24cli --about`: назначение приложения, фактическая версия запущенной сборки, автор, лицензия и ссылки на репозитории приложения и скилла. Версия SHALL совпадать с `--version`; автор и лицензия SHALL соответствовать метаданным проекта. Вызов SHALL возвращать 0 без настроенного подключения, авторизации, записи конфигурации и запросов к порталу. Флаг SHALL быть указан в общей справке.
+
+#### Scenario: Application information without a connection
+- **WHEN** пользователь вызывает `b24cli --about` без настроенного подключения
+- **THEN** CLI возвращает 0 и показывает назначение b24cli, версию, автора Maksim Mesilov, лицензию `bitrix24-cli-license` с указанием основы BSD-3-Clause, ссылки `https://github.com/mesilov/bitrix24-cli` и `https://github.com/mesilov/bitrix24-cli-skill`; credentials не читаются, конфигурация не изменяется, API-запросы не выполняются, ссылки автоматически не открываются
+
+#### Scenario: Build identity remains consistent
+- **WHEN** пользователь последовательно вызывает `b24cli --version` и `b24cli --about` в одной релизной или dev сборке
+- **THEN** версия в обоих выводах одинакова и соответствует фактической сборке; планируемый номер будущего релиза не подставляется в about
+
+#### Scenario: About is discoverable
+- **WHEN** пользователь вызывает корневой `b24cli --help` или `b24cli -h`
+- **THEN** общая справка содержит `--about` с кратким пояснением, что флаг показывает сведения о приложении

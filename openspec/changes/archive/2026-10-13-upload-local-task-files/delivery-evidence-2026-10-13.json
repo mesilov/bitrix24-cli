@@ -1,0 +1,204 @@
+{
+  "baseRefName": "dev",
+  "mergeCommit": {
+    "oid": "0f4a2681bb6a838a9356a8838f3fc87d5d6148fb"
+  },
+  "mergedAt": "2026-10-13T12:59:21Z",
+  "state": "MERGED",
+  "implementationHead": "661fafbead57f470af1af1a46ea253b9e27a29f3",
+  "implementationChecks": [
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T12:01:39Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38394173509/job/115285076617",
+      "name": "composer-license-checker",
+      "startedAt": "2026-10-13T12:00:34Z",
+      "status": "COMPLETED",
+      "workflowName": "Allowed licenses checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T12:01:32Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38394168657/job/115285060210",
+      "name": "composer-license-checker",
+      "startedAt": "2026-10-13T12:00:32Z",
+      "status": "COMPLETED",
+      "workflowName": "Allowed licenses checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T12:00:41Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38394173405/job/115285076353",
+      "name": "Configuration schema contract",
+      "startedAt": "2026-10-13T12:00:34Z",
+      "status": "COMPLETED",
+      "workflowName": "Command tests"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T12:00:39Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38394168565/job/115285060483",
+      "name": "Configuration schema contract",
+      "startedAt": "2026-10-13T12:00:31Z",
+      "status": "COMPLETED",
+      "workflowName": "Command tests"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T12:01:40Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38394173449/job/115285076162",
+      "name": "PHPStan",
+      "startedAt": "2026-10-13T12:00:34Z",
+      "status": "COMPLETED",
+      "workflowName": "PHPStan lint checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T12:01:43Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38394169032/job/115285064944",
+      "name": "PHPStan",
+      "startedAt": "2026-10-13T12:00:32Z",
+      "status": "COMPLETED",
+      "workflowName": "PHPStan lint checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T12:08:04Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38394173596/job/115285077486",
+      "name": "packages / Linux amd64 package",
+      "startedAt": "2026-10-13T12:00:34Z",
+      "status": "COMPLETED",
+      "workflowName": "Package standalone binaries"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T12:01:33Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38394173385/job/115285076284",
+      "name": "PhpCsFixer",
+      "startedAt": "2026-10-13T12:00:34Z",
+      "status": "COMPLETED",
+      "workflowName": "PhpCsFixer lint checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T12:01:32Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38394168661/job/115285060377",
+      "name": "PhpCsFixer",
+      "startedAt": "2026-10-13T12:00:31Z",
+      "status": "COMPLETED",
+      "workflowName": "PhpCsFixer lint checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T12:01:36Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38394173398/job/115285075953",
+      "name": "Rector",
+      "startedAt": "2026-10-13T12:00:34Z",
+      "status": "COMPLETED",
+      "workflowName": "Rector lint checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T12:01:40Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38394168727/job/115285060663",
+      "name": "Rector",
+      "startedAt": "2026-10-13T12:00:31Z",
+      "status": "COMPLETED",
+      "workflowName": "Rector lint checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T12:02:32Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38394173410/job/115285076406",
+      "name": "linux",
+      "startedAt": "2026-10-13T12:00:34Z",
+      "status": "COMPLETED",
+      "workflowName": "Worktree isolation"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T12:01:59Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38394173405/job/115285076044",
+      "name": "unit-tests",
+      "startedAt": "2026-10-13T12:00:33Z",
+      "status": "COMPLETED",
+      "workflowName": "Command tests"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T12:01:59Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38394168565/job/115285059936",
+      "name": "unit-tests",
+      "startedAt": "2026-10-13T12:00:31Z",
+      "status": "COMPLETED",
+      "workflowName": "Command tests"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T12:04:04Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38394173596/job/115285077196",
+      "name": "packages / macOS arm64 package",
+      "startedAt": "2026-10-13T12:00:37Z",
+      "status": "COMPLETED",
+      "workflowName": "Package standalone binaries"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T12:06:19Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38394173596/job/115285077635",
+      "name": "packages / Windows amd64 package",
+      "startedAt": "2026-10-13T12:00:33Z",
+      "status": "COMPLETED",
+      "workflowName": "Package standalone binaries"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T12:08:27Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38394173596/job/115288084235",
+      "name": "packages / Verify release archive set",
+      "startedAt": "2026-10-13T12:08:06Z",
+      "status": "COMPLETED",
+      "workflowName": "Package standalone binaries"
+    }
+  ],
+  "issueState": "CLOSED",
+  "archivePath": "openspec/changes/archive/2026-10-13-upload-local-task-files/",
+  "taskCounts": {
+    "complete": 16,
+    "total": 16
+  },
+  "nativeSmoke": {
+    "linux-amd64": {
+      "original": true,
+      "compressed": true,
+      "configPrecedence": true
+    },
+    "macos-arm64": {
+      "original": true,
+      "compressed": true,
+      "configPrecedence": true
+    },
+    "windows-amd64": {
+      "original": true,
+      "compressed": true,
+      "configPrecedence": true
+    }
+  }
+}
