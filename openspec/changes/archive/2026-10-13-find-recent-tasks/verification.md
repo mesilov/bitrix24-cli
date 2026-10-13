@@ -1,6 +1,6 @@
 # Verification: find-recent-tasks
 
-Date: 2026-10-13. Base: `origin/dev` at `96ce502`.
+Date: 2026-10-13. Initial base: `origin/dev` at `96ce502`; refreshed and merged `origin/dev` at `de98df7` before MR. The only conflict was CHANGELOG.md; #64 and #78 entries were both preserved. The incoming change affects maintainer instructions/changelog/OpenSpec only; runtime/tests were unchanged. Post-merge checks: all canonical specs validation, whitespace/conflict-marker checks and the required #64 changelog diff.
 
 | Dimension | Result |
 | --- | --- |
