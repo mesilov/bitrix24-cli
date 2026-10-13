@@ -86,3 +86,7 @@ JSON SHALL содержать asOf, интервалы enteredAt/leftAt/status/s
 #### Scenario: Portal cannot prove complete history
 - **WHEN** live статусные события доступны, но navigation не доказывает полноту
 - **THEN** partial boundary проверяется с точной причиной, а acceptance точных totals остаётся непроверенным; fixtures/unit pass не объявляются live proof
+
+#### Scenario: Rejected review followed by successful completion
+- **WHEN** disposable SDK fixture passes through pending → in_progress → supposedly_completed → pending after disapprove, then in_progress → supposedly_completed → completed after approve
+- **THEN** live evidence retains independent state readbacks and newly observed raw history events after each action, distinguishes pre-existing events by ID, and records cleanup; this does not upgrade history completeness or prove exact totals

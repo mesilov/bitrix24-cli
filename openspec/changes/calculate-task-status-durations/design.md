@@ -71,3 +71,7 @@ Unit: фиксированный reopening пример, conservation total, no-
 ## Live constraints recorded during apply
 
 See live-contract-check.md: STATUS-only numeric 2/3/5 is observable but equivalence to REAL_STATUS remains unverified. Canonical STATUS-only reports remain partial. Multiple NEW/DELETE boundaries are ambiguous. Current dev 2b24edd includes task:my and 42 task commands; adding this command gives 43. Exact live acceptance remains open if navigation cannot prove completeness.
+
+## Follow-up: rejection and successful review cycle
+
+User requested a live task lifecycle simulation followed by inspection of its history. Add a separate test in StatusDurationsTaskCommandTest: controlled SDK fixture, start/complete/disapprove/start/complete/approve, REST3 readback and REST1 history after each action. Keep baseline and incremental event IDs, timestamps/offsets and raw fields/values in a sanitized receipt. Do not infer global completeness from incremental captures; delete only the owned fixture. Existing controlledTask helper supplies separate creator/executor roles from configured test credentials/user IDs. Exact duration acceptance remains independent. Official MCP search/details answered for start/complete/disapprove/approve; approve was not returned by search but exact method-details resolved its current contract at https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-approve.html.

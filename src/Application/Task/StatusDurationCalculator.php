@@ -191,7 +191,7 @@ final class StatusDurationCalculator
         }
 
         // Numeric mappings observed with independent REST3 readbacks; other codes stay unknown.
-        return is_int($value) || is_string($value) ? (['2' => 'pending', '3' => 'in_progress', '5' => 'completed'][(string) $value] ?? null) : null;
+        return is_int($value) || is_string($value) ? (['2' => 'pending', '3' => 'in_progress', '4' => 'supposedly_completed', '5' => 'completed'][(string) $value] ?? null) : null;
     }
 
     private function paths(array $remaining, ?string $status, array $path, array &$paths): void

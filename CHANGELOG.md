@@ -24,7 +24,8 @@
 - `task:status:durations`: календарные интервалы повторных открытий, единая
   граница `asOf`, evidence и строгий partial-result с `null` вместо точных
   сумм при недоказанной полноте. Offline-расчёт и live partial проверены;
-  exact live acceptance остаётся открытой
+  exact live acceptance остаётся открытой. Добавлен live-сценарий возврата с контроля
+  и повторного принятия; history-код 4 распознаётся как supposedly_completed
   ([#121](https://github.com/mesilov/bitrix24-cli/issues/121)).
 - `task:my --user ID`: задачи явного исполнителя с `--open`, строгим
   `--due-before` и конечным `--max-scan` через существующий list scanner.

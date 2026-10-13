@@ -351,3 +351,13 @@ REST1 маршруты не добавляются и strict-rest3 остаёт�
 Отдельный live-тест проверяет null totals, исходную navigation reason и exit 3.
 SDK fixtures удаляются даже при incomplete. Обезличенные live-ограничения
 сохранены в OpenSpec `calculate-task-status-durations/live-contract-check.md`.
+
+Live-сценарий `testRejectedReviewThenSuccessfulCompletionRetainsIncrementalHistory`
+моделирует start/complete/disapprove/start/complete/approve с контролем,
+отдельными постановщиком/исполнителем, SDK readback и capture истории после
+каждого действия. Новые события выделяются по сравнению ID между чтениями;
+старые NEW/DELETE не удаляются из evidence. Код 4 подтверждён как
+`supposedly_completed`. Raw capture — `var/cache/review-cycle-history.json`,
+сохранённый обезличенный receipt — OpenSpec `review-cycle-history-check.md`.
+Этот сценарий подтверждает форму наблюдённых событий и завершение fixture;
+полнота lifetime истории и exact totals остаются отдельной приёмкой.

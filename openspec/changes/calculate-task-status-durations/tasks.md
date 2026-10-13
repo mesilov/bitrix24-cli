@@ -16,6 +16,8 @@
 - [x] 3.2 Зарегистрировать команду и result presenter/human/plain вывод, согласовать delta inventory с актуальной dev, сохранив lifecycle и task:my без удаления команд. Проверка: offline help/list/catalog/JSON/TSV tests; README, docs/cli-command-map.md, docs/task-jtbd.md PM-02/AM-03 со статусом/filename теста/датой/source SHA и CHANGELOG #121 обновлены в том же MR, ссылки проверены.
 - [ ] 3.3 Добавить StatusDurationsTaskCommandTest.php с собственной Group command:task:status:durations/happy-path, SDK fixture/readback/cleanup и двумя повторными открытиями. Проверка: live receipt совпадает с доказанными timestamps/суммами; отдельный navigation partial case требует null totals/точную reason/exit3. Недоступность доказательства exact totals остаётся явно непроверенной, а skip/partial не заменяют exact happy-path.
 
+- [x] 3.4 По запросу пользователя добавить и выполнить live-сценарий pending → in_progress → supposedly_completed → pending (disapprove) → in_progress → supposedly_completed → completed (approve). Проверка: после каждого SDK-действия REST3 readback и сырая история с выделением новых ID; отдельный JSON receipt, новые/старые события не смешаны, production команда только читает, cleanup успешен. Подтверждённый код 4 сопоставлен с supposedly_completed; unit/live checks отличают известный mapping от неподтверждённой полноты. Это исследование формы истории, не замена exact acceptance 3.3.
+
 ## 4. Cross-contract verification
 
 - [x] 4.1 Выполнить целевые unit/integration и обязательные repository checks, openspec strict validate и openspec-verify-change. Проверка: итоговый receipt разделяет offline arithmetic, CLI contract, portal completeness и CI; каждое невыполненное acceptance условие оставлено открытым.

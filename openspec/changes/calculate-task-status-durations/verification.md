@@ -65,3 +65,11 @@ Implementation is reviewable as a **draft**, not complete acceptance. Task 3.3 r
 - OpenSpec progress: **7/8**, task 3.3 exact live acceptance remains open.
 
 - Concurrent remote plan commits fb97a06/b3f9b18 integrated without force-push: lifecycle integration scenario and planning receipts preserved; implementation tasks remain checked only against tests, 3.3 remains open. No runtime changes in this reconciliation.
+
+## Follow-up — rejected review then successful approval
+
+Requested live scenario passes: **1 test, 38 assertions**; SDK task 6306 traversed pending → in_progress → supposedly_completed → pending → in_progress → supposedly_completed → completed. Each step has a new STATUS event and REST3 readback. Cleanup passed. See review-cycle-history-check.md and review-cycle-history-fixture.json.
+
+Code 4 mapping is now confirmed and included as supposedly_completed. Numeric review/rejection/approval unit fixture proves 120-second conservation; STATUS-only remains partial/null even with this mapping. Targeted arithmetic/CLI suite: 14 tests, 144 assertions, pass. All four lint-all checks pass. Task 3.4 done; 3.3 exact live acceptance remains open (**8/9**).
+
+- Final follow-up full unit suite: **800 tests, 12665 assertions**, pass. Live review-cycle run: **1 test, 38 assertions**, pass; all lint-all and OpenSpec strict/diff checks pass. New commit CI is checked separately after push; prior head 6ecbaa4 had 13/13 successful checks.

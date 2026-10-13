@@ -173,6 +173,25 @@ final class StatusDurationCalculatorTest extends TestCase
         self::assertContains('status-equivalence-unverified', $this->calculate($events)->meta['reasons']);
     }
 
+    public function testNumericReviewReturnAndApprovalMappingUsesObservedCodeFour(): void
+    {
+        $rows = [['id' => 1, 'field' => 'NEW', 'createdDate' => $this->time(0), 'from' => null, 'to' => null]];
+        foreach ([['2', '3'], ['3', '4'], ['4', '2'], ['2', '3'], ['3', '4'], ['4', '5']] as $key => [$from, $to]) {
+            $rows[] = ['id' => $key + 2, 'field' => 'REAL_STATUS', 'createdDate' => $this->time(($key + 1) * 10), 'from' => $from, 'to' => $to];
+        }
+
+        $result = $this->calculate($rows, before: ['statusChanged' => $this->time(60)], after: ['statusChanged' => $this->time(60)]);
+        self::assertSame(0, $result->exitStatus);
+        self::assertSame(20, $result->data['totals']['supposedly_completed']);
+        self::assertSame(60, $result->data['totals']['completed']);
+        self::assertSame(120, array_sum($result->data['totals']));
+        $statusOnly = array_map(static fn (array $row): array => [...$row, 'field' => $row['field'] === 'REAL_STATUS' ? 'STATUS' : $row['field']], $rows);
+        $partial = $this->calculate($statusOnly, before: ['statusChanged' => $this->time(60)], after: ['statusChanged' => $this->time(60)]);
+        self::assertSame(3, $partial->exitStatus);
+        self::assertNotContains('unknown-history-status', $partial->meta['reasons']);
+        self::assertSame([null], array_values(array_unique($partial->data['totals'])));
+    }
+
     public function testMissingInitialStatusAndAsOfBeforeProvenCreation(): void
     {
         self::assertContains('initial-status-unverified', $this->calculate([$this->events()[0]])->meta['reasons']);
