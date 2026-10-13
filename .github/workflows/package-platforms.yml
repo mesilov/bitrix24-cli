@@ -74,6 +74,7 @@ jobs:
             python:3.13-slim-bookworm@sha256:a1165e272e578941b84abc79e4ab38a0305cd12803a5c4247979ac7655f4d641 python /tests/connection-smoke.py /artifacts
           python3 build/tests/linkage-check.py dist/linux-amd64/b24cli
           python3 build/tests/install-check.py dist/linux-amd64
+          python3 build/tests/shell-installer-check.py --dist dist/linux-amd64
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: b24cli-linux-amd64
@@ -154,6 +155,7 @@ jobs:
           python3 build/tests/rejection-check.py dist/macos-arm64
           python3 build/tests/linkage-check.py dist/macos-arm64/b24cli
           python3 build/tests/install-check.py dist/macos-arm64
+          python3 build/tests/shell-installer-check.py --dist dist/macos-arm64
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: b24cli-macos-arm64
