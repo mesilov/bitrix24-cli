@@ -37,3 +37,8 @@
 
 - https://github.com/mesilov/bitrix24-cli/issues/63 — текущий пользователь, namespace users, коллеги и руководитель по оргструктуре, профильные роли и поиск сотрудников по ФИО/email. Milestone: 0.2.0.
 - #12 остаётся связанным контекстом UX; этот change не реализует весь объём #12.
+
+
+## Implementation delivery and archive
+
+Implemented through [PR #69](https://github.com/mesilov/bitrix24-cli/pull/69), merged into dev at `fdb9148cbbe483864b710262b4ddd14f35cef030`; issue #63 closed. The user requested spec synchronization and archive on 2026-10-13. Archive: `openspec/changes/archive/2026-10-13-add-users-namespace/`; canonical capabilities remain in `openspec/specs/`. See `verification.md` and `delivery-evidence-2026-10-13.json` for local/native/live evidence and the unverified positive org-manager case.

@@ -7,15 +7,20 @@
 ## Requirements
 
 ### Requirement: Exact MVP command registration
-Runtime SHALL предоставлять 30 исходных task-команд MVP и четыре result-команды из согласованного расширения 0.2.0, отдельно от connection и встроенных help/completion. Регистрация SHALL строиться из явного CommandCatalog без tags/compiler pass и массового сканирования. Unit-tests SHALL проверять уникальность имён/классов, совпадение AsCommand с каталогом и отсутствие остальных исключённых операций и aliases.
+Runtime SHALL предоставлять 34 task-команды (30 исходных MVP и четыре task:result команды) и четыре users-команды capability user-directory, отдельно от локальных connection-команд capability connection-configuration и встроенных команд справки/completion. Регистрация SHALL строиться напрямую из единственного явного CommandCatalog без tags/compiler pass и массового сканирования. Unit-tests SHALL проверять уникальность имён/классов, совпадение AsCommand с каталогом и отсутствие исключённых task-операций. Исключённые операции не SHALL возвращаться через aliases.
 
 #### Scenario: Root command inventory
 - **WHEN** пользователь запускает b24cli без имени команды либо list task без профиля подключения
-- **THEN** видны 34 task-команды, включая result:add/list/update/delete; остальные исключённые операции, включая result:from-message и subtask:add, отсутствуют; API и чтение credentials не выполняются
+- **THEN** видны все 34 согласованные task-команды, включая result:add/list/update/delete; остальные исключённые команды отсутствуют, включая task:subtask:add; API и чтение credentials не выполняются
 
 #### Scenario: Explicit catalog consistency
 - **WHEN** запускаются unit-tests регистрации приложения
-- **THEN** проверяются 34 имени и уникальных Command-класса, совпадение AsCommand и отсутствие aliases; compiler pass и console.command tags не требуются, credentials и API не читаются
+- **THEN** проверяются все 34 task-имени и четыре users-имени и уникальных Command-классов, совпадение AsCommand и отсутствие aliases; compiler pass и console.command tags не требуются, credentials и API не читаются
+
+#### Scenario: Users have their own namespace
+- **WHEN** вызывается list users
+- **THEN** видны только users:current/find/colleagues/manager; list task сохраняет свои 34 команды, а local connection-команды остаются отдельными
+
 
 ### Requirement: Deferred connection resolution
 Runtime SHALL проверять синтаксис и локальные ограничения ввода до получения credentials и создания API клиента. Help, list, version и completion SHALL работать без подключения. Доступность команд не SHALL зависеть от роли пользователя на портале; серверные права проверяются при выполнении выбранной операции.
@@ -32,7 +37,7 @@ Runtime SHALL проверять синтаксис и локальные огр
 Каждая прикладная команда CommandCatalog SHALL иметь отдельный integration test-класс и минимум один собственный happy-path test-case через production bootstrap/provider и реальный портал. Каждый case SHALL выполнять только свою CLI-команду и проверять её результат. Fixtures, readback и cleanup SHALL использовать SDK. Unit, mock, negative case и skip не SHALL заменять live happy-path; встроенные Symfony команды проверяются офлайн.
 
 #### Scenario: A new command has no integration happy-path test
-- **WHEN** unit-suite сравнивает CommandCatalog с test-классами tests/Integration/Task, их единственной Group `command:<имя>` и методами Group `happy-path`
+- **WHEN** unit-suite сравнивает CommandCatalog с test-классами tests/Integration/Task и tests/Integration/Users, их единственной Group `command:<имя>` и методами Group `happy-path`
 - **THEN** отсутствующая/неизвестная команда, общий класс нескольких команд либо отсутствие собственного happy-path метода вызывает отказ; каждый Command соответствует своему CommandTest
 
 #### Scenario: A command gets more integration cases
@@ -66,6 +71,12 @@ Runtime SHALL проверять синтаксис и локальные огр
 #### Scenario: Documented read completeness boundary
 - **WHEN** портал не возвращает выбранное elapsedTime либо history navigation не доказывает полноту полученной записи изменения
 - **THEN** интеграционный тест проверяет данные, точную причину, complete=false и partial-result/exit3; произвольный partial/API error не принимается за happy-path, полная история или суммарное время не объявляются доказанными
+
+#### Scenario: User command integration ownership
+- **WHEN** новая users-команда добавлена в каталог
+- **THEN** отдельный integration class в Users namespace вызывает только свою CLI-команду через production bootstrap и сверяет данные SDK без изменения сотрудников или оргструктуры
+- **AND** общий fixture harness не создаёт task fixtures для read-only users тестов; отсутствие нужных live данных/scope фиксируется как skip с причиной, а не pass
+
 
 ### Requirement: Consistent application error boundary
 Ошибки выбора команды, разбора аргументов и опций SHALL следовать cli-experience так же, как ошибки выполнения. Неизвестное или неоднозначное имя SHALL возвращать код 2 без запуска предложенной альтернативы. При --json и обычной verbosity SHALL выводиться ровно один envelope, в том числе при ошибке до начала операции; текст ввода после -- не SHALL интерпретироваться как глобальные опции.
@@ -114,7 +125,7 @@ Runtime SHALL раскрывать корневые participant selects в id/na
 
 ### Requirement: Policy covers the complete route plan
 
-Runtime SHALL заранее проверять все потенциальные маршруты операции, включая preflight, по паре method/API version и разрешённым полям. task-v3 SHALL допускать выбранные REST3, IM companion, 14 согласованных REST1 команд, выбранное обогащение участников task:show и ролевое чтение участников для task:list/task:find; strict-rest3 SHALL отклонять любой non-v3 план до первого запроса. Совпадение имени метода не SHALL означать взаимозаменяемость версий или скрытый fallback.
+Runtime SHALL заранее проверять все потенциальные маршруты операции, включая preflight, по паре method/API version и разрешённым полям. task-v3 SHALL допускать выбранные REST3, IM companion, согласованные REST1 task-маршруты, users-маршруты, opt-in назначение наблюдателя после task:add и выбранное обогащение участников task:show; strict-rest3 SHALL отклонять любой non-v3 план до первого запроса. Совпадение имени метода не SHALL означать взаимозаменяемость версий или скрытый fallback.
 
 #### Scenario: Strict policy with participant enrichment
 - **WHEN** task:show с auditors/accomplices выбран при strict-rest3
@@ -127,6 +138,16 @@ Runtime SHALL заранее проверять все потенциальны�
 #### Scenario: Version-specific task update
 - **WHEN** выполняется task:update либо task:participants:set в task-v3 режиме
 - **THEN** первая операция обращается к REST3 update writable полей, вторая к REST1 update только указанных accomplice/auditor наборов; каждая отражает свою версию API
+
+#### Scenario: Use REST1 for capabilities absent in REST3
+- **WHEN** новая команда users либо opt-in назначение наблюдателя требует метод, отсутствующий в REST3
+- **THEN** стандартная policy допускает заранее выбранный документированный REST1 маршрут и отражает версию в meta, без дополнительного пользовательского подтверждения или попытки сначала вызвать отсутствующий REST3 метод
+
+#### Scenario: Existing explicitly selected strict mode
+- **WHEN** пользователь явно выбрал strict-rest3 для users-команды либо task:add с включённой автодобавкой наблюдателя
+- **THEN** существующий строгий режим отклоняет весь non-v3 план до credentials, чтения портала и создания задачи
+- **AND** task:add без автодобавки сохраняет свой существующий план, включая REST1 запись TAGS при явном --tag
+
 
 #### Scenario: Planned participant role filtering
 - **WHEN** task:list или task:find получает --role accomplice либо --role auditor при task-v3
@@ -295,6 +316,53 @@ CLI SHALL поддерживать проверку тегов через сущ
 - **WHEN** unit/codec проверки успешны, но чтение реального портала не выполнено
 - **THEN** отчёт подтверждает локальный контракт и явно оставляет portal acceptance непроверенным
 
+### Requirement: Opt-in default observer on task creation
+Task:add SHALL применять default.users.observerId только при autoAddObserver=true фактически выбранного сохранённого профиля. Сначала SHALL создаваться задача через REST3; после подтверждённого ID SHALL читаться текущие наблюдатели и выполняться REST1 назначение с сохранением их ID. False/omission SHALL не менять task:add план.
+
+#### Scenario: Create with an opted-in observer
+- **WHEN** work имеет observerId=5, autoAddObserver=true и task:add успешно создаёт ID 123
+- **THEN** CLI читает наблюдателей 123 через REST1 tasks.task.get и отправляет REST1 tasks.task.update с taskId=123, fields.AUDITORS равным объединению существующих ID и 5
+- **AND** task.add/update REST3 fields не содержат auditors, AUDITORS, observerId или autoAddObserver; роли не выводятся из managerId
+- **AND** метаданные сообщают профильный источник observerId, ledger и фактические API versions; successful data.operation.taskId остаётся 123
+
+#### Scenario: Existing observers are retained
+- **WHEN** новая задача уже содержит наблюдателя 6 либо одновременно 5 и 6
+- **THEN** итоговый список сохраняет 6 и содержит 5 ровно один раз; если 5 уже присутствует, лишняя запись update не выполняется
+- **AND** невалидная/неполная выборка участников не заменяется пустым списком и не вызывает удаление существующих наблюдателей
+
+#### Scenario: Disabled or unrelated source
+- **WHEN** autoAddObserver=false/omitted, или выбран env/file/process источник вместо профиля
+- **THEN** task:add не читает и не назначает default observer, не вызывает дополнительные REST1 routes и сохраняет текущие REST3 fields/defaults/output
+
+#### Scenario: Opt-in profile without an observer
+- **WHEN** autoAddObserver=true без валидного observerId
+- **THEN** metadata validation возвращает configuration-error до API и создания задачи, без подстановки текущего пользователя или managerId
+
+### Requirement: Creation and observer assignment have explicit outcomes
+CLI SHALL сохранять подтверждённый ID созданной задачи при ошибке последующего чтения/назначения наблюдателя. Частичное выполнение SHALL возвращать exit3, complete=false и ledger подтверждённых/невыполненных шагов; Ctrl-C SHALL сохранять exit130. Неизвестный исход записи SHALL отмечаться outcomeUnknown без автоматического повторения или отката создания.
+
+#### Scenario: Observer assignment fails after successful creation
+- **WHEN** создание ID 123 подтверждено, затем чтение наблюдателей или REST1 update завершается отказом прав/API/transport
+- **THEN** data.operation.taskId=123 сохраняется, creation подтверждено в ledger, observer step отмечен failed/unknown, error.code=partial-result и exit3
+- **AND** вывод предлагает проверить существующую задачу/её участников; повторного create или автоматического удаления нет
+
+#### Scenario: Creation is not confirmed
+- **WHEN** tasks.task.add возвращает отказ либо ответ потерян и новый ID неизвестен
+- **THEN** чтение/назначение наблюдателей не выполняется, сохраняются существующие error/outcomeUnknown semantics и создание не повторяется
+
+#### Scenario: Cancellation between steps
+- **WHEN** Ctrl-C получен после подтверждённого создания, но до назначения наблюдателя
+- **THEN** дальнейшие запросы прекращаются, CLI возвращает 130 с ID задачи и ledger, без обещания назначенного наблюдателя или отката
+
+#### Scenario: Offline creation plan
+- **WHEN** basic task:add --dry-run использует профиль с включённой автодобавкой
+- **THEN** вывод показывает создание, чтение существующих наблюдателей и возможное назначение через AUDITORS с ссылкой на будущий ID, без secrets/API calls
+- **AND** политика проверяет полный потенциальный план и advanced-field preflight сохраняет собственный существующий контракт
+
+#### Scenario: Tags and observer share one creation
+- **WHEN** task:add receives --tag and an enabled default observer
+- **THEN** the plan and execution contain create, TAGS write, AUDITORS read and union update; each step uses the same created task ID
+- **AND** a failed tag write stops observer calls and retains the created task ID with skipped observer steps; a failed observer step retains the confirmed tag write
 ## Решение о приёмке RC 0.1.0 — 12.10.2026
 
 По явному решению пользователя непроверенные части portal tasks 5.2–5.4 и связанного `define-task-jtbd` task 2.3 перенесены в milestone **0.2.0**, [#42](https://github.com/mesilov/bitrix24-cli/issues/42), change `complete-task-portal-acceptance` (`openspec/changes/complete-task-portal-acceptance/`). Они исключены из обязательной приёмки RC 0.1.0; перенос не является новым runtime proof. Уже выполненные 30 собственных happy-path и исходные records сохраняются.

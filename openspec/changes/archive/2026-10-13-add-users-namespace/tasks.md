@@ -40,7 +40,7 @@
 
 ## Workflow follow-up
 
-- Complete the openspec-apply-change workflow after a separate implementation request; keep this planning PR draft and implementation checkboxes unchecked meanwhile.
+- Implementation completed through openspec-apply-change; all 20 implementation tasks checked and verified. PR #69 merged into dev and issue #63 closed on 2026-10-13.
 - Deliver implementation through the existing feature PR into dev; verify actual merge and issue closure when integration is authorized, rather than equating passing checks with merge.
 - Archive the fully implemented/verified change, synchronize delta specs and update issue #63 to the archive path using maintainer/openspec-archive-change workflow; preserve archive delivery before worktree cleanup.
 - Preserve the current worktree while the change is pending. After delivery, remove only its own safely saved worktree and verify git worktree list.

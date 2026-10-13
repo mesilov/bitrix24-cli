@@ -89,6 +89,18 @@ Runtime SHALL заранее проверять все потенциальны�
 - **AND** task:add без автодобавки сохраняет свой существующий план, включая REST1 запись TAGS при явном --tag
 
 
+#### Scenario: Planned participant role filtering
+- **WHEN** task:list или task:find получает --role accomplice либо --role auditor при task-v3
+- **THEN** план заранее включает REST3 tasks.task.list и REST1 tasks.task.get только для ID соответствующей роли выбранной задачи; версии отражены в meta, user.get/user.current и mutating request не добавляются, ошибка не запускает fallback/retry
+
+#### Scenario: Strict policy before participant role filtering
+- **WHEN** task:list или task:find получает --role accomplice либо --role auditor при strict-rest3
+- **THEN** policy-denied/exit 4 возвращается до чтения credentials и API calls, даже если доступная выборка могла бы оказаться пустой
+
+#### Scenario: Strict scalar role filtering
+- **WHEN** task:list или task:find получает --role responsible либо --role creator при strict-rest3
+- **THEN** роль проверяется локально по REST3 responsibleId/creatorId, план содержит только REST3 tasks.task.list; отсутствие --role не добавляет companion request
+
 ## ADDED Requirements
 
 ### Requirement: Opt-in default observer on task creation
