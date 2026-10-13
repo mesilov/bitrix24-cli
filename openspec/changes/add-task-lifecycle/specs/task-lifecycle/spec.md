@@ -107,6 +107,29 @@ CLI SHALL различать неподтверждённую отправлен
 - **WHEN** --dry-run используется при запрете права или отсутствующем обязательном результате
 - **THEN** возвращается тот же отказ до записи; preview не снимает проверку, а --force не обходит её
 
+### Requirement: Logical task status selection
+`task:list` SHALL принимать один точный REST3 `status`: pending, in_progress, supposedly_completed, completed, deferred, declined. Фильтр SHALL сочетаться через AND с responsibleId/groupId и сохранять visible-task scope и scan/limit/partial правила. `--status` и `--where.status` SHALL отклонять остальные значения с usage-error/exit2 до credentials/API, без числовых aliases. Свои задачи SHALL выбираться явным собственным ID, без неявного current-user scope.
+
+#### Scenario: Self, project and other assignee lists
+- **WHEN** пользователь выбирает свой responsible ID, group ID или ID другого исполнителя и добавляет --status с документированным строковым значением
+- **THEN** task:list возвращает только доступные подключению задачи, соответствующие всем заданным условиям; группу и исполнителя также можно указать вместе
+
+#### Scenario: Review is distinct from completed work
+- **WHEN** complete передал задачу на контроль и task:list выбран по supposedly_completed либо completed
+- **THEN** первая выборка включает эту задачу, вторая её исключает; фильтрация использует фактический REST3 status без предположения по имени предыдущего действия
+
+#### Scenario: Invalid logical status is not an empty success
+- **WHEN** --status либо --where.status содержит опечатку, пустую строку, legacy number/string code или array
+- **THEN** usage-error/exit2 возвращается до credentials/API, без молчаливой пустой успешной выборки, OR либо переименования ключа
+
+#### Scenario: Restricted visibility and incomplete scan
+- **WHEN** пользователь выбирает другого исполнителя/проект или --all, а доступ ограничен либо max-scan прерывает обход
+- **THEN** visible-task scope сохраняется; --all не снимает scan budget, incomplete scan даёт partial/exit3, полнота видимых задач не выдаётся за полный проект или все задачи исполнителя
+
+#### Scenario: Status read consistency after another transition
+- **WHEN** задача после approve/disapprove/renew/start/pause/defer читается в карточке и status-filtered списке
+- **THEN** membership списка соответствует реально прочитанному status, без локального вычисления цели из action; concurrent изменения оцениваются по моменту чтения
+
 ### Requirement: Lifecycle acceptance evidence
 Каждая из семи команд SHALL иметь собственный live happy-path test и локальные проверки contract/policy/output. Portal acceptance SHALL отдельно фиксировать контроль, requireResult, роли, переходы и побочные эффекты на собственных fixtures. Пропуск live case или unit success SHALL не считаться портальным подтверждением.
 

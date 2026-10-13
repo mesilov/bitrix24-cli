@@ -6,7 +6,7 @@
 
 - [ ] 1.1 Добавить семь lifecycle Command-классов, input mapping и закрытый request/action contract. Проверка: offline help/list, положительный TASK_ID и negative/overflow/unknown-option cases через ConsoleHarness дают ожидаемый ввод либо exit2 до credentials/API.
 - [ ] 1.2 Зарегистрировать команды и DI, объявить точные REST1 lifecycle и REST3 preflight/post-read маршруты в CommandCatalog. Проверка: catalog/AsCommand uniqueness, 37 task-команд, прежние 5 connection-команд, 22 исключения и raw status denial; strict-rest3 всех семи действий, включая dry-run, даёт exit4 без provider/API.
-- [ ] 1.3 Добавить семь команд в README/development catalogue и help с TASK_ID, REST1 ограничением и примерами. Проверка: названия/количество совпадают с CommandCatalog, текущие команды описаны без обещания portal acceptance и release publication.
+- [ ] 1.3 Добавить семь команд в README/development catalogue и help с TASK_ID, REST1 ограничением и примерами; документировать task:list для своего ID, проекта, другого исполнителя и их AND комбинаций со всеми шестью логическими статусами. Проверка: названия/количество совпадают с CommandCatalog, примеры соответствуют mapper, --all/max-scan и visible scope указаны; current-user discovery и неподдержанный --me не обещаются.
 
 ## 2. Gateway и preflight
 
@@ -14,6 +14,7 @@
 - [ ] 2.2 Реализовать lifecycle service preflight REST3 карточки и action-specific access. Проверка: нужные поля и true boolean право допускают действие; edit без action права, missing/false/invalid values, foreign task и неправильные условия approve/disapprove не вызывают mutation; error/exit codes соответствуют specs.
 - [ ] 2.3 Добавить внутренний bounded native result read для complete при requireResult=true. Проверка: точный tasks.task.result.list/version3/filter.taskId/select/order/pagination, valid bound row, empty/unreadable/malformed/foreign row; requireResult=false не вызывает result read, containsResults=true не снимает проверку, ни один result/chat/file write не выполняется.
 - [ ] 2.4 Документировать внутренние маршруты, gates и native-result boundary в development docs. Проверка: имена id/taskId/status/needsControl/requireResult/containsResults/autocompleteSubTasks одинаковы в specs, JSON fixtures и API payload; отсутствие неподдержанных aliases и implicit result creation.
+- [ ] 2.5 Добавить единый набор шести REST3 task status значений и validation --status/--where.status, согласованный с lifecycle чтениями. Проверка: все шесть строк принимаются; unknown/empty/numeric/array values дают usage-error/exit2 до credentials/API без legacy mapping; unit cases task:list проверяют responsible/group/status AND, исключение других строк, missing predicates/scan cap и запрет смешивания --where с convenience flags.
 
 ## 3. Execute, actual state и preview
 
@@ -29,12 +30,13 @@
 - [ ] 4.3 Добавить complete cases с requireResult=true без result и с native result; также renewed task с существующим result и dry-run. Проверка: no-result не выполняет переход, bound result допускает серверную проверку, result не создаётся CLI неявно; фактические result status/права/ограничения зафиксированы.
 - [ ] 4.4 Выполнить denied-role и wrong-state cases для lifecycle. Проверка: доступный участник без права действия/наблюдатель не может перейти, серверный race отказ не повторяется; отсутствующие роли/credentials/skip явно остаются непроверенными случаями, не выдаются за успех.
 - [ ] 4.5 Проверить side effects на собственных fixtures с allowsTimeTracking и autocompleteSubTasks, контролем/result. Проверка: SDK snapshots до/после показывают фактические изменения основной задачи, подзадач и времени; CLI не добавляет скрытых записей/отката. Зафиксировать portal evidence и ограничения, обновить документацию согласно результатам.
+- [ ] 4.6 Добавить live cases в ListTaskCommandTest для EMP-01/PM-02/AM-02: собственный/другой responsibleId, groupId и их AND сочетания со статусом. Проверка: каждый case вызывает только task:list, SDK создаёт и переводит собственные fixtures; supposedly_completed исключён из completed списка, membership после approve/disapprove/renew соответствует фактическому REST3 status; role restrictions/skips отмечены отдельно, scope/complete/limit/scan не теряются.
 
 ## 5. Интеграционные проверки и verify
 
 - [ ] 5.1 Выполнить make unit и проектные обязательные static/lint/check targets. Проверка: все команды/contract/policy/output/registration cases проходят, нет регрессии raw status denial, connection resolution, partial и cancellation; git diff --check чистый.
 - [ ] 5.2 Запустить отдельные happy-path и lifecycle portal cases через make integration с явным разрешённым тестовым подключением. Проверка: записаны команды, результаты, роль и ограничения; skips и локальные mock успехи не заменяют live acceptance, чужие fixtures не меняются.
-- [ ] 5.3 Проверить соответствие реализации всем scenarios трёх delta specs через openspec-verify-change и openspec validate add-task-lifecycle --strict. Проверка: verification artifact перечисляет evidence, все задачи завершены по факту, GitHub issue/milestone/category и двусторонняя trace согласованы; никаких необоснованно принятых exceptions.
+- [ ] 5.3 Проверить соответствие реализации всем scenarios четырёх delta specs через openspec-verify-change и openspec validate add-task-lifecycle --strict. Проверка: verification artifact перечисляет evidence, все задачи завершены по факту, GitHub issue/milestone/category и двусторонняя trace согласованы; никаких необоснованно принятых exceptions.
 
 ## Workflow follow-up
 

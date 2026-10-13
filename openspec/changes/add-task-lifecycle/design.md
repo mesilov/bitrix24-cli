@@ -70,6 +70,26 @@ PreparedOperation выполняет safe preflight до execute. Dry-run пок
 
 Побочные эффекты таймера/времени, контроля/result, подзадач остаются серверными. CLI не запускает дополнительные записи для их исправления. Portal acceptance сравнивает собственные fixtures до/после с настройками `allowsTimeTracking`, `requireResult`, `needsControl`, `autocompleteSubTasks`. Полнота side effects за пределами проверенных fixtures не обещается.
 
+### 6. Выборка по логическому статусу для трёх JTBD
+
+Проверка исходников тега `0.1.0` и dev 13.10.2026 подтверждает наличие `task:list --responsible ID --group-id ID --status STATUS`: mapper собирает equality predicates, scanner объединяет их через AND. Числовой ID собственного пользователя позволяет получить свои задачи; отдельного `--me`, current-user discovery или implicit self scope в CLI нет. `default.task.responsibleId` применяется при создании задачи, не служит идентификатором текущего пользователя и не применяется к списку. Новую команду task:my и автоматическое определение пользователя в этом change не добавлять.
+
+Примеры действующего синтаксиса (42 — собственный ID, 99 — другой исполнитель, 7 — группа/проект):
+
+```sh
+b24cli task:list --responsible 42 --status in_progress --all --json
+b24cli task:list --group-id 7 --status supposedly_completed --all --json
+b24cli task:list --responsible 99 --status deferred --all --json
+b24cli task:list --group-id 7 --responsible 99 --status pending --all --json
+b24cli task:list --where '{"groupId":7,"responsibleId":99,"status":"completed"}' --all --json
+```
+
+Под логическим статусом понимается точное поле `status` REST3 с шестью документированными string значениями из таблицы полей выше. Оно отличается от result.status, стадии проекта и числового статуса REST1. `--status` выбирает одно равенство, не набор/OR; дополнительные responsible/group/status/deadline predicates объединяются через AND, advanced --where не смешивается с convenient flags. [REST3 tasks.task.list](https://apidocs.bitrix24.com/api-reference/tasks/tasks-task-list-rest-v3.html) документирует server filter по id; responsibleId/groupId/status проверяются локально по selected полям при ограниченном обходе видимых подключению задач. `--all` снимает только limit вывода, max-scan=10000 по умолчанию сохраняется; доступ к задачам другого пользователя зависит от подключения, полнота видимой выборки не равна полноте проекта.
+
+Найденный validation gap: mapper сейчас пропускает произвольный --status и string/integer --where.status. Например, числовой код или опечатка сравнивается с REST3 строкой и может вернуть empty complete=true. В реализации change добавить единый набор REST3 task status значений для preflight/post-read и query validation. --status/--where.status допускают только эти строки; unknown/empty/numeric/array дают usage-error/exit2 до credentials/API, без aliases или перевода legacy кодов. Дополнительный REST-запрос ради проверки перечисления не нужен.
+
+Новые сценарии дополняют существующие EMP-01, PM-02 и AM-02, а не увеличивают число JTBD за счёт тех же целей. Acceptance проверяет AND combinations, visibility, partial/limit и смену membership: complete с контролем попадает в supposedly_completed, approve — в completed, disapprove/renew/start/pause/defer проверяются по фактически прочитанному status. Не жёстко вычислять status из action. В ListTaskCommandTest переходы fixtures выполняются через SDK, чтобы каждый test case вызывал только свою CLI-команду.
+
 ## Risks / Trade-offs
 
 - [Различия порталов/ролей] → live cases каждой команды через production provider и отдельная permission matrix; skip явно остаётся непроверенным случаем.
@@ -78,6 +98,7 @@ PreparedOperation выполняет safe preflight до execute. Dry-run пок
 - [REST3 metadata/result support недоступны] → fail closed с причиной, без legacy read fallback для проверки результата.
 - [autocompleteSubTasks и учёт времени] → preview показывает настройку, acceptance отдельно фиксирует реальные изменения подзадач/времени.
 - [Соседние changes #12/#42] → не закрывать чужие задачи или полную portal/JTBD приёмку; rebase/merge dev и согласовать новые counts/исключения перед PR реализации.
+- [Пустой список из-за неверного status либо недостаточных прав] → local enum validation; в output сохранять visible-task scope, complete/scanned/matched/returned/limitApplied. Не обещать полный список другого исполнителя при ограниченном доступе.
 
 ## Migration Plan
 
