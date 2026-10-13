@@ -71,6 +71,35 @@ final class RuntimeTest extends TestCase
         }
     }
 
+    public function testRealSigintBetweenLocalUploadAndAttachPreservesDiskId(): void
+    {
+        $process = proc_open([PHP_BINARY, __DIR__ . '/../Support/signal-worker.php', 'local'], [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
+        self::assertIsResource($process);
+        try {
+            stream_set_timeout($pipes[2], 5);
+            self::assertSame("READY\n", fgets($pipes[2]));
+            self::assertTrue(proc_terminate($process, SIGINT));
+            $stdout = stream_get_contents($pipes[1]);
+            $stderr = stream_get_contents($pipes[2]);
+            foreach ($pipes as $pipe) {
+                fclose($pipe);
+            }
+
+            $status = proc_close($process);
+            $process = null;
+            self::assertSame(130, $status, $stdout . $stderr);
+            $json = json_decode($stdout, true, 512, JSON_THROW_ON_ERROR);
+            self::assertSame([789], array_column($json['data']['items'], 'resourceId'));
+            self::assertSame(['confirmed', 'skipped'], array_column($json['meta']['ledger'], 'status'));
+            self::assertFalse($json['meta']['outcomeUnknown']);
+        } finally {
+            if (is_resource($process)) {
+                proc_terminate($process);
+                proc_close($process);
+            }
+        }
+    }
+
     public function testRealHttpTimeoutIsBoundedAndLostWriteOutcomeIsUnknown(): void
     {
         $socket = stream_socket_server('tcp://127.0.0.1:0', $errno, $error);

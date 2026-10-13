@@ -83,7 +83,7 @@ final class CommandCatalog
         'task:chat:send' => [['tasks.task.chat.message.send', 3]],
         'task:chat:update' => [['tasks.task.get', 3], ['im.message.update', 1], ['im.dialog.messages.get', 1]],
         'task:chat:delete' => [['tasks.task.get', 3], ['im.message.delete', 1], ['im.dialog.messages.get', 1]],
-        'task:file:attach' => [['tasks.task.file.attach', 3]],
+        'task:file:attach' => [['tasks.task.file.attach', 3], ['disk.folder.uploadFile', 1]],
         'task:time:show' => [['tasks.task.get', 3]],
         'task:time:add' => [['task.elapseditem.add', 1]],
         'task:time:list' => [['task.elapseditem.getlist', 1]],

@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 
 final readonly class TaskInputMapper
 {
-    public function __construct(private InputSourceReader $reader, private ?\Bitrix24\CLI\Infrastructure\Connection\ConnectionManager $connections = null)
+    public function __construct(private InputSourceReader $reader, private ?\Bitrix24\CLI\Infrastructure\Connection\ConnectionManager $connections = null, private ?\Bitrix24\CLI\Application\Task\Port\LocalFileGateway $files = null)
     {
     }
 
@@ -287,13 +287,31 @@ final readonly class TaskInputMapper
         return new Request\DeleteTaskChatMessageRequest($this->taskId($input), $this->id($input->getOption('message'), '--message'));
     }
 
-    public function attachTaskFiles(InputInterface $input): Request\AttachTaskFilesRequest
+    public function attachTaskFiles(InputInterface $input, int $maxUploadBytes = \Bitrix24\CLI\Application\Task\LocalFile::DEFAULT_MAX_BYTES): Request\AttachTaskFilesRequest
     {
-        if ($input->getOption('file-id') === []) {
-            throw Failure::usage('Provide at least one --file-id of an existing Disk file.');
+        $taskId = $this->taskId($input);
+        $path = $input->getOption('file');
+        $folder = $input->getOption('folder-id');
+        $name = $input->getOption('name');
+        $ids = $input->getOption('file-id');
+        if ($path !== null) {
+            if ($ids !== [] || $folder === null) {
+                throw Failure::usage('Choose --file-id or --file PATH with --folder-id ID.');
+            }
+
+            if (!$this->files instanceof \Bitrix24\CLI\Application\Task\Port\LocalFileGateway) {
+                throw new Failure('configuration-error', 'Local file source is not configured.');
+            }
+
+            $folderId = $this->id($folder, '--folder-id');
+            return new Request\AttachTaskFilesRequest($taskId, [], $this->files->inspect($path, $name, $maxUploadBytes), $folderId);
         }
 
-        return new Request\AttachTaskFilesRequest($this->taskId($input), array_values(array_unique(array_map(fn ($id): int => $this->id($id, '--file-id'), $input->getOption('file-id')))));
+        if ($folder !== null || $name !== null || $ids === []) {
+            throw Failure::usage('Provide --file-id, or --file PATH with --folder-id ID; --name belongs to the local file mode.');
+        }
+
+        return new Request\AttachTaskFilesRequest($taskId, array_values(array_unique(array_map(fn ($id): int => $this->id($id, '--file-id'), $ids))));
     }
 
     public function addTaskResult(InputInterface $input): Request\AddTaskResultRequest

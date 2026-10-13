@@ -33,6 +33,7 @@ abstract class LiveTaskCommandTestCase extends LiveCommandTestCase
     private array $createdTasks = [];
     private array $ownedTaskIds = [];
     private array $createdDiskFiles = [];
+    private array $createdDiskFolders = [];
 
     protected function setUp(): void
     {
@@ -64,13 +65,22 @@ abstract class LiveTaskCommandTestCase extends LiveCommandTestCase
             }
         }
 
+        $failedFolders = [];
+        foreach ($this->createdDiskFolders as $folderId) {
+            try {
+                ResponseNormalizer::ack($this->api->call('disk.folder.deleteTree', 1, ['id' => $folderId], 'delete')->result);
+            } catch (Failure) {
+                $failedFolders[] = $folderId;
+            }
+        }
+
         if (isset($this->userId)) {
-            $evidence = ['class' => static::class, 'test' => $this->nameWithDataSet(), 'command' => $this->commandName(), 'happyPath' => $this->isHappyPath(), 'actingUserId' => $this->userId, 'ownedTaskIds' => $this->ownedTaskIds, 'ownedDiskFileIds' => $this->createdDiskFiles, 'commands' => $this->observedCommands, 'cleanupFailures' => ['taskIds' => $failed, 'diskFileIds' => $failedFiles]];
+            $evidence = ['class' => static::class, 'test' => $this->nameWithDataSet(), 'command' => $this->commandName(), 'happyPath' => $this->isHappyPath(), 'actingUserId' => $this->userId, 'ownedTaskIds' => $this->ownedTaskIds, 'ownedDiskFileIds' => $this->createdDiskFiles, 'ownedDiskFolderIds' => $this->createdDiskFolders, 'commands' => $this->observedCommands, 'cleanupFailures' => ['taskIds' => $failed, 'diskFileIds' => $failedFiles, 'diskFolderIds' => $failedFolders]];
             self::assertNotFalse(file_put_contents($this->root() . '/var/cache/portal-evidence.jsonl', json_encode($evidence, JSON_THROW_ON_ERROR) . "\n", FILE_APPEND | LOCK_EX));
         }
 
-        if ($failed !== [] || $failedFiles !== []) {
-            self::fail('Could not remove owned test fixtures: task IDs [' . implode(', ', $failed) . '], Disk file IDs [' . implode(', ', $failedFiles) . ']. Remove them manually.');
+        if ($failed !== [] || $failedFiles !== [] || $failedFolders !== []) {
+            self::fail('Could not remove owned test fixtures: task IDs [' . implode(', ', $failed) . '], Disk file IDs [' . implode(', ', $failedFiles) . '], Disk folder IDs [' . implode(', ', $failedFolders) . ']. Remove them manually.');
         }
 
         if (isset($this->userId) && $this->isHappyPath()) {
@@ -94,6 +104,15 @@ abstract class LiveTaskCommandTestCase extends LiveCommandTestCase
                 }
             }
         }
+
+        if ($argv[0] === 'task:file:attach') {
+            foreach ($json['data']['items'] ?? [] as $item) {
+                if (($item['action'] ?? '') === 'upload' && is_int($id = $item['resourceId'] ?? null) && $id > 0) {
+                    $this->createdDiskFiles[] = $id;
+                }
+            }
+        }
+
     }
 
     protected function fixtureTitle(): string
@@ -150,6 +169,26 @@ abstract class LiveTaskCommandTestCase extends LiveCommandTestCase
     protected function checklistNodes(int $taskId): array
     {
         return array_column($this->checklists->nodes($taskId), null, 'id');
+    }
+
+    /** SDK TemporaryDiskFixture approach: create and clean up only a unique owned child. */
+    protected function createDiskFolder(): int
+    {
+        $rows = $this->api->call('disk.storage.getlist', 1, ['filter' => ['ENTITY_TYPE' => 'user', 'ENTITY_ID' => $this->userId]])->result;
+        $owned = array_values(array_filter($rows, fn (array $row): bool => ($row['ENTITY_TYPE'] ?? null) === 'user' && (int) ($row['ENTITY_ID'] ?? 0) === $this->userId));
+        self::assertCount(1, $owned, 'Fixture needs the webhook user personal storage.');
+        $folder = $this->api->call('disk.folder.addSubFolder', 1, ['id' => (int) $owned[0]['ROOT_OBJECT_ID'], 'data' => ['NAME' => $this->fixtureTitle()]], 'write')->result;
+        $id = (int) ($folder['ID'] ?? 0);
+        self::assertGreaterThan(0, $id);
+        $this->createdDiskFolders[] = $id;
+        return $id;
+    }
+
+    protected function deleteCreatedDiskFolder(int $id): void
+    {
+        self::assertContains($id, $this->createdDiskFolders);
+        ResponseNormalizer::ack($this->api->call('disk.folder.deleteTree', 1, ['id' => $id], 'delete')->result);
+        $this->createdDiskFolders = array_values(array_diff($this->createdDiskFolders, [$id]));
     }
 
     protected function diskFile(): int
