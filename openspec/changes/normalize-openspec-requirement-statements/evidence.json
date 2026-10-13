@@ -1,6 +1,15 @@
 {
   "baseline": "f21e0632c9fab5933b632bd649a214d5b7df49f6",
   "syncedDev": "1741b9c5104c47a211904a47185aa442229c12d6",
+  "preMergeRefresh": {
+    "syncedDev": "5ed034980e58ed950c3c733f3f01ec5ca08dd990",
+    "oldRequirementsPreserved": 69,
+    "oldScenariosPreserved": 241,
+    "unrelatedDevRequirementsAddedSinceBaseline": 2,
+    "unrelatedDevScenariosAddedSinceBaseline": 6,
+    "mainStrict": {"passed": 16, "failed": 0, "warnings": 0},
+    "changeStrict": "pass"
+  },
   "capabilities": [
     {
       "name": "cli-experience",

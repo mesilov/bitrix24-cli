@@ -68,3 +68,9 @@ This is a documentation normalization. Local PHP/runtime tests and live portal a
 ## Delivery and assessment
 
 No semantic-loss or design-coherence findings in the checks above. Fresh fetch/merge and repeated validation are complete. [MR #117](https://github.com/mesilov/bitrix24-cli/pull/117) is open into dev. Issue #114 remains open with milestone 0.2.0 and documentation category; proposal and issue contain both trace directions. Native CI results are tracked on the final head SHA in the MR. The change remains active for review; archive and cleanup follow a later confirmed merge.
+
+## Pre-merge refresh (2026-10-14)
+
+После пользовательского разрешения merge получен и интегрирован dev `5ed034980e58ed950c3c733f3f01ec5ca08dd990`. В нём уже доставлена отдельная локализация справки: два новых требования и шесть сценариев cli-experience; все 67 первоначальных requirement bodies сохранены в этой базе дословно.
+
+Повторное сравнение выполнено относительно этого dev: все 69 requirements и 241 сценарий базы сохранены, нормализация добавляет только согласованные 11 supporting requirements, 16 delta blocks совпадают с canonical specs. Strict main validation: 16/16 без warnings; change strict и diff check проходят. MR diff по-прежнему ограничен 15 файлами OpenSpec/CHANGELOG; локализация не является дополнительным scope MR #117. Native CI повторяется на обновлённом head перед merge.
