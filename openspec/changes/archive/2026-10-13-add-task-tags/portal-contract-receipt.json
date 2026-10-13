@@ -1,0 +1,111 @@
+{
+    "date": "2026-10-13",
+    "stages": [
+        {
+            "index": 0,
+            "sentTAGS": [
+                "#плановая",
+                "Этап 1"
+            ],
+            "ackTaskId": 5870,
+            "readback": {
+                "id": 5870,
+                "tags": [
+                    {
+                        "id": 2482,
+                        "name": "#плановая"
+                    },
+                    {
+                        "id": 2484,
+                        "name": "Этап 1"
+                    }
+                ]
+            },
+            "matches": true
+        },
+        {
+            "index": 1,
+            "sentTAGS": [
+                "#ошибка"
+            ],
+            "ackTaskId": 5870,
+            "readback": {
+                "id": 5870,
+                "tags": [
+                    {
+                        "id": 2486,
+                        "name": "#ошибка"
+                    }
+                ]
+            },
+            "matches": true
+        },
+        {
+            "index": 2,
+            "sentTAGS": [],
+            "ackTaskId": 5870,
+            "readback": {
+                "id": 5870,
+                "tags": []
+            },
+            "matches": true
+        }
+    ],
+    "actingUserId": 1,
+    "TAGSMetadata": null,
+    "taskId": 5870,
+    "passed": true,
+    "cleanupConfirmed": true,
+    "apiCalls": [
+        {
+            "method": "profile",
+            "apiVersion": "1.0",
+            "effect": "read"
+        },
+        {
+            "method": "tasks.task.getFields",
+            "apiVersion": "1.0",
+            "effect": "read"
+        },
+        {
+            "method": "tasks.task.add",
+            "apiVersion": "3.0",
+            "effect": "write"
+        },
+        {
+            "method": "tasks.task.update",
+            "apiVersion": "1.0",
+            "effect": "write"
+        },
+        {
+            "method": "tasks.task.get",
+            "apiVersion": "3.0",
+            "effect": "read"
+        },
+        {
+            "method": "tasks.task.update",
+            "apiVersion": "1.0",
+            "effect": "write"
+        },
+        {
+            "method": "tasks.task.get",
+            "apiVersion": "3.0",
+            "effect": "read"
+        },
+        {
+            "method": "tasks.task.update",
+            "apiVersion": "1.0",
+            "effect": "write"
+        },
+        {
+            "method": "tasks.task.get",
+            "apiVersion": "3.0",
+            "effect": "read"
+        },
+        {
+            "method": "tasks.task.delete",
+            "apiVersion": "3.0",
+            "effect": "delete"
+        }
+    ]
+}

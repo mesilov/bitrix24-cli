@@ -89,7 +89,7 @@ def main():
         check(unknown["error"]["code"] == "usage-error" and unknown["meta"]["apiCalls"] == [],
               "Unknown command did not preserve the usage contract")
         commands = [line.split()[0] for line in invoke("b24cli", ["list", "task", "--raw", "--no-ansi"]).splitlines()]
-        check(len(commands) == 30 and all(name.startswith("task:") for name in commands),
+        check(len(commands) == 34 and all(name.startswith("task:") for name in commands),
               "Task command registration differs: " + repr(commands))
         for name in commands:
             check("Usage:" in invoke("b24cli", [name, "--help", "--no-ansi"]), "Task help failed: " + name)
@@ -175,7 +175,7 @@ def main():
         check(all(path.name in allowed_phars for path in clean.glob("*.phar")),
               "Temporary application PHAR was not removed")
         print(json.dumps({"status": "passed", "version": args.expected_version, "runtime": probe,
-                          "checks": ["version", "help", "list", "usage-exit", "30-task-commands", "task-dry-run", "local-upload-dry-run", "local-upload-strict-policy",
+                          "checks": ["version", "help", "list", "usage-exit", "34-task-commands", "task-dry-run", "local-upload-dry-run", "local-upload-strict-policy",
                                      "missing-connection", *( ["task-SIGINT"] if os.name != 'nt' else [] ),
                                      "autoload", "extensions", "unicode",
                                      "trusted-https", "rejected-certificate", "clean-PATH", "temporary-phar-cleanup"]}, ensure_ascii=False))
