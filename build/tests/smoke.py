@@ -89,8 +89,12 @@ def main():
         check(unknown["error"]["code"] == "usage-error" and unknown["meta"]["apiCalls"] == [],
               "Unknown command did not preserve the usage contract")
         commands = [line.split()[0] for line in invoke("b24cli", ["list", "task", "--raw", "--no-ansi"]).splitlines()]
-        check(len(commands) == 41 and all(name.startswith("task:") for name in commands),
+        check(len(commands) == 42 and all(name.startswith("task:") for name in commands),
               "Task command registration differs: " + repr(commands))
+        check("task:my" in commands, "Personal task view missing from packaged CLI")
+        my_usage = json.loads(invoke("b24cli", ["task:my", "--json", "--no-ansi"], 2))
+        check(my_usage["error"]["code"] == "usage-error" and my_usage["meta"]["apiCalls"] == [],
+              "task:my must validate the required executor before credentials/API")
         lifecycle = {"task:" + action for action in ["start", "pause", "defer", "renew", "complete", "approve", "disapprove"]}
         check(lifecycle.issubset(commands), "Lifecycle commands missing from packaged CLI")
         for name in sorted(lifecycle):
@@ -190,7 +194,7 @@ def main():
         check(all(path.name in allowed_phars for path in clean.glob("*.phar")),
               "Temporary application PHAR was not removed")
         print(json.dumps({"status": "passed", "version": args.expected_version, "runtime": probe,
-                          "checks": ["version", "help", "list", "usage-exit", "34-task-commands", "task-dry-run", "local-upload-dry-run", "local-upload-strict-policy", "local-upload-config-limit",
+                          "checks": ["version", "help", "list", "usage-exit", "42-task-commands", "task-my-local-validation", "task-dry-run", "local-upload-dry-run", "local-upload-strict-policy", "local-upload-config-limit",
                                      "missing-connection", *( ["task-SIGINT"] if os.name != 'nt' else [] ),
                                      "autoload", "extensions", "unicode",
                                      "trusted-https", "rejected-certificate", "clean-PATH", "temporary-phar-cleanup"]}, ensure_ascii=False))

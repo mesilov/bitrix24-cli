@@ -3,27 +3,27 @@
 ## MODIFIED Requirements
 
 ### Requirement: Exact MVP command registration
-Runtime SHALL предоставлять 41 task-команды (30 исходных MVP и четыре task:result команды и семь lifecycle команд) и четыре users-команды capability user-directory, отдельно от локальных connection-команд capability connection-configuration и встроенных команд справки/completion. Регистрация SHALL строиться напрямую из единственного явного CommandCatalog без tags/compiler pass и массового сканирования. Unit-tests SHALL проверять уникальность имён/классов, совпадение AsCommand с каталогом и отсутствие исключённых task-операций. Исключённые операции не SHALL возвращаться через aliases.
+Runtime SHALL предоставлять 42 task-команды (30 исходных MVP, четыре task:result команды, семь lifecycle команд и task:my) и четыре users-команды user-directory, отдельно от локальных connection-команд connection-configuration и встроенной справки/completion. Регистрация SHALL строиться напрямую из единственного явного CommandCatalog без tags/compiler pass и массового сканирования. Исключённые операции не SHALL возвращаться через aliases.
 
 #### Scenario: Root command inventory
 - **WHEN** пользователь запускает b24cli без имени команды либо list task без профиля подключения
-- **THEN** видны все 41 согласованные task-команды, включая result:add/list/update/delete; остальные исключённые команды отсутствуют, включая task:subtask:add; API и чтение credentials не выполняются
+- **THEN** видны все 42 согласованные task-команды, включая result:add/list/update/delete и task:my; остальные исключённые команды отсутствуют, включая task:subtask:add; API и чтение credentials не выполняются
 
 #### Scenario: Explicit catalog consistency
 - **WHEN** запускаются unit-tests регистрации приложения
-- **THEN** проверяются все 41 task-имени и четыре users-имени и уникальных Command-классов, совпадение AsCommand и отсутствие aliases; compiler pass и console.command tags не требуются, credentials и API не читаются
+- **THEN** проверяются все 42 task-имени и четыре users-имени и уникальных Command-классов, совпадение AsCommand и отсутствие aliases; compiler pass и console.command tags не требуются, credentials и API не читаются
 
 #### Scenario: Users have their own namespace
 - **WHEN** вызывается list users
-- **THEN** видны только users:current/find/colleagues/manager; list task сохраняет свои 41 команды, а local connection-команды остаются отдельными
+- **THEN** видны только users:current/find/colleagues/manager; list task сохраняет свои 42 команды, а local connection-команды остаются отдельными
 
 #### Scenario: Lifecycle command integration coverage
 - **WHEN** проверяются каталог и tests/Integration/Task
 - **THEN** каждая из семи lifecycle команд имеет собственный CommandTest с group command:<имя> и happy-path; общий класс всех переходов не заменяет эти cases
 
-### Requirement: Policy covers the complete route plan
 
-Runtime SHALL заранее проверять все потенциальные маршруты операции, включая preflight, по паре method/API version и разрешённым полям. task-v3 SHALL допускать выбранные REST3, IM companion, согласованные REST1 task-маршруты, users-маршруты, opt-in назначение наблюдателя после task:add, выбранное обогащение участников task:show и ролевое чтение участников для task:list/task:find и REST1 disk.folder.uploadFile только в локальном режиме task:file:attach; strict-rest3 SHALL отклонять любой non-v3 план до первого запроса. Совпадение имени метода не SHALL означать взаимозаменяемость версий или скрытый fallback.
+### Requirement: Policy covers the complete route plan
+Runtime SHALL заранее проверять все потенциальные маршруты операции, включая preflight, по паре method/API version и разрешённым полям. strict-rest3 SHALL отклонять любой non-v3 план до первого запроса. Совпадение имени метода не SHALL означать взаимозаменяемость версий или скрытый fallback.
 
 #### Scenario: Strict policy with participant enrichment
 - **WHEN** task:show с auditors/accomplices выбран при strict-rest3
