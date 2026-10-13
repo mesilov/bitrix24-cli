@@ -14,6 +14,7 @@ final readonly class TaskQuery
         public array $order = [],
         public ?int $limit = 50,
         public int $maxScan = 10000,
+        public ?TaskRole $role = null,
     ) {
     }
 }

@@ -55,8 +55,8 @@ final class CommandCatalog
     public const ROUTES = [
         'task:add' => [['tasks.task.add', 3], ['tasks.task.field.list', 3]],
         'task:show' => [['tasks.task.get', 3], ['tasks.task.get', 1], ['user.get', 1]],
-        'task:list' => [['tasks.task.list', 3]],
-        'task:find' => [['tasks.task.list', 3]],
+        'task:list' => [['tasks.task.list', 3], ['tasks.task.get', 1]],
+        'task:find' => [['tasks.task.list', 3], ['tasks.task.get', 1]],
         'task:update' => [['tasks.task.update', 3], ['tasks.task.field.list', 3]],
         'task:delete' => [['tasks.task.delete', 3], ['tasks.task.get', 3]],
         'task:fields:list' => [['tasks.task.field.list', 3], ['tasks.task.field.get', 3]],

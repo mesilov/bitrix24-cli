@@ -6,6 +6,7 @@ namespace Bitrix24\CLI\Console\Command\Task;
 
 use Bitrix24\CLI\Application\Task\Handler\ListTasksHandler;
 use Bitrix24\CLI\Application\Task\Request\ListTasksRequest;
+use Bitrix24\CLI\Application\Task\TaskRole;
 use Bitrix24\CLI\Console\CommandRunner;
 use Bitrix24\CLI\Console\TaskInputMapper;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -24,6 +25,7 @@ final class ListTaskCommand extends Command
 
     protected function configure(): void
     {
+        $this->addOption('role', null, InputOption::VALUE_REQUIRED, 'Своя роль: responsible — делаю, accomplice — помогаю, creator — поручил, auditor — наблюдаю.', suggestedValues: array_column(TaskRole::cases(), 'value'));
         $this->addOption('id', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'ID для серверной выборки; флаг можно повторять.');
         $this->addOption('responsible', null, InputOption::VALUE_REQUIRED, 'ID ответственного.');
         $this->addOption('group-id', null, InputOption::VALUE_REQUIRED, 'Положительный ID группы/проекта (groupId).');
@@ -36,7 +38,7 @@ final class ListTaskCommand extends Command
         $this->addOption('limit', null, InputOption::VALUE_REQUIRED, 'Лимит вывода; не заменяет бюджет обхода.');
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Снять только лимит вывода; бюджет остаётся конечным.');
         $this->addOption('max-scan', null, InputOption::VALUE_REQUIRED, 'Максимум просмотренных задач (default 10000).');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: id, title, responsibleId, groupId, status, deadline. REST 3.0.   Пример: b24cli task:list --responsible 2 --group-id 42 --all');
+        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: id, title, responsibleId, groupId, status, deadline. --role относится к владельцу выбранного вебхука и сочетается с другими критериями через AND. responsible/creator используют REST3; accomplice/auditor требуют REST1 чтения участников и недоступны при strict-rest3. Примеры: b24cli task:list --role responsible; b24cli task:list --role accomplice; b24cli task:list --role creator; b24cli task:list --role auditor --group-id 42 --all');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -46,7 +48,7 @@ final class ListTaskCommand extends Command
             $input,
             $output,
             fn (): ListTasksRequest => $this->mapper->listTasks($input),
-            fn (ListTasksRequest $request): array => $this->handler->routes(),
+            fn (ListTasksRequest $request): array => $this->handler->routes($request),
             fn (ListTasksRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),
         );
     }

@@ -90,4 +90,6 @@ README/help показывают текущий интерфейс первой 
 - [Обзор REST3](https://apidocs.bitrix24.ru/api-reference/rest-v3.html) — `/rest/api/<user_id>/<webhook_token>/` и версии маршрутов; действующая connection validation принимает входящий `/rest/<user_id>/<token>/`.
 - [user.current](https://apidocs.bitrix24.ru/api-reference/user/user-current.html) — user/user_brief/user_basic scopes; этот маршрут не включается.
 
-Это source/code-grounded планирование. Live вызовы, runtime tests, CI, merge, архивирование и релиз в этой фазе не выполнялись. Предыдущие receipt/ограничения #42 сохраняются.
+В фазе планирования live вызовы и runtime tests не выполнялись. Результаты реализации и приёмки добавляются в `verification.md` отдельно; предыдущие receipt/ограничения #42 сохраняются.
+
+Перед apply ветка обновлена до `origin/dev` `96ce502`. Effective config проверен через `codex mcp get bitrix24_dev --json` из worktree; реальное подключение подтверждено search → method-details tasks.task.list/tasks.task.get и article-details «Поля задачи в REST 3.0». MCP подтвердил creatorId/responsibleId integer и различие participant REST3 objects / классических ACCOMPLICES/AUDITORS. Ответы method-details объединяют одноимённые версии, поэтому контракт версии сверялся также с URL статей, перечисленными выше. MCP не выполняет portal вызовы; секреты ему не передавались.

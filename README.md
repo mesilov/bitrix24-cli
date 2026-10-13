@@ -417,6 +417,26 @@ JSON и REST 3.0 используют `groupId`; для advanced input испо�
 При создании задачи выбранный профиль может задавать `default.task.groupId`;
 явный `--group-id` или advanced JSON имеет приоритет над этим значением.
 
+Свои задачи можно фильтровать по роли владельца выбранного вебхука:
+
+```sh
+b24cli task:list --role responsible --json  # делаю: исполнитель
+b24cli task:list --role accomplice --json   # помогаю: соисполнитель
+b24cli task:list --role creator --json      # поручил: постановщик
+b24cli task:list --role auditor --json      # наблюдаю: наблюдатель
+b24cli task:find --title "договор" --group-id 42 --role accomplice --json
+b24cli task:list --role creator --where '{"responsibleId":9}' --json
+```
+
+Роль сочетается с остальными допустимыми критериями через AND. Она не ограничивает
+статус: «делаю» включает и завершённые задачи, «поручил» включает задачи, поставленные
+себе. Группы могут пересекаться. ID берётся из выбранного подключения, а не из
+`default.task`; JSON содержит `meta.roleFilter` с `role` и `userId`.
+`responsible` и `creator` используют REST 3.0. `accomplice` и `auditor` добавляют
+REST 1.0 чтение ID участников каждой подходящей задачи и недоступны при
+`--api-policy strict-rest3`. Для ограничения обхода используйте `--group-id`,
+для списка также `--id`; `--all` не снимает `--max-scan`.
+
 Разработка, подключение и сборка: [руководство](docs/development.md).
 
 ## Лицензия

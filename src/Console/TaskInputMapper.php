@@ -8,6 +8,7 @@ use Bitrix24\CLI\Application\Failure;
 use Bitrix24\CLI\Application\Task\FieldSchema;
 use Bitrix24\CLI\Application\Task\Request;
 use Bitrix24\CLI\Application\Task\TaskQuery;
+use Bitrix24\CLI\Application\Task\TaskRole;
 use Symfony\Component\Console\Input\InputInterface;
 
 final readonly class TaskInputMapper
@@ -145,6 +146,12 @@ final readonly class TaskInputMapper
 
     private function query(InputInterface $input, bool $find): TaskQuery
     {
+        $value = $input->getOption('role');
+        $role = $value === null ? null : (is_string($value) ? TaskRole::tryFrom($value) : null);
+        if ($value !== null && $role === null) {
+            throw Failure::usage('Use --role responsible, accomplice, creator or auditor.');
+        }
+
         $where = $find ? [] : $this->json($input, 'where');
         $predicates = [];
         if ($find && $input->getOption('group-id') !== null) {
@@ -197,6 +204,7 @@ final readonly class TaskInputMapper
             $order,
             $this->limit($input, 50),
             $input->getOption('max-scan') === null ? 10000 : $this->id($input->getOption('max-scan'), '--max-scan'),
+            $role,
         );
     }
 

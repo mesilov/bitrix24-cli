@@ -6,6 +6,7 @@ namespace Bitrix24\CLI\Console\Command\Task;
 
 use Bitrix24\CLI\Application\Task\Handler\FindTasksHandler;
 use Bitrix24\CLI\Application\Task\Request\FindTasksRequest;
+use Bitrix24\CLI\Application\Task\TaskRole;
 use Bitrix24\CLI\Console\CommandRunner;
 use Bitrix24\CLI\Console\TaskInputMapper;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -24,12 +25,13 @@ final class FindTaskCommand extends Command
 
     protected function configure(): void
     {
+        $this->addOption('role', null, InputOption::VALUE_REQUIRED, 'Своя роль: responsible — делаю, accomplice — помогаю, creator — поручил, auditor — наблюдаю.', suggestedValues: array_column(TaskRole::cases(), 'value'));
         $this->addOption('title', null, InputOption::VALUE_REQUIRED, 'Название.');
         $this->addOption('group-id', null, InputOption::VALUE_REQUIRED, 'Положительный ID группы/проекта (groupId); локальный фильтр.');
         $this->addOption('limit', null, InputOption::VALUE_REQUIRED, 'Лимит вывода; не заменяет бюджет обхода.');
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Снять только лимит вывода; бюджет остаётся конечным.');
         $this->addOption('max-scan', null, InputOption::VALUE_REQUIRED, 'Максимум просмотренных задач (default 10000).');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: id, title. REST 3.0. Поиск title без регистра Unicode; --group-id ограничивает поиск группой/проектом локально. scan budget независим от лимита вывода.  Пример: b24cli task:find --title "договор" --group-id 42 --json');
+        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: id, title. Поиск title без регистра Unicode; --group-id и --role сочетаются через AND. Роль относится к владельцу выбранного вебхука, не ограничивает статус; scan budget независим от лимита вывода. responsible/creator используют REST3; accomplice/auditor требуют REST1 чтения участников и недоступны при strict-rest3. Пример: b24cli task:find --title "договор" --group-id 42 --role accomplice --json');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -39,7 +41,7 @@ final class FindTaskCommand extends Command
             $input,
             $output,
             fn (): FindTasksRequest => $this->mapper->findTasks($input),
-            fn (FindTasksRequest $request): array => $this->handler->routes(),
+            fn (FindTasksRequest $request): array => $this->handler->routes($request),
             fn (FindTasksRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),
         );
     }
