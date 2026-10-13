@@ -30,6 +30,7 @@ return static function (ContainerBuilder $container, string $root, bool $package
         Bitrix24\CLI\Application\Task\TaskParticipantEnricher::class,
         Bitrix24\CLI\Application\Task\TaskMetadataService::class,
         Bitrix24\CLI\Application\Task\TaskChatService::class,
+        Bitrix24\CLI\Application\Task\TaskResultService::class,
         Bitrix24\CLI\Application\Task\TimeEntryService::class,
         Bitrix24\CLI\Application\Task\ChecklistItemService::class,
 
@@ -43,6 +44,7 @@ return static function (ContainerBuilder $container, string $root, bool $package
     $container->setAlias(Bitrix24\CLI\Infrastructure\Connection\ConnectionResolver::class, Bitrix24\CLI\Infrastructure\Connection\ConnectionManager::class);
     $container->setAlias(Bitrix24\CLI\Infrastructure\Bitrix24\ApiTransport::class, Bitrix24\CLI\Infrastructure\Bitrix24\SdkApiTransport::class);
     foreach ([
+        'TaskResultGateway' => 'Rest3TaskResultAdapter',
         'TaskGateway' => 'Rest3TaskAdapter', 'TaskChatGateway' => 'TaskChatAdapter', 'ChecklistGateway' => 'Rest1ChecklistAdapter',
         'TimeEntryGateway' => 'Rest1TimeEntryAdapter', 'ParticipantGateway' => 'Rest1ParticipantAdapter', 'TaskHistoryGateway' => 'Rest1TaskHistoryAdapter', 'UserGateway' => 'Rest1UserAdapter',
     ] as $port => $adapter) {
