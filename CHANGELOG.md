@@ -12,6 +12,10 @@
 
 ### Добавлено
 
+- POSIX installer для macOS arm64/Linux amd64: публичный Release, SHA-256,
+  проверка версии перед заменой, notices, zsh/bash PATH, custom install directory
+  и `--no-modify-path` ([#28](https://github.com/mesilov/bitrix24-cli/issues/28)).
+
 - Фильтр `--role responsible|accomplice|creator|auditor` в `task:list` и
   `task:find`: свои задачи владельца подключения, сочетание с другими критериями
   через AND и явный маршрут REST 1.0 для соисполнителя и наблюдателя

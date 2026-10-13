@@ -2,7 +2,7 @@
 
 ## Context
 
-См. `proposal.md`. `build/release-assets.py` уже создаёт Unix archives с `b24cli`, metadata, двумя notices и `runtime-licenses/`, а также `SHA256SUMS`. `build/tests/install-check.py` проверяет checksum/unpack/PATH программно, но пользовательского installer нет. `release.yml` публикует assets только после platform checks для version tag в истории main. На момент постановки публичных Releases нет. Изменение #24 готовит ручную macOS/zsh инструкцию.
+См. `proposal.md`. `build/release-assets.py` уже создаёт Unix archives с `b24cli`, metadata, двумя notices и `runtime-licenses/`, а также `SHA256SUMS`. `build/tests/install-check.py` проверяет checksum/unpack/PATH программно, но пользовательского installer нет. `release.yml` публикует assets только после platform checks для version tag в истории main. При проверке 2026-10-13 публичный Release `0.1.0` подтверждён: Unix archives и `SHA256SUMS` опубликованы. Script URL main пока требует доставки. Изменение #24 готовит ручную macOS/zsh инструкцию.
 
 ## Goals / Non-Goals
 
