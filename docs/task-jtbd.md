@@ -16,7 +16,7 @@
 
 - **Текущие команды** — связи из [jtbd-coverage.json](../openspec/changes/define-task-jtbd/jtbd-coverage.json), существующие в [CommandCatalog](../src/Bootstrap/CommandCatalog.php). Ссылки ведут на классы команд.
 - **Планируемые команды** — остальные связи исходной матрицы; их нет в текущем runtime. [Каталог кандидатов](../openspec/changes/define-task-jtbd/cli-candidates.md) описывает план, а не доступные команды. Ветки разработки и открытые issues не считаются реализацией в этом снимке.
-- **Статус** — «✅ Готово» означает наличие текущей команды в коде; «➖ Нет реализации» — отсутствие текущих mapped команд. «🕓 План» означает команду из исходного плана; «➖ Нет планов в исходном mapping» — отсутствие планируемых команд в этой связи. Статус не сообщает результат запуска теста.
+- **Статус** — «✅ Готово» означает наличие текущей команды в коде; «🕓 План» — команду из исходного плана. Статус не сообщает результат запуска теста.
 - **Тесты** — существующие идентификаторы `Class::method` в `tests/Integration/Task`, с группами PHPUnit `command:<имя команды>` / `happy-path`. Они проверяют команды по отдельности; отдельных сквозных интеграционных тестов с ID `PM-*`, `AM-*`, `EMP-*` сейчас нет. Повторение метода в нескольких сценариях означает общую команду, а не независимое покрытие каждого JTBD.
 - Поле **границы** показывает, чего командные тесты не доказывают. Ссылка на тест означает наличие его исходника, а не успешный запуск. Открытая [portal-приёмка #42](https://github.com/mesilov/bitrix24-cli/issues/42) и [границы релиза](rc-0.1.0.md) сохраняются; в этой задаче live-тесты не запускались.
 
@@ -33,7 +33,7 @@
 - **Чтобы:** команда могла приступить к работе без дополнительных догадок.
 - **Признак успеха:** У каждой задачи понятны результат, исполнитель, срок и условия завершения.
 
-**Текущие команды и интеграционные тесты**
+**Команды и интеграционные тесты**
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
@@ -41,11 +41,6 @@
 | ✅ Готово | [`task:show`](../src/Console/Command/Task/ShowTaskCommand.php) | [`ShowTaskCommandTest::testHappyPathReturnsTaskCard`](../tests/Integration/Task/ShowTaskCommandTest.php) |
 | ✅ Готово | [`task:checklist:add`](../src/Console/Command/Task/AddTaskChecklistCommand.php) | [`AddTaskChecklistCommandTest::testHappyPathCreatesChecklistRoot`](../tests/Integration/Task/AddTaskChecklistCommandTest.php) |
 | ✅ Готово | [`task:checklist:item:add`](../src/Console/Command/Task/AddTaskChecklistItemCommand.php) | [`AddTaskChecklistItemCommandTest::testHappyPathAddsItemToSelectedChecklist`](../tests/Integration/Task/AddTaskChecklistItemCommandTest.php) |
-
-**Планируемые команды**
-
-| Статус | Команда | Тест |
-| --- | --- | --- |
 | 🕓 План | `task:subtask:add` | Нет |
 
 **Границы:** Проверяются отдельные создание/карточка/чек-листы; нет сквозной проверки декомпозиции этапа и полноты критериев приёмки.
@@ -59,16 +54,11 @@
 - **Чтобы:** направить внимание туда, где требуется вмешательство.
 - **Признак успеха:** Видны просрочки, приближающиеся сроки, препятствия и ожидаемые решения.
 
-**Текущие команды и интеграционные тесты**
+**Команды и интеграционные тесты**
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
 | ✅ Готово | [`task:list`](../src/Console/Command/Task/ListTaskCommand.php) | [`ListTaskCommandTest::testHappyPathListsSelectedTask`](../tests/Integration/Task/ListTaskCommandTest.php) |
-
-**Планируемые команды**
-
-| Статус | Команда | Тест |
-| --- | --- | --- |
 | 🕓 План | `task:plan` | Нет |
 | 🕓 План | `task:risks` | Нет |
 | 🕓 План | `task:dependency:list` | Нет |
@@ -84,16 +74,11 @@
 - **Чтобы:** восстановить движение проекта.
 - **Признак успеха:** Понятно, кто и что должен сделать для продолжения работы.
 
-**Текущие команды и интеграционные тесты**
+**Команды и интеграционные тесты**
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
 | ✅ Готово | [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) | [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php) |
-
-**Планируемые команды**
-
-| Статус | Команда | Тест |
-| --- | --- | --- |
 | 🕓 План | `task:blocker:raise` | Нет |
 | 🕓 План | `task:blocker:resolve` | Нет |
 
@@ -108,17 +93,12 @@
 - **Чтобы:** сохранить выполнимый план.
 - **Признак успеха:** Изменения зафиксированы, затронутые участники понимают новые договорённости.
 
-**Текущие команды и интеграционные тесты**
+**Команды и интеграционные тесты**
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
 | ✅ Готово | [`task:assign`](../src/Console/Command/Task/AssignTaskCommand.php) | [`AssignTaskCommandTest::testHappyPathSetsResponsibleUser`](../tests/Integration/Task/AssignTaskCommandTest.php) |
 | ✅ Готово | [`task:deadline:set`](../src/Console/Command/Task/SetTaskDeadlineCommand.php) | [`SetTaskDeadlineCommandTest::testHappyPathSetsDeadlineWithOffset`](../tests/Integration/Task/SetTaskDeadlineCommandTest.php) |
-
-**Планируемые команды**
-
-| Статус | Команда | Тест |
-| --- | --- | --- |
 | 🕓 План | `task:plan` | Нет |
 | 🕓 План | `task:change:propose` | Нет |
 | 🕓 План | `task:change:accept` | Нет |
@@ -134,13 +114,7 @@
 - **Чтобы:** завершённая задача означала полученный результат.
 - **Признак успеха:** Зафиксировано решение; при возврате понятны необходимые исправления.
 
-**Текущие команды и интеграционные тесты**
-
-| Статус | Команда | Тест |
-| --- | --- | --- |
-| ➖ Нет реализации | — | Нет |
-
-**Планируемые команды**
+**Команды и интеграционные тесты**
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
@@ -160,18 +134,12 @@
 - **Чтобы:** решение и договорённости оставались в контексте задачи.
 - **Признак успеха:** Доступна история переписки; сообщение руководителя сохранено в чате нужной задачи и доступно участникам с правами доступа.
 
-**Текущие команды и интеграционные тесты**
+**Команды и интеграционные тесты**
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
 | ✅ Готово | [`task:chat:list`](../src/Console/Command/Task/ListTaskChatCommand.php) | [`ListTaskChatCommandTest::testHappyPathListsMessagesOfSelectedTask`](../tests/Integration/Task/ListTaskChatCommandTest.php) |
 | ✅ Готово | [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) | [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php) |
-
-**Планируемые команды**
-
-| Статус | Команда | Тест |
-| --- | --- | --- |
-| ➖ Нет планов в исходном mapping | — | — |
 
 **Границы:** Проверяются чтение и отправка в чате задачи; denied-role матрица остаётся в #42.
 
@@ -189,19 +157,13 @@
 - **Чтобы:** запрос не потерялся при передаче команде.
 - **Признак успеха:** Сохранены источник запроса, клиентский контекст и ожидаемый результат.
 
-**Текущие команды и интеграционные тесты**
+**Команды и интеграционные тесты**
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
 | ✅ Готово | [`task:add`](../src/Console/Command/Task/AddTaskCommand.php) | [`AddTaskCommandTest::testHappyPathCreatesTaskWithRequestedFields`](../tests/Integration/Task/AddTaskCommandTest.php) |
 | ✅ Готово | [`task:show`](../src/Console/Command/Task/ShowTaskCommand.php) | [`ShowTaskCommandTest::testHappyPathReturnsTaskCard`](../tests/Integration/Task/ShowTaskCommandTest.php) |
 | ✅ Готово | [`task:find`](../src/Console/Command/Task/FindTaskCommand.php) | [`FindTaskCommandTest::testHappyPathReturnsTwoUnicodeTitleMatches`](../tests/Integration/Task/FindTaskCommandTest.php) |
-
-**Планируемые команды**
-
-| Статус | Команда | Тест |
-| --- | --- | --- |
-| ➖ Нет планов в исходном mapping | — | — |
 
 **Границы:** Проверяются поля создания, карточка и поиск; сохранение всего клиентского контекста как бизнес-контракта отдельно не проверяется.
 
@@ -214,13 +176,7 @@
 - **Чтобы:** заранее заметить угрозу обещанию.
 - **Признак успеха:** Можно определить, какие обязательства выполняются, а какие требуют пересогласования.
 
-**Текущие команды и интеграционные тесты**
-
-| Статус | Команда | Тест |
-| --- | --- | --- |
-| ➖ Нет реализации | — | Нет |
-
-**Планируемые команды**
+**Команды и интеграционные тесты**
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
@@ -239,13 +195,7 @@
 - **Чтобы:** дать обоснованный ответ без опроса каждого исполнителя.
 - **Признак успеха:** Есть проверяемая сводка: сделано, осталось, что мешает, когда следующее обновление.
 
-**Текущие команды и интеграционные тесты**
-
-| Статус | Команда | Тест |
-| --- | --- | --- |
-| ➖ Нет реализации | — | Нет |
-
-**Планируемые команды**
+**Команды и интеграционные тесты**
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
@@ -263,16 +213,11 @@
 - **Чтобы:** команда работала по актуальным договорённостям.
 - **Признак успеха:** Изменения и согласованные последствия для объёма и сроков прослеживаются.
 
-**Текущие команды и интеграционные тесты**
+**Команды и интеграционные тесты**
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
 | ✅ Готово | [`task:update`](../src/Console/Command/Task/UpdateTaskCommand.php) | [`UpdateTaskCommandTest::testHappyPathChangesTitleAndKeepsOmittedDescription`](../tests/Integration/Task/UpdateTaskCommandTest.php) |
-
-**Планируемые команды**
-
-| Статус | Команда | Тест |
-| --- | --- | --- |
 | 🕓 План | `task:change:propose` | Нет |
 | 🕓 План | `task:change:accept` | Нет |
 
@@ -287,13 +232,7 @@
 - **Чтобы:** довести договорённость до принятия результата.
 - **Признак успеха:** Видно, что передано клиенту, что принято и какие замечания остались; это отдельное событие от внутренней приёмки PM-05.
 
-**Текущие команды и интеграционные тесты**
-
-| Статус | Команда | Тест |
-| --- | --- | --- |
-| ➖ Нет реализации | — | Нет |
-
-**Планируемые команды**
+**Команды и интеграционные тесты**
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
@@ -314,18 +253,12 @@
 - **Чтобы:** сохранить единый контекст клиентских договорённостей при передаче команде.
 - **Признак успеха:** Уточнение и ответы прослеживаются в чате задачи; внешнему клиенту доступ автоматически не предоставляется.
 
-**Текущие команды и интеграционные тесты**
+**Команды и интеграционные тесты**
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
 | ✅ Готово | [`task:chat:list`](../src/Console/Command/Task/ListTaskChatCommand.php) | [`ListTaskChatCommandTest::testHappyPathListsMessagesOfSelectedTask`](../tests/Integration/Task/ListTaskChatCommandTest.php) |
 | ✅ Готово | [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) | [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php) |
-
-**Планируемые команды**
-
-| Статус | Команда | Тест |
-| --- | --- | --- |
-| ➖ Нет планов в исходном mapping | — | — |
 
 **Границы:** Проверяются сообщения чата задачи; клиентское согласование и доступ внешнего клиента не проверяются, denied-role — #42.
 
@@ -343,16 +276,11 @@
 - **Чтобы:** выбрать следующую работу.
 - **Признак успеха:** Понятно, что делать сейчас и какие обязательства требуют внимания.
 
-**Текущие команды и интеграционные тесты**
+**Команды и интеграционные тесты**
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
 | ✅ Готово | [`task:list`](../src/Console/Command/Task/ListTaskCommand.php) | [`ListTaskCommandTest::testHappyPathListsSelectedTask`](../tests/Integration/Task/ListTaskCommandTest.php) |
-
-**Планируемые команды**
-
-| Статус | Команда | Тест |
-| --- | --- | --- |
 | 🕓 План | `task:my` | Нет |
 
 **Границы:** Список проверяется по известному ID; выбор собственной очереди работ по приоритету целиком не проверяется.
@@ -366,7 +294,7 @@
 - **Чтобы:** выполнить работу с ожидаемым качеством.
 - **Признак успеха:** Контекст доступен; недостающие сведения можно запросить в обсуждении задачи.
 
-**Текущие команды и интеграционные тесты**
+**Команды и интеграционные тесты**
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
@@ -375,12 +303,6 @@
 | ✅ Готово | [`task:find`](../src/Console/Command/Task/FindTaskCommand.php) | [`FindTaskCommandTest::testHappyPathReturnsTwoUnicodeTitleMatches`](../tests/Integration/Task/FindTaskCommandTest.php) |
 | ✅ Готово | [`task:checklist:list`](../src/Console/Command/Task/ListTaskChecklistsCommand.php) | [`ListTaskChecklistsCommandTest::testHappyPathListsOnlyChecklistRoots`](../tests/Integration/Task/ListTaskChecklistsCommandTest.php) |
 | ✅ Готово | [`task:checklist:item:list`](../src/Console/Command/Task/ListTaskChecklistItemsCommand.php) | [`ListTaskChecklistItemsCommandTest::testHappyPathListsItemsInsideSelectedChecklist`](../tests/Integration/Task/ListTaskChecklistItemsCommandTest.php) |
-
-**Планируемые команды**
-
-| Статус | Команда | Тест |
-| --- | --- | --- |
-| ➖ Нет планов в исходном mapping | — | — |
 
 **Границы:** Проверяются карточка, поиск, чат и чек-листы; полнота требований, материалов и условий приёмки целиком не проверяется.
 
@@ -393,16 +315,11 @@
 - **Чтобы:** получить решение и продолжить работу.
 - **Признак успеха:** Препятствие заметно ответственным; указан необходимый следующий шаг.
 
-**Текущие команды и интеграционные тесты**
+**Команды и интеграционные тесты**
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
 | ✅ Готово | [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) | [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php) |
-
-**Планируемые команды**
-
-| Статус | Команда | Тест |
-| --- | --- | --- |
 | 🕓 План | `task:blocker:raise` | Нет |
 
 **Границы:** Проверяется отправка сообщения; получение решения и переход препятствия в разрешённое состояние не проверяются.
@@ -416,16 +333,11 @@
 - **Чтобы:** избежать работы по устаревшим договорённостям.
 - **Признак успеха:** Понятно, что изменилось и какой результат теперь ожидается.
 
-**Текущие команды и интеграционные тесты**
+**Команды и интеграционные тесты**
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
 | ✅ Готово | [`task:show`](../src/Console/Command/Task/ShowTaskCommand.php) | [`ShowTaskCommandTest::testHappyPathReturnsTaskCard`](../tests/Integration/Task/ShowTaskCommandTest.php) |
-
-**Планируемые команды**
-
-| Статус | Команда | Тест |
-| --- | --- | --- |
 | 🕓 План | `task:brief` | Нет |
 | 🕓 План | `task:change:propose` | Нет |
 | 🕓 План | `task:change:accept` | Нет |
@@ -441,16 +353,11 @@
 - **Чтобы:** получить решение о приёмке.
 - **Признак успеха:** Результат доступен проверяющему; видно, ожидается проверка или нужны исправления.
 
-**Текущие команды и интеграционные тесты**
+**Команды и интеграционные тесты**
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
 | ✅ Готово | [`task:file:attach`](../src/Console/Command/Task/AttachTaskFilesCommand.php) | [`AttachTaskFilesCommandTest::testHappyPathConfirmsDiskFileAttachment`](../tests/Integration/Task/AttachTaskFilesCommandTest.php) |
-
-**Планируемые команды**
-
-| Статус | Команда | Тест |
-| --- | --- | --- |
 | 🕓 План | `task:result:add` | Нет |
 | 🕓 План | `task:result:from-message` | Нет |
 | 🕓 План | `task:complete` | Нет |
@@ -466,7 +373,7 @@
 - **Чтобы:** отчёт отражал фактические затраты.
 - **Признак успеха:** Запись связана с задачей, содержит длительность и пояснение; ошибку можно исправить.
 
-**Текущие команды и интеграционные тесты**
+**Команды и интеграционные тесты**
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
@@ -475,12 +382,6 @@
 | ✅ Готово | [`task:time:list`](../src/Console/Command/Task/ListTaskTimeEntriesCommand.php) | [`ListTaskTimeEntriesCommandTest::testHappyPathListsOwnTimeEntry`](../tests/Integration/Task/ListTaskTimeEntriesCommandTest.php) |
 | ✅ Готово | [`task:time:update`](../src/Console/Command/Task/UpdateTaskTimeEntryCommand.php) | [`UpdateTaskTimeEntryCommandTest::testHappyPathUpdatesSecondsAndKeepsOmittedText`](../tests/Integration/Task/UpdateTaskTimeEntryCommandTest.php) |
 | ✅ Готово | [`task:time:delete`](../src/Console/Command/Task/DeleteTaskTimeEntryCommand.php) | [`DeleteTaskTimeEntryCommandTest::testHappyPathDeletesOwnTimeEntry`](../tests/Integration/Task/DeleteTaskTimeEntryCommandTest.php) |
-
-**Планируемые команды**
-
-| Статус | Команда | Тест |
-| --- | --- | --- |
-| ➖ Нет планов в исходном mapping | — | — |
 
 **Границы:** Проверяются собственные записи и граница полноты elapsedTime; полнота списка, чужие права и wrong-task проверки остаются частью #42.
 
@@ -493,18 +394,12 @@
 - **Чтобы:** получить согласованный ответ и продолжить работу в актуальном контексте.
 - **Признак успеха:** Вопрос и ответ сохранены при задаче; участник может продолжить обсуждение, не теряя предыдущих сообщений.
 
-**Текущие команды и интеграционные тесты**
+**Команды и интеграционные тесты**
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
 | ✅ Готово | [`task:chat:list`](../src/Console/Command/Task/ListTaskChatCommand.php) | [`ListTaskChatCommandTest::testHappyPathListsMessagesOfSelectedTask`](../tests/Integration/Task/ListTaskChatCommandTest.php) |
 | ✅ Готово | [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) | [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php) |
-
-**Планируемые команды**
-
-| Статус | Команда | Тест |
-| --- | --- | --- |
-| ➖ Нет планов в исходном mapping | — | — |
 
 **Границы:** Проверяются чтение и отправка в чате задачи; сквозная переписка вопрос/ответ и denied-role матрица не подтверждены (#42).
 

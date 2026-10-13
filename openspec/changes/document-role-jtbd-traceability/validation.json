@@ -1,13 +1,13 @@
 {
   "scenario_items": 19,
-  "command_tables": 38,
+  "command_tables": 19,
   "role_navigation_links": 3,
   "role_items": {
     "PM": 6,
     "AM": 6,
     "EMP": 7
   },
-  "format": "scenario-lists-with-current-and-planned-command-tables-and-role-navigation",
+  "format": "scenario-lists-with-combined-command-tables-and-role-navigation",
   "command_refs": 32,
   "test_method_refs": 32,
   "unique_commands": 19,
