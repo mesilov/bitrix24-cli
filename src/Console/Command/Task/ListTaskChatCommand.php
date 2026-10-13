@@ -30,8 +30,8 @@ final class ListTaskChatCommand extends Command
         $this->addOption('after', null, InputOption::VALUE_REQUIRED, 'Сообщения новее MESSAGE_ID.');
         $this->addOption('limit', null, InputOption::VALUE_REQUIRED, 'Лимит вывода; не заменяет бюджет обхода.');
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Снять только лимит вывода; бюджет остаётся конечным.');
-        $this->addOption('max-messages', null, InputOption::VALUE_REQUIRED, 'Бюджет просмотра сообщений (default 10000).');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: id, createdDate, authorId, text. REST 1.0 companion route; strict-rest3 отклоняет вызов до подключения.  Доступ ограничен правами пользователя webhook и scope im. --all просматривает доступную историю до --max-messages (10000). Пример: b24cli task:chat:list 123 --limit 20');
+        $this->addOption('max-messages', null, InputOption::VALUE_REQUIRED, 'Бюджет просмотра сообщений (по умолчанию 10000).');
+        $this->setHelp('JSON: структура data/meta/error; столбцы TSV при --plain: id, createdDate, authorId, text. Дополнительный маршрут REST 1.0; strict-rest3 отклоняет вызов до подключения.  Доступ ограничен правами пользователя вебхука и областью доступа im. --all просматривает доступную историю до --max-messages (10000). Пример: b24cli task:chat:list 123 --limit 20');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

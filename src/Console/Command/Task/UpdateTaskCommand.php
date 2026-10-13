@@ -35,10 +35,10 @@ final class UpdateTaskCommand extends Command
         $this->addOption('description-file', null, InputOption::VALUE_REQUIRED, 'Описание из PATH или - (stdin).');
         $this->addOption('tag', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Полный набор тегов (TAGS, REST 1.0); повторяйте для нескольких названий.');
         $this->addOption('clear-tags', null, InputOption::VALUE_NONE, 'Очистить все теги задачи (TAGS=[]).');
-        $this->addOption('fields', null, InputOption::VALUE_REQUIRED, 'Отдельный advanced JSON object writable полей.');
-        $this->addOption('fields-file', null, InputOption::VALUE_REQUIRED, 'Advanced JSON из PATH или -.');
+        $this->addOption('fields', null, InputOption::VALUE_REQUIRED, 'Отдельный JSON-объект доступных для записи полей.');
+        $this->addOption('fields-file', null, InputOption::VALUE_REQUIRED, 'Расширенный JSON из PATH или -.');
         $this->addOption('dry-run', null, InputOption::VALUE_NONE, 'Показать план без записи; проверочные чтения обозначены.');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: taskId, resourceId, action, changedFields. Обычные поля — REST 3.0; --tag/--clear-tags — отдельная запись REST 1.0, недоступная в strict-rest3. Теги задаются полным набором; без опции сохраняются. Частичный результат содержит TASK_ID: проверьте task:show с tags.id/tags.name и повторите только task:update с тегами.  Патч включает только явно переданные поля. --description="" очищает описание. --fields/--fields-file — отдельный режим с проверкой editable метаданных; status не поддерживается. Пример: b24cli task:update 123 --title "Согласовать договор" --group-id 42 --tag "#ошибка". Очистка: b24cli task:update 123 --clear-tags');
+        $this->setHelp('JSON: структура data/meta/error; столбцы TSV при --plain: taskId, resourceId, action, changedFields. Обычные поля — REST 3.0; --tag/--clear-tags — отдельная запись REST 1.0, недоступная в strict-rest3. Теги задаются полным набором; без опции сохраняются. Частичный результат содержит TASK_ID: проверьте task:show с tags.id/tags.name и повторите только task:update с тегами.  Патч включает только явно переданные поля. --description="" очищает описание. --fields/--fields-file — отдельный режим с проверкой метаданных доступности записи; status не поддерживается. Пример: b24cli task:update 123 --title "Согласовать договор" --group-id 42 --tag "#ошибка". Очистка: b24cli task:update 123 --clear-tags');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

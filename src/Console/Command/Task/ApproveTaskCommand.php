@@ -27,7 +27,7 @@ final class ApproveTaskCommand extends Command
     {
         $this->addArgument('TASK_ID', InputArgument::REQUIRED, 'ID задачи.');
         $this->addOption('dry-run', null, InputOption::VALUE_NONE, 'Показать план без записи; проверочные чтения обозначены.');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: taskId, action, confirmed, status, needsControl, requireResult. REST 1.0 lifecycle; supposedly_completed — ожидание контроля, completed — завершено; strict-rest3 отклоняет вызов до подключения.   Пример: b24cli task:approve 123');
+        $this->setHelp('JSON: объект data/meta/error; plain TSV: taskId, action, confirmed, status, needsControl, requireResult. Переход использует REST 1.0; supposedly_completed — ожидание контроля, completed — завершение. strict-rest3 отклоняет вызов до подключения. Пример: b24cli task:approve 123');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

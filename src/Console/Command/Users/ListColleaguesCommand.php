@@ -26,10 +26,10 @@ final class ListColleaguesCommand extends Command
     protected function configure(): void
     {
         $this->addOption('department-id', null, InputOption::VALUE_REQUIRED, 'Текущий отдел: обязателен при нескольких отделах.');
-        $this->addOption('limit', null, InputOption::VALUE_REQUIRED, 'Лимит вывода (default 50); не ограничивает обход.');
+        $this->addOption('limit', null, InputOption::VALUE_REQUIRED, 'Лимит вывода (по умолчанию 50); не ограничивает обход.');
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Снять только лимит вывода.');
-        $this->addOption('max-scan', null, InputOption::VALUE_REQUIRED, 'Максимум просмотренных сотрудников (default 1000).');
-        $this->setHelp('REST1; права user/department выбранного подключения. JSON data/meta/error; plain TSV: ID, NAME, SECOND_NAME, LAST_NAME, EMAIL, UF_DEPARTMENT. Поиск возвращает кандидатов; полный пустой результат exit0, неполный exit3. Пример: b24cli users:colleagues --department-id 7 --json');
+        $this->addOption('max-scan', null, InputOption::VALUE_REQUIRED, 'Максимум просмотренных сотрудников (по умолчанию 1000).');
+        $this->setHelp('REST1; права user/department выбранного подключения. JSON data/meta/error; TSV при --plain: ID, NAME, SECOND_NAME, LAST_NAME, EMAIL, UF_DEPARTMENT. Поиск возвращает кандидатов; полный пустой результат exit0, неполный exit3. Пример: b24cli users:colleagues --department-id 7 --json');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

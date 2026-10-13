@@ -83,7 +83,7 @@ def main():
         check(version == "b24cli " + args.expected_version, "Version mismatch: " + version)
         for command in [["list", "--no-ansi"], ["--help", "--no-ansi"]]:
             output = invoke("b24cli", command)
-            expected = "b24cli" if command[0] == "list" else "Usage:"
+            expected = "b24cli" if command[0] == "list" else "Использование:"
             check(expected in output and "\x1b" not in output, "CLI/help contract failed")
         unknown = json.loads(invoke("b24cli", ["несуществующая-команда", "--json", "--no-ansi"], 2))
         check(unknown["error"]["code"] == "usage-error" and unknown["meta"]["apiCalls"] == [],
@@ -98,7 +98,7 @@ def main():
             check(denied["error"]["code"] == "policy-denied" and denied["meta"]["apiCalls"] == [],
                   "Lifecycle policy must reject before credentials/API: " + name)
         for name in commands:
-            check("Usage:" in invoke("b24cli", [name, "--help", "--no-ansi"]), "Task help failed: " + name)
+            check("Использование:" in invoke("b24cli", [name, "--help", "--no-ansi"]), "Task help failed: " + name)
         dry_run = json.loads(invoke("b24cli", ["task:add", "--title", "Привет, Битрикс24", "--creator", "1",
                                                "--responsible", "2", "--dry-run", "--json", "--no-ansi"]))
         check(dry_run["error"] is None and dry_run["meta"]["dryRun"] is True

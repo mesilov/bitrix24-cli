@@ -1,8 +1,8 @@
-# Verification — 13.10.2026
+# Verification
 
 ## Verdict
 
-Реализация присутствует, 19/21 задач завершены. Полная приёмка **не завершена**: task 4.4 требует denied-role live evidence, task 5.3 — итоговой verify со всеми завершёнными задачами. Change остаётся активным, PR #66 — draft в dev. Merge, archive и release не выполнялись.
+Реализация присутствует, 19/21 задач завершены. Полная приёмка **не завершена**: task 4.4 требует denied-role live evidence, task 5.3 — итоговой verify со всеми завершёнными задачами. Change остаётся активным. Пользователь 14.10.2026 разрешил синхронизацию с dev и merge реализации; это не закрывает gaps приёмки и не подтверждает release. Состояние доставки и CI проверяется отдельно в PR #66.
 
 ## Completeness
 
@@ -41,3 +41,32 @@
 - Финальные records не содержат cleanupFailures. В промежуточном прогоне cleanup task 5724 не был подтверждён; отдельный REST3 `task:list --id 5724` после него подтвердил complete=true и пустой список. Повторного delete не выполнялось.
 - Нужен webhook доступного задаче наблюдателя без права выбранного действия. После его предоставления выполнить observer matrix, закрыть 4.4, повторить verify и закрыть 5.3. Наличие ID 14 само по себе не даёт подключения от его имени.
 - GitHub CI и native package jobs — отдельное evidence; локальные тесты не подтверждают их успех или выпуск бинарников.
+
+
+## Повторная verify после синхронизации с dev — 14.10.2026
+
+| Измерение | Результат |
+| --- | --- |
+| Completeness | 19/21 задач. 4.4 и 5.3 остаются незавершёнными; observer matrix требует restricted webhook |
+| Correctness | Реализация всех требований присутствует. Contract, policy, output, cancellation и фильтры подтверждены unit suite; live denied-role evidence не проверено |
+| Coherence | Сохранены 41 task-команда, четыре users-команды, шесть local-команд, русская справка, ролевая и календарная фильтрация, сортировка id DESC, result/tag/upload scope из dev |
+
+Повторные проверки на результате merge:
+
+- make unit: **756 tests / 12044 assertions**, pass. Добавлен regression case сочетания scalar/participant role, статуса и неизвестной группы для task:list/task:find; исключённые строки и дубли не создают лишних companion запросов.
+- make check и make lint-all: pass. Исправлена сигнатура SDK fixture createTask с named fields после выделения LiveCommandTestCase в dev. Общий harness сохраняет roleFilter и lifecycle evidence.
+- make cli-reference и проверка ссылок JTBD/карты: pass. Все семь lifecycle help переведены на русский; docs/task-jtbd.md отражает реализацию PM-05/EMP-05 и status-selection EMP-01/PM-02/AM-02, с границами приёмки.
+- openspec validate add-task-lifecycle --strict и git diff --check: pass. Дельты runtime/MVP сохраняют существующие user/result/tag/upload/role сценарии dev.
+- Повторная lifecycle matrix: **24 cases / 266 assertions, 17 passed, 7 skipped**, без failures/errors. Все skips — observer denied-role cases. Fixtures очищены.
+- Прежняя ошибка native CI локализована: smoke harness ожидал прежние 30 команд (затем 34 в dev). Harness теперь проверяет 41 task-команду, наличие всех семи lifecycle и strict-rest3 dry-run denial до API, а справку — на русском. Успех native packaging определяется отдельным новым CI запуском, не локальной компиляцией Python.
+
+### Requirement/scenario mapping
+
+- task-lifecycle: TaskLifecycleService/Rest1TaskLifecycleAdapter/TaskStatus, TaskLifecycleTest, lifecycle-signal-worker, семь собственных CommandTest и status cases ListTaskCommandTest покрывают discovery, positive taskId, routes/ACK, action rights, review gates, required native result, actual/concurrent status, partial/unknown/cancel, preview, list AND/unknown group/scan и side effects. Control/result/live happy-path подтверждены; denied observer live evidence отсутствует.
+- task-console-runtime: CommandCatalog/DI/ApiPolicyGuard и ContainerRegistrationTest/IntegrationCommandCoverageTest/TaskLifecycleTest, текущие TaskRoleFilterTest/TaskDeadlineFilterTest/LocalFileUploadTest/RussianHelpTest проверяют полный текущий каталог и route plans.
+- task-mvp-scope: raw status остаётся запрещён FieldSchema; внутренний lifecycle result read не создаёт result и не заменяет отдельный task-results scope. Сохраняются существующие tags, Disk и participant admissions; историческая граница 0.1.0 не переписывается.
+- task-workflows: ListTaskCommandTest и TaskLifecycleTest подтверждают EMP-01/PM-02/AM-02 фильтры своего/другого responsibleId, groupId, status и membership после переходов; видимая выборка и ограничение scan не объявляются полным проектом.
+
+### Осталось
+
+Два critical completeness gaps: 4.4 (ограниченное подключение наблюдателя) и 5.3 (итоговая verify после полной приёмки). Пользователь разрешил merge реализации с известными gaps. Change не готов к архивированию; checklist не помечается полностью выполненным. Issue #60 сохраняет активный путь change до завершения приёмки.

@@ -21,8 +21,11 @@
   dry-run и сохранение confirmed/partial/outcomeUnknown. Строгая проверка шести
   логических статусов в фильтрах задач ([#60](https://github.com/mesilov/bitrix24-cli/issues/60)).
 
-- Подготовлен OpenSpec-план перевода всей CLI-справки на русский и объединения
-  `completion`, `help` и `list` в единый блок «Общие»; реализация запланирована отдельно
+
+- Вся CLI-справка переведена на русский: общие и командные заголовки, аргументы,
+  опции, значения по умолчанию, примеры и ограничения; встроенные `completion`,
+  `help` и `list` собраны в едином первом блоке «Общие». Обновлены README и карта CLI,
+  сохранены имена команд/флагов, схемы JSON/XML и shell-скрипты автодополнения
   ([#113](https://github.com/mesilov/bitrix24-cli/issues/113)).
 
 - `doctor:problem-trajectory`: защищённые локальные карточки, root telemetry
@@ -84,6 +87,12 @@
   ([#63](https://github.com/mesilov/bitrix24-cli/issues/63)).
 
 ### Изменено
+
+- После merge [PR #116](https://github.com/mesilov/bitrix24-cli/pull/116) в `dev`
+  и закрытия [#113](https://github.com/mesilov/bitrix24-cli/issues/113) требования
+  русской CLI-справки и единого блока «Общие» синхронизированы в `cli-experience`;
+  завершённый change `localize-cli-help-and-group-common-commands` перенесён
+  в архив от 14.10.2026.
 
 - OpenSpec MVP проблемных сценариев синхронизирован с актуальными
   `agent-trajectory-feedback` и `connection-configuration`; завершённый change

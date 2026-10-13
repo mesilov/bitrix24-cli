@@ -4,6 +4,10 @@
 
 Мотивация и scope — в [proposal.md](proposal.md). База planning: `origin/dev` / `4589588` на 13.10.2026. Сейчас `CommandCatalog` содержит 30 task-команд и 5 локальных connection-команд; lifecycle отсутствует. `FieldSchema::writable` запрещает raw status write. `PreparedOperation` отделяет preflight/plan от execute; `ApiPolicyGuard` сверяет весь список маршрутов до provider. `Rest3TaskAdapter` уже читает карточку и права, `SdkApiTransport` учитывает effect и неопределённость отправленной записи. Обычный mutation presenter не выводит status, поэтому для lifecycle нужен отдельный профиль результата.
 
+### Синхронизация с dev — 14.10.2026
+
+После обновления dev каталог включает 41 task-команду (30 исходных, четыре result и семь lifecycle), четыре users-команды и шесть локальных команд. Сохраняются русская справка, явные --role фильтры своей роли, календарные дедлайны, теги, загрузки и id DESC. Проверка неизвестной группы через REST3 карточку применяется к REST3 scan, после остальных predicates; REST1 deadline scan сохраняет свой серверный GROUP_ID и полный route plan. Собственные задачи также можно явно выбирать через --role responsible, но task:my этот change не добавляет.
+
 ### Проверенные источники API
 
 Официальная документация прочитана 13.10.2026. Это документированный контракт, а не доказательство работы методов на конкретном портале.

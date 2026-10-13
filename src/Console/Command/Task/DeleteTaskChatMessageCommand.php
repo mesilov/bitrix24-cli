@@ -29,7 +29,7 @@ final class DeleteTaskChatMessageCommand extends Command
         $this->addOption('message', null, InputOption::VALUE_REQUIRED, 'ID сообщения в выбранном чате задачи.');
         $this->addOption('force', null, InputOption::VALUE_NONE, 'Подтвердить удаление без диалога; проверки доступа и принадлежности сохраняются.');
         $this->addOption('dry-run', null, InputOption::VALUE_NONE, 'Показать план без записи; проверочные чтения обозначены.');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: taskId, resourceId, action, changedFields. REST 1.0 companion route; strict-rest3 отклоняет вызов до подключения.   Пример: b24cli task:chat:delete 123 --message 900 --force');
+        $this->setHelp('JSON: структура data/meta/error; столбцы TSV при --plain: taskId, resourceId, action, changedFields. Дополнительный маршрут REST 1.0; strict-rest3 отклоняет вызов до подключения.   Пример: b24cli task:chat:delete 123 --message 900 --force');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

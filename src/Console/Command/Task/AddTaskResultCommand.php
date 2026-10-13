@@ -28,8 +28,8 @@ final class AddTaskResultCommand extends Command
         $this->addArgument('TASK_ID', InputArgument::REQUIRED, 'ID задачи.');
         $this->addOption('text', null, InputOption::VALUE_REQUIRED, 'Непустой текст результата.');
         $this->addOption('text-file', null, InputOption::VALUE_REQUIRED, 'Текст из PATH или - (stdin).');
-        $this->addOption('dry-run', null, InputOption::VALUE_NONE, 'Показать план без записи; update/delete проверяют принадлежность результата.');
-        $this->setHelp('REST 3.0; strict-rest3 поддерживается. JSON: data/meta/error envelope; plain TSV columns: taskId, resourceId, action, changedFields. Результаты задачи доступны в пределах прав подключения. Пример: b24cli task:result:add 123 --text "Договор готов"');
+        $this->addOption('dry-run', null, InputOption::VALUE_NONE, 'Показать план без записи; обновление/удаление проверяют принадлежность результата.');
+        $this->setHelp('REST 3.0; strict-rest3 поддерживается. JSON: структура data/meta/error; столбцы TSV при --plain: taskId, resourceId, action, changedFields. Результаты задачи доступны в пределах прав подключения. Пример: b24cli task:result:add 123 --text "Договор готов"');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

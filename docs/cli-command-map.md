@@ -2,21 +2,21 @@
 
 Каталог содержит 54 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
 
-`b24cli --help`/`-h` показывают назначение, список команд, глобальные опции и примеры задач. `b24cli --about` показывает назначение, версию, автора, лицензию и ссылки на [приложение](https://github.com/mesilov/bitrix24-cli) и [скилл](https://github.com/mesilov/bitrix24-cli-skill). Эти вызовы не требуют подключения и не обращаются к порталу. `list --help` описывает именно list; вызов без аргументов выводит список команд.
+`b24cli --help`/`-h` показывают назначение, список команд, глобальные опции и примеры задач. Вся справка — на русском; имена команд, флагов и API/JSON-полей сохраняются. Единый первый блок «Общие» содержит `completion`, `help` и `list`; далее пространства имён и команды внутри блоков упорядочены по имени. `b24cli --about` показывает назначение, версию, автора, лицензию и ссылки на [приложение](https://github.com/mesilov/bitrix24-cli) и [скилл](https://github.com/mesilov/bitrix24-cli-skill). Эти вызовы не требуют подключения и не обращаются к порталу. `list --help` описывает именно list; вызов без аргументов выводит список команд.
 
 ## Команды
 
 | Команда | Назначение | Эффект | Пример | Интеграционное покрытие |
 | --- | --- | --- | --- | --- |
-| `completion` | Dump the shell completion script | offline | `b24cli completion bash` | Нет отдельного portal-теста; [offline help](../tests/Unit/HelpAndAboutTest.php) |
-| [`connection:add`](../src/Console/Command/Connection/AddConnectionCommand.php) | Сохранить локальное подключение | local | `b24cli connection:add work --group-id 7 --creator-id 1 --responsible-id 42` | Нет отдельного portal-теста; [offline help](../tests/Unit/HelpAndAboutTest.php) |
-| [`connection:list`](../src/Console/Command/Connection/ListConnectionsCommand.php) | Показать сохранённые подключения | local | `b24cli connection:list` | Нет отдельного portal-теста; [offline help](../tests/Unit/HelpAndAboutTest.php) |
-| [`connection:remove`](../src/Console/Command/Connection/RemoveConnectionCommand.php) | Удалить локальный профиль и его credentials | local | `b24cli connection:remove work` | Нет отдельного portal-теста; [offline help](../tests/Unit/HelpAndAboutTest.php) |
-| [`connection:show`](../src/Console/Command/Connection/ShowConnectionCommand.php) | Показать безопасные параметры выбранного подключения | local | `b24cli connection:show work` | Нет отдельного portal-теста; [offline help](../tests/Unit/HelpAndAboutTest.php) |
-| [`connection:use`](../src/Console/Command/Connection/UseConnectionCommand.php) | Выбрать сохранённый профиль по умолчанию | local | `b24cli connection:use work` | Нет отдельного portal-теста; [offline help](../tests/Unit/HelpAndAboutTest.php) |
-| [`doctor:problem-trajectory`](../src/Console/Command/Doctor/ProblemTrajectoryCommand.php) | Сохранить и разобрать обезличенные карточки нехватки CLI | local | `b24cli doctor:problem-trajectory --action status --json` | Нет отдельного portal-теста; [offline help](../tests/Unit/HelpAndAboutTest.php) |
-| `help` | Display help for a command | offline | `b24cli help task:add` | Нет отдельного portal-теста; [offline help](../tests/Unit/HelpAndAboutTest.php) |
-| `list` | List commands | offline | `b24cli list task` | Нет отдельного portal-теста; [offline help](../tests/Unit/HelpAndAboutTest.php) |
+| `completion` | Вывести скрипт автодополнения для оболочки | offline | `b24cli completion bash` | Нет отдельного теста с порталом; [локальная справка](../tests/Unit/HelpAndAboutTest.php) |
+| [`connection:add`](../src/Console/Command/Connection/AddConnectionCommand.php) | Сохранить локальное подключение | local | `b24cli connection:add work --group-id 7 --creator-id 1 --responsible-id 42` | Нет отдельного теста с порталом; [локальная справка](../tests/Unit/HelpAndAboutTest.php) |
+| [`connection:list`](../src/Console/Command/Connection/ListConnectionsCommand.php) | Показать сохранённые подключения | local | `b24cli connection:list` | Нет отдельного теста с порталом; [локальная справка](../tests/Unit/HelpAndAboutTest.php) |
+| [`connection:remove`](../src/Console/Command/Connection/RemoveConnectionCommand.php) | Удалить локальный профиль и его учётные данные | local | `b24cli connection:remove work` | Нет отдельного теста с порталом; [локальная справка](../tests/Unit/HelpAndAboutTest.php) |
+| [`connection:show`](../src/Console/Command/Connection/ShowConnectionCommand.php) | Показать безопасные параметры выбранного подключения | local | `b24cli connection:show work` | Нет отдельного теста с порталом; [локальная справка](../tests/Unit/HelpAndAboutTest.php) |
+| [`connection:use`](../src/Console/Command/Connection/UseConnectionCommand.php) | Выбрать сохранённый профиль по умолчанию | local | `b24cli connection:use work` | Нет отдельного теста с порталом; [локальная справка](../tests/Unit/HelpAndAboutTest.php) |
+| [`doctor:problem-trajectory`](../src/Console/Command/Doctor/ProblemTrajectoryCommand.php) | Сохранить и разобрать обезличенные карточки нехватки CLI | local | `b24cli doctor:problem-trajectory --action status --json` | Нет отдельного теста с порталом; [локальная справка](../tests/Unit/HelpAndAboutTest.php) |
+| `help` | Показать справку команды | offline | `b24cli help task:add` | Нет отдельного теста с порталом; [локальная справка](../tests/Unit/HelpAndAboutTest.php) |
+| `list` | Показать список команд | offline | `b24cli list task` | Нет отдельного теста с порталом; [локальная справка](../tests/Unit/HelpAndAboutTest.php) |
 | [`task:access:show`](../src/Console/Command/Task/ShowTaskAccessCommand.php) | Показать права текущего пользователя | read | `b24cli task:access:show 123` | [`ShowTaskAccessCommandTest.php`](../tests/Integration/Task/ShowTaskAccessCommandTest.php) |
 | [`task:add`](../src/Console/Command/Task/AddTaskCommand.php) | Создать задачу | write | `b24cli task:add --title "Подготовить договор" --creator 1 --responsible 42 --dry-run` | [`AddTaskCommandTest.php`](../tests/Integration/Task/AddTaskCommandTest.php) |
 | [`task:approve`](../src/Console/Command/Task/ApproveTaskCommand.php) | Принять результат задачи | write | `b24cli task:approve 123 --dry-run` | [`ApproveTaskCommandTest.php`](../tests/Integration/Task/ApproveTaskCommandTest.php) |
@@ -65,9 +65,9 @@
 
 ## Ограничения и справка
 
-ID в примерах — образцы, замените их доступными вам сущностями. `write`/`delete` примеры используют `--dry-run`: записи не выполняются, но проверочные чтения могут требовать подключения и прав. Dry-run не доказывает приёмку сервером. `local` читает или изменяет локальную конфигурацию; `connection:add` требует скрытого ввода webhook в терминале либо `--webhook-stdin` с redirected stdin, `connection:remove` удаляет локальный профиль. `read` зависит от прав, бюджета обхода и полноты данных.
+ID в примерах — образцы, замените их доступными вам сущностями. `write`/`delete` примеры используют `--dry-run`: записи не выполняются, но проверочные чтения могут требовать подключения и прав. Проверка без записи не доказывает приёмку сервером. `local` читает или изменяет локальную конфигурацию; `connection:add` требует скрытого ввода вебхука в терминале либо `--webhook-stdin` с перенаправленным stdin, `connection:remove` удаляет локальный профиль. `read` зависит от прав, бюджета обхода и полноты данных.
 
-Аргументы, опции, defaults, формат вывода и ограничения смотрите в help соответствующей команды. Selectors — в [конфигурации](configuration.md); запуск и тесты — в [разработке](development.md). Файл интеграционного теста показывает наличие проверок, а не успешную live-приёмку или полное покрытие бизнес-сценария.
+Аргументы, опции, значения по умолчанию, формат вывода и ограничения смотрите в справке соответствующей команды. Параметры выбора подключения — в [конфигурации](configuration.md); запуск и тесты — в [разработке](development.md). Файл интеграционного теста показывает наличие проверок, а не успешную приёмку с порталом или полное покрытие бизнес-сценария.
 
 ## JTBD и актуализация
 
