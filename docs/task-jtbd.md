@@ -10,46 +10,419 @@
 
 - **Текущие команды** — связи из [jtbd-coverage.json](../openspec/changes/define-task-jtbd/jtbd-coverage.json), существующие в [CommandCatalog](../src/Bootstrap/CommandCatalog.php). Ссылки ведут на классы команд.
 - **Планируемые команды** — остальные связи исходной матрицы; их нет в текущем runtime. [Каталог кандидатов](../openspec/changes/define-task-jtbd/cli-candidates.md) описывает план, а не доступные команды. Ветки разработки и открытые issues не считаются реализацией в этом снимке.
-- **Тесты** — существующие идентификаторы `Class::method` в `tests/Integration/Task`, с группами PHPUnit `command:<имя команды>` / `happy-path`. Они проверяют команды по отдельности; отдельных сквозных интеграционных тестов с ID `PM-*`, `AM-*`, `EMP-*` сейчас нет. Повторение метода в нескольких строках означает общую команду, а не независимое покрытие каждого JTBD.
-- Колонка **границы** показывает, чего командные тесты не доказывают. Ссылка на тест означает наличие его исходника, а не успешный запуск. Открытая [portal-приёмка #42](https://github.com/mesilov/bitrix24-cli/issues/42) и [границы релиза](rc-0.1.0.md) сохраняются; в этой задаче live-тесты не запускались.
+- **Тесты** — существующие идентификаторы `Class::method` в `tests/Integration/Task`, с группами PHPUnit `command:<имя команды>` / `happy-path`. Они проверяют команды по отдельности; отдельных сквозных интеграционных тестов с ID `PM-*`, `AM-*`, `EMP-*` сейчас нет. Повторение метода в нескольких сценариях означает общую команду, а не независимое покрытие каждого JTBD.
+- Поле **границы** показывает, чего командные тесты не доказывают. Ссылка на тест означает наличие его исходника, а не успешный запуск. Открытая [portal-приёмка #42](https://github.com/mesilov/bitrix24-cli/issues/42) и [границы релиза](rc-0.1.0.md) сохраняются; в этой задаче live-тесты не запускались.
 
 ## Руководитель отдела
 
-| ID | Ситуация → работа → цель | Признак успеха | Текущие CLI-команды | Планируемые команды | Интеграционные тесты и границы |
-| --- | --- | --- | --- | --- | --- |
-| <a id="pm-01"></a>[PM-01](../openspec/specs/task-workflows/spec.md) | **Планирование этапа.** Когда согласован очередной этап проекта; хочу разложить результат на задачи с ответственными, сроками и критериями приёмки; чтобы команда могла приступить к работе без дополнительных догадок. | У каждой задачи понятны результат, исполнитель, срок и условия завершения. | [`task:add`](../src/Console/Command/Task/AddTaskCommand.php)<br>[`task:show`](../src/Console/Command/Task/ShowTaskCommand.php)<br>[`task:checklist:add`](../src/Console/Command/Task/AddTaskChecklistCommand.php)<br>[`task:checklist:item:add`](../src/Console/Command/Task/AddTaskChecklistItemCommand.php) | `task:subtask:add` | [`AddTaskCommandTest::testHappyPathCreatesTaskWithRequestedFields`](../tests/Integration/Task/AddTaskCommandTest.php)<br>[`ShowTaskCommandTest::testHappyPathReturnsTaskCard`](../tests/Integration/Task/ShowTaskCommandTest.php)<br>[`AddTaskChecklistCommandTest::testHappyPathCreatesChecklistRoot`](../tests/Integration/Task/AddTaskChecklistCommandTest.php)<br>[`AddTaskChecklistItemCommandTest::testHappyPathAddsItemToSelectedChecklist`](../tests/Integration/Task/AddTaskChecklistItemCommandTest.php)<br>**Границы:** Проверяются отдельные создание/карточка/чек-листы; нет сквозной проверки декомпозиции этапа и полноты критериев приёмки. |
-| <a id="pm-02"></a>[PM-02](../openspec/specs/task-workflows/spec.md) | **Выявление рисков.** Когда начинается рабочий день или приближается контрольная точка; хочу увидеть задачи с риском срыва; чтобы направить внимание туда, где требуется вмешательство. | Видны просрочки, приближающиеся сроки, препятствия и ожидаемые решения. | [`task:list`](../src/Console/Command/Task/ListTaskCommand.php) | `task:plan`<br>`task:risks`<br>`task:dependency:list` | [`ListTaskCommandTest::testHappyPathListsSelectedTask`](../tests/Integration/Task/ListTaskCommandTest.php)<br>**Границы:** Список проверяется по известному ID; оценка рисков, препятствий, зависимостей и полная выборка не проверяются. |
-| <a id="pm-03"></a>[PM-03](../openspec/specs/task-workflows/spec.md) | **Устранение препятствий.** Когда выполнение остановилось из-за зависимости или нехватки информации; хочу установить причину и назначить действие по устранению препятствия; чтобы восстановить движение проекта. | Понятно, кто и что должен сделать для продолжения работы. | [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) | `task:blocker:raise`<br>`task:blocker:resolve` | [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php)<br>**Границы:** Проверяется сохранение сообщения в нужном чате; назначения действия, состояния препятствия и его устранения нет. |
-| <a id="pm-04"></a>[PM-04](../openspec/specs/task-workflows/spec.md) | **Пересогласование плана.** Когда меняются приоритеты или доступность исполнителей; хочу пересогласовать распределение работ и сроки; чтобы сохранить выполнимый план. | Изменения зафиксированы, затронутые участники понимают новые договорённости. | [`task:assign`](../src/Console/Command/Task/AssignTaskCommand.php)<br>[`task:deadline:set`](../src/Console/Command/Task/SetTaskDeadlineCommand.php) | `task:plan`<br>`task:change:propose`<br>`task:change:accept` | [`AssignTaskCommandTest::testHappyPathSetsResponsibleUser`](../tests/Integration/Task/AssignTaskCommandTest.php)<br>[`SetTaskDeadlineCommandTest::testHappyPathSetsDeadlineWithOffset`](../tests/Integration/Task/SetTaskDeadlineCommandTest.php)<br>**Границы:** Ответственный проверяется на текущем пользователе, срок — отдельно; передача другому пользователю (#42) и согласование плана не доказаны. |
-| <a id="pm-05"></a>[PM-05](../openspec/specs/task-workflows/spec.md) | **Внутренняя приёмка.** Когда исполнитель предъявляет результат; хочу проверить его по условиям приёмки и принять либо вернуть с конкретными замечаниями; чтобы завершённая задача означала полученный результат. | Зафиксировано решение; при возврате понятны необходимые исправления. | Нет | `task:result:list`<br>`task:approve`<br>`task:disapprove`<br>`task:acceptance:record` | Нет для mapped команд<br>**Границы:** Нет реализованных mapped команд и соответствующих integration tests; внутренняя приёмка не проверена. |
-| <a id="pm-06"></a>[PM-06](../openspec/specs/task-workflows/spec.md) | **Переписка для координации.** Когда нужно уточнить решение, согласовать действия или снять препятствие по задаче; хочу прочитать историю чата задачи и обсудить следующий шаг с её участниками; чтобы решение и договорённости оставались в контексте задачи. | Доступна история переписки; сообщение руководителя сохранено в чате нужной задачи и доступно участникам с правами доступа. | [`task:chat:list`](../src/Console/Command/Task/ListTaskChatCommand.php)<br>[`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) | Нет в исходном mapping | [`ListTaskChatCommandTest::testHappyPathListsMessagesOfSelectedTask`](../tests/Integration/Task/ListTaskChatCommandTest.php)<br>[`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php)<br>**Границы:** Проверяются чтение и отправка в чате задачи; denied-role матрица остаётся в #42. |
+<a id="pm-01"></a>
+
+### [PM-01](../openspec/specs/task-workflows/spec.md) — Планирование этапа
+
+- **Когда:** согласован очередной этап проекта.
+- **Хочу:** разложить результат на задачи с ответственными, сроками и критериями приёмки.
+- **Чтобы:** команда могла приступить к работе без дополнительных догадок.
+- **Признак успеха:** У каждой задачи понятны результат, исполнитель, срок и условия завершения.
+
+**Текущие команды и интеграционные тесты**
+
+- [`task:add`](../src/Console/Command/Task/AddTaskCommand.php) → [`AddTaskCommandTest::testHappyPathCreatesTaskWithRequestedFields`](../tests/Integration/Task/AddTaskCommandTest.php)
+- [`task:show`](../src/Console/Command/Task/ShowTaskCommand.php) → [`ShowTaskCommandTest::testHappyPathReturnsTaskCard`](../tests/Integration/Task/ShowTaskCommandTest.php)
+- [`task:checklist:add`](../src/Console/Command/Task/AddTaskChecklistCommand.php) → [`AddTaskChecklistCommandTest::testHappyPathCreatesChecklistRoot`](../tests/Integration/Task/AddTaskChecklistCommandTest.php)
+- [`task:checklist:item:add`](../src/Console/Command/Task/AddTaskChecklistItemCommand.php) → [`AddTaskChecklistItemCommandTest::testHappyPathAddsItemToSelectedChecklist`](../tests/Integration/Task/AddTaskChecklistItemCommandTest.php)
+
+**Планируемые команды**
+
+- `task:subtask:add`
+
+**Границы:** Проверяются отдельные создание/карточка/чек-листы; нет сквозной проверки декомпозиции этапа и полноты критериев приёмки.
+
+<a id="pm-02"></a>
+
+### [PM-02](../openspec/specs/task-workflows/spec.md) — Выявление рисков
+
+- **Когда:** начинается рабочий день или приближается контрольная точка.
+- **Хочу:** увидеть задачи с риском срыва.
+- **Чтобы:** направить внимание туда, где требуется вмешательство.
+- **Признак успеха:** Видны просрочки, приближающиеся сроки, препятствия и ожидаемые решения.
+
+**Текущие команды и интеграционные тесты**
+
+- [`task:list`](../src/Console/Command/Task/ListTaskCommand.php) → [`ListTaskCommandTest::testHappyPathListsSelectedTask`](../tests/Integration/Task/ListTaskCommandTest.php)
+
+**Планируемые команды**
+
+- `task:plan`
+- `task:risks`
+- `task:dependency:list`
+
+**Границы:** Список проверяется по известному ID; оценка рисков, препятствий, зависимостей и полная выборка не проверяются.
+
+<a id="pm-03"></a>
+
+### [PM-03](../openspec/specs/task-workflows/spec.md) — Устранение препятствий
+
+- **Когда:** выполнение остановилось из-за зависимости или нехватки информации.
+- **Хочу:** установить причину и назначить действие по устранению препятствия.
+- **Чтобы:** восстановить движение проекта.
+- **Признак успеха:** Понятно, кто и что должен сделать для продолжения работы.
+
+**Текущие команды и интеграционные тесты**
+
+- [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) → [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php)
+
+**Планируемые команды**
+
+- `task:blocker:raise`
+- `task:blocker:resolve`
+
+**Границы:** Проверяется сохранение сообщения в нужном чате; назначения действия, состояния препятствия и его устранения нет.
+
+<a id="pm-04"></a>
+
+### [PM-04](../openspec/specs/task-workflows/spec.md) — Пересогласование плана
+
+- **Когда:** меняются приоритеты или доступность исполнителей.
+- **Хочу:** пересогласовать распределение работ и сроки.
+- **Чтобы:** сохранить выполнимый план.
+- **Признак успеха:** Изменения зафиксированы, затронутые участники понимают новые договорённости.
+
+**Текущие команды и интеграционные тесты**
+
+- [`task:assign`](../src/Console/Command/Task/AssignTaskCommand.php) → [`AssignTaskCommandTest::testHappyPathSetsResponsibleUser`](../tests/Integration/Task/AssignTaskCommandTest.php)
+- [`task:deadline:set`](../src/Console/Command/Task/SetTaskDeadlineCommand.php) → [`SetTaskDeadlineCommandTest::testHappyPathSetsDeadlineWithOffset`](../tests/Integration/Task/SetTaskDeadlineCommandTest.php)
+
+**Планируемые команды**
+
+- `task:plan`
+- `task:change:propose`
+- `task:change:accept`
+
+**Границы:** Ответственный проверяется на текущем пользователе, срок — отдельно; передача другому пользователю (#42) и согласование плана не доказаны.
+
+<a id="pm-05"></a>
+
+### [PM-05](../openspec/specs/task-workflows/spec.md) — Внутренняя приёмка
+
+- **Когда:** исполнитель предъявляет результат.
+- **Хочу:** проверить его по условиям приёмки и принять либо вернуть с конкретными замечаниями.
+- **Чтобы:** завершённая задача означала полученный результат.
+- **Признак успеха:** Зафиксировано решение; при возврате понятны необходимые исправления.
+
+**Текущие команды и интеграционные тесты**
+
+Нет реализованных mapped команд и соответствующих интеграционных тестов.
+
+**Планируемые команды**
+
+- `task:result:list`
+- `task:approve`
+- `task:disapprove`
+- `task:acceptance:record`
+
+**Границы:** Нет реализованных mapped команд и соответствующих integration tests; внутренняя приёмка не проверена.
+
+<a id="pm-06"></a>
+
+### [PM-06](../openspec/specs/task-workflows/spec.md) — Переписка для координации
+
+- **Когда:** нужно уточнить решение, согласовать действия или снять препятствие по задаче.
+- **Хочу:** прочитать историю чата задачи и обсудить следующий шаг с её участниками.
+- **Чтобы:** решение и договорённости оставались в контексте задачи.
+- **Признак успеха:** Доступна история переписки; сообщение руководителя сохранено в чате нужной задачи и доступно участникам с правами доступа.
+
+**Текущие команды и интеграционные тесты**
+
+- [`task:chat:list`](../src/Console/Command/Task/ListTaskChatCommand.php) → [`ListTaskChatCommandTest::testHappyPathListsMessagesOfSelectedTask`](../tests/Integration/Task/ListTaskChatCommandTest.php)
+- [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) → [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php)
+
+**Планируемые команды**
+
+Нет в исходном mapping.
+
+**Границы:** Проверяются чтение и отправка в чате задачи; denied-role матрица остаётся в #42.
+
 
 ## Аккаунт-менеджер проекта
 
-| ID | Ситуация → работа → цель | Признак успеха | Текущие CLI-команды | Планируемые команды | Интеграционные тесты и границы |
-| --- | --- | --- | --- | --- | --- |
-| <a id="am-01"></a>[AM-01](../openspec/specs/task-workflows/spec.md) | **Передача запроса клиента.** Когда клиент сообщает новую потребность; хочу превратить обращение в понятную внутреннюю задачу с контекстом и ожидаемым результатом; чтобы запрос не потерялся при передаче команде. | Сохранены источник запроса, клиентский контекст и ожидаемый результат. | [`task:add`](../src/Console/Command/Task/AddTaskCommand.php)<br>[`task:show`](../src/Console/Command/Task/ShowTaskCommand.php)<br>[`task:find`](../src/Console/Command/Task/FindTaskCommand.php) | Нет в исходном mapping | [`AddTaskCommandTest::testHappyPathCreatesTaskWithRequestedFields`](../tests/Integration/Task/AddTaskCommandTest.php)<br>[`ShowTaskCommandTest::testHappyPathReturnsTaskCard`](../tests/Integration/Task/ShowTaskCommandTest.php)<br>[`FindTaskCommandTest::testHappyPathReturnsTwoUnicodeTitleMatches`](../tests/Integration/Task/FindTaskCommandTest.php)<br>**Границы:** Проверяются поля создания, карточка и поиск; сохранение всего клиентского контекста как бизнес-контракта отдельно не проверяется. |
-| <a id="am-02"></a>[AM-02](../openspec/specs/task-workflows/spec.md) | **Контроль обещаний клиенту.** Когда клиенту обещан результат к определённой дате; хочу отслеживать выполнение связанных задач; чтобы заранее заметить угрозу обещанию. | Можно определить, какие обязательства выполняются, а какие требуют пересогласования. | Нет | `task:risks`<br>`task:report`<br>`task:context:set` | Нет для mapped команд<br>**Границы:** Нет реализованных mapped команд и соответствующих integration tests; клиентские обязательства и угрозы обещаниям не проверены. |
-| <a id="am-03"></a>[AM-03](../openspec/specs/task-workflows/spec.md) | **Ответ о ходе работ.** Когда клиент спрашивает о ходе работ; хочу собрать актуальный статус, препятствия и следующий шаг; чтобы дать обоснованный ответ без опроса каждого исполнителя. | Есть проверяемая сводка: сделано, осталось, что мешает, когда следующее обновление. | Нет | `task:report`<br>`task:brief` | Нет для mapped команд<br>**Границы:** Нет реализованных mapped команд и соответствующих integration tests; клиентская сводка не проверена. |
-| <a id="am-04"></a>[AM-04](../openspec/specs/task-workflows/spec.md) | **Изменение клиентских требований.** Когда клиент меняет требования или приоритет; хочу зафиксировать изменение и согласовать его влияние с руководителем проекта; чтобы команда работала по актуальным договорённостям. | Изменения и согласованные последствия для объёма и сроков прослеживаются. | [`task:update`](../src/Console/Command/Task/UpdateTaskCommand.php) | `task:change:propose`<br>`task:change:accept` | [`UpdateTaskCommandTest::testHappyPathChangesTitleAndKeepsOmittedDescription`](../tests/Integration/Task/UpdateTaskCommandTest.php)<br>**Границы:** Проверяется изменение заголовка/описания; согласование влияния на объём и сроки не проверяется. |
-| <a id="am-05"></a>[AM-05](../openspec/specs/task-workflows/spec.md) | **Передача результата клиенту.** Когда команда подготовила результат; хочу получить материалы для передачи клиенту и зафиксировать его обратную связь; чтобы довести договорённость до принятия результата. | Видно, что передано клиенту, что принято и какие замечания остались; это отдельное событие от внутренней приёмки PM-05. | Нет | `task:result:list`<br>`task:delivery:record`<br>`task:feedback:record`<br>`task:acceptance:record`<br>`task:report` | Нет для mapped команд<br>**Границы:** Нет реализованных mapped команд и соответствующих integration tests; передача клиенту и его приёмка не проверены. |
-| <a id="am-06"></a>[AM-06](../openspec/specs/task-workflows/spec.md) | **Переписка по клиентским договорённостям.** Когда нужно передать уточнение клиента или получить ответ команды по задаче; хочу прочитать обсуждение и отправить вопрос или уточнение в чат задачи; чтобы сохранить единый контекст клиентских договорённостей при передаче команде. | Уточнение и ответы прослеживаются в чате задачи; внешнему клиенту доступ автоматически не предоставляется. | [`task:chat:list`](../src/Console/Command/Task/ListTaskChatCommand.php)<br>[`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) | Нет в исходном mapping | [`ListTaskChatCommandTest::testHappyPathListsMessagesOfSelectedTask`](../tests/Integration/Task/ListTaskChatCommandTest.php)<br>[`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php)<br>**Границы:** Проверяются сообщения чата задачи; клиентское согласование и доступ внешнего клиента не проверяются, denied-role — #42. |
+<a id="am-01"></a>
+
+### [AM-01](../openspec/specs/task-workflows/spec.md) — Передача запроса клиента
+
+- **Когда:** клиент сообщает новую потребность.
+- **Хочу:** превратить обращение в понятную внутреннюю задачу с контекстом и ожидаемым результатом.
+- **Чтобы:** запрос не потерялся при передаче команде.
+- **Признак успеха:** Сохранены источник запроса, клиентский контекст и ожидаемый результат.
+
+**Текущие команды и интеграционные тесты**
+
+- [`task:add`](../src/Console/Command/Task/AddTaskCommand.php) → [`AddTaskCommandTest::testHappyPathCreatesTaskWithRequestedFields`](../tests/Integration/Task/AddTaskCommandTest.php)
+- [`task:show`](../src/Console/Command/Task/ShowTaskCommand.php) → [`ShowTaskCommandTest::testHappyPathReturnsTaskCard`](../tests/Integration/Task/ShowTaskCommandTest.php)
+- [`task:find`](../src/Console/Command/Task/FindTaskCommand.php) → [`FindTaskCommandTest::testHappyPathReturnsTwoUnicodeTitleMatches`](../tests/Integration/Task/FindTaskCommandTest.php)
+
+**Планируемые команды**
+
+Нет в исходном mapping.
+
+**Границы:** Проверяются поля создания, карточка и поиск; сохранение всего клиентского контекста как бизнес-контракта отдельно не проверяется.
+
+<a id="am-02"></a>
+
+### [AM-02](../openspec/specs/task-workflows/spec.md) — Контроль обещаний клиенту
+
+- **Когда:** клиенту обещан результат к определённой дате.
+- **Хочу:** отслеживать выполнение связанных задач.
+- **Чтобы:** заранее заметить угрозу обещанию.
+- **Признак успеха:** Можно определить, какие обязательства выполняются, а какие требуют пересогласования.
+
+**Текущие команды и интеграционные тесты**
+
+Нет реализованных mapped команд и соответствующих интеграционных тестов.
+
+**Планируемые команды**
+
+- `task:risks`
+- `task:report`
+- `task:context:set`
+
+**Границы:** Нет реализованных mapped команд и соответствующих integration tests; клиентские обязательства и угрозы обещаниям не проверены.
+
+<a id="am-03"></a>
+
+### [AM-03](../openspec/specs/task-workflows/spec.md) — Ответ о ходе работ
+
+- **Когда:** клиент спрашивает о ходе работ.
+- **Хочу:** собрать актуальный статус, препятствия и следующий шаг.
+- **Чтобы:** дать обоснованный ответ без опроса каждого исполнителя.
+- **Признак успеха:** Есть проверяемая сводка: сделано, осталось, что мешает, когда следующее обновление.
+
+**Текущие команды и интеграционные тесты**
+
+Нет реализованных mapped команд и соответствующих интеграционных тестов.
+
+**Планируемые команды**
+
+- `task:report`
+- `task:brief`
+
+**Границы:** Нет реализованных mapped команд и соответствующих integration tests; клиентская сводка не проверена.
+
+<a id="am-04"></a>
+
+### [AM-04](../openspec/specs/task-workflows/spec.md) — Изменение клиентских требований
+
+- **Когда:** клиент меняет требования или приоритет.
+- **Хочу:** зафиксировать изменение и согласовать его влияние с руководителем проекта.
+- **Чтобы:** команда работала по актуальным договорённостям.
+- **Признак успеха:** Изменения и согласованные последствия для объёма и сроков прослеживаются.
+
+**Текущие команды и интеграционные тесты**
+
+- [`task:update`](../src/Console/Command/Task/UpdateTaskCommand.php) → [`UpdateTaskCommandTest::testHappyPathChangesTitleAndKeepsOmittedDescription`](../tests/Integration/Task/UpdateTaskCommandTest.php)
+
+**Планируемые команды**
+
+- `task:change:propose`
+- `task:change:accept`
+
+**Границы:** Проверяется изменение заголовка/описания; согласование влияния на объём и сроки не проверяется.
+
+<a id="am-05"></a>
+
+### [AM-05](../openspec/specs/task-workflows/spec.md) — Передача результата клиенту
+
+- **Когда:** команда подготовила результат.
+- **Хочу:** получить материалы для передачи клиенту и зафиксировать его обратную связь.
+- **Чтобы:** довести договорённость до принятия результата.
+- **Признак успеха:** Видно, что передано клиенту, что принято и какие замечания остались; это отдельное событие от внутренней приёмки PM-05.
+
+**Текущие команды и интеграционные тесты**
+
+Нет реализованных mapped команд и соответствующих интеграционных тестов.
+
+**Планируемые команды**
+
+- `task:result:list`
+- `task:delivery:record`
+- `task:feedback:record`
+- `task:acceptance:record`
+- `task:report`
+
+**Границы:** Нет реализованных mapped команд и соответствующих integration tests; передача клиенту и его приёмка не проверены.
+
+<a id="am-06"></a>
+
+### [AM-06](../openspec/specs/task-workflows/spec.md) — Переписка по клиентским договорённостям
+
+- **Когда:** нужно передать уточнение клиента или получить ответ команды по задаче.
+- **Хочу:** прочитать обсуждение и отправить вопрос или уточнение в чат задачи.
+- **Чтобы:** сохранить единый контекст клиентских договорённостей при передаче команде.
+- **Признак успеха:** Уточнение и ответы прослеживаются в чате задачи; внешнему клиенту доступ автоматически не предоставляется.
+
+**Текущие команды и интеграционные тесты**
+
+- [`task:chat:list`](../src/Console/Command/Task/ListTaskChatCommand.php) → [`ListTaskChatCommandTest::testHappyPathListsMessagesOfSelectedTask`](../tests/Integration/Task/ListTaskChatCommandTest.php)
+- [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) → [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php)
+
+**Планируемые команды**
+
+Нет в исходном mapping.
+
+**Границы:** Проверяются сообщения чата задачи; клиентское согласование и доступ внешнего клиента не проверяются, denied-role — #42.
+
 
 ## Рядовой исполнитель
 
-| ID | Ситуация → работа → цель | Признак успеха | Текущие CLI-команды | Планируемые команды | Интеграционные тесты и границы |
-| --- | --- | --- | --- | --- | --- |
-| <a id="emp-01"></a>[EMP-01](../openspec/specs/task-workflows/spec.md) | **Выбор следующей работы.** Когда планирую рабочий день; хочу увидеть свои актуальные задачи, сроки и согласованные приоритеты; чтобы выбрать следующую работу. | Понятно, что делать сейчас и какие обязательства требуют внимания. | [`task:list`](../src/Console/Command/Task/ListTaskCommand.php) | `task:my` | [`ListTaskCommandTest::testHappyPathListsSelectedTask`](../tests/Integration/Task/ListTaskCommandTest.php)<br>**Границы:** Список проверяется по известному ID; выбор собственной очереди работ по приоритету целиком не проверяется. |
-| <a id="emp-02"></a>[EMP-02](../openspec/specs/task-workflows/spec.md) | **Получение контекста.** Когда приступаю к задаче; хочу получить требования, материалы и условия приёмки; чтобы выполнить работу с ожидаемым качеством. | Контекст доступен; недостающие сведения можно запросить в обсуждении задачи. | [`task:show`](../src/Console/Command/Task/ShowTaskCommand.php)<br>[`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php)<br>[`task:find`](../src/Console/Command/Task/FindTaskCommand.php)<br>[`task:checklist:list`](../src/Console/Command/Task/ListTaskChecklistsCommand.php)<br>[`task:checklist:item:list`](../src/Console/Command/Task/ListTaskChecklistItemsCommand.php) | Нет в исходном mapping | [`ShowTaskCommandTest::testHappyPathReturnsTaskCard`](../tests/Integration/Task/ShowTaskCommandTest.php)<br>[`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php)<br>[`FindTaskCommandTest::testHappyPathReturnsTwoUnicodeTitleMatches`](../tests/Integration/Task/FindTaskCommandTest.php)<br>[`ListTaskChecklistsCommandTest::testHappyPathListsOnlyChecklistRoots`](../tests/Integration/Task/ListTaskChecklistsCommandTest.php)<br>[`ListTaskChecklistItemsCommandTest::testHappyPathListsItemsInsideSelectedChecklist`](../tests/Integration/Task/ListTaskChecklistItemsCommandTest.php)<br>**Границы:** Проверяются карточка, поиск, чат и чек-листы; полнота требований, материалов и условий приёмки целиком не проверяется. |
-| <a id="emp-03"></a>[EMP-03](../openspec/specs/task-workflows/spec.md) | **Запрос помощи.** Когда встречаю препятствие; хочу сообщить, что мешает, какая помощь нужна и кто может её предоставить; чтобы получить решение и продолжить работу. | Препятствие заметно ответственным; указан необходимый следующий шаг. | [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) | `task:blocker:raise` | [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php)<br>**Границы:** Проверяется отправка сообщения; получение решения и переход препятствия в разрешённое состояние не проверяются. |
-| <a id="emp-04"></a>[EMP-04](../openspec/specs/task-workflows/spec.md) | **Работа по актуальным ожиданиям.** Когда меняются требования или приходит обратная связь; хочу понять актуальное ожидание и необходимые исправления; чтобы избежать работы по устаревшим договорённостям. | Понятно, что изменилось и какой результат теперь ожидается. | [`task:show`](../src/Console/Command/Task/ShowTaskCommand.php) | `task:brief`<br>`task:change:propose`<br>`task:change:accept` | [`ShowTaskCommandTest::testHappyPathReturnsTaskCard`](../tests/Integration/Task/ShowTaskCommandTest.php)<br>**Границы:** Проверяется чтение карточки; обнаружение изменения ожиданий и согласование исправлений не проверяются. |
-| <a id="emp-05"></a>[EMP-05](../openspec/specs/task-workflows/spec.md) | **Предъявление результата.** Когда работа готова; хочу предъявить результат с подтверждающими материалами и передать его на проверку; чтобы получить решение о приёмке. | Результат доступен проверяющему; видно, ожидается проверка или нужны исправления. | [`task:file:attach`](../src/Console/Command/Task/AttachTaskFilesCommand.php) | `task:result:add`<br>`task:result:from-message`<br>`task:complete` | [`AttachTaskFilesCommandTest::testHappyPathConfirmsDiskFileAttachment`](../tests/Integration/Task/AttachTaskFilesCommandTest.php)<br>**Границы:** Проверяется ACK прикрепления существующего файла Диска; independent membership — #42. Native result, завершение и передача на контроль не реализованы. |
-| <a id="emp-06"></a>[EMP-06](../openspec/specs/task-workflows/spec.md) | **Учёт трудозатрат.** Когда требуется учёт трудозатрат; хочу зафиксировать время и содержание выполненной работы; чтобы отчёт отражал фактические затраты. | Запись связана с задачей, содержит длительность и пояснение; ошибку можно исправить. | [`task:time:show`](../src/Console/Command/Task/ShowTaskTimeCommand.php)<br>[`task:time:add`](../src/Console/Command/Task/AddTaskTimeEntryCommand.php)<br>[`task:time:list`](../src/Console/Command/Task/ListTaskTimeEntriesCommand.php)<br>[`task:time:update`](../src/Console/Command/Task/UpdateTaskTimeEntryCommand.php)<br>[`task:time:delete`](../src/Console/Command/Task/DeleteTaskTimeEntryCommand.php) | Нет в исходном mapping | [`ShowTaskTimeCommandTest::testHappyPathReturnsTimeContextWithItsCompletenessBoundary`](../tests/Integration/Task/ShowTaskTimeCommandTest.php)<br>[`AddTaskTimeEntryCommandTest::testHappyPathCreatesOwnTimeEntry`](../tests/Integration/Task/AddTaskTimeEntryCommandTest.php)<br>[`ListTaskTimeEntriesCommandTest::testHappyPathListsOwnTimeEntry`](../tests/Integration/Task/ListTaskTimeEntriesCommandTest.php)<br>[`UpdateTaskTimeEntryCommandTest::testHappyPathUpdatesSecondsAndKeepsOmittedText`](../tests/Integration/Task/UpdateTaskTimeEntryCommandTest.php)<br>[`DeleteTaskTimeEntryCommandTest::testHappyPathDeletesOwnTimeEntry`](../tests/Integration/Task/DeleteTaskTimeEntryCommandTest.php)<br>**Границы:** Проверяются собственные записи и граница полноты elapsedTime; полнота списка, чужие права и wrong-task проверки остаются частью #42. |
-| <a id="emp-07"></a>[EMP-07](../openspec/specs/task-workflows/spec.md) | **Переписка при выполнении.** Когда нужно задать вопрос, уточнить требования или сообщить о ходе работы; хочу прочитать историю чата задачи и написать её участникам; чтобы получить согласованный ответ и продолжить работу в актуальном контексте. | Вопрос и ответ сохранены при задаче; участник может продолжить обсуждение, не теряя предыдущих сообщений. | [`task:chat:list`](../src/Console/Command/Task/ListTaskChatCommand.php)<br>[`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) | Нет в исходном mapping | [`ListTaskChatCommandTest::testHappyPathListsMessagesOfSelectedTask`](../tests/Integration/Task/ListTaskChatCommandTest.php)<br>[`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php)<br>**Границы:** Проверяются чтение и отправка в чате задачи; сквозная переписка вопрос/ответ и denied-role матрица не подтверждены (#42). |
+<a id="emp-01"></a>
+
+### [EMP-01](../openspec/specs/task-workflows/spec.md) — Выбор следующей работы
+
+- **Когда:** планирую рабочий день.
+- **Хочу:** увидеть свои актуальные задачи, сроки и согласованные приоритеты.
+- **Чтобы:** выбрать следующую работу.
+- **Признак успеха:** Понятно, что делать сейчас и какие обязательства требуют внимания.
+
+**Текущие команды и интеграционные тесты**
+
+- [`task:list`](../src/Console/Command/Task/ListTaskCommand.php) → [`ListTaskCommandTest::testHappyPathListsSelectedTask`](../tests/Integration/Task/ListTaskCommandTest.php)
+
+**Планируемые команды**
+
+- `task:my`
+
+**Границы:** Список проверяется по известному ID; выбор собственной очереди работ по приоритету целиком не проверяется.
+
+<a id="emp-02"></a>
+
+### [EMP-02](../openspec/specs/task-workflows/spec.md) — Получение контекста
+
+- **Когда:** приступаю к задаче.
+- **Хочу:** получить требования, материалы и условия приёмки.
+- **Чтобы:** выполнить работу с ожидаемым качеством.
+- **Признак успеха:** Контекст доступен; недостающие сведения можно запросить в обсуждении задачи.
+
+**Текущие команды и интеграционные тесты**
+
+- [`task:show`](../src/Console/Command/Task/ShowTaskCommand.php) → [`ShowTaskCommandTest::testHappyPathReturnsTaskCard`](../tests/Integration/Task/ShowTaskCommandTest.php)
+- [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) → [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php)
+- [`task:find`](../src/Console/Command/Task/FindTaskCommand.php) → [`FindTaskCommandTest::testHappyPathReturnsTwoUnicodeTitleMatches`](../tests/Integration/Task/FindTaskCommandTest.php)
+- [`task:checklist:list`](../src/Console/Command/Task/ListTaskChecklistsCommand.php) → [`ListTaskChecklistsCommandTest::testHappyPathListsOnlyChecklistRoots`](../tests/Integration/Task/ListTaskChecklistsCommandTest.php)
+- [`task:checklist:item:list`](../src/Console/Command/Task/ListTaskChecklistItemsCommand.php) → [`ListTaskChecklistItemsCommandTest::testHappyPathListsItemsInsideSelectedChecklist`](../tests/Integration/Task/ListTaskChecklistItemsCommandTest.php)
+
+**Планируемые команды**
+
+Нет в исходном mapping.
+
+**Границы:** Проверяются карточка, поиск, чат и чек-листы; полнота требований, материалов и условий приёмки целиком не проверяется.
+
+<a id="emp-03"></a>
+
+### [EMP-03](../openspec/specs/task-workflows/spec.md) — Запрос помощи
+
+- **Когда:** встречаю препятствие.
+- **Хочу:** сообщить, что мешает, какая помощь нужна и кто может её предоставить.
+- **Чтобы:** получить решение и продолжить работу.
+- **Признак успеха:** Препятствие заметно ответственным; указан необходимый следующий шаг.
+
+**Текущие команды и интеграционные тесты**
+
+- [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) → [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php)
+
+**Планируемые команды**
+
+- `task:blocker:raise`
+
+**Границы:** Проверяется отправка сообщения; получение решения и переход препятствия в разрешённое состояние не проверяются.
+
+<a id="emp-04"></a>
+
+### [EMP-04](../openspec/specs/task-workflows/spec.md) — Работа по актуальным ожиданиям
+
+- **Когда:** меняются требования или приходит обратная связь.
+- **Хочу:** понять актуальное ожидание и необходимые исправления.
+- **Чтобы:** избежать работы по устаревшим договорённостям.
+- **Признак успеха:** Понятно, что изменилось и какой результат теперь ожидается.
+
+**Текущие команды и интеграционные тесты**
+
+- [`task:show`](../src/Console/Command/Task/ShowTaskCommand.php) → [`ShowTaskCommandTest::testHappyPathReturnsTaskCard`](../tests/Integration/Task/ShowTaskCommandTest.php)
+
+**Планируемые команды**
+
+- `task:brief`
+- `task:change:propose`
+- `task:change:accept`
+
+**Границы:** Проверяется чтение карточки; обнаружение изменения ожиданий и согласование исправлений не проверяются.
+
+<a id="emp-05"></a>
+
+### [EMP-05](../openspec/specs/task-workflows/spec.md) — Предъявление результата
+
+- **Когда:** работа готова.
+- **Хочу:** предъявить результат с подтверждающими материалами и передать его на проверку.
+- **Чтобы:** получить решение о приёмке.
+- **Признак успеха:** Результат доступен проверяющему; видно, ожидается проверка или нужны исправления.
+
+**Текущие команды и интеграционные тесты**
+
+- [`task:file:attach`](../src/Console/Command/Task/AttachTaskFilesCommand.php) → [`AttachTaskFilesCommandTest::testHappyPathConfirmsDiskFileAttachment`](../tests/Integration/Task/AttachTaskFilesCommandTest.php)
+
+**Планируемые команды**
+
+- `task:result:add`
+- `task:result:from-message`
+- `task:complete`
+
+**Границы:** Проверяется ACK прикрепления существующего файла Диска; independent membership — #42. Native result, завершение и передача на контроль не реализованы.
+
+<a id="emp-06"></a>
+
+### [EMP-06](../openspec/specs/task-workflows/spec.md) — Учёт трудозатрат
+
+- **Когда:** требуется учёт трудозатрат.
+- **Хочу:** зафиксировать время и содержание выполненной работы.
+- **Чтобы:** отчёт отражал фактические затраты.
+- **Признак успеха:** Запись связана с задачей, содержит длительность и пояснение; ошибку можно исправить.
+
+**Текущие команды и интеграционные тесты**
+
+- [`task:time:show`](../src/Console/Command/Task/ShowTaskTimeCommand.php) → [`ShowTaskTimeCommandTest::testHappyPathReturnsTimeContextWithItsCompletenessBoundary`](../tests/Integration/Task/ShowTaskTimeCommandTest.php)
+- [`task:time:add`](../src/Console/Command/Task/AddTaskTimeEntryCommand.php) → [`AddTaskTimeEntryCommandTest::testHappyPathCreatesOwnTimeEntry`](../tests/Integration/Task/AddTaskTimeEntryCommandTest.php)
+- [`task:time:list`](../src/Console/Command/Task/ListTaskTimeEntriesCommand.php) → [`ListTaskTimeEntriesCommandTest::testHappyPathListsOwnTimeEntry`](../tests/Integration/Task/ListTaskTimeEntriesCommandTest.php)
+- [`task:time:update`](../src/Console/Command/Task/UpdateTaskTimeEntryCommand.php) → [`UpdateTaskTimeEntryCommandTest::testHappyPathUpdatesSecondsAndKeepsOmittedText`](../tests/Integration/Task/UpdateTaskTimeEntryCommandTest.php)
+- [`task:time:delete`](../src/Console/Command/Task/DeleteTaskTimeEntryCommand.php) → [`DeleteTaskTimeEntryCommandTest::testHappyPathDeletesOwnTimeEntry`](../tests/Integration/Task/DeleteTaskTimeEntryCommandTest.php)
+
+**Планируемые команды**
+
+Нет в исходном mapping.
+
+**Границы:** Проверяются собственные записи и граница полноты elapsedTime; полнота списка, чужие права и wrong-task проверки остаются частью #42.
+
+<a id="emp-07"></a>
+
+### [EMP-07](../openspec/specs/task-workflows/spec.md) — Переписка при выполнении
+
+- **Когда:** нужно задать вопрос, уточнить требования или сообщить о ходе работы.
+- **Хочу:** прочитать историю чата задачи и написать её участникам.
+- **Чтобы:** получить согласованный ответ и продолжить работу в актуальном контексте.
+- **Признак успеха:** Вопрос и ответ сохранены при задаче; участник может продолжить обсуждение, не теряя предыдущих сообщений.
+
+**Текущие команды и интеграционные тесты**
+
+- [`task:chat:list`](../src/Console/Command/Task/ListTaskChatCommand.php) → [`ListTaskChatCommandTest::testHappyPathListsMessagesOfSelectedTask`](../tests/Integration/Task/ListTaskChatCommandTest.php)
+- [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) → [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php)
+
+**Планируемые команды**
+
+Нет в исходном mapping.
+
+**Границы:** Проверяются чтение и отправка в чате задачи; сквозная переписка вопрос/ответ и denied-role матрица не подтверждены (#42).
+
 
 ## Проверка и сопровождение
 
-При изменении команды или integration test обновляйте строки с её JTBD ID; сохраняйте существующие ID сценариев. Источник продуктовых требований — task-workflows, источник связей — jtbd-coverage, факт реализации — CommandCatalog и классы команд, наличие проверки — исходник теста. Изменение бизнес-требования сначала оформляется через OpenSpec.
+При изменении команды или integration test обновляйте сценарии с её JTBD ID; сохраняйте существующие ID сценариев. Источник продуктовых требований — task-workflows, источник связей — jtbd-coverage, факт реализации — CommandCatalog и классы команд, наличие проверки — исходник теста. Изменение бизнес-требования сначала оформляется через OpenSpec.
 
 Для трассировки из issue или отчёта используйте стабильную ссылку `docs/task-jtbd.md#pm-01` (аналогично для остальных ID). Чтобы найти командный тест, используйте указанный `Class::method`; пример адресного запуска в окружении проекта:
 

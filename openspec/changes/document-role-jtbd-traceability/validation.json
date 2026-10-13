@@ -1,10 +1,11 @@
 {
-  "scenario_rows": 19,
-  "role_rows": {
+  "scenario_items": 19,
+  "role_items": {
     "PM": 6,
     "AM": 6,
     "EMP": 7
   },
+  "format": "headings-and-lists-no-tables",
   "command_refs": 32,
   "test_method_refs": 32,
   "unique_commands": 19,
