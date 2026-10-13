@@ -61,3 +61,22 @@ Portal команды запускались отдельно с выбранн�
 - Явные REST3 participant selects и native auditors ограничение #42 сохраняются. Ролевой фильтр сам их не добавляет.
 - Локальные/portal результаты не подтверждают native CI, merge, deployment или release. Эти состояния проверяются отдельно на опубликованном MR/SHA.
 - Изменение готово к review в dev. OpenSpec archive/spec sync и удаление worktree выполняются после подтверждённого merge в dev и закрытия issue по maintainer workflow. Merge этим запросом пользователя не поручен.
+
+## Revalidation after dev conflict resolution — 2026-10-13
+
+Пользователь поручил merge MR #85 в dev, закрытие #68, архивирование и удаление worktree.
+Обновлённый runtime HEAD: `e93364e6a904f957d6d1eaf655a2476548cd92e5`;
+интегрирован `origin/dev` `7c8da55ae32ec227289cab7cd3139fde9c6b5fb9`.
+Сохранены обе стороны конфликтов: roleFilter и новая meta.order/hint,
+ролевые маршруты и REST1 запись тегов, документация и composite fixture cleanup.
+
+- make unit: PASS, 473 tests / 3640 assertions, без skips/warnings.
+- make lint-all и make check: PASS (licenses, PSR12, PHPStan, Rector, Composer strict, syntax, platform, startup).
+- portal task:list: PASS, 5 tests / 57 assertions.
+- portal task:find: PASS, 5 tests / 57 assertions.
+- OpenSpec strict validation и git diff --check: PASS.
+- Повторная проверка completeness/correctness/coherence: 13/13 tasks, все 6 requirements и 27 scenarios соответствуют реализации; актуальная сортировка сохранена из #64, ролевые predicates и policy неизменны.
+- [Повторный portal receipt](portal-evidence-after-dev-merge.jsonl): 10 cases, 19 созданных задач, 0 cleanup failures; SHA256 `1b65f10fa2daa6d6b57fa98d67a6391d6268284e22bde28e5ae65f3402b9d5a4`.
+- Содержательная запись CHANGELOG.md со ссылкой #68 присутствует в diff относительно актуальной dev.
+
+Native CI и фактический merge проверяются отдельно на опубликованном итоговом HEAD.
