@@ -66,6 +66,11 @@
 
 ### Изменено
 
+- После merge [PR #110](https://github.com/mesilov/bitrix24-cli/pull/110) в `dev`
+  и закрытия [#100](https://github.com/mesilov/bitrix24-cli/issues/100) синхронизированы
+  требования общей справки и `--about` в `cli-experience`; завершённый change
+  `verify-cli-help-and-docs-0-2-0` перенесён в архив от 14.10.2026.
+
 - Архивирован завершённый OpenSpec change `require-jtbd-documentation-sync` после
   доставки правила сопровождения JTBD и ссылки в шапке README через PR #106 в `dev`;
   сохранены CI/merge receipts ([#105](https://github.com/mesilov/bitrix24-cli/issues/105)).

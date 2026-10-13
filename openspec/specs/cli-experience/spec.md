@@ -22,7 +22,7 @@ CLI SHALL использовать b24cli и Symfony имена task:<action>/ta
 - **THEN** CLI завершает вызов с ошибкой использования и предлагает известное имя без выполнения записи
 
 ### Requirement: Discoverable help without remote operations
-CLI SHALL поддерживать `-h`/`--help`, `b24cli help COMMAND`, `b24cli list [NAMESPACE]` и `--version`/`-V`. Справка SHALL показывать краткое назначение, примеры обычных действий, обязательные флаги, значения по умолчанию, ограничения и ссылку на документацию. Справка и версия SHALL работать без авторизации и запросов на портал.
+CLI SHALL поддерживать `-h`/`--help`, `b24cli help COMMAND`, `b24cli list [NAMESPACE]` и `--version`/`-V`. Справка SHALL показывать краткое назначение, примеры обычных действий, обязательные флаги, значения по умолчанию, ограничения и ссылку на документацию. Справка и версия SHALL работать без авторизации и запросов на портал. Корневой `--help`/`-h` SHALL показывать обзор b24cli с актуальным списком публичных команд и примерами работы с задачами вместо справки `list`.
 
 #### Scenario: Root or group invocation
 - **WHEN** пользователь вызывает `b24cli` либо `b24cli list task`
@@ -35,6 +35,22 @@ CLI SHALL поддерживать `-h`/`--help`, `b24cli help COMMAND`, `b24cli
 #### Scenario: Examples precede advanced details
 - **WHEN** пользователь открывает task:find --help или help обычной команды задач
 - **THEN** после назначения SHALL идти обычные корректные примеры, затем сведения о флагах/defaults и advanced input/API ограничениях; пример task:find SHALL объединять --title с --group-id и --responsible, справка не выполняет portal requests
+
+#### Scenario: Root application help
+- **WHEN** пользователь вызывает `b24cli --help` или `b24cli -h` без имени команды и без настроенного подключения
+- **THEN** оба вызова возвращают 0 и показывают одинаковый обзор: назначение b24cli для работы с Битрикс24, синтаксис вызова приложения, актуальный список всех зарегистрированных публичных команд с краткими описаниями, глобальные опции, примеры создания (`task:add` с обязательными полями и `--dry-run`), просмотра (`task:show`) и поиска (`task:find`) задач, способы получить командную справку и ссылку на документацию; вывод не подменяется справкой list, не содержит шаблонного примера `list test`, не выполняет примеры, не требует credentials и не обращается к порталу
+
+#### Scenario: Root command list remains current
+- **WHEN** в проверяемой версии добавлена или удалена публичная команда
+- **THEN** список в корневом `--help` SHALL соответствовать фактически доступным публичным командам `b24cli list`, включая стандартные команды; планируемые и недоступные команды SHALL не включаться
+
+#### Scenario: Explicit list help
+- **WHEN** пользователь вызывает `b24cli list --help` или `b24cli help list`
+- **THEN** оба вызова показывают справку именно list с её аргументом namespace и опциями, возвращают 0 и не выполняют удалённых операций; обзор приложения не подменяет эту командную справку
+
+#### Scenario: Task creation help remains command specific
+- **WHEN** пользователь вызывает `b24cli task:add --help` или `b24cli help task:add`
+- **THEN** оба вызова показывают справку создания задачи с назначением, примерами и опциями task:add без требования обязательных полей, возвращают 0 и не выполняют API-запросов; корневой обзор не подменяет справку команды
 
 ### Requirement: Convenient and explicit task field updates
 CLI SHALL предоставлять `--title`, `--creator`, `--responsible`, `--group-id`, `--deadline`, `--description` и `--description-file` для создания и применимые флаги для изменения. `task:update` SHALL принимать хотя бы одно явное изменение и отправлять только заданные поля. `task:assign` SHALL изменять только responsibleId; остальные флаги SHALL отображаться на документированные writable REST3 поля.
@@ -343,3 +359,18 @@ The CLI SHALL accept task:find --group-id as a positive integer and combine a lo
 #### Scenario: Temporal group scope
 - **WHEN** task:find --title TEXT --group-id 42 получает новый временной флаг
 - **THEN** явный REST1 маршрут получает GROUP_ID=42 и диапазон DEADLINE; REST3 groupId filter не отправляется; результат нормализуется в public CLI contract
+
+### Requirement: Application information without remote operations
+CLI SHALL поддерживать корневой `b24cli --about`: назначение приложения, фактическая версия запущенной сборки, автор, лицензия и ссылки на репозитории приложения и скилла. Версия SHALL совпадать с `--version`; автор и лицензия SHALL соответствовать метаданным проекта. Вызов SHALL возвращать 0 без настроенного подключения, авторизации, записи конфигурации и запросов к порталу. Флаг SHALL быть указан в общей справке.
+
+#### Scenario: Application information without a connection
+- **WHEN** пользователь вызывает `b24cli --about` без настроенного подключения
+- **THEN** CLI возвращает 0 и показывает назначение b24cli, версию, автора Maksim Mesilov, лицензию `bitrix24-cli-license` с указанием основы BSD-3-Clause, ссылки `https://github.com/mesilov/bitrix24-cli` и `https://github.com/mesilov/bitrix24-cli-skill`; credentials не читаются, конфигурация не изменяется, API-запросы не выполняются, ссылки автоматически не открываются
+
+#### Scenario: Build identity remains consistent
+- **WHEN** пользователь последовательно вызывает `b24cli --version` и `b24cli --about` в одной релизной или dev сборке
+- **THEN** версия в обоих выводах одинакова и соответствует фактической сборке; планируемый номер будущего релиза не подставляется в about
+
+#### Scenario: About is discoverable
+- **WHEN** пользователь вызывает корневой `b24cli --help` или `b24cli -h`
+- **THEN** общая справка содержит `--about` с кратким пояснением, что флаг показывает сведения о приложении
