@@ -98,7 +98,7 @@ abstract class LiveTaskCommandTestCase extends TestCase
             self::fail('Could not remove owned test fixtures: task IDs [' . implode(', ', $failed) . '], Disk file IDs [' . implode(', ', $failedFiles) . ']. Remove them manually.');
         }
 
-        if (isset($this->userId) && $this->isHappyPath()) {
+        if (isset($this->userId) && $this->isHappyPath() && !$this->status()->isSkipped()) {
             $expectedPartial = match ($this->commandName()) {
                 'task:time:show' => 'Selected elapsedTime was not returned.',
                 'task:history:list' => 'history-navigation-unverified',
@@ -140,7 +140,8 @@ abstract class LiveTaskCommandTestCase extends TestCase
         self::assertSame($this->commandName(), $argv[0], 'Fixtures and readback must use SDK helpers, not another CLI command.');
         $run = ConsoleHarness::run($app ?? $this->app, ['--json', ...array_map(strval(...), $argv)]);
         $json = $run->json();
-        $this->observedCommands[] = ['command' => $argv[0], 'status' => $run->status, 'apiCalls' => $json['meta']['apiCalls'] ?? [], 'complete' => $json['meta']['complete'] ?? null, 'reason' => $json['meta']['reason'] ?? null, 'errorCode' => $json['error']['code'] ?? null, 'apiErrorCode' => $json['error']['details']['apiErrorCode'] ?? null];
+        $this->observedCommands[] = ['command' => $argv[0], 'status' => $run->status, 'apiCalls' => $json['meta']['apiCalls'] ?? [], 'complete' => $json['meta']['complete'] ?? null, 'reason' => $json['meta']['reason'] ?? null, 'errorCode' => $json['error']['code'] ?? null, 'apiErrorCode' => $json['error']['details']['apiErrorCode'] ?? null,
+            'taskStatus' => $json['data']['task']['status'] ?? null, 'confirmed' => $json['data']['operation']['confirmed'] ?? null, 'outcomeUnknown' => $json['meta']['outcomeUnknown'] ?? null];
         if ($argv[0] === 'task:add' && is_int($id = $json['data']['operation']['resourceId'] ?? null) && $id > 0) {
             $this->ownTask($id);
         }
@@ -161,9 +162,9 @@ abstract class LiveTaskCommandTestCase extends TestCase
         return 'b24cli-test-' . bin2hex(random_bytes(8));
     }
 
-    protected function createTask(?string $title = null): int
+    protected function createTask(?string $title = null, array $fields = []): int
     {
-        $id = $this->tasks->add(['title' => $title ?? $this->fixtureTitle(), 'creatorId' => $this->userId, 'responsibleId' => $this->userId, 'description' => 'original']);
+        $id = $this->tasks->add(['title' => $title ?? $this->fixtureTitle(), 'creatorId' => $this->userId, 'responsibleId' => $this->userId, 'description' => 'original', ...$fields]);
         $this->ownTask($id);
         return $id;
     }

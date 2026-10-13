@@ -118,6 +118,10 @@ CLI SHALL различать неподтверждённую отправлен
 - **WHEN** complete передал задачу на контроль и task:list выбран по supposedly_completed либо completed
 - **THEN** первая выборка включает эту задачу, вторая её исключает; фильтрация использует фактический REST3 status без предположения по имени предыдущего действия
 
+#### Scenario: Group membership absent from list data
+- **WHEN** при фильтре groupId список не возвращает достоверный groupId подходящей по остальным условиям задачи
+- **THEN** CLI проверяет group.id через заранее объявленное REST3 чтение карточки выбранного ID, максимум один раз на просмотренную задачу в scan budget; неизвестная группа даёт partial/exit3, не пустой complete success и не REST1 fallback
+
 #### Scenario: Invalid logical status is not an empty success
 - **WHEN** --status либо --where.status содержит опечатку, пустую строку, legacy number/string code или array
 - **THEN** usage-error/exit2 возвращается до credentials/API, без молчаливой пустой успешной выборки, OR либо переименования ключа

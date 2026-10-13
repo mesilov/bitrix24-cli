@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+### Добавлено
+
+- Семь команд жизненного цикла задачи: start/pause/defer/renew/complete/approve/disapprove,
+  проверка action-specific прав и обязательного native result, фактический REST3 статус,
+  dry-run и сохранение confirmed/partial/outcomeUnknown.
+- Строгая проверка шести логических статусов в фильтрах task:list.
+
+### Исправлено
+
+- Выборка проекта при groupId=null в REST3 list: принадлежность проверяется через
+  заранее объявленное REST3 чтение group.id карточки; непроверенные данные дают partial.
+
 ## [0.1.0] — 2026-10-12
 
 Первая версия CLI для работы с задачами Битрикс24.

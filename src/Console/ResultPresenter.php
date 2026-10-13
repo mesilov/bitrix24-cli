@@ -21,6 +21,7 @@ final class ResultPresenter
         'time-entries' => ['id', 'userId', 'seconds', 'text', 'createdDate'], 'checklist-roots' => ['id', 'title'],
         'checklist-items' => ['id', 'parentId', 'title', 'isComplete'],
         'task-history' => ['id', 'createdDate', 'userId', 'field', 'from', 'to'],
+        'task-lifecycle' => ['taskId', 'action', 'confirmed', 'status', 'needsControl', 'requireResult'],
         'mutation' => ['taskId', 'resourceId', 'action', 'changedFields'],
         'plan' => ['taskId', 'step', 'method', 'apiVersion', 'effect', 'fields'],
     ];
@@ -44,6 +45,10 @@ final class ResultPresenter
 
         if ($error !== null) {
             $this->diagnostic($output, $error['message']);
+        }
+
+        if ($mode === 'human' && ($result->data['task']['status'] ?? null) === 'supposedly_completed') {
+            $this->diagnostic($output, 'Задача ожидает контроля постановщика (supposedly_completed).');
         }
 
         if ($mode === 'human' && in_array('1.0', $meta['apiVersions'], true)) {
@@ -80,6 +85,11 @@ final class ResultPresenter
             }
 
             return [[$result->profile === 'task-access' ? 'permission' : 'field', $result->profile === 'task-access' ? 'allowed' : 'value'], $rows];
+        }
+
+        if ($result->profile === 'task-lifecycle') {
+            $item = [...$result->data['operation'], ...array_intersect_key($result->data['task'], array_flip(['status', 'needsControl', 'requireResult']))];
+            return [self::COLUMNS['task-lifecycle'], [array_map(static fn (string $field): mixed => $item[$field] ?? null, self::COLUMNS['task-lifecycle'])]];
         }
 
         $columns = self::COLUMNS[$result->profile] ?? ['field', 'value'];

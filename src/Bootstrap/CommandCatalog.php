@@ -7,6 +7,13 @@ namespace Bitrix24\CLI\Bootstrap;
 final class CommandCatalog
 {
     public const COMMANDS = [
+        'task:start' => ['class' => \Bitrix24\CLI\Console\Command\Task\StartTaskCommand::class, 'effect' => 'write'],
+        'task:pause' => ['class' => \Bitrix24\CLI\Console\Command\Task\PauseTaskCommand::class, 'effect' => 'write'],
+        'task:defer' => ['class' => \Bitrix24\CLI\Console\Command\Task\DeferTaskCommand::class, 'effect' => 'write'],
+        'task:renew' => ['class' => \Bitrix24\CLI\Console\Command\Task\RenewTaskCommand::class, 'effect' => 'write'],
+        'task:complete' => ['class' => \Bitrix24\CLI\Console\Command\Task\CompleteTaskCommand::class, 'effect' => 'write'],
+        'task:approve' => ['class' => \Bitrix24\CLI\Console\Command\Task\ApproveTaskCommand::class, 'effect' => 'write'],
+        'task:disapprove' => ['class' => \Bitrix24\CLI\Console\Command\Task\DisapproveTaskCommand::class, 'effect' => 'write'],
         'task:add' => ['class' => \Bitrix24\CLI\Console\Command\Task\AddTaskCommand::class, 'effect' => 'write'],
         'task:show' => ['class' => \Bitrix24\CLI\Console\Command\Task\ShowTaskCommand::class, 'effect' => 'read'],
         'task:list' => ['class' => \Bitrix24\CLI\Console\Command\Task\ListTaskCommand::class, 'effect' => 'read'],
@@ -53,10 +60,17 @@ final class CommandCatalog
     }
 
     public const ROUTES = [
+        'task:start' => [['tasks.task.get', 3], ['tasks.task.access.get', 3], ['tasks.task.start', 1]],
+        'task:pause' => [['tasks.task.get', 3], ['tasks.task.access.get', 3], ['tasks.task.pause', 1]],
+        'task:defer' => [['tasks.task.get', 3], ['tasks.task.access.get', 3], ['tasks.task.defer', 1]],
+        'task:renew' => [['tasks.task.get', 3], ['tasks.task.access.get', 3], ['tasks.task.renew', 1]],
+        'task:complete' => [['tasks.task.get', 3], ['tasks.task.access.get', 3], ['tasks.task.complete', 1], ['tasks.task.result.list', 3]],
+        'task:approve' => [['tasks.task.get', 3], ['tasks.task.access.get', 3], ['tasks.task.approve', 1]],
+        'task:disapprove' => [['tasks.task.get', 3], ['tasks.task.access.get', 3], ['tasks.task.disapprove', 1]],
         'task:add' => [['tasks.task.add', 3], ['tasks.task.field.list', 3]],
         'task:show' => [['tasks.task.get', 3], ['tasks.task.get', 1], ['user.get', 1]],
-        'task:list' => [['tasks.task.list', 3]],
-        'task:find' => [['tasks.task.list', 3]],
+        'task:list' => [['tasks.task.list', 3], ['tasks.task.get', 3]],
+        'task:find' => [['tasks.task.list', 3], ['tasks.task.get', 3]],
         'task:update' => [['tasks.task.update', 3], ['tasks.task.field.list', 3]],
         'task:delete' => [['tasks.task.delete', 3], ['tasks.task.get', 3]],
         'task:fields:list' => [['tasks.task.field.list', 3], ['tasks.task.field.get', 3]],

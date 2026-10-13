@@ -27,7 +27,7 @@ final class ListTaskCommand extends Command
         $this->addOption('id', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'ID для серверной выборки; флаг можно повторять.');
         $this->addOption('responsible', null, InputOption::VALUE_REQUIRED, 'ID ответственного.');
         $this->addOption('group-id', null, InputOption::VALUE_REQUIRED, 'Положительный ID группы/проекта (groupId).');
-        $this->addOption('status', null, InputOption::VALUE_REQUIRED, 'Локальный фильтр статуса.');
+        $this->addOption('status', null, InputOption::VALUE_REQUIRED, 'Логический status: pending, in_progress, supposedly_completed, completed, deferred, declined.');
         $this->addOption('due-before', null, InputOption::VALUE_REQUIRED, 'Локальный фильтр срока, ISO8601 с часовым поясом.');
         $this->addOption('where', null, InputOption::VALUE_REQUIRED, 'Локальный фильтр равенств JSON object.');
         $this->addOption('where-file', null, InputOption::VALUE_REQUIRED, 'Локальный JSON filter из PATH или -.');

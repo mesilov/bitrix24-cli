@@ -59,7 +59,7 @@ final readonly class TaskListScanner
 
                 $seen[$id] = true;
                 $progress++;
-                $required = ['title', ...array_keys($query->where), ...($query->dueBefore === null ? [] : ['deadline'])];
+                $required = ['title', ...array_diff(array_keys($query->where), ['groupId']), ...($query->dueBefore === null ? [] : ['deadline'])];
                 if (array_diff($required, array_keys($row)) !== [] || !is_string($row['title'] ?? null)) {
                     $reason = 'missing-predicate-field';
                     $complete = false;
@@ -68,11 +68,37 @@ final readonly class TaskListScanner
 
                 $matched = $title === null || mb_stripos($row['title'], $title) !== false;
                 foreach ($query->where as $field => $value) {
-                    $matched = $matched && (string) $row[$field] === (string) $value;
+                    if ($field !== 'groupId') {
+                        $matched = $matched && (string) $row[$field] === (string) $value;
+                    }
                 }
 
                 if ($query->dueBefore !== null) {
                     $matched = $matched && $row['deadline'] !== null && strtotime((string) $row['deadline']) !== false && strtotime((string) $row['deadline']) < strtotime($query->dueBefore);
+                }
+
+                if ($matched && array_key_exists('groupId', $query->where)) {
+                    if (!isset($row['groupId'])) {
+                        try {
+                            $card = $this->tasks->get($id, ['group.id']);
+                            $group = $card['group'] ?? null;
+                            if (!array_key_exists('group', $card) || ($group !== null && (!is_array($group) || !is_int($group['id'] ?? null) || $group['id'] < 1))) {
+                                throw new Failure('api-error', 'Task group membership was not returned.');
+                            }
+
+                            $row['groupId'] = $group['id'] ?? null;
+                        } catch (Failure $failure) {
+                            if ($failure->exitStatus === 130) {
+                                throw $failure;
+                            }
+
+                            $reason = 'group-membership-unverified';
+                            $complete = false;
+                            continue;
+                        }
+                    }
+
+                    $matched = (string) $row['groupId'] === (string) $query->where['groupId'];
                 }
 
                 if ($matched) {

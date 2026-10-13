@@ -54,7 +54,7 @@ make php-cli-bash
 Точка входа — `bin/b24cli`; `bin/console` остаётся совместимым launcher.
 Команды находятся в пространстве имён `Bitrix24\CLI\` в `src/`.
 Доступны стандартные команды Symfony Console (`list`, `help`, `completion`)
-и 30 команд задач; настройка подключения и примеры приведены ниже.
+и 37 команд задач; настройка подключения и примеры приведены ниже.
 
 ## Проверки качества
 
@@ -121,7 +121,7 @@ B24CLI_ENV_FILE=/absolute/path/to/checkout/.env.local make integration
 
 `--dry-run` показывает план без записей; проверочные чтения для binding видны в `meta.apiCalls`. Удаление в automation требует `--force`, на TTY запрашивает подтверждение. Force не отключает валидацию и привязку ресурса.
 
-`--api-policy strict-rest3` отклоняет REST 1.0/IM планы до первого запроса. Default `task-v3` допускает только явную карту MVP. `--timeout` ограничивает HTTP-запрос (30 секунд по умолчанию, максимум 300). При потере ответа записи выставляется `outcomeUnknown`, автоматического повтора нет. SIGINT сохраняет подтверждённые шаги нескольких вложений.
+`--api-policy strict-rest3` отклоняет REST 1.0/IM планы до первого запроса. Default `task-v3` допускает только явную карту task-команд, включая семь lifecycle маршрутов. `--timeout` ограничивает HTTP-запрос (30 секунд по умолчанию, максимум 300). При потере ответа записи выставляется `outcomeUnknown`, автоматического повтора нет. SIGINT сохраняет подтверждённые шаги нескольких вложений.
 
 | Exit code | Значение |
 | --- | --- |
@@ -145,7 +145,7 @@ make integration TEST_ARGS='--group command:task:update' # все cases одно
 make integration TEST_ARGS='--group happy-path'         # отдельный happy-path каждой команды
 ```
 
-Unit suite (`tests/Unit`, PHPUnit `unit-tests`) проверяет все 30 маршрутов, JSON-параметры, поиск/пагинацию, patches, binding, dry-run, API policy, вывод, env precedence, SDK ошибки, timeout и SIGINT в subprocess. GitHub Actions запускает только `make unit` без секретов. `make integration` запускается отдельно с реальным webhook. Прежние `make test`/`make test-integration` и `make make-unit`/`make make-integration` остаются aliases соответствующих запусков.
+Unit suite (`tests/Unit`, PHPUnit `unit-tests`) проверяет все 37 task-команд, JSON-параметры, поиск/пагинацию, patches, binding, dry-run, API policy, вывод, env precedence, SDK ошибки, timeout и SIGINT в subprocess. GitHub Actions запускает только `make unit` без секретов. `make integration` запускается отдельно с реальным webhook. Прежние `make test`/`make test-integration` и `make make-unit`/`make make-integration` остаются aliases соответствующих запусков.
 
 Для каждой прикладной CLI-команды есть отдельный `tests/Integration/Task/<CommandClass>Test.php` с PHPUnit Group `command:<имя>` на классе. Минимум один метод помечен Group `happy-path`; новые позитивные/негативные cases добавляются в класс этой команды. Unit guard сравнивает классы и собственные happy-path методы с CommandCatalog, отклоняет объединение нескольких команд в одном классе и отсутствие покрытия. [Карта покрытия](../openspec/changes/archive/2026-10-12-design-task-console-architecture/command-map.md#integration-happy-path-coverage) перечисляет все 30 классов, test-cases и assertions. `TEST_ARGS` передаёт PHPUnit фильтры в выбранную suite, включая совместимые Make aliases.
 
@@ -220,3 +220,54 @@ make test-worktree
 Проверка использует **закоммиченный HEAD**, Docker и сеть для установки зависимостей. Она создаёт два временных linked worktree с одинаковыми basename и пробелами в путях, параллельно собирает различимые тестовые образы, устанавливает зависимости, запускает CLI и проверки. Затем проверяет Docker labels, image tags, mounts, UID/GID, независимость исходников/`vendor/`/конфигурации и работу второго окружения после остановки и перезапуска первого. Live credentials Битрикс24 не требуются.
 
 Логи сохраняются в `.worktree-test-results/run.*`. Cleanup удаляет только созданные тестом контейнеры, сети, образы и временные checkout. При сбое остановки окружения соответствующий checkout сохраняется с диагностикой. Проверить ветку cleanup после намеренной ошибки можно командой `WORKTREE_TEST_FAIL_AFTER_START=1 make test-worktree`: ожидается ненулевой exit code и `cleanup=true` в `result.txt`. Linux-проверка также выполняется workflow `Worktree isolation` в GitHub Actions.
+
+## Lifecycle runtime и приёмка
+
+`LifecycleAction` ограничивает семь действий. `TaskLifecycleService` строит полный
+route plan до credentials, выполняет REST3 get/access preflight и ровно одну
+REST1 mutation с `taskId`. `Rest1TaskLifecycleAdapter` принимает только ACK
+`result.task.id` выбранной задачи; `TaskStatus` задаёт единый набор REST3 status
+для lifecycle и фильтров списка. Status patch через общий update запрещён.
+
+Preflight читает `status`, `needsControl`, `requireResult`, `containsResults`,
+`autocompleteSubTasks` с документированными типами. Право каждого action
+проверяется отдельно; edit не заменяет complete/approve. Для requireResult=true
+при complete внутренний REST3 result.list читает только одну запись с
+filter taskId, select id/taskId/status, order id ASC, offset=0/limit=1.
+Отсутствие/непроверенность результата блокирует запись; result.status=open/closed
+не является task.status. После ACK REST3 get подтверждает фактический статус.
+Неопределённые поля после failed read не подменяются preflight значениями.
+
+Каждая новая команда имеет свой integration класс и happy-path. Случаи контроля
+готовятся с другим постановщиком B24CLI_TEST_OTHER_USER_ID и текущим исполнителем
+(подключение должно иметь право задавать creatorId и принимать работу), либо через SDK второго исполнителя: `B24CLI_TEST_EXECUTOR_WEBHOOK` в
+защищённом выбранном env-файле, который также содержит основной webhook.
+`B24CLI_TEST_OTHER_USER_ID` и `B24CLI_TEST_GROUP_ID` задают тестового исполнителя
+и проект для list cases. Denied-role matrix использует
+`B24CLI_TEST_RESTRICTED_WEBHOOK`. Отсутствующие подключения/роли обозначаются
+skip и не считаются portal acceptance. Fixtures и переходы в ListTaskCommandTest
+выполняются SDK; каждый case вызывает только свою CLI-команду.
+
+```sh
+make unit TEST_ARGS='--filter TaskLifecycleTest'
+B24CLI_ENV_FILE=/absolute/secure/test.env make integration TEST_ARGS='--group lifecycle'
+B24CLI_ENV_FILE=/absolute/secure/test.env make integration TEST_ARGS='--group command:task:list'
+```
+
+Проверки не обещают одинаковое поведение ролей всех порталов. Запись собственных
+SDK fixtures, readback, cleanup и сведения о фактически использованной роли
+сохраняются в `var/cache/portal-evidence.jsonl` без credentials.
+
+Наблюдение на тестовом портале 13.10.2026: completion самим постановщиком
+может сразу вернуть completed даже при needsControl=true; для supposedly_completed
+нужно отдельное подключение исполнителя. При allowsTimeTracking=true start/pause
+может создавать дополнительную запись времени серверного таймера. Tests проверяют
+сохранность уже записанных трудозатрат и фактические side effects, а не неизменность
+всего списка времени.
+
+REST3 list на тестовом портале возвращает groupId=null даже для задачи группы.
+Фильтры list/find с groupId используют заранее объявленный get(group.id) companion
+для кандидатов с неизвестным groupId. Lookup выполняется не более одного раза
+на просмотренный ID и ограничен max-scan; scalar groupId из списка сохраняется
+при наличии. Недоступное чтение даёт partial/group-membership-unverified.
+REST1 маршруты не добавляются и strict-rest3 остаётся допустимой политикой.

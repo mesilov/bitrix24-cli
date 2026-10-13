@@ -17,7 +17,7 @@ final readonly class ListTasksHandler
 
     public function routes(): array
     {
-        return [new Route('tasks.task.list', 3, 'read')];
+        return [new Route('tasks.task.list', 3, 'read'), new Route('tasks.task.get', 3, 'read')];
     }
 
     public function prepare(ListTasksRequest $request): PreparedOperation
