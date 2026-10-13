@@ -756,6 +756,134 @@
       "schemaValid": true,
       "runtimeValid": false,
       "reason": "Runtime requires integer literal syntax without float coercion."
+    },
+    {
+      "name": "empty telemetry",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"telemetry\":{}}",
+      "schemaValid": true,
+      "runtimeValid": true
+    },
+    {
+      "name": "partial telemetry disabled",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"telemetry\":{\"collectProblemTrajectories\":false}}",
+      "schemaValid": true,
+      "runtimeValid": true
+    },
+    {
+      "name": "complete telemetry",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"telemetry\":{\"collectProblemTrajectories\":true,\"maxProblemTrajectoryFiles\":100,\"lastProblemTrajectoryProcessingAt\":\"2026-10-13T00:00:00Z\",\"lastProblemTrajectoryAnalysisOfferedAt\":null}}",
+      "schemaValid": true,
+      "runtimeValid": true
+    },
+    {
+      "name": "telemetry null",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"telemetry\":null}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "telemetry array",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"telemetry\":[]}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "telemetry scalar",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"telemetry\":true}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "telemetry unknown",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"telemetry\":{\"enabled\":true}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "telemetry collection string",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"telemetry\":{\"collectProblemTrajectories\":\"true\"}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "telemetry collection null",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"telemetry\":{\"collectProblemTrajectories\":null}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "telemetry max zero",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"telemetry\":{\"maxProblemTrajectoryFiles\":0}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "telemetry max negative",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"telemetry\":{\"maxProblemTrajectoryFiles\":-1}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "telemetry max string",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"telemetry\":{\"maxProblemTrajectoryFiles\":\"100\"}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "telemetry max fraction",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"telemetry\":{\"maxProblemTrajectoryFiles\":1.5}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "telemetry max overflow",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"telemetry\":{\"maxProblemTrajectoryFiles\":9223372036854775808}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "telemetry date invalid calendar",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"telemetry\":{\"lastProblemTrajectoryProcessingAt\":\"2026-02-30T00:00:00Z\"}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "telemetry date offset",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"telemetry\":{\"lastProblemTrajectoryAnalysisOfferedAt\":\"2026-10-13T00:00:00+06:00\"}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "telemetry date integer",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"telemetry\":{\"lastProblemTrajectoryProcessingAt\":1}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "telemetry leap second",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"telemetry\":{\"lastProblemTrajectoryProcessingAt\":\"2026-10-13T00:00:60Z\"}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "telemetry integer literal 100.0",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"telemetry\":{\"maxProblemTrajectoryFiles\":100.0}}",
+      "schemaValid": true,
+      "runtimeValid": false,
+      "reason": "JSON Schema treats integral numbers as integers; runtime requires an integer JSON literal."
+    },
+    {
+      "name": "telemetry integer literal 1e2",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"telemetry\":{\"maxProblemTrajectoryFiles\":1e2}}",
+      "schemaValid": true,
+      "runtimeValid": false,
+      "reason": "JSON Schema treats integral numbers as integers; runtime requires an integer JSON literal."
+    },
+    {
+      "name": "telemetry date year zero",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"telemetry\":{\"lastProblemTrajectoryProcessingAt\":\"0000-01-01T00:00:00Z\"}}",
+      "schemaValid": false,
+      "runtimeValid": false
     }
   ]
 }

@@ -460,6 +460,23 @@ AI-агенту выполнять операции через публичны�
 
 [JTBD по ролям: сценарии, CLI-команды и интеграционные тесты](docs/task-jtbd.md).
 
+### Проблемные сценарии агента
+
+`doctor:problem-trajectory` регистрирует обезличенный сценарий нехватки публичной
+CLI-возможности и алгоритм необходимой обвязки словами. Карточки сохраняются
+локально рядом с user config; telemetry default true, лимит 100. Скилл проверяет
+`analysisDue` при запуске и предлагает weekly пакетный разбор. Сам CLI не запускает
+фоновый сбор и не читает истории чатов.
+
+```sh
+b24cli doctor:problem-trajectory --action status --json
+b24cli doctor:problem-trajectory --report-file report.json --json
+```
+
+[Контракт и примеры](docs/problem-trajectories.md). Feedback в MVP пока мокается
+только с явным `--mock-feedback` и подтверждением; результат mocked=true,
+delivered=false не означает отправку обращения или создание issue.
+
 | Команда | Назначение |
 | --- | --- |
 | `users:current` | Пользователь текущего подключения |

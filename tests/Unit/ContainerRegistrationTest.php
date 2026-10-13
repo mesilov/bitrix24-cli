@@ -31,6 +31,12 @@ final class ContainerRegistrationTest extends TestCase
         }
 
         self::assertCount(38, array_unique($classes));
+        foreach (CommandCatalog::LOCAL_COMMANDS as $name => $definition) {
+            $attribute = (new \ReflectionClass($definition['class']))->getAttributes(AsCommand::class)[0]->newInstance();
+            self::assertSame($name, $attribute->name);
+            self::assertSame($definition['class'], $app->get($name)::class);
+        }
+
         self::assertSame(0, $spyConnectionResolver->reads);
         self::assertSame([], $fakeApiTransport->calls);
     }

@@ -12,6 +12,12 @@
 
 ### Добавлено
 
+- `doctor:problem-trajectory`: защищённые локальные карточки, root telemetry
+  (сбор true/лимит 100), публичные status/list/configure и snapshot analysis,
+  даты weekly предложения/обработки, recovery journal и явный offline feedback
+  mock с идемпотентными тестовыми receipts. Реальный endpoint не включён
+  ([#96](https://github.com/mesilov/bitrix24-cli/issues/96)).
+
 - Общая справка `--help`/`-h` с назначением b24cli, полным списком публичных команд
   и примерами задач; `--about` с версией, автором, лицензией и ссылками на приложение
   и скилл. Обновлены командные примеры, README/JTBD и проверяемая карта CLI-вызовов

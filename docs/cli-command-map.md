@@ -1,6 +1,6 @@
 # Карта CLI-вызовов
 
-Каталог содержит 46 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
+Каталог содержит 47 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
 
 `b24cli --help`/`-h` показывают назначение, список команд, глобальные опции и примеры задач. `b24cli --about` показывает назначение, версию, автора, лицензию и ссылки на [приложение](https://github.com/mesilov/bitrix24-cli) и [скилл](https://github.com/mesilov/bitrix24-cli-skill). Эти вызовы не требуют подключения и не обращаются к порталу. `list --help` описывает именно list; вызов без аргументов выводит список команд.
 
@@ -14,6 +14,7 @@
 | [`connection:remove`](../src/Console/Command/Connection/RemoveConnectionCommand.php) | Удалить локальный профиль и его credentials | local | `b24cli connection:remove work` | Нет отдельного portal-теста; [offline help](../tests/Unit/HelpAndAboutTest.php) |
 | [`connection:show`](../src/Console/Command/Connection/ShowConnectionCommand.php) | Показать безопасные параметры выбранного подключения | local | `b24cli connection:show work` | Нет отдельного portal-теста; [offline help](../tests/Unit/HelpAndAboutTest.php) |
 | [`connection:use`](../src/Console/Command/Connection/UseConnectionCommand.php) | Выбрать сохранённый профиль по умолчанию | local | `b24cli connection:use work` | Нет отдельного portal-теста; [offline help](../tests/Unit/HelpAndAboutTest.php) |
+| [`doctor:problem-trajectory`](../src/Console/Command/Doctor/ProblemTrajectoryCommand.php) | Сохранить и разобрать обезличенные карточки нехватки CLI | local | `b24cli doctor:problem-trajectory --action status --json` | Нет отдельного portal-теста; [offline help](../tests/Unit/HelpAndAboutTest.php) |
 | `help` | Display help for a command | offline | `b24cli help task:add` | Нет отдельного portal-теста; [offline help](../tests/Unit/HelpAndAboutTest.php) |
 | `list` | List commands | offline | `b24cli list task` | Нет отдельного portal-теста; [offline help](../tests/Unit/HelpAndAboutTest.php) |
 | [`task:access:show`](../src/Console/Command/Task/ShowTaskAccessCommand.php) | Показать права текущего пользователя | read | `b24cli task:access:show 123` | [`ShowTaskAccessCommandTest.php`](../tests/Integration/Task/ShowTaskAccessCommandTest.php) |

@@ -11,6 +11,7 @@ final class TaskUsage
     public static function examples(Command $command): array
     {
         $examples = match ($command->getName()) {
+            'doctor:problem-trajectory' => ['b24cli doctor:problem-trajectory --action status --json', 'b24cli doctor:problem-trajectory --report-file report.json --json'],
             'connection:add' => ['b24cli connection:add work --group-id 7 --creator-id 1 --responsible-id 42'],
             'connection:list' => ['b24cli connection:list'],
             'connection:show' => ['b24cli connection:show work'],
