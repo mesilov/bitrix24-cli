@@ -103,7 +103,8 @@
   `task:my` и регистрация 42 task-команд синхронизированы с main specs;
   проверенный change архивирован в `2026-10-14-add-task-my-command` вместе
   с unit/live evidence и receipts очистки fixtures. Активные lifecycle deltas
-  согласованы с 42 командами, чтобы последующее архивирование сохранило task:my.
+  согласованы с 42 командами, чтобы последующее архивирование сохранило task:my;
+  smoke-контракт упакованного CLI также ожидает 42 команды и проверяет --user.
 
 - После merge [MR #117](https://github.com/mesilov/bitrix24-cli/pull/117)
   в `dev` и закрытия [#114](https://github.com/mesilov/bitrix24-cli/issues/114)
