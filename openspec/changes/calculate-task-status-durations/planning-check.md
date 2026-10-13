@@ -2,6 +2,7 @@
 
 - Issue: [#121](https://github.com/mesilov/bitrix24-cli/issues/121), OPEN, enhancement, milestone 0.2.0 (number 2).
 - Source dev: `5ed034980e58ed950c3c733f3f01ec5ca08dd990`.
+- Before publication integrated fresh dev `48e010c7365b996fe58c8fda14d93f5d94693193`. Registration delta follows its normalized requirement statement and retains its separate Command registration validation requirement. Strict validation/diff check rerun after synchronization.
 - Fresh isolated worktree effective MCP config: enabled bitrix24_dev, Streamable HTTP https://mcp-dev.bitrix24.tech/mcp; real search/method-details/history and search/article-details/REST3 fields answered.
 - Official sources are linked in proposal/design; get id/select/status/statusChanged/changed are REST3, history taskId/createdDate/field/value.from/to are REST1. REST3 get does not return created.
 - `openspec validate calculate-task-status-durations --strict`: PASS.

@@ -3,7 +3,7 @@
 ## MODIFIED Requirements
 
 ### Requirement: Exact MVP command registration
-Runtime SHALL предоставлять 35 task-команд (34 текущих и task:status:durations) и четыре users-команды capability user-directory, отдельно от локальных connection-команд capability connection-configuration и встроенных команд справки/completion. Регистрация SHALL строиться напрямую из единственного явного CommandCatalog без tags/compiler pass и массового сканирования. Unit-tests SHALL проверять уникальность имён/классов, совпадение AsCommand с каталогом и отсутствие исключённых task-операций. Исключённые операции не SHALL возвращаться через aliases.
+Runtime SHALL предоставлять 35 task-команд (34 текущих и task:status:durations) и четыре users-команды user-directory, отдельно от локальных connection-команд connection-configuration и встроенной справки/completion. Регистрация SHALL строиться напрямую из единственного явного CommandCatalog без tags/compiler pass и массового сканирования. Исключённые операции не SHALL возвращаться через aliases.
 
 #### Scenario: Root command inventory
 - **WHEN** пользователь запускает b24cli без имени команды либо list task без профиля подключения
