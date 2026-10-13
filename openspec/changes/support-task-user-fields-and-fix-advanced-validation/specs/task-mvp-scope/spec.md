@@ -35,4 +35,3 @@
 - **WHEN** task:add/task:update получает явные --user-fields/--user-fields-file в task-v3 policy
 - **THEN** допустимы REST1 tasks.task.getFields для preflight и tasks.task.update только с проверенными custom UF_*; system UF_CRM_TASK/UF_TASK_WEBDAV_FILES/UF_MAIL_MESSAGE и произвольные legacy keys исключены
 - **AND** strict-rest3 отклоняет весь потенциальный план до credentials/API, включая schema read и первый create
-
