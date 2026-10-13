@@ -33,3 +33,10 @@
 - https://github.com/mesilov/bitrix24-cli/issues/14 — существующая сборка standalone archives.
 - https://github.com/mesilov/bitrix24-cli/issues/24 — ручной первый запуск и PATH инструкция.
 - https://github.com/mesilov/bitrix24-cli/issues/23 и https://github.com/mesilov/bitrix24-cli/issues/25 — macOS launch blocking и исследование signing/notarization; отдельные задачи.
+
+## Delivery and completion
+
+- Implementation: PR #91 merged in dev at `4406a8354e6e2439f90c1f0f1dfc3a15e8fd5ea2`.
+- Installer publication: https://github.com/mesilov/bitrix24-cli/pull/93 merged in main at `fd86141169eed9cfe2a8b6b6c18a68310d209040`, with 19/19 promotion checks passing.
+- Anonymous public script installation: latest and explicit public Release `0.1.0`, native Linux/macOS main CI and local macOS shell/profile/configuration checks passed. See `public-installation-evidence-2026-10-13.json`.
+- Completed change archive: `openspec/changes/archive/2026-10-13-add-shell-installer/`; all 10 tasks complete and the 8 installer requirements are synchronized into `openspec/specs/binary-distribution/spec.md` when archived.

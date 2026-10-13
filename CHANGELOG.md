@@ -46,6 +46,11 @@
 
 ### Изменено
 
+- Подтверждена публичная Unix установка `0.1.0` с installer из `main`;
+  синхронизированы восемь требований binary-distribution и архивирован завершённый
+  OpenSpec change с native CI/public delivery evidence
+  ([#28](https://github.com/mesilov/bitrix24-cli/issues/28)).
+
 - Синхронизированы спецификации загрузки локальных файлов (default 500 MB и приоритет
   runtime `maxUploadBytes`) и архивирован завершённый OpenSpec change
   `upload-local-task-files` с подтверждённой доставкой реализации в `dev`
