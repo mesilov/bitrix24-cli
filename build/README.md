@@ -151,8 +151,8 @@ lock. Диагностика: CI logs и `runtime/package-*/static-php-cli-*/log
 Основной Unix путь — корневой [install.sh](../install.sh); интерфейс, prerequisites,
 public Release source и предварительный просмотр приведены в
 [README → Установка](../README.md#установка). Публичный URL
-`https://raw.githubusercontent.com/mesilov/bitrix24-cli/main/install.sh`
-требует доставки в main; CI acceptance не является доказательством этой доставки.
+`https://raw.githubusercontent.com/mesilov/bitrix24-cli/main/install.sh`.
+Проверка опубликованного скрипта в main выполняется отдельно от fixture acceptance.
 Установщик сохраняет все packaged licenses, включая runtime/compression notices,
 в `$HOME/.local/share/b24cli/package/` и создаёт `$HOME/.local/share/b24cli/env`.
 Download/checksum/unpack/candidate version failures сохраняют прежний binary.

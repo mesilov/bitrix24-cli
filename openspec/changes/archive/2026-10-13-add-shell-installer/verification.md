@@ -3,7 +3,7 @@
 Date: 2026-10-13. Issue: https://github.com/mesilov/bitrix24-cli/issues/28.
 Milestone: `0.2.0`; existing labels: `enhancement`, `documentation`.
 
-## Scorecard
+## Pre-publication scorecard
 
 | Dimension | Evidence |
 | --- | --- |
@@ -58,9 +58,38 @@ with version identity from `build-info.json`, retaining all existing smoke/insta
 - Task 5.1 requires script promotion to main and an anonymous smoke from that published URL. Explicit 0.1.0 uses the main script with `--version 0.1.0`; the 0.1.0 tag itself predates installer publication.
 - Installer never invokes `xattr`, disables Gatekeeper or modifies quarantine. Native runner/local executable checks do not prove browser quarantine acceptance or Developer ID/notarization; #23/#25 remain separate.
 
-## Findings
+## Pre-publication findings
 
 - **CRITICAL C1 (public delivery gate):** task 5.1 is incomplete because the main script URL is absent. Keep issue and change open, deliver implementation for review in dev, then perform normal main promotion and anonymous published-script smoke before closing/archiving.
 - **WARNING W1 (platform environment limit):** on Linux, system `/etc/profile` can overwrite temporary HOME. The harness explicitly loads the selected login profile in an isolated bash; native macOS also exercises real bash login. zsh interactive/login and bash interactive are exercised directly.
 
 Implementation can be reviewed in dev. Full change completion/archive is not claimed.
+
+
+## Final verification and public completion (2026-10-13)
+
+The preceding 404 and incomplete-task observations are retained as historical receipts. Public delivery gate C1 is now resolved.
+
+| Dimension | Final evidence |
+| --- | --- |
+| Completeness | 10/10 tasks; 8/8 added requirements implemented |
+| Correctness | All 15 scenarios covered by fixtures, native packages and actual published-script installation |
+| Coherence | Existing archive contract, anonymous exact-tag assets, staged replacement, notices and quoted idempotent shell activation follow design |
+
+- PR #93: **MERGED** in main, merge SHA `fd86141169eed9cfe2a8b6b6c18a68310d209040`; exact promotion head `a5130dfb5ed551097ef1a8128a0a8e0cdbb7c986` had **19/19 SUCCESS checks** including all three native platform packages and release archive set. Promotion covered only installer and 13 related files.
+- Public URL: https://raw.githubusercontent.com/mesilov/bitrix24-cli/main/install.sh; anonymous download succeeded and bytes matched `origin/main:install.sh`. The script SHA-256 is recorded in `public-installation-evidence-2026-10-13.json`.
+- Anonymous latest and explicit `--version 0.1.0` installs passed in separate temporary HOME directories, each followed by repeated installation. Current sh, new bash interactive/login and zsh interactive/login sessions found `b24cli 0.1.0` from `/`, with one PATH entry and one profile line. Notices, executable 755 and a configuration sentinel were preserved/verified.
+- The literal documented `curl | sh` pipeline also passed in a third isolated HOME, followed by env activation and `b24cli --version` from another directory.
+- [Main public installer CI](https://github.com/mesilov/bitrix24-cli/actions/runs/38406007928): **SUCCESS** on Linux amd64 and macOS arm64; each downloaded the published raw script, compared it with the main checkout and performed explicit/latest installs with real production curl. All six post-merge main workflows completed successfully on the exact merge SHA.
+- Published `0.1.0` archive checksums: Linux `0e934f42f7d563b64dbac8017a83a5d4d06afc5c5b5376f52d36d73559964aaf`, macOS `d216957d7973a8f8a74d93c55a6984097afd77c395691d382bbadc9798aba91b`. Both came from the same Release as SHA256SUMS.
+- Windows packaging remained green; Windows installer is outside #28 scope. No new tag or Release was required for script publication.
+- No Bitrix24 API contract or live portal behavior changed. Gatekeeper/quarantine and signing/notarization remain bounded by #23/#25; the installer does not modify them.
+
+No critical issues remain. The Linux isolated-login environment observation W1 is documented; real native macOS login and the selected bash startup file are verified. All applicable installer checks ran. Change is ready for sync/archive.
+
+
+## Sync validation boundary
+
+- Installer delta strict validation and synchronized `binary-distribution` strict validation passed.
+- `openspec validate --specs` passed for all 14 main specifications.
+- Broader `--specs --strict` reports pre-existing >500-character requirement warnings in `cli-experience`, `task-console-runtime` and `task-mvp-scope`. Their bytes are identical to this branch's pre-archive HEAD; #28 changes none of those files. Global strict success is not claimed, and unrelated requirements were preserved.
