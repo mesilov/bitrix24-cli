@@ -46,7 +46,18 @@ b24cli task:file:attach 123 --file-id 789
 - [`Disk Folder tests`](https://github.com/bitrix24/b24phpsdk/blob/8ebd4c154d5557db949b0196825f347a3a6c5bf0/tests/Unit/Services/Disk/Folder/Service/FolderTest.php) и SDK integration fixtures/cleanup исследовать как источники подходов; не считать наличие SDK теста доказательством CLI acceptance.
 - Symfony [`Filesystem::readFile()`](https://github.com/symfony/filesystem/blob/7599ebb855fede59413ddb7f15198d67bfcae7ba/Filesystem.php) читает файл целиком, поэтому сам по себе не даёт bounded read. [`Path`](https://github.com/symfony/filesystem/blob/7599ebb855fede59413ddb7f15198d67bfcae7ba/Path.php) предоставляет normalize/isLocal/isAbsolute; проверить локальность до преобразований, не менять смысл symlink/`..` и Windows путей. Context7 использован для документации; методы сверены с source именно locked v8.1.6, без переноса будущих APIs.
 
-Сравнение и локальные contract tests определяют окончательный способ reuse, без изменения внешних требований лимита, preview и ledger. Первичный review не означает, что выбранный SDK путь уже интегрирован/проверен в CLI.
+Решение реализации 13.10.2026:
+
+| Кандидат | Решение и причина | Проверка |
+|---|---|---|
+| Symfony Filesystem/Path v8.1.6 | Reuse: внедрённый LocalFileSource, exists и OS-aware normalize/isLocal; прямой require ^8.0, locked version не изменён | LocalFileUploadTest: Unicode/space/local paths, invalid paths, unreadable/directory/symlink; packaging smoke preview |
+| SDK Base64Encoder::encodeString | Reuse готового SDK API с Symfony Mime encoder и NullLogger после bounded read | Exact binary round-trip включая NUL/0xff, zero и 10 MiB; API payload не попадает в stdout |
+| SDK encodeFile и Symfony readFile | Не используем чтение целиком: нет ограничения размера/handle identity. Собственное чтение limit+1/fstat изолировано внутри LocalFileSource | Growth/replacement/deletion/limit+1/regular file checks до upload |
+| Folder::uploadFile | Переиспользован подход payload через Rest1DiskUploadAdapter/ApiTransport; прямой wrapper обходит RuntimeState call accounting/cancellation и передаёт lower-case route/default version | Контракт точных id/data.NAME/fileContent/generateUniqueName, method/version и strict-rest3; live mixed calls |
+| UploadedFileResult | Переиспользован контракт ID/NAME, без unchecked getId int cast; возвращаются только эти поля | Positive numeric-string ID/overflow/malformed/FILE_ID tests, unknown + skipped attach |
+| SDK TemporaryDiskFixture | Переиспользован подход уникальных owned child folder, known-ID cleanup и readback; сам test helper отсутствует в Composer distribution | LiveTaskCommandTestCase: owned folder/file/task IDs, cleanup receipt; 5 portal cases |
+
+Все source references выше относятся к версии composer.lock. При использовании текущих SDK API не копируется vendor код; state/вывод остаются CLI ответственностью.
 
 Прямая Base64 загрузка избегает отдельного uploadUrl bearer flow/multipart транспорта. Цена — рост памяти и размера payload. Установить фиксированный лимит CLI **10 MiB (10485760 bytes)**; это проектное решение, не заявленный лимит Bitrix24. Проверить local regular/readable файл, размер и имя, затем читать максимум limit+1 с защитой от специальных файлов/подмены. Чтение exact bytes/кодирование происходит до первой записи и только при реальном execute; dry-run достаточно безопасной локальной проверки/статистики. Reject URLs/wrappers/`-`; Windows drive paths не путать с URI schemes. Unicode/space paths и zero-byte файла не менять. Symlink допускается только если разрешается в читаемый regular local file; повторная проверка открытого handle/fstat защищает от подмены на FIFO/роста.
 
@@ -95,3 +106,7 @@ Live case добавить в существующий AttachTaskFilesCommandTes
 ## Delivery
 
 После отдельного запроса apply выполнить задачи и verify, свежий fetch/merge origin/dev и PR в dev. Planning PR не закрывает issue. После подтверждённого implementation merge/закрытия issue — синхронизация/архив OpenSpec, доставка архива через dev PR и cleanup worktree по maintainer. Это не release/publication proof.
+
+## Live fixture documentation
+
+13.10.2026 обязательным MCP проверены [disk.folder.addSubFolder](https://apidocs.bitrix24.ru/api-reference/disk/folder/disk-folder-add-subfolder.html) и [disk.folder.deleteTree](https://apidocs.bitrix24.ru/api-reference/disk/folder/disk-folder-delete-tree.html). Эти REST1 маршруты используются только SDK fixture setup/cleanup, не добавлены в пользовательский CommandCatalog. Cleanup удаляет только известную созданную дочернюю папку, никогда root storage или ранее существовавшую папку.

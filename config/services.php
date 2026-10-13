@@ -10,6 +10,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 return static function (ContainerBuilder $container, string $root, bool $packaged = false): void {
     $services = [
         Bitrix24\CLI\Application\RuntimeState::class,
+        Symfony\Component\Filesystem\Filesystem::class,
+        Symfony\Component\Mime\Encoder\Base64Encoder::class,
+        Bitrix24\CLI\Infrastructure\Filesystem\LocalFileSource::class,
         Bitrix24\CLI\Infrastructure\Connection\ConfigDirectoryResolver::class,
         Bitrix24\CLI\Infrastructure\Connection\FileProtection::class,
         Bitrix24\CLI\Infrastructure\Connection\FileCredentialStore::class,
@@ -38,12 +41,14 @@ return static function (ContainerBuilder $container, string $root, bool $package
         $container->register($service)->setAutowired(true);
     }
 
+    $container->register(Bitrix24\SDK\Infrastructure\Filesystem\Base64Encoder::class)->setAutowired(true)->setArgument('$log', new Psr\Log\NullLogger());
+    $container->setAlias(Bitrix24\CLI\Application\Task\Port\LocalFileGateway::class, Bitrix24\CLI\Infrastructure\Filesystem\LocalFileSource::class);
     $container->register(Bitrix24\CLI\Infrastructure\Connection\ConnectionManager::class)->setAutowired(true)->setArgument('$projectRoot', $root)->setArgument('$packaged', $packaged);
     $container->setAlias(Bitrix24\CLI\Infrastructure\Connection\CredentialStore::class, Bitrix24\CLI\Infrastructure\Connection\FileCredentialStore::class);
     $container->setAlias(Bitrix24\CLI\Infrastructure\Connection\ConnectionResolver::class, Bitrix24\CLI\Infrastructure\Connection\ConnectionManager::class);
     $container->setAlias(Bitrix24\CLI\Infrastructure\Bitrix24\ApiTransport::class, Bitrix24\CLI\Infrastructure\Bitrix24\SdkApiTransport::class);
     foreach ([
-        'TaskGateway' => 'Rest3TaskAdapter', 'TaskChatGateway' => 'TaskChatAdapter', 'ChecklistGateway' => 'Rest1ChecklistAdapter',
+        'DiskUploadGateway' => 'Rest1DiskUploadAdapter', 'TaskGateway' => 'Rest3TaskAdapter', 'TaskChatGateway' => 'TaskChatAdapter', 'ChecklistGateway' => 'Rest1ChecklistAdapter',
         'TimeEntryGateway' => 'Rest1TimeEntryAdapter', 'ParticipantGateway' => 'Rest1ParticipantAdapter', 'TaskHistoryGateway' => 'Rest1TaskHistoryAdapter', 'UserGateway' => 'Rest1UserAdapter',
     ] as $port => $adapter) {
         $class = 'Bitrix24\\CLI\\Infrastructure\\Bitrix24\\' . $adapter;

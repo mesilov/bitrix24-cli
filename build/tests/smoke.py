@@ -101,6 +101,21 @@ def main():
         check(dry_run["data"]["plan"]["steps"] == [{"taskId": None, "step": 1, "method": "tasks.task.add",
               "apiVersion": "3.0", "effect": "write", "fields": {"title": "Привет, Битрикс24", "creatorId": 1,
               "responsibleId": 2, "allowsTimeTracking": False}}], "Task DI/UTF-8 arguments or plan changed")
+        local_file = clean / 'Локальный отчёт.bin'
+        local_file.write_bytes(b'BINARY-NOT-FOR-OUTPUT\0\xff')
+        upload_args = ['task:file:attach', '123', '--file', str(local_file), '--folder-id', '456', '--json']
+        upload_plan = json.loads(invoke('b24cli', upload_args + ['--dry-run']))
+        steps = upload_plan['data']['plan']['steps']
+        check(upload_plan['meta']['apiCalls'] == [] and upload_plan['error'] is None,
+              'Local upload dry-run attempted credentials/API')
+        check([step['method'] for step in steps] == ['disk.folder.uploadFile', 'tasks.task.file.attach']
+              and steps[0]['fields']['data']['NAME'] == local_file.name
+              and steps[0]['fields']['sizeBytes'] == local_file.stat().st_size,
+              'Local upload filesystem/Unicode/SDK DI preview differs')
+        check('BINARY-NOT-FOR-OUTPUT' not in json.dumps(upload_plan), 'Local preview leaked file bytes')
+        blocked = json.loads(invoke('b24cli', upload_args + ['--api-policy', 'strict-rest3', '--dry-run'], 4))
+        check(blocked['error']['code'] == 'policy-denied' and blocked['meta']['apiCalls'] == [],
+              'Strict policy allowed local Disk upload')
         missing = json.loads(invoke("b24cli", ["task:show", "123", "--json", "--no-ansi"], 1))
         check(missing["error"]["code"] == "connection-unavailable" and missing["meta"]["apiCalls"] == [],
               "Missing connection did not stop before API calls")

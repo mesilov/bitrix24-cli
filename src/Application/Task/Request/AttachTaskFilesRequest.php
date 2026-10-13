@@ -6,7 +6,7 @@ namespace Bitrix24\CLI\Application\Task\Request;
 
 final readonly class AttachTaskFilesRequest
 {
-    public function __construct(public int $taskId, public array $fileIds)
+    public function __construct(public int $taskId, public array $fileIds, public ?\Bitrix24\CLI\Application\Task\LocalFile $file = null, public ?int $folderId = null)
     {
     }
 }
