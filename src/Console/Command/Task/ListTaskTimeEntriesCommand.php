@@ -26,9 +26,9 @@ final class ListTaskTimeEntriesCommand extends Command
     protected function configure(): void
     {
         $this->addArgument('TASK_ID', InputArgument::REQUIRED, 'ID задачи.');
-        $this->addOption('params', null, InputOption::VALUE_REQUIRED, 'Ограниченный query JSON object.');
-        $this->addOption('params-file', null, InputOption::VALUE_REQUIRED, 'Ограниченный query JSON из PATH или -.');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: id, userId, seconds, text, createdDate. REST 1.0 companion route; strict-rest3 отклоняет вызов до подключения.  --params допускает order/filter/select/params.NAV_PARAMS. iNumPage ограничивает scope выбранной страницей. По умолчанию просматриваются страницы до конца или бюджета 10000. Пример: b24cli task:time:list 123');
+        $this->addOption('params', null, InputOption::VALUE_REQUIRED, 'Ограниченный JSON запроса-объект.');
+        $this->addOption('params-file', null, InputOption::VALUE_REQUIRED, 'Ограниченный JSON запроса из PATH или -.');
+        $this->setHelp('JSON: структура data/meta/error; столбцы TSV при --plain: id, userId, seconds, text, createdDate. Дополнительный маршрут REST 1.0; strict-rest3 отклоняет вызов до подключения.  --params допускает order/filter/select/params.NAV_PARAMS. iNumPage ограничивает область выбранной страницей. По умолчанию просматриваются страницы до конца или бюджета 10000. Пример: b24cli task:time:list 123');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

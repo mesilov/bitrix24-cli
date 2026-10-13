@@ -22,8 +22,8 @@ final class UseConnectionCommand extends Command
 
     protected function configure(): void
     {
-        $this->addArgument('NAME', InputArgument::REQUIRED, 'Alias профиля: work, pet, clientA, clientB.');
-        $this->setHelp('Меняет только defaultProfile в config.json. Credentials и портал не изменяются.');
+        $this->addArgument('NAME', InputArgument::REQUIRED, 'Имя профиля: work, pet, clientA, clientB.');
+        $this->setHelp('Меняет только defaultProfile в config.json. Учётные данные и портал не изменяются.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

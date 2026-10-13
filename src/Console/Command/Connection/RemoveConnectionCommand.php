@@ -12,7 +12,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'connection:remove', description: 'Удалить локальный профиль и его credentials')]
+#[AsCommand(name: 'connection:remove', description: 'Удалить локальный профиль и его учётные данные')]
 final class RemoveConnectionCommand extends Command
 {
     public function __construct(private readonly ConnectionCommandRunner $runner)
@@ -22,8 +22,8 @@ final class RemoveConnectionCommand extends Command
 
     protected function configure(): void
     {
-        $this->addArgument('NAME', InputArgument::REQUIRED, 'Alias профиля: work, pet, clientA, clientB.');
-        $this->setHelp('Удаляет metadata и credential выбранного профиля; defaultProfile становится null при удалении текущего default. Webhook на портале не отзывается.');
+        $this->addArgument('NAME', InputArgument::REQUIRED, 'Имя профиля: work, pet, clientA, clientB.');
+        $this->setHelp('Удаляет метаданные и учётные данные выбранного профиля; defaultProfile становится null при удалении текущего профиля по умолчанию. Вебхук на портале не отзывается.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

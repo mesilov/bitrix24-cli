@@ -24,8 +24,8 @@ final class ListTaskFieldsCommand extends Command
 
     protected function configure(): void
     {
-        $this->addOption('name', null, InputOption::VALUE_REQUIRED, 'Имя поля metadata.');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: name, type, editable, filterable, sortable. REST 3.0.   Пример: b24cli task:fields:list --name title');
+        $this->addOption('name', null, InputOption::VALUE_REQUIRED, 'Имя поля метаданных.');
+        $this->setHelp('JSON: структура data/meta/error; столбцы TSV при --plain: name, type, editable, filterable, sortable. REST 3.0.   Пример: b24cli task:fields:list --name title');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

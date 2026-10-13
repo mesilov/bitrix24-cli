@@ -157,9 +157,19 @@ final class RuntimeTest extends TestCase
 
     public function testBothEntrypointsRunOfflineWithoutReadingSelectedEnvFile(): void
     {
+        $application = (new \Bitrix24\CLI\Bootstrap\ApplicationFactory())->create(dirname(__DIR__, 2));
+        $helpCalls = [];
+        foreach ($application->all() as $name => $command) {
+            if (!$command->isHidden()) {
+                $helpCalls[] = [$name, '--help'];
+                $helpCalls[] = ['help', $name];
+            }
+        }
+
+        $configDirectory = sys_get_temp_dir() . '/b24cli-russian-help-' . bin2hex(random_bytes(8));
         foreach (['bin/b24cli', 'bin/console'] as $entrypoint) {
-            foreach ([['--version'], ['--help'], ['-h'], ['--about'], ['list', 'task', '--raw'], ['task:add', '--help'], ['completion', 'bash']] as $argv) {
-                $env = [...getenv(), 'B24CLI_ENV_FILE' => '/does/not/exist'];
+            foreach ([['--version'], ['--help'], ['-h'], ['--about'], ['list'], ['list', 'task', '--raw'], ...$helpCalls, ['completion', 'bash'], ['completion', 'fish'], ['completion', 'zsh']] as $argv) {
+                $env = [...getenv(), 'B24CLI_ENV_FILE' => '/does/not/exist', 'B24CLI_CONFIG_DIR' => $configDirectory];
                 unset($env['BITRIX24_WEBHOOK'], $env['BITRIX24_PHP_SDK_PLAYGROUND_WEBHOOK']);
                 $process = proc_open([PHP_BINARY, $entrypoint, ...$argv], [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, dirname(__DIR__, 2), $env);
                 self::assertIsResource($process);
@@ -172,6 +182,11 @@ final class RuntimeTest extends TestCase
                 self::assertSame(0, proc_close($process), $stdout . $stderr);
                 self::assertNotSame('', $stdout);
                 self::assertStringNotContainsString("\033[", $stdout);
+                self::assertFileDoesNotExist($configDirectory);
+                if ($argv[0] === 'completion' && in_array($argv[1], ['bash', 'fish', 'zsh'], true)) {
+                    $native = file_get_contents(dirname(__DIR__, 2) . '/vendor/symfony/console/Resources/completion.' . $argv[1]);
+                    self::assertSame(str_replace(['{{ COMMAND_NAME }}', '{{ VERSION }}'], [basename($entrypoint), \Symfony\Component\Console\Command\CompleteCommand::COMPLETION_API_VERSION], $native), $stdout);
+                }
             }
         }
     }

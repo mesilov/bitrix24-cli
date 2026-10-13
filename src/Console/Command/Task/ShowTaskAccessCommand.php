@@ -25,7 +25,7 @@ final class ShowTaskAccessCommand extends Command
     protected function configure(): void
     {
         $this->addArgument('TASK_ID', InputArgument::REQUIRED, 'ID задачи.');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: permission, allowed. REST 3.0.   Пример: b24cli task:access:show 123');
+        $this->setHelp('JSON: структура data/meta/error; столбцы TSV при --plain: permission, allowed. REST 3.0.   Пример: b24cli task:access:show 123');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
