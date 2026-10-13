@@ -1,0 +1,90 @@
+Назначение:
+  b24cli — CLI для работы с задачами, сотрудниками и подключениями Битрикс24.
+
+Использование:
+  b24cli [global options] COMMAND [arguments] [options]
+
+Команды:
+  Общие
+    completion — Dump the shell completion script
+  connection
+    connection:add — Сохранить локальное подключение
+    connection:list — Показать сохранённые подключения
+    connection:remove — Удалить локальный профиль и его credentials
+    connection:show — Показать безопасные параметры выбранного подключения
+    connection:use — Выбрать сохранённый профиль по умолчанию
+  Общие
+    help — Display help for a command
+    list — List commands
+  task
+    task:access:show — Показать права текущего пользователя
+    task:add — Создать задачу
+    task:assign — Сменить ответственного
+    task:chat:delete — Удалить сообщение чата задачи
+    task:chat:list — Показать сообщения чата задачи
+    task:chat:send — Отправить сообщение в чат задачи
+    task:chat:update — Изменить сообщение чата задачи
+    task:checklist:add — Создать чек-лист
+    task:checklist:item:add — Добавить пункт чек-листа
+    task:checklist:item:complete — Выполнить пункт чек-листа
+    task:checklist:item:delete — Удалить пункт с дочерними пунктами
+    task:checklist:item:list — Показать пункты чек-листа
+    task:checklist:item:renew — Возобновить пункт чек-листа
+    task:checklist:item:update — Изменить заголовок пункта
+    task:checklist:list — Показать чек-листы
+    task:deadline:set — Изменить срок задачи
+    task:delete — Удалить задачу
+    task:fields:list — Показать поля задачи
+    task:file:attach — Прикрепить файл Диска или загрузить локальный файл
+    task:find — Найти задачи по буквальной подстроке title
+    task:history:list — Показать историю изменений задачи
+    task:list — Показать доступные задачи
+    task:participants:set — Заменить выбранные роли участников
+    task:result:add — Добавить результат задачи
+    task:result:delete — Удалить результат задачи
+    task:result:list — Показать результаты задачи
+    task:result:update — Изменить текст результата задачи
+    task:show — Показать карточку задачи
+    task:time:add — Добавить запись времени
+    task:time:delete — Удалить запись времени
+    task:time:list — Показать записи времени
+    task:time:show — Показать контекст учёта времени
+    task:time:update — Исправить запись времени
+    task:update — Изменить явные поля задачи
+  users
+    users:colleagues — Коллеги текущего отдела по оргструктуре
+    users:current — Пользователь текущего подключения
+    users:find — Найти активных сотрудников по ФИО или email
+    users:manager — Непосредственный или настроенный руководитель
+
+Глобальные опции:
+Options:
+  -h, --help                   Справка команды; без имени команды — обзор b24cli.
+      --silent                 Do not output any message
+  -q, --quiet                  Only errors are displayed. All other output is suppressed
+  -V, --version                Display this application version
+      --ansi|--no-ansi         Force (or disable --no-ansi) ANSI output
+  -n, --no-interaction         Do not ask any interactive question
+      --about                  Сведения о приложении: назначение, версия, автор, лицензия и ссылки.
+      --json                   One JSON envelope on stdout.
+      --plain                  TSV without headers or decoration.
+      --profile=PROFILE        Saved connection profile; overrides ambient credentials.
+      --env-file=ENV-FILE      Explicit credential dotenv; conflicts with --profile.
+      --config-dir=CONFIG-DIR  User configuration directory.
+      --config=CONFIG          Non-secret JSON runtime config.
+      --timeout=TIMEOUT        HTTP timeout in seconds (default 30, maximum 300).
+      --api-policy=API-POLICY  task-v3 (default) or strict-rest3.
+  -v|vv|vvv, --verbose         Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug
+
+Примеры работы с задачами:
+  b24cli task:add --title "Подготовить договор" --creator 1 --responsible 42 --dry-run
+  b24cli task:show 123
+  b24cli task:find --title "договор" --group-id 7 --responsible 42
+
+Справка конкретной команды:
+  b24cli task:add --help
+  b24cli help task:add
+  b24cli list task
+  b24cli --about
+
+Документация: https://github.com/mesilov/bitrix24-cli/blob/dev/docs/cli-command-map.md
