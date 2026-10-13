@@ -49,3 +49,7 @@ Native binaries/release packaging were not required or run: Docker source checks
 ## Fresh dev integration
 
 Before PR, fetched and merged origin/dev at 5ed0349 (Russian-help archive #113); merge was clean. Runtime files were unchanged by this sync. Repeated affected help/my/coverage tests: 37 tests, 4439 assertions; CLI map check 48 commands and strict change validation passed. Current diff contains #118 CHANGELOG entry, EMP-01 docs and only scoped implementation/planning/evidence. Existing global OpenSpec warnings remain separately tracked by #114.
+
+## Final dev refresh before merge
+
+Fetched/merged origin/dev at 48e010c (PR #117 / issue #114), without conflicts or runtime changes. Updated only the registration delta statement to retain normalized wording and the separate Command registration validation requirement. After this integration global `openspec validate --all --strict` passes **25/25, 0 warnings/failures**. The earlier 21/4 result above is historical evidence and is superseded by this dated pass. Runtime code still matches the 771-unit/4-live tested version and the initial clean code review; CI is repeated on the new head.
