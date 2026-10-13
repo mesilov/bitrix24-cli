@@ -57,4 +57,30 @@ final class UpdateTaskCommandTest extends LiveTaskCommandTestCase
         self::assertSame('permission-denied', $result['error']['code']);
         self::assertSame($title, $this->card($id)['title']);
     }
+    #[Group('task-tags')]
+    #[Group('happy-path')]
+    public function testTagReplacementPreservationMixedUpdateAndClear(): void
+    {
+        $id = $this->createTask();
+        $result = $this->invoke(['task:update', $id, '--tag', '#плановая', '--tag', 'Этап 1']);
+        self::assertSame(['1.0'], $result['meta']['apiVersions']);
+        $expected = ['#плановая', 'Этап 1'];
+        $names = array_column($this->card($id, ['tags.id', 'tags.name'])['tags'], 'name');
+        sort($names);
+        self::assertSame($expected, $names);
+        $title = $this->fixtureTitle();
+        $result = $this->invoke(['task:update', $id, '--title', $title]);
+        self::assertSame(['3.0'], $result['meta']['apiVersions']);
+        $names = array_column($this->card($id, ['tags.id', 'tags.name'])['tags'], 'name');
+        sort($names);
+        self::assertSame($expected, $names);
+        $result = $this->invoke(['task:update', $id, '--title', $title . '-mixed', '--tag', '#ошибка']);
+        self::assertSame(['3.0', '1.0'], $result['meta']['apiVersions']);
+        $card = $this->card($id, ['title', 'description', 'tags.id', 'tags.name']);
+        self::assertSame($title . '-mixed', $card['title']);
+        self::assertSame('original', $card['description']);
+        self::assertSame(['#ошибка'], array_column($card['tags'], 'name'));
+        $this->invoke(['task:update', $id, '--clear-tags']);
+        self::assertSame([], $this->card($id, ['tags.id', 'tags.name'])['tags']);
+    }
 }

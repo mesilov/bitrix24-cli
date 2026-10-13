@@ -1,0 +1,98 @@
+{
+  "run_id": 38169460319,
+  "artifact_id": 11713796805,
+  "source_sha": "f627f34dc06afe055f0c610f06128af7ee0661e3",
+  "download_method": "Chrome, GitHub artifact link",
+  "download_sha256": "2d603d3308056859754a97030d978a15fe8cd7d27399f74b90576e108a6599c2",
+  "download_quarantine": "0281;6acbeba0;Chrome;CCF4440F-1A3F-4FE3-AB46-5647E439ABB7",
+  "copied_archive_quarantine": "0281;6acbecae;;CCF4440F-1A3F-4FE3-AB46-5647E439ABB7",
+  "copy_method": "ditto, default quarantine preservation; flags and provenance UUID retained",
+  "observed_at_utc": "2026-10-11T20:14:55.391980+00:00",
+  "os": "ProductName:\t\tmacOS\nProductVersion:\t\t15.5\nBuildVersion:\t\t24F74",
+  "architecture": "arm64",
+  "security_assessment": "assessments enabled",
+  "extraction_method": "macOS ditto -x -k --qtn, preserving inherited quarantine",
+  "binary_quarantine_before": "0281;6acbee0a;;CCF4440F-1A3F-4FE3-AB46-5647E439ABB7",
+  "binary_sha256": "a2d472456fc3596b4313f45dc364a049f817b1854c92ab533e6b55edc9eb231b",
+  "prior_tests": "An unquarantined API-download copy of this build passed local smoke; this browser-extracted file has not been executed or approved before these commands.",
+  "commands": [
+    {
+      "arguments": [
+        "--version",
+        "--no-ansi"
+      ],
+      "exit_code": -9,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "approval": {
+    "mechanism": "System Settings Privacy & Security, Allow Anyway, explicitly confirmed by user",
+    "observed_at_utc": "2026-10-11T20:18:52.332779+00:00",
+    "ui_result": "b24cli approval button and warning disappeared"
+  },
+  "after_approval": {
+    "security_assessment": {
+      "exit_code": 0,
+      "stdout": "assessments enabled\n",
+      "stderr": ""
+    },
+    "strict_signature": {
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "/private/tmp/b24cli-23-browser-acceptance/extracted/b24cli: valid on disk\n/private/tmp/b24cli-23-browser-acceptance/extracted/b24cli: satisfies its Designated Requirement\n"
+    },
+    "quarantine": {
+      "exit_code": 0,
+      "stdout": "0281;6acbee0a;;CCF4440F-1A3F-4FE3-AB46-5647E439ABB7\n",
+      "stderr": ""
+    },
+    "sandbox_attempts": [
+      {
+        "arguments": [
+          "--version",
+          "--no-ansi"
+        ],
+        "exit_code": 255,
+        "stdout": "\nWarning: require(phar://b24cli.phar/bin/b24cli): Failed to open stream: phar error: Cannot open temporary file for decompressing phar archive \"/private/tmp/b24cli-23-browser-acceptance/extracted/b24cli\" file \"bin/b24cli\" in /private/tmp/b24cli-23-browser-acceptance/extracted/b24cli on line 27\n\nFatal error: Uncaught Error: Failed opening required 'phar://b24cli.phar/bin/b24cli' (include_path='.:') in /private/tmp/b24cli-23-browser-acceptance/extracted/b24cli:27\nStack trace:\n#0 {main}\n  thrown in /private/tmp/b24cli-23-browser-acceptance/extracted/b24cli on line 27\n",
+        "stderr": ""
+      }
+    ],
+    "sandbox_attempt_note": "Codex sandbox denied default temporary-file creation for PHAR decompression; retry outside Codex sandbox, with the same clean PATH, succeeded.",
+    "commands": [
+      {
+        "arguments": [
+          "--version",
+          "--no-ansi"
+        ],
+        "exit_code": 0,
+        "stdout": "b24cli dev-f627f34dc06afe055f0c610f06128af7ee0661e3\n",
+        "stderr": ""
+      },
+      {
+        "arguments": [
+          "help",
+          "--no-ansi"
+        ],
+        "exit_code": 0,
+        "stdout": "Description:\n  Display help for a command\n\nUsage:\n  help [options] [--] [<command_name>]\n\nArguments:\n  command_name                 The command name [default: \"help\"]\n\nOptions:\n      --format=FORMAT          The output format (txt, xml, json, or md) [default: \"txt\"]\n      --raw                    To output raw command help\n  -h, --help                   Display help for the given command. When no command is given display help for the list command\n      --silent                 Do not output any message\n  -q, --quiet                  Only errors are displayed. All other output is suppressed\n  -V, --version                Display this application version\n      --ansi|--no-ansi         Force (or disable --no-ansi) ANSI output\n  -n, --no-interaction         Do not ask any interactive question\n      --json                   One JSON envelope on stdout.\n      --plain                  TSV without headers or decoration.\n      --profile=PROFILE        Connection profile (default only).\n      --config=CONFIG          Non-secret JSON runtime config.\n      --timeout=TIMEOUT        HTTP timeout in seconds (default 30, maximum 300).\n      --api-policy=API-POLICY  task-v3 (default) or strict-rest3.\n  -v|vv|vvv, --verbose         Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug\n\nHelp:\n  The help command displays help for a given command:\n  \n    /private/tmp/b24cli-23-browser-acceptance/extracted/b24cli help list\n  \n  You can also output the help in other formats by using the --format option:\n  \n    /private/tmp/b24cli-23-browser-acceptance/extracted/b24cli help --format=xml list\n  \n  To display the list of available commands, please use the list command.\n",
+        "stderr": ""
+      },
+      {
+        "arguments": [
+          "list",
+          "--raw",
+          "--no-ansi"
+        ],
+        "exit_code": 0,
+        "stdout": "completion                     Dump the shell completion script\nhelp                           Display help for a command\nlist                           List commands\ntask:access:show               Показать права текущего пользователя\ntask:add                       Создать задачу\ntask:assign                    Сменить ответственного\ntask:chat:delete               Удалить сообщение чата задачи\ntask:chat:list                 Показать сообщения чата задачи\ntask:chat:send                 Отправить сообщение в чат задачи\ntask:chat:update               Изменить сообщение чата задачи\ntask:checklist:add             Создать чек-лист\ntask:checklist:item:add        Добавить пункт чек-листа\ntask:checklist:item:complete   Выполнить пункт чек-листа\ntask:checklist:item:delete     Удалить пункт с дочерними пунктами\ntask:checklist:item:list       Показать пункты чек-листа\ntask:checklist:item:renew      Возобновить пункт чек-листа\ntask:checklist:item:update     Изменить заголовок пункта\ntask:checklist:list            Показать чек-листы\ntask:deadline:set              Изменить срок задачи\ntask:delete                    Удалить задачу\ntask:fields:list               Показать поля задачи\ntask:file:attach               Прикрепить существующий файл Диска\ntask:find                      Найти задачи по буквальной подстроке title\ntask:history:list              Показать историю изменений задачи\ntask:list                      Показать доступные задачи\ntask:participants:set          Заменить выбранные роли участников\ntask:show                      Показать карточку задачи\ntask:time:add                  Добавить запись времени\ntask:time:delete               Удалить запись времени\ntask:time:list                 Показать записи времени\ntask:time:show                 Показать контекст учёта времени\ntask:time:update               Исправить запись времени\ntask:update                    Изменить явные поля задачи\n",
+        "stderr": ""
+      }
+    ],
+    "execution_context": "normal macOS process, outside Codex sandbox; clean PATH=/usr/bin:/bin; no quarantine removal or global security change",
+    "quarantine_after": "02c1;6acbee0a;;CCF4440F-1A3F-4FE3-AB46-5647E439ABB7",
+    "binary_sha256_after": "a2d472456fc3596b4313f45dc364a049f817b1854c92ab533e6b55edc9eb231b"
+  },
+  "status": "passed",
+  "completed_at_utc": "2026-10-11T20:19:48.793091+00:00"
+}

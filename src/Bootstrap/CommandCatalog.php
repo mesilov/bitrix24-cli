@@ -7,6 +7,14 @@ namespace Bitrix24\CLI\Bootstrap;
 final class CommandCatalog
 {
     public const COMMANDS = [
+        'users:current' => ['class' => \Bitrix24\CLI\Console\Command\Users\CurrentUserCommand::class, 'effect' => 'read'],
+        'users:find' => ['class' => \Bitrix24\CLI\Console\Command\Users\FindUsersCommand::class, 'effect' => 'read'],
+        'users:colleagues' => ['class' => \Bitrix24\CLI\Console\Command\Users\ListColleaguesCommand::class, 'effect' => 'read'],
+        'users:manager' => ['class' => \Bitrix24\CLI\Console\Command\Users\GetManagerCommand::class, 'effect' => 'read'],
+        'task:result:add' => ['class' => \Bitrix24\CLI\Console\Command\Task\AddTaskResultCommand::class, 'effect' => 'write'],
+        'task:result:list' => ['class' => \Bitrix24\CLI\Console\Command\Task\ListTaskResultsCommand::class, 'effect' => 'read'],
+        'task:result:update' => ['class' => \Bitrix24\CLI\Console\Command\Task\UpdateTaskResultCommand::class, 'effect' => 'write'],
+        'task:result:delete' => ['class' => \Bitrix24\CLI\Console\Command\Task\DeleteTaskResultCommand::class, 'effect' => 'delete'],
         'task:add' => ['class' => \Bitrix24\CLI\Console\Command\Task\AddTaskCommand::class, 'effect' => 'write'],
         'task:show' => ['class' => \Bitrix24\CLI\Console\Command\Task\ShowTaskCommand::class, 'effect' => 'read'],
         'task:list' => ['class' => \Bitrix24\CLI\Console\Command\Task\ListTaskCommand::class, 'effect' => 'read'],
@@ -39,12 +47,33 @@ final class CommandCatalog
         'task:history:list' => ['class' => \Bitrix24\CLI\Console\Command\Task\ListTaskHistoryCommand::class, 'effect' => 'read'],
     ];
 
+    public const LOCAL_COMMANDS = [
+        'connection:add' => ['class' => \Bitrix24\CLI\Console\Command\Connection\AddConnectionCommand::class, 'effect' => 'local'],
+        'connection:list' => ['class' => \Bitrix24\CLI\Console\Command\Connection\ListConnectionsCommand::class, 'effect' => 'local'],
+        'connection:show' => ['class' => \Bitrix24\CLI\Console\Command\Connection\ShowConnectionCommand::class, 'effect' => 'local'],
+        'connection:use' => ['class' => \Bitrix24\CLI\Console\Command\Connection\UseConnectionCommand::class, 'effect' => 'local'],
+        'connection:remove' => ['class' => \Bitrix24\CLI\Console\Command\Connection\RemoveConnectionCommand::class, 'effect' => 'local'],
+    ];
+
+    public static function all(): array
+    {
+        return [...self::COMMANDS, ...self::LOCAL_COMMANDS];
+    }
+
     public const ROUTES = [
-        'task:add' => [['tasks.task.add', 3], ['tasks.task.field.list', 3]],
+        'users:current' => [['user.current', 1]],
+        'users:find' => [['user.get', 1]],
+        'users:colleagues' => [['user.current', 1], ['user.get', 1]],
+        'users:manager' => [['user.current', 1], ['department.get', 1], ['user.get', 1]],
+        'task:add' => [['tasks.task.add', 3], ['tasks.task.field.list', 3], ['tasks.task.get', 1], ['tasks.task.update', 1]],
+        'task:result:add' => [['tasks.task.result.add', 3]],
+        'task:result:list' => [['tasks.task.result.list', 3]],
+        'task:result:update' => [['tasks.task.result.list', 3], ['tasks.task.result.update', 3]],
+        'task:result:delete' => [['tasks.task.result.list', 3], ['tasks.task.result.delete', 3]],
         'task:show' => [['tasks.task.get', 3], ['tasks.task.get', 1], ['user.get', 1]],
-        'task:list' => [['tasks.task.list', 3]],
-        'task:find' => [['tasks.task.list', 3]],
-        'task:update' => [['tasks.task.update', 3], ['tasks.task.field.list', 3]],
+        'task:list' => [['tasks.task.list', 3], ['tasks.task.get', 1]],
+        'task:find' => [['tasks.task.list', 3], ['tasks.task.get', 1]],
+        'task:update' => [['tasks.task.update', 3], ['tasks.task.field.list', 3], ['tasks.task.update', 1]],
         'task:delete' => [['tasks.task.delete', 3], ['tasks.task.get', 3]],
         'task:fields:list' => [['tasks.task.field.list', 3], ['tasks.task.field.get', 3]],
         'task:access:show' => [['tasks.task.access.get', 3]],

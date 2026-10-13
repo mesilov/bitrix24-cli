@@ -44,12 +44,20 @@ final class FieldSchema
         }
 
         foreach ($fields as $name => $value) {
+            if (in_array($name, ['tags', 'TAGS'], true)) {
+                throw Failure::usage('Tags are read-only in REST 3.0 fields; use --tag or --clear-tags.');
+            }
+
             if (!in_array($name, self::WRITABLE, true)) {
                 throw Failure::usage('Unsupported or read-only task field; status changes are outside MVP.');
             }
 
             if (in_array($name, ['creatorId', 'responsibleId', 'groupId', 'parentId', 'estimatedTime'], true) && (!is_int($value) || $value < 1)) {
                 throw Failure::usage('ID and time estimate fields must be positive integers.');
+            }
+
+            if ($name === 'allowsTimeTracking' && !is_bool($value)) {
+                throw Failure::usage('allowsTimeTracking must be a JSON boolean.');
             }
 
             if ($name === 'title' && (!is_string($value) || trim($value) === '')) {
@@ -66,7 +74,7 @@ final class FieldSchema
         }
 
         if ($create && array_diff(['title', 'creatorId', 'responsibleId'], array_keys($fields)) !== []) {
-            throw Failure::usage('Creation requires --title, --creator and --responsible (or their advanced fields).');
+            throw Failure::usage('Missing required creation fields: ' . implode(', ', array_diff(['title', 'creatorId', 'responsibleId'], array_keys($fields))) . '. Supply explicit values or matching profile defaults.');
         }
     }
 

@@ -7,15 +7,24 @@ use Bitrix24\CLI\Console\B24Application;
 use Bitrix24\CLI\Infrastructure\Connection\EnvConnectionResolver;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-return static function (ContainerBuilder $container, string $root): void {
+return static function (ContainerBuilder $container, string $root, bool $packaged = false): void {
     $services = [
         Bitrix24\CLI\Application\RuntimeState::class,
+        Bitrix24\CLI\Infrastructure\Connection\ConfigDirectoryResolver::class,
+        Bitrix24\CLI\Infrastructure\Connection\FileProtection::class,
+        Bitrix24\CLI\Infrastructure\Connection\FileCredentialStore::class,
+        Bitrix24\CLI\Infrastructure\Connection\ProfileRepository::class,
+        Bitrix24\CLI\Console\ConnectionCommandRunner::class,
         Bitrix24\CLI\Console\InputSourceReader::class,
         Bitrix24\CLI\Console\TaskInputMapper::class,
+        Bitrix24\CLI\Console\UserInputMapper::class,
+        Bitrix24\CLI\Application\User\UserScanner::class,
+        Bitrix24\CLI\Application\User\UserDirectoryService::class,
         Bitrix24\CLI\Console\ApiPolicyGuard::class,
         Bitrix24\CLI\Console\ResultPresenter::class,
         Bitrix24\CLI\Console\CommandRunner::class,
         Bitrix24\CLI\Infrastructure\Connection\B24ClientProvider::class,
+        Bitrix24\CLI\Infrastructure\Connection\IncomingWebhookCurrentUserAdapter::class,
         Bitrix24\CLI\Infrastructure\Bitrix24\SdkApiTransport::class,
         Bitrix24\CLI\Application\Task\TaskListScanner::class,
         Bitrix24\CLI\Application\Task\ChatSupport::class,
@@ -24,7 +33,9 @@ return static function (ContainerBuilder $container, string $root): void {
         Bitrix24\CLI\Application\Task\HistoryScanner::class,
         Bitrix24\CLI\Application\Task\TaskParticipantEnricher::class,
         Bitrix24\CLI\Application\Task\TaskMetadataService::class,
+        Bitrix24\CLI\Application\Task\TaskTagMutation::class,
         Bitrix24\CLI\Application\Task\TaskChatService::class,
+        Bitrix24\CLI\Application\Task\TaskResultService::class,
         Bitrix24\CLI\Application\Task\TimeEntryService::class,
         Bitrix24\CLI\Application\Task\ChecklistItemService::class,
 
@@ -33,11 +44,14 @@ return static function (ContainerBuilder $container, string $root): void {
         $container->register($service)->setAutowired(true);
     }
 
-    $container->register(EnvConnectionResolver::class)->setArgument('$projectRoot', $root);
-    $container->setAlias(Bitrix24\CLI\Infrastructure\Connection\ConnectionResolver::class, EnvConnectionResolver::class);
+    $container->register(Bitrix24\CLI\Infrastructure\Connection\ConnectionManager::class)->setAutowired(true)->setArgument('$projectRoot', $root)->setArgument('$packaged', $packaged);
+    $container->setAlias(Bitrix24\CLI\Infrastructure\Connection\CredentialStore::class, Bitrix24\CLI\Infrastructure\Connection\FileCredentialStore::class);
+    $container->setAlias(Bitrix24\CLI\Infrastructure\Connection\ConnectionResolver::class, Bitrix24\CLI\Infrastructure\Connection\ConnectionManager::class);
+    $container->setAlias(Bitrix24\CLI\Application\Task\Port\CurrentUserGateway::class, Bitrix24\CLI\Infrastructure\Connection\IncomingWebhookCurrentUserAdapter::class);
     $container->setAlias(Bitrix24\CLI\Infrastructure\Bitrix24\ApiTransport::class, Bitrix24\CLI\Infrastructure\Bitrix24\SdkApiTransport::class);
     foreach ([
-        'TaskGateway' => 'Rest3TaskAdapter', 'TaskChatGateway' => 'TaskChatAdapter', 'ChecklistGateway' => 'Rest1ChecklistAdapter',
+        'TaskResultGateway' => 'Rest3TaskResultAdapter',
+        'TaskGateway' => 'Rest3TaskAdapter', 'TaskTagGateway' => 'Rest1TaskTagAdapter', 'TaskChatGateway' => 'TaskChatAdapter', 'ChecklistGateway' => 'Rest1ChecklistAdapter',
         'TimeEntryGateway' => 'Rest1TimeEntryAdapter', 'ParticipantGateway' => 'Rest1ParticipantAdapter', 'TaskHistoryGateway' => 'Rest1TaskHistoryAdapter', 'UserGateway' => 'Rest1UserAdapter',
     ] as $port => $adapter) {
         $class = 'Bitrix24\\CLI\\Infrastructure\\Bitrix24\\' . $adapter;
@@ -52,7 +66,17 @@ return static function (ContainerBuilder $container, string $root): void {
         $container->register('Bitrix24\\CLI\\Application\\Task\\Handler\\' . $handler . 'Handler')->setAutowired(true);
     }
 
-    foreach (CommandCatalog::COMMANDS as $command) {
+    foreach (['UserDirectoryGateway' => 'Rest1UserDirectoryAdapter', 'DepartmentGateway' => 'Rest1DepartmentAdapter'] as $port => $adapter) {
+        $class = 'Bitrix24\\CLI\\Infrastructure\\Bitrix24\\' . $adapter;
+        $container->register($class)->setAutowired(true);
+        $container->setAlias('Bitrix24\\CLI\\Application\\User\\Port\\' . $port, $class);
+    }
+
+    foreach (['CurrentUser', 'FindUsers', 'ListColleagues', 'GetManager'] as $handler) {
+        $container->register('Bitrix24\\CLI\\Application\\User\\Handler\\' . $handler . 'Handler')->setAutowired(true);
+    }
+
+    foreach (CommandCatalog::all() as $command) {
         $container->register($command['class'])->setAutowired(true)->setPublic(true);
     }
 

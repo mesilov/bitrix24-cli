@@ -4,9 +4,35 @@ declare(strict_types=1);
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
+// Fixture-only metadata: never print redirected credential text.
+if (($argv[1] ?? '') === 'stdin-fingerprint') {
+    $input = stream_get_contents(STDIN);
+    echo json_encode([
+        'length' => strlen($input),
+        'prefix_hex' => bin2hex(substr($input, 0, 3)),
+        'trimmed_sha256' => hash('sha256', trim($input)),
+    ], JSON_THROW_ON_ERROR) . PHP_EOL;
+    exit(0);
+}
+
 if (($argv[1] ?? '') === 'task-signal') {
     require __DIR__ . '/task-signal.php';
     exit(1);
+}
+
+if (($argv[1] ?? '') === 'connection-fixture') {
+    $requests = 0;
+    $client = new Symfony\Component\HttpClient\MockHttpClient(static function ($method, $url) use (&$requests): Symfony\Component\HttpClient\Response\MockResponse {
+        $requests++;
+        $expected = getenv('B24CLI_FIXTURE_EXPECTED_HOST');
+        if ($requests > 1 || parse_url($url, PHP_URL_HOST) !== $expected || parse_url($url, PHP_URL_SCHEME) !== 'https' || !str_contains($url, '/RecognizableFixtureSecret/')) {
+            throw new RuntimeException('Selected transport fixture mismatch.');
+        }
+        return new Symfony\Component\HttpClient\Response\MockResponse('{"result":{"items":[{"id":123,"title":"Fixture"}]},"time":{}}');
+    });
+    $application = (new Bitrix24\CLI\Bootstrap\ApplicationFactory())->create(dirname(__DIR__), packaged: true, httpClient: $client);
+    $status = $application->run(new Symfony\Component\Console\Input\ArgvInput(['b24cli', ...array_slice($argv, 2)]));
+    exit($status);
 }
 
 if (($argv[1] ?? '') === 'certificate') {

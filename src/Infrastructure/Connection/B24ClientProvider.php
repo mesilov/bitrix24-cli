@@ -23,6 +23,7 @@ final class B24ClientProvider
     private ?ServiceBuilder $builder = null;
     private ?float $timeout = null;
     private string $webhook = '';
+    private int $generation = -1;
 
     public function __construct(private readonly ConnectionResolver $resolver, private readonly RuntimeState $state, private readonly ?HttpClientInterface $httpClient = null)
     {
@@ -30,7 +31,7 @@ final class B24ClientProvider
 
     public function get(): ServiceBuilder
     {
-        if ($this->builder instanceof \Bitrix24\SDK\Services\ServiceBuilder && $this->timeout === $this->state->timeout) {
+        if ($this->builder instanceof \Bitrix24\SDK\Services\ServiceBuilder && $this->timeout === $this->state->timeout && $this->generation === $this->state->generation) {
             return $this->builder;
         }
 
@@ -50,6 +51,7 @@ final class B24ClientProvider
             $batch = new Batch($core, $nullLogger);
             $this->builder = new ServiceBuilder($core, $batch, (new BulkItemsReaderBuilder($core, $batch, $nullLogger))->build(), $nullLogger);
             $this->timeout = $this->state->timeout;
+            $this->generation = $this->state->generation;
             return $this->builder;
         } catch (\Throwable) {
             throw new Failure('configuration-error', 'The webhook configuration is invalid; check the HTTPS incoming webhook URL.');

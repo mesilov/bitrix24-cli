@@ -23,7 +23,7 @@ class SourceChecks(unittest.TestCase):
         git(self.root, 'config', 'user.email', 'fixture@example.invalid')
         git(self.root, 'config', 'core.autocrlf', 'false')
         (self.root / 'build').mkdir()
-        for name in ['source.py', 'package.py', 'runtime.py', 'package-linux.sh', 'config.json']:
+        for name in ['source.py', 'package.py', 'runtime.py', 'package-linux.sh', 'config.json', 'compress.py', 'compression.json']:
             shutil.copy2(BUILD / name, self.root / 'build' / name)
         (self.root / 'src').mkdir()
         (self.root / 'src/application.txt').write_text('main source\n')

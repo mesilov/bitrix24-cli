@@ -15,7 +15,7 @@ def pack(source, target, destination):
         root = source / ("b24cli-" + target)
     executable = "b24cli.exe" if target.startswith("windows") else "b24cli"
     required = [executable, "build-info.json", "runtime-sources.json", "THIRD-PARTY-NOTICES.md",
-                "YIIPRESS-LICENSE.txt", "runtime-licenses"]
+                "BITRIX24-CLI-LICENSE.txt", "YIIPRESS-LICENSE.txt", "runtime-licenses", "compression-info.json", "compression-licenses"]
     for name in required:
         if not (root / name).exists():
             raise FileNotFoundError(root / name)

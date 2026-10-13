@@ -4,7 +4,8 @@
   "micro_ref": "fb6d497b6f4cf138ee3851a30c905d64b7b19aed",
   "toolchain_patches": [
     "build/patches/windows-micro-fake-cli.json",
-    "build/patches/windows-micro-utf8.json"
+    "build/patches/windows-micro-utf8.json",
+    "build/patches/macos-micro-payload-bounds.json"
   ],
   "extensions": [
     "bcmath",

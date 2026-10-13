@@ -47,8 +47,8 @@ Checkout должен быть чистым: изменённые, staged и unt
 чтобы содержимое бинарника соответствовало заявленному коммиту.
 
 macOS arm64: macOS 15, Xcode Command Line Tools, PHP 8.5.11 с production extensions,
-Composer 2.10.3, Python 3.13, Git, autoconf, automake, bison, re2c, pkgconf, cmake.
-Добавьте Homebrew bison в PATH. Команда: `make package-macos`.
+Composer 2.10.3, Python 3.13, Git, rustup с Rust 1.90.0, autoconf, automake, bison, re2c, pkgconf, cmake.
+Добавьте Homebrew bison в PATH, выполните `rustup toolchain install 1.90.0 --profile minimal`. Команда: `make package-macos`.
 
 Windows amd64: Windows Server 2022 runner/совместимая build machine, VS 2022/MSVC
 x64 developer environment, PHP 8.5.11 с production extensions, Composer 2.10.3
@@ -120,7 +120,10 @@ Failure блокирует публикацию; на PR Release не созда
 - `b24cli-windows-amd64.zip`
 - `SHA256SUMS`
 
-В archive входят executable, build-info.json, runtime-sources.json и licenses.
+В archive входят executable, build-info.json, runtime-sources.json и licenses:
+`BITRIX24-CLI-LICENSE.txt` — точная копия собственной root LICENSE;
+`YIIPRESS-LICENSE.txt` — неизменённая upstream лицензия с исходным авторством.
+Оба текста проверяются при подготовке установочных архивов.
 После smoke CI также проверяет linkage и отказы на неверную версию/отсутствующий
 executable. Проверка установки выполняет checksum → unpack → запуск через чистый PATH.
 Версии C libraries выбираются закреплённой конфигурацией static-php-cli, actual
@@ -134,40 +137,39 @@ lock. Диагностика: CI logs и `runtime/package-*/static-php-cli-*/log
 
 ## Установка
 
-Скачайте platform archive и SHA256SUMS из одного Release. Сначала checksum,
-затем распаковка и установка. Linux:
+Подробные команды скачивания, checksum, распаковки, первого запуска и пользовательского
+PATH находятся в [README → Установка](../README.md#установка). Там же описаны предупреждения
+macOS/Windows, ограничения текущей предварительной сборки, сохранение notices и обновление.
+Для CI скачивайте `b24cli-release-assets` одного run и распакуйте внешний ZIP;
+для Release используйте platform archive и `SHA256SUMS` из одного Release.
 
-```sh
-grep '  b24cli-linux-amd64.tar.gz$' SHA256SUMS | sha256sum --check -
-tar -xzf b24cli-linux-amd64.tar.gz
-mkdir -p "$HOME/.local/bin"
-install -m 755 b24cli "$HOME/.local/bin/b24cli"
-# Добавьте $HOME/.local/bin в PATH своего shell.
-b24cli --version
-```
+### Linux amd64
 
-macOS: `grep '  b24cli-macos-arm64.tar.gz$' SHA256SUMS | shasum -a 256 --check -`,
-затем распакуйте этот archive и выполните те же install/PATH/version steps.
-Сохраняйте license notices рядом с установленным инструментом.
+Откройте в README блок **Linux amd64 — установка и PATH (Bash)**.
 
-Windows PowerShell:
+### macOS arm64 (zsh)
 
-```powershell
-$expected = ((Get-Content SHA256SUMS | Where-Object { $_ -match '  b24cli-windows-amd64.zip$' }) -split '  ')[0]
-if (-not $expected -or (Get-FileHash b24cli-windows-amd64.zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-    throw 'Checksum mismatch'
-}
-Expand-Archive b24cli-windows-amd64.zip -DestinationPath b24cli
-./b24cli/b24cli.exe --version
-# Добавьте directory b24cli в пользовательский PATH.
-```
+Откройте в README блок **macOS arm64 — установка, первый запуск и PATH (zsh)**.
+`./b24cli` запускает файл из текущего каталога; `b24cli` требует установки в PATH.
+В этом блоке описаны ad-hoc подпись готового executable, её strict-проверка
+и штатное разрешение конкретного файла. Диагностику отказа запуска собираем
+в [#23](https://github.com/mesilov/bitrix24-cli/issues/23).
+
+### Windows amd64 (PowerShell)
+
+Откройте в README блок **Windows amd64 — установка и PATH (PowerShell)**.
 
 Пользователю не нужны PHP/Composer/Docker. Linux использует static musl; clean
 runtime проверяется на Debian 12, build job — Ubuntu 24.04. Minimum validated
 matrix: macOS 15 arm64 и Windows Server 2022 x64. Старые OS требуют отдельного
 acceptance. Windows требует доступный для записи TEMP для временного PHAR.
-macOS/Windows используют standard OS libraries. Signing/notarization
-в первой итерации не выполняются. HTTPS использует OpenSSL trust в `/etc/ssl` на Unix и Schannel certificate store
+macOS/Windows используют standard OS libraries. macOS artifacts получают
+ad-hoc подпись после объединения runtime/PHAR; CI проверяет `codesign --verify --strict`
+и совпадение байтов payload для приложения и probe перед upload.
+Проверка runner-local smoke отдельно от приёмки первого запуска browser download
+с quarantine: результаты последней записываются в OpenSpec verification.
+Production Developer ID/notarization и Windows Authenticode в первой итерации
+не выполняются. HTTPS использует OpenSSL trust в `/etc/ssl` на Unix и Schannel certificate store
 на Windows. Для отдельного PEM bundle на Unix задайте `SSL_CERT_FILE=/absolute/path/ca.pem`
 (для каталога — `SSL_CERT_DIR`). На Windows добавьте корпоративный CA в Windows trust
 store. Fixture harness задаёт собственный CA через cURL CAINFO и проверяет как
@@ -176,3 +178,49 @@ store. Fixture harness задаёт собственный CA через cURL CA
 Local checks, actual CI, actual Release publication и live portal verification
 фиксируются отдельно в OpenSpec verification. Packaging fixtures не обращаются
 к живому порталу Bitrix24.
+
+## Сжатие исполняемых файлов
+
+Обычные `make package`, `make package-macos` и `make package-windows` автоматически
+сжимают executable. Linux/Windows: UPX 5.2.1 (`--best`) сжимает копию PHP micro
+до добавления gzip PHAR. Официальные UPX archives проверяются по SHA256 из
+`build/compression.json`; ранее скомпилированный runtime остаётся без изменений.
+На Linux удаляется служебный UPX trailer за последним PT_LOAD, как в SPC: PHAR
+должен начинаться на границе, которую вычисляет micro loader.
+
+macOS: проверенный wrappe 1.0.4 собирается через `cargo +1.90.0 install --locked --path` в
+checkout-local prefix и упаковывает готовый executable с Zstandard level 16.
+Исходный inner executable сначала проходит PHAR bounds check и ad-hoc signature;
+Затем исправляются Mach-O bounds итогового launcher и выполняется его подпись.
+Служебный вывод wrappe отключён для сохранения CLI/JSON stdout. Это техническая ad-hoc подпись:
+Developer ID/notarization остаются отдельной задачей.
+
+При первом запуске macOS launcher распаковывает программу в доступный для записи
+системный временный каталог и сохраняет кэш для следующих запусков. Нужны место
+для исходного executable и права на исполнение в этом каталоге. Default runner
+заменяет себя программой через Unix exec, сохраняя PID, exit code и SIGINT.
+Удаление временного кэша безопасно после завершения программы; следующий запуск
+распакует её снова.
+
+`dist/<target>/compression-info.json` записывает версию/стратегию упаковщика,
+размеры и SHA256 исходных и финальных b24cli/probe. Проверка:
+
+```sh
+python3 build/tests/compression-check.py
+python3 build/compress.py dist/macos-arm64
+```
+
+Для Linux/Windows укажите соответствующий target directory. CI проверяет
+исходный и финальный runtime с чистым PATH, HTTPS/Unicode/SIGINT fixtures,
+signatures/linkage и установкой из архива. Ошибка упаковщика, несовпадающий
+SHA256/version или отсутствие уменьшения размера блокируют upload и release.
+
+Исходные executable находятся в `dist/<target>/uncompressed/` только для
+диагностики CI. Public archive содержит compressed executable, compression
+report и `compression-licenses/`; исходный executable, probe и PHAR не входят.
+Уведомления UPX и wrappe, включая license files Rust dependencies
+встроенного launcher, поставляются вместе с архивом. У upstream wrappe внешний
+packer использует Cargo.lock, а вложенный runner разрешает зависимости отдельно;
+Локальный build.rs patch сохраняет CARGO_HOME у вложенного runner, чтобы обе
+сборки использовали checkout-local registry. SHA256 patch записан в build-info;
+notices сохраняются вместе с cached tool.

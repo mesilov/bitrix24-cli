@@ -14,9 +14,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class ResultPresenter
 {
     private const COLUMNS = [
+        'user-card' => ['ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'EMAIL', 'UF_DEPARTMENT'],
+        'user-list' => ['ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'EMAIL', 'UF_DEPARTMENT'],
+        'connections' => ['profile', 'name', 'hostname', 'default', 'source', 'path', 'isDefault'],
         'task-list' => ['id', 'title', 'responsibleId', 'groupId', 'status', 'deadline'],
         'title-matches' => ['id', 'title'], 'task-fields' => ['name', 'type', 'editable', 'filterable', 'sortable'],
         'chat-messages' => ['id', 'createdDate', 'authorId', 'text'],
+        'task-results' => ['id', 'taskId', 'authorId', 'createdAt', 'status', 'text'],
         'time-entries' => ['id', 'userId', 'seconds', 'text', 'createdDate'], 'checklist-roots' => ['id', 'title'],
         'checklist-items' => ['id', 'parentId', 'title', 'isComplete'],
         'task-history' => ['id', 'createdDate', 'userId', 'field', 'from', 'to'],
@@ -26,7 +30,16 @@ final class ResultPresenter
 
     public function success(OperationResult $result, string $mode, OutputInterface $output, string $command, array $calls): void
     {
-        $error = $result->exitStatus === 0 ? null : ['code' => $result->exitStatus === 130 ? 'interrupted' : 'partial-result', 'message' => $result->meta['reason'] ?? 'The operation is incomplete.'];
+        $message = $result->meta['reason'] ?? 'The operation is incomplete.';
+        if ($result->exitStatus === 3 && in_array($result->profile, ['task-list', 'title-matches'], true)) {
+            $order = $result->meta['order'] ?? [];
+            $message .= '; scanned=' . ($result->meta['scanned'] ?? 0) . '; order=' . implode(',', array_map(static fn (string $field, string $direction): string => $field . ':' . $direction, array_keys($order), array_values($order)));
+            if (isset($result->meta['hint'])) {
+                $message .= '. ' . $result->meta['hint'];
+            }
+        }
+
+        $error = $result->exitStatus === 0 ? null : ['code' => $result->exitStatus === 130 ? 'interrupted' : 'partial-result', 'message' => $message];
         $meta = ['schemaVersion' => 1, 'command' => $command, 'apiCalls' => $calls, 'apiVersions' => array_values(array_unique(array_column($calls, 'apiVersion'))), ...$result->meta];
         if ($mode === 'json') {
             $output->writeln(json_encode(['data' => $result->data, 'meta' => $meta, 'error' => $error], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), OutputInterface::OUTPUT_RAW);
@@ -81,7 +94,17 @@ final class ResultPresenter
             return [[$result->profile === 'task-access' ? 'permission' : 'field', $result->profile === 'task-access' ? 'allowed' : 'value'], $rows];
         }
 
+        if ($result->profile === 'user-card') {
+            $user = $result->data['user'] ?? null;
+            $columns = self::COLUMNS['user-card'];
+            return [$columns, $user === null ? [] : [array_map(static fn (string $field): mixed => $user[$field] ?? null, $columns)]];
+        }
+
         $columns = self::COLUMNS[$result->profile] ?? ['field', 'value'];
+        if ($result->profile === 'plan' && array_any($result->data['plan']['steps'] ?? [], static fn (array $step): bool => isset($step['taskIdFromStep']))) {
+            $columns[] = 'taskIdFromStep';
+        }
+
         $items = $result->profile === 'plan' ? ($result->data['plan']['steps'] ?? []) : ($result->data['items'] ?? [$result->data['operation'] ?? []]);
         return [$columns, array_map(static fn (array $item): array => array_map(static fn (string $field): mixed => $item[$field] ?? null, $columns), $items)];
     }

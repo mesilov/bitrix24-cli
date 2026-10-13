@@ -15,9 +15,9 @@ final readonly class FindTasksHandler
     {
     }
 
-    public function routes(): array
+    public function routes(FindTasksRequest $request): array
     {
-        return [new Route('tasks.task.list', 3, 'read')];
+        return [new Route('tasks.task.list', 3, 'read'), ...($request->query->role?->participantField() === null ? [] : [new Route('tasks.task.get', 1, 'read')])];
     }
 
     public function prepare(FindTasksRequest $request): PreparedOperation

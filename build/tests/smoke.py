@@ -60,14 +60,15 @@ def main():
     suffix = ".phar" if args.phar else (".exe" if os.name == "nt" else "")
     prefix = [str(Path(shutil.which(args.php)).resolve())] if args.phar else []
     with tempfile.TemporaryDirectory(prefix="b24cli-smoke-") as directory:
-        clean = Path(directory)
+        # macOS temp roots use /var -> /private/var; managed storage rejects link ancestors.
+        clean = Path(directory).resolve()
         for name in ["b24cli", "runtime-probe"]:
             shutil.copy2(dist / (name + suffix), clean / (name + suffix))
         # Whitelist OS essentials; no portal credentials, PHP_INI_SCAN_DIR, LD/DYLD paths or build PATH.
         env = {key: value for key, value in os.environ.items()
                if key.upper() in {"SYSTEMROOT", "WINDIR", "TMP", "TEMP", "LANG", "LC_ALL"}}
         env.update({"PATH": str(clean), "NO_COLOR": "1", "TERM": "dumb",
-                    "TMPDIR": str(clean), "TMP": str(clean), "TEMP": str(clean)})
+                    "HOME": str(clean / "user"), "APPDATA": str(clean / "user" / "Roaming"), "TMPDIR": str(clean), "TMP": str(clean), "TEMP": str(clean)})
 
         def invoke(name, command, expected=0, stderr_contains=None):
             result = subprocess.run(prefix + [str(clean / (name + suffix)), *command],
@@ -88,7 +89,7 @@ def main():
         check(unknown["error"]["code"] == "usage-error" and unknown["meta"]["apiCalls"] == [],
               "Unknown command did not preserve the usage contract")
         commands = [line.split()[0] for line in invoke("b24cli", ["list", "task", "--raw", "--no-ansi"]).splitlines()]
-        check(len(commands) == 30 and all(name.startswith("task:") for name in commands),
+        check(len(commands) == 34 and all(name.startswith("task:") for name in commands),
               "Task command registration differs: " + repr(commands))
         for name in commands:
             check("Usage:" in invoke("b24cli", [name, "--help", "--no-ansi"]), "Task help failed: " + name)
@@ -99,7 +100,7 @@ def main():
               "Offline task dry-run contract failed")
         check(dry_run["data"]["plan"]["steps"] == [{"taskId": None, "step": 1, "method": "tasks.task.add",
               "apiVersion": "3.0", "effect": "write", "fields": {"title": "Привет, Битрикс24", "creatorId": 1,
-              "responsibleId": 2}}], "Task DI/UTF-8 arguments or plan changed")
+              "responsibleId": 2, "allowsTimeTracking": False}}], "Task DI/UTF-8 arguments or plan changed")
         missing = json.loads(invoke("b24cli", ["task:show", "123", "--json", "--no-ansi"], 1))
         check(missing["error"]["code"] == "connection-unavailable" and missing["meta"]["apiCalls"] == [],
               "Missing connection did not stop before API calls")
@@ -159,7 +160,7 @@ def main():
         check(all(path.name in allowed_phars for path in clean.glob("*.phar")),
               "Temporary application PHAR was not removed")
         print(json.dumps({"status": "passed", "version": args.expected_version, "runtime": probe,
-                          "checks": ["version", "help", "list", "usage-exit", "30-task-commands", "task-dry-run",
+                          "checks": ["version", "help", "list", "usage-exit", "34-task-commands", "task-dry-run",
                                      "missing-connection", *( ["task-SIGINT"] if os.name != 'nt' else [] ),
                                      "autoload", "extensions", "unicode",
                                      "trusted-https", "rejected-certificate", "clean-PATH", "temporary-phar-cleanup"]}, ensure_ascii=False))
