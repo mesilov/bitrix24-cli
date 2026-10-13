@@ -83,16 +83,22 @@ def main():
         check(version == "b24cli " + args.expected_version, "Version mismatch: " + version)
         for command in [["list", "--no-ansi"], ["--help", "--no-ansi"]]:
             output = invoke("b24cli", command)
-            expected = "b24cli" if command[0] == "list" else "Usage:"
+            expected = "b24cli" if command[0] == "list" else "Использование:"
             check(expected in output and "\x1b" not in output, "CLI/help contract failed")
         unknown = json.loads(invoke("b24cli", ["несуществующая-команда", "--json", "--no-ansi"], 2))
         check(unknown["error"]["code"] == "usage-error" and unknown["meta"]["apiCalls"] == [],
               "Unknown command did not preserve the usage contract")
         commands = [line.split()[0] for line in invoke("b24cli", ["list", "task", "--raw", "--no-ansi"]).splitlines()]
-        check(len(commands) == 34 and all(name.startswith("task:") for name in commands),
+        check(len(commands) == 41 and all(name.startswith("task:") for name in commands),
               "Task command registration differs: " + repr(commands))
+        lifecycle = {"task:" + action for action in ["start", "pause", "defer", "renew", "complete", "approve", "disapprove"]}
+        check(lifecycle.issubset(commands), "Lifecycle commands missing from packaged CLI")
+        for name in sorted(lifecycle):
+            denied = json.loads(invoke("b24cli", [name, "123", "--api-policy", "strict-rest3", "--dry-run", "--json"], 4))
+            check(denied["error"]["code"] == "policy-denied" and denied["meta"]["apiCalls"] == [],
+                  "Lifecycle policy must reject before credentials/API: " + name)
         for name in commands:
-            check("Usage:" in invoke("b24cli", [name, "--help", "--no-ansi"]), "Task help failed: " + name)
+            check("Использование:" in invoke("b24cli", [name, "--help", "--no-ansi"]), "Task help failed: " + name)
         dry_run = json.loads(invoke("b24cli", ["task:add", "--title", "Привет, Битрикс24", "--creator", "1",
                                                "--responsible", "2", "--dry-run", "--json", "--no-ansi"]))
         check(dry_run["error"] is None and dry_run["meta"]["dryRun"] is True
