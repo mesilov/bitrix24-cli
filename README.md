@@ -34,7 +34,61 @@ CLI для работы с задачами Битрикс24.
 
 ## Установка
 
-PHP, Composer и Docker пользователю не нужны. Выберите свою платформу ниже.
+Для **macOS arm64 и Linux amd64** основной способ — пользовательский installer:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/mesilov/bitrix24-cli/main/install.sh | sh
+. "$HOME/.local/share/b24cli/env"
+b24cli --version
+```
+
+> URL `main/install.sh` станет доступен после доставки installer в `main`.
+> До этого используйте ручную установку ниже; наличие скрипта в feature/dev не
+> подтверждает доступность этой команды. Публичные archives уже доступны в Releases.
+
+Installer скачивает архив и `SHA256SUMS` одного [публичного Release](https://github.com/mesilov/bitrix24-cli/releases),
+проверяет SHA-256, notices и точную версию перед заменой executable.
+По умолчанию выбирается latest stable; для конкретного опубликованного тега
+(включая prerelease) передайте `sh -s -- --version 0.1.0` после pipe.
+Нужны системные `sh`, `curl`, `tar`, `awk`, `sed`, `grep`, `mktemp`, файловые utilities
+и `shasum` (macOS) либо `sha256sum` (Linux). `sudo`, PHP, Composer, Docker,
+Homebrew, Python и jq для установки не нужны. Неподдерживаемые targets отклоняются.
+
+Предварительно скачать и просмотреть скрипт:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/mesilov/bitrix24-cli/main/install.sh -o install.sh
+less install.sh
+sh install.sh --version 0.1.0
+. "$HOME/.local/share/b24cli/env"
+```
+
+Binary устанавливается в `$HOME/.local/bin/b24cli`, notices/metadata — в
+`$HOME/.local/share/b24cli/package/`, env-файл — в `$HOME/.local/share/b24cli/env`.
+Текущему терминалу нужна команда подключения env-файла: `sh` через pipe не меняет
+PATH родительского shell. Новые interactive zsh/bash и bash login sessions
+получают PATH из startup profiles. Учитывается `${ZDOTDIR:-$HOME}/.zshrc`,
+`.bashrc` и первый существующий `.bash_profile`/`.bash_login`, иначе `.profile`.
+Повторная установка и подключение env-файла не добавляют дубликаты; настройки
+подключений и пользовательские данные сохраняются. Для обновления повторите installer.
+
+Для собственного абсолютного каталога (поддерживаются пробелы) и CI:
+
+```sh
+sh install.sh --install-dir "$HOME/tools/b24cli bin" --no-modify-path
+. "$HOME/.local/share/b24cli/env"
+b24cli --version
+```
+
+`--no-modify-path` сохраняет shell profiles; env-файл всё равно создаётся.
+Installer выводит фактические пути и команду активации. Каталоги с `:` или переводом
+строки отклоняются, поскольку они не подходят для PATH. Installer не отключает
+Gatekeeper и не снимает quarantine: диагностика первого запуска —
+[#23](https://github.com/mesilov/bitrix24-cli/issues/23), signing/notarization —
+[#25](https://github.com/mesilov/bitrix24-cli/issues/25).
+
+Ручная checksum/unpack/PATH установка ([#24](https://github.com/mesilov/bitrix24-cli/issues/24))
+и Windows PowerShell описаны ниже. PHP, Composer и Docker пользователю не нужны. Выберите свою платформу ниже.
 Проверенная матрица: Linux amd64 (Debian 12), macOS 15 arm64 (Apple silicon),
 Windows Server 2022 amd64. Windows 10/11 и более старые macOS требуют отдельной
 проверки; инструкции не расширяют заявленную поддержку. На Windows нужен доступный
