@@ -175,7 +175,7 @@ def main():
         check(all(path.name in allowed_phars for path in clean.glob("*.phar")),
               "Temporary application PHAR was not removed")
         print(json.dumps({"status": "passed", "version": args.expected_version, "runtime": probe,
-                          "checks": ["version", "help", "list", "usage-exit", "30-task-commands", "task-dry-run",
+                          "checks": ["version", "help", "list", "usage-exit", "30-task-commands", "task-dry-run", "local-upload-dry-run", "local-upload-strict-policy",
                                      "missing-connection", *( ["task-SIGINT"] if os.name != 'nt' else [] ),
                                      "autoload", "extensions", "unicode",
                                      "trusted-https", "rejected-certificate", "clean-PATH", "temporary-phar-cleanup"]}, ensure_ascii=False))

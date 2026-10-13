@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Добавлено
+
+- `task:file:attach --file PATH --folder-id ID` загружает один локальный файл до 10 MiB
+  на Диск и прикрепляет к задаче; поддерживает имя через `--name`, безопасный dry-run
+  и сохранение Disk ID для восстановления после частичной привязки. Локальный ввод
+  использует Symfony Filesystem/Path и Base64-кодировщик b24phpsdk
+  ([#62](https://github.com/mesilov/bitrix24-cli/issues/62)).
+
 ### Изменено
 
 - В скилле мейнтейнера требуется содержательная запись в changelog со ссылкой на issue
