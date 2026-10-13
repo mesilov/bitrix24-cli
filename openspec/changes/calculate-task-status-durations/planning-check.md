@@ -3,6 +3,7 @@
 - Issue: [#121](https://github.com/mesilov/bitrix24-cli/issues/121), OPEN, enhancement, milestone 0.2.0 (number 2).
 - Source dev: `5ed034980e58ed950c3c733f3f01ec5ca08dd990`.
 - Before publication integrated fresh dev `48e010c7365b996fe58c8fda14d93f5d94693193`. Registration delta follows its normalized requirement statement and retains its separate Command registration validation requirement. Strict validation/diff check rerun after synchronization.
+- MR #123 update from dev on 14.10.2026: integrated `475f652560b4d88c4aeb9f93d5f2caad28c2fca1`, including delivered #60 lifecycle and #124 normalization archive. Current CommandCatalog has 41 task commands; duration delta plans 42 and preserves lifecycle integration coverage. Canonical runtime main spec still says 34 until lifecycle archive; the plan records this rather than editing that unrelated spec. Original implementation worktree has uncommitted work, so publication uses only committed plan in a separate temporary checkout. Strict validate/diff/changelog checks repeated after sync; no runtime changes belong to this MR.
 - Fresh isolated worktree effective MCP config: enabled bitrix24_dev, Streamable HTTP https://mcp-dev.bitrix24.tech/mcp; real search/method-details/history and search/article-details/REST3 fields answered.
 - Official sources are linked in proposal/design; get id/select/status/statusChanged/changed are REST3, history taskId/createdDate/field/value.from/to are REST1. REST3 get does not return created.
 - `openspec validate calculate-task-status-durations --strict`: PASS.
