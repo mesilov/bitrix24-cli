@@ -32,7 +32,7 @@
 
 ## Checks and evidence boundaries
 
-- Full PHP unit suite: **676 tests / 5124 assertions** in PHP 8.4.26 Docker. Doctor-specific tests include privacy/depth, technical metadata secrets, storage limits, UTC boundaries, concurrent profile writes, journal recovery and lost replies.
+- Full PHP unit suite after synchronization with current dev: **717 tests / 5913 assertions** in PHP 8.4.26 Docker. Initial MVP suite: 676 tests / 5124 assertions. Doctor-specific tests include privacy/depth, technical metadata secrets, storage limits, UTC boundaries, concurrent profile writes, journal recovery and lost replies. Merge conflicts in README/CHANGELOG resolved by retaining both changes; shared application/presenter integration and all quality gates rechecked.
 - `make check`: Composer strict/platform checks, syntax and actual CLI startup passed.
 - `make lint-all`: allowed licenses, PSR12, PHPStan level 5, Rector dry run passed after applying reported type/style corrections.
 - `config-schema-check.py`: 146 shared fixtures, 3 JSON documentation examples, 8 explicitly documented runtime-only constraints.

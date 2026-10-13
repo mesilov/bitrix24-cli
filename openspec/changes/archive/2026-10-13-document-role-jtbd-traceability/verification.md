@@ -1,0 +1,43 @@
+# Verification: document-role-jtbd-traceability
+
+Дата: 13.10.2026. Проверен локальный результат от dev `0ad4bad55df5882dc2956bee19f8864a65665a03`.
+
+| Измерение | Результат |
+| --- | --- |
+| Полнота | 4/4 задачи выполнены; 22/22 исходных Scenario IDs, группы 7/7/8, отдельные заголовки и списки JTBD, 22 общие таблицы «Статус / Команда / Тест» для текущих и планируемых команд, блок «Роли» с 3 ссылками; ситуация, работа, цель и признак успеха сверены с канонической спецификацией |
+| Корректность | 41/41 связей команд и файлов тестов, 23 уникальных команд/файлов; current/planned точно соответствуют jtbd-coverage и CommandCatalog; 114/114 локальных ссылок существуют |
+| Согласованность | ID и тексты требований сохранены; пользовательские роли явно сопоставлены исходным; README navigation, Unreleased #80 и issue ↔ proposal проверены |
+
+## Проверки
+
+- Статическая сверка Markdown списков и таблиц команд с task-workflows, coverage JSON, CommandCatalog и исходниками integration tests: PASS; результат в validation.json.
+- Проверены 22 общие таблицы с тремя колонками; «✅ Готово» у 41 текущей связи, «🕓 План» у всех планируемых; пустые служебные строки удалены, отсутствие текущей реализации у AM-02/AM-03 описано в границах. Проверены 3 ссылки блока «Роли» на role-* anchors. Статус не объявляет прохождение теста.
+- Проверены имена/ссылки файлов, объявления классов, command group и наличие happy-path в каждом referenced файле; число test references равно числу текущих command references в каждом сценарии. Колонка «Тест» содержит только имя файла; «Как читать трассировку» — последний раздел документа.
+- `openspec validate document-role-jtbd-traceability --strict`: PASS.
+- `git diff --check`: PASS.
+- GitHub issue #80: open, milestone 0.2.0, documentation; обратная ссылка на этот change в body и полный issue URL в proposal.
+- Изменения ограничены docs, README, CHANGELOG и артефактами этого docs-only change.
+
+## Применимость
+
+Spec Coverage, Requirement Implementation Mapping и Scenario Coverage для новых delta specs: Not applicable (`skip_specs: true`, поведение CLI не меняется). Design Adherence и consistency документации проверены.
+
+## Границы
+
+Командные/live suites не запускались: runtime и тесты не изменены. Статическая трассировка не является подтверждением прав портала, полного выполнения JTBD или нового результата #42. AM-02/AM-03 не имеют текущих mapped команд/tests; это явно указано. Полнота клиентского/внутреннего workflow не объявляется на основании успешного ACK или чтения карточки.
+
+Критических замечаний, предупреждений и предложений к документационному изменению не выявлено. Архивирование выполняется после подтверждённого merge в dev и закрытия #80 по правилам maintainer; до merge worktree сохраняется.
+
+## Синхронизация перед merge
+
+- Интегрирована актуальная dev `0ad4bad55df5882dc2956bee19f8864a65665a03`; конфликт CHANGELOG разрешён с сохранением обеих групп записей.
+- Добавлены канонические PM-07/AM-07/EMP-08 и обновлены current/planned статусы native результатов по фактическому CommandCatalog. Исходные 19 IDs сохранены.
+- Сверка: 22 сценария, 22 таблицы, 41 ссылка команд/файлов, 23 уникальные команды/файла и 114 локальных ссылок.
+- Последний исходный HEAD `8337af9a0d6ef2c0c2ffd61aaede5b0010b6fa41`: 6/6 GitHub checks SUCCESS. После синхронизации требуется новый terminal CI на актуальном HEAD.
+
+## Доставка и архивирование 13.10.2026
+
+- PR #82 HEAD `89691eeb82b4987abadf2a6e50bebe9c30630b0a`: 13/13 GitHub checks COMPLETED/SUCCESS (push и PR, включая Worktree isolation); подробности в delivery.json.
+- Перед merge проверены неизменный HEAD, target dev, CLEAN, актуальная base `0ad4bad`, scope 9 documentation files и содержательная запись CHANGELOG с #80.
+- PR #82 подтверждён MERGED в dev, merge `717986d8c7bb03fd9a7854407d09c294999b6d7f`. Issue #80 CLOSED.
+- Change docs-only, 4/4 задачи, specs skipped: новые main specs не создаются. Архив доставляется отдельным MR в dev до удаления worktree.

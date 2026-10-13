@@ -93,10 +93,10 @@ final class TaskDeadlineFilterTest extends TestCase
             ['--overdue', '--timezone', '+06:00'], ['--overdue', '--timezone', 'invalid'], ['--timezone', 'UTC'],
             ['--overdue', '--order', 'responsibleId:asc'],
         ];
+        $cases[] = ['--overdue', '--where', '{}'];
+        $cases[] = ['--overdue', '--where-file', '/no-such-file'];
+        $cases[] = ['--overdue', '--due-before', '2026-01-01T00:00:00Z'];
         if ($command === 'task:list') {
-            $cases[] = ['--overdue', '--where', '{}'];
-            $cases[] = ['--overdue', '--where-file', '/no-such-file'];
-            $cases[] = ['--overdue', '--due-before', '2026-01-01T00:00:00Z'];
             $cases[] = ['--overdue', '--select', 'chat'];
         }
 

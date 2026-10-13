@@ -30,6 +30,7 @@ return static function (ContainerBuilder $container, string $root, bool $package
         Bitrix24\CLI\Application\User\UserScanner::class,
         Bitrix24\CLI\Application\User\UserDirectoryService::class,
         Bitrix24\CLI\Console\ApiPolicyGuard::class,
+        Bitrix24\CLI\Console\TaskHumanRenderer::class,
         Bitrix24\CLI\Console\ResultPresenter::class,
         Bitrix24\CLI\Console\CommandRunner::class,
         Bitrix24\CLI\Infrastructure\Connection\B24ClientProvider::class,
