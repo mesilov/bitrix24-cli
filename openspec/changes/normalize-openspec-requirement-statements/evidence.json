@@ -65,6 +65,8 @@
   "verifiedAt": "2026-10-14",
   "timezone": "Asia/Bishkek",
   "issue": "https://github.com/mesilov/bitrix24-cli/issues/114",
+  "review": "https://github.com/mesilov/bitrix24-cli/pull/117",
+  "taskCompletion": {"complete": 5, "total": 5},
   "mainStrict": {
     "baseline": {
       "passed": 12,

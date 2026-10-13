@@ -9,7 +9,7 @@
 
 ## 2. Integrated verification and review delivery
 
-- [ ] 2.1 Выполнить openspec-verify-change, strict main/change validation без предупреждений, exact main/delta comparison и проверку untouched/runtime/archives; сохранить before/after evidence, CHANGELOG с #114 и двустороннюю issue trace; fresh fetch/merge dev, повторная strict validation и MR в dev.
+- [x] 2.1 Выполнить openspec-verify-change, strict main/change validation без предупреждений, exact main/delta comparison и проверку untouched/runtime/archives; сохранить before/after evidence, CHANGELOG с #114 и двустороннюю issue trace; fresh fetch/merge dev, повторная strict validation и MR в dev.
 
 ## Workflow follow-up
 

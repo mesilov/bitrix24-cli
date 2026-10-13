@@ -8,7 +8,7 @@
 
 | Dimension | Result |
 | --- | --- |
-| Completeness | 4/4 implementation tasks complete; delivery task 2.1 pending MR. All 5 MODIFIED and 11 ADDED blocks applied to canonical specs. |
+| Completeness | 5/5 tasks complete; MR #117 opened in dev. All 5 MODIFIED and 11 ADDED blocks applied to canonical specs. |
 | Correctness | 16/16 delta requirement blocks match main specs; all original normative clauses mapped below. All 235 old scenarios in the four capabilities preserved. Existing implementation/test references reviewed; runtime suite delegated to native MR CI. |
 | Coherence | Original requirement names, Purpose and untouched blocks retained. No runtime, dependency, JSON-schema, JTBD or historical-archive edits. |
 
@@ -67,4 +67,4 @@ This is a documentation normalization. Local PHP/runtime tests and live portal a
 
 ## Delivery and assessment
 
-No semantic-loss or design-coherence findings in the checks above. Task 2.1 remains pending until fresh fetch/merge, final checks and MR creation. Issue milestone/category and both trace directions are checked at delivery. The change remains active for review; archive and cleanup follow a later confirmed merge.
+No semantic-loss or design-coherence findings in the checks above. Fresh fetch/merge and repeated validation are complete. [MR #117](https://github.com/mesilov/bitrix24-cli/pull/117) is open into dev. Issue #114 remains open with milestone 0.2.0 and documentation category; proposal and issue contain both trace directions. Native CI results are tracked on the final head SHA in the MR. The change remains active for review; archive and cleanup follow a later confirmed merge.
