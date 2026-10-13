@@ -45,10 +45,10 @@ CLI SHALL поддерживать `-h`/`--help`, `b24cli help COMMAND`, `b24cli
 - **THEN** CLI SHALL сохранять schemaVersion 1, data/meta/error и текущие формы данных/TSV columns; human пояснения не добавляются в stdout machine форматов, а обязательная plain диагностика полноты идёт в stderr
 
 ### Requirement: Explicit filtering and completeness of lists
-Списки SHALL различать серверный фильтр id и локальные фильтры REST3; --limit ограничивает результат, --all снимает этот предел, --max-scan ограничивает просмотр. CLI SHALL сообщать scope доступных задач, scanned count и полноту. Достигнутый scan cap, ошибка страницы или недостающие данные SHALL означать partial; полнота видимых задач не SHALL выдаваться за полноту проекта.
+Без новых временных флагов списки SHALL различать серверный фильтр id и локальные фильтры REST3; --limit ограничивает результат, --all снимает этот предел, --max-scan ограничивает просмотр. CLI SHALL сообщать scope доступных задач, scanned count и полноту. Достигнутый scan cap, ошибка страницы или недостающие данные SHALL означать partial; полнота видимых задач не SHALL выдаваться за полноту проекта.
 
 #### Scenario: Responsible or project filter
-- **WHEN** пользователь задаёт `task:list --responsible 42 --group-id 7`
+- **WHEN** пользователь задаёт `task:list --responsible 42 --group-id 7` без новых временных флагов
 - **THEN** CLI фильтрует соответствующие selected fields локально, проверяет все страницы в установленном scan budget и не отправляет неподдерживаемый v3 filter или скрытый legacy request
 
 #### Scenario: Scan cap reached
@@ -60,16 +60,20 @@ CLI SHALL поддерживать `-h`/`--help`, `b24cli help COMMAND`, `b24cli
 - **THEN** CLI возвращает 0, пустые данные и complete=true; пустой результат не считается ошибкой
 
 #### Scenario: Fresh tasks are scanned first
-- **WHEN** task:list запускается без --order на портале с более чем 10000 задач
+- **WHEN** task:list запускается без --order и новых временных флагов на портале с более чем 10000 задач
 - **THEN** сервер получает order {"id":"DESC"}; новые задачи просматриваются первыми, вывод сохраняет порядок страниц, --id остаётся единственным серверным фильтром
 
 #### Scenario: Explicit list order
-- **WHEN** task:list получает повторяемый --order title:asc --order id:desc
+- **WHEN** task:list получает повторяемый --order title:asc --order id:desc без новых временных флагов
 - **THEN** указанный порядок передаётся в REST3 без замены на default; если id не указан, добавляется id ASC для устойчивого порядка
 
 #### Scenario: Incomplete duplicate check diagnostics
 - **WHEN** task:list либо task:find исчерпывает --max-scan, в том числе без совпадений
 - **THEN** JSON содержит meta.complete=false, reason=scan-budget-exhausted, scanned и фактический meta.order; error.code=partial-result и exit3 сохраняются; диагностика во всех форматах содержит причину, scanned, order и совет увеличить --max-scan, предупреждая, что неполный поиск не доказывает отсутствие дублей; --all не снимает budget
+
+#### Scenario: Explicit deadline route
+- **WHEN** task:list получает --deadline-window или --overdue
+- **THEN** выбирается заранее объявленный REST1 tasks.task.list с серверными границами DEADLINE по task-deadline-windows; metadata показывает маршрут и интервал; strict-rest3 запрещает его до запросов; limit/all/max-scan/partial продолжают действовать
 
 #### Scenario: Visible complete scan with limited output
 - **WHEN** task:list или task:find завершила обход видимой выборки, но returned меньше matched из-за --limit
@@ -138,12 +142,16 @@ MVP SHALL включать task:find --title TEXT: буквальная подс
 - **THEN** результат остаётся списком: обычная таблица ID/TITLE, plain TSV id/title без заголовка либо JSON data.items с массивом объектов id/title; при отсутствии совпадений массив пуст, а единственное совпадение не превращается в карточку или автоматически открытую задачу
 
 #### Scenario: Fresh group task within a small scan budget
-- **WHEN** среди более 10000 видимых задач самая новая задача содержит буквальный Unicode фрагмент title и относится к выбранной --group-id
+- **WHEN** без новых временных флагов среди более 10000 видимых задач самая новая задача содержит буквальный Unicode фрагмент title и относится к выбранной --group-id
 - **THEN** task:find видит её на первой странице id DESC и возвращает её даже с малым --max-scan; groupId/title фильтруются локально, неполный обход сохраняет complete=false и exit3
 
 #### Scenario: Explicit search order
-- **WHEN** task:find получает повторяемый --order FIELD:asc|desc
+- **WHEN** task:find без новых временных флагов получает повторяемый --order FIELD:asc|desc
 - **THEN** поддерживается тот же allowlist и id ASC tie-breaker, что в task:list; порядок выдачи совпадает с порядком обхода, неподдерживаемое поле/направление отклоняется до API
+
+#### Scenario: Search inside a deadline window
+- **WHEN** task:find --title TEXT получает --deadline-window или --overdue
+- **THEN** серверный интервал выбирается через явный REST1 маршрут по task-deadline-windows; title по-прежнему проверяется локально как буквальная Unicode подстрока, без серверного wildcard; id/title output и partial сохраняются; это объявленный маршрут, не legacy fallback
 
 #### Scenario: Title and convenient filters compose with AND
 - **WHEN** пользователь вызывает task:find --title "договор" --group-id 7 --responsible 42 либо добавляет --status/--due-before/повторяемый --id
