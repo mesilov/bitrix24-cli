@@ -55,4 +55,3 @@
 #### Scenario: Explicit local file upload admission
 - **WHEN** пользователь выбирает локальный режим task:file:attach --file PATH --folder-id ID
 - **THEN** допускается только согласованный disk.folder.uploadFile REST1; это не означает допуск общего Disk API.
-

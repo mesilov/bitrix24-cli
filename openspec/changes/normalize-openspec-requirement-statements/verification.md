@@ -2,6 +2,7 @@
 
 Дата: 2026-10-14 (Asia/Bishkek). Issue: [#114](https://github.com/mesilov/bitrix24-cli/issues/114).
 Исходный dev: `f21e0632c9fab5933b632bd649a214d5b7df49f6`. OpenSpec CLI: `1.14.1`.
+Повторная проверка выполнена после fresh fetch и merge dev `1741b9c5104c47a211904a47185aa442229c12d6`; четыре затронутых canonical specs в этой базе не изменились.
 
 ## Scorecard
 

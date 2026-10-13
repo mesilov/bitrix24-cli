@@ -43,4 +43,3 @@ CLI SHALL не читать stdin неявно и не разрешать два
 #### Scenario: A single explicit stdin consumer
 - **WHEN** файловый флаг содержит '-' при terminal stdin либо два файловых флага требуют stdin
 - **THEN** CLI немедленно завершает вызов с usage error и объясняет явный файл или pipe; без '-' stdin не читается неявно.
-

@@ -14,4 +14,3 @@
 ## Workflow follow-up
 
 - После подтверждённого merge и закрытия #114 архивировать change и удалить worktree по maintainer workflow. Текущее поручение завершить на открытом MR.
-

@@ -79,4 +79,3 @@ task-v3 SHALL допускать REST1 disk.folder.uploadFile только в л
 #### Scenario: Upload route is confined to local attachment mode
 - **WHEN** план task:file:attach включает disk.folder.uploadFile
 - **THEN** REST1 upload допускается только для локального режима; strict-rest3 отклоняет весь non-v3 план до первого запроса.
-

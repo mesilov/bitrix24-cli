@@ -40,4 +40,3 @@ Shared valid and invalid fixtures MUST verify schema/runtime agreement for struc
 #### Scenario: Check both configuration validators
 - **WHEN** the shared valid and invalid configuration fixtures run
 - **THEN** JSON Schema and the actual configuration repository agree on structural acceptance/rejection; documented runtime/filesystem checks retain their existing scope.
-

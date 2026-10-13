@@ -34,4 +34,3 @@
 
 - https://github.com/mesilov/bitrix24-cli/issues/114 — документационное исправление пяти strict warnings, milestone 0.2.0.
 - Follow-up: https://github.com/mesilov/bitrix24-cli/issues/96 и archive MR #112. Закрытый #96 не переоткрывается.
-

@@ -30,4 +30,3 @@ Non-goals: новые API admissions/поля/CLI флаги, JTBD-сценар�
 ## Primary documentation boundary
 
 Официальный MCP: search → details для [tasks.task.get REST3](https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-get-rest-v3.html) и [disk.folder.uploadFile](https://apidocs.bitrix24.ru/api-reference/disk/folder/disk-folder-upload-file.html) ответили успешно. Это актуальная проверка названий/документации; допуски task-v3/strict-rest3 сверены с исходниками проекта, реальный портал не вызывался. Никакие новые field types/defaults не вводятся.
-
