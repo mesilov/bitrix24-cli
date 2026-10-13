@@ -84,6 +84,10 @@ final class ResultPresenter
         }
 
         $columns = self::COLUMNS[$result->profile] ?? ['field', 'value'];
+        if ($result->profile === 'plan' && array_any($result->data['plan']['steps'] ?? [], static fn (array $step): bool => isset($step['taskIdFromStep']))) {
+            $columns[] = 'taskIdFromStep';
+        }
+
         $items = $result->profile === 'plan' ? ($result->data['plan']['steps'] ?? []) : ($result->data['items'] ?? [$result->data['operation'] ?? []]);
         return [$columns, array_map(static fn (array $item): array => array_map(static fn (string $field): mixed => $item[$field] ?? null, $columns), $items)];
     }

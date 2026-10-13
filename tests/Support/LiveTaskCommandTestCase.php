@@ -141,8 +141,13 @@ abstract class LiveTaskCommandTestCase extends TestCase
         $run = ConsoleHarness::run($app ?? $this->app, ['--json', ...array_map(strval(...), $argv)]);
         $json = $run->json();
         $this->observedCommands[] = ['command' => $argv[0], 'status' => $run->status, 'apiCalls' => $json['meta']['apiCalls'] ?? [], 'complete' => $json['meta']['complete'] ?? null, 'reason' => $json['meta']['reason'] ?? null, 'errorCode' => $json['error']['code'] ?? null, 'apiErrorCode' => $json['error']['details']['apiErrorCode'] ?? null];
-        if ($argv[0] === 'task:add' && is_int($id = $json['data']['operation']['resourceId'] ?? null) && $id > 0) {
-            $this->ownTask($id);
+        if ($argv[0] === 'task:add') {
+            foreach ($json['data']['items'] ?? [$json['data']['operation'] ?? []] as $operation) {
+                $id = $operation['resourceId'] ?? null;
+                if (($operation['action'] ?? null) === 'add' && is_int($id) && $id > 0) {
+                    $this->ownTask($id);
+                }
+            }
         }
 
         self::assertContains($run->status, $statuses, $run->stdout . $run->stderr);

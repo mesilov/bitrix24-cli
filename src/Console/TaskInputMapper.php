@@ -56,9 +56,13 @@ final readonly class TaskInputMapper
         return $value === null ? null : $this->reader->object($value);
     }
 
-    private function patch(InputInterface $input, bool $create): array
+    private function patch(InputInterface $input, bool $create, ?array $TAGS = null): array
     {
         $advanced = $this->json($input, 'fields');
+        if ($advanced !== null && $TAGS !== null) {
+            throw Failure::usage('Advanced --fields/--fields-file cannot be mixed with --tag/--clear-tags.');
+        }
+
         $fields = [];
         foreach (['title' => 'title', 'description' => 'description', 'creator' => 'creatorId', 'responsible' => 'responsibleId', 'group-id' => 'groupId', 'deadline' => 'deadline'] as $flag => $field) {
             if (!$input->hasOption($flag)) {
@@ -101,14 +105,35 @@ final readonly class TaskInputMapper
             }
         }
 
-        FieldSchema::localPatch($fields, $create);
+        if ($fields !== [] || $create || $TAGS === null) {
+            FieldSchema::localPatch($fields, $create);
+        }
+
         return [$fields, $advanced !== null];
+    }
+
+    private function TAGS(InputInterface $input): ?array
+    {
+        $values = $input->getOption('tag');
+        $clear = $input->hasOption('clear-tags') && $input->getOption('clear-tags');
+        if ($clear && $values !== []) {
+            throw Failure::usage('Choose --tag or --clear-tags.');
+        }
+
+        foreach ($values as $value) {
+            if (!is_string($value) || preg_match('/(*UCP)\\S/u', $value) !== 1) {
+                throw Failure::usage('Provide a nonempty UTF-8 --tag name.');
+            }
+        }
+
+        return $clear ? [] : ($values === [] ? null : array_values(array_unique($values)));
     }
 
     public function addTask(InputInterface $input): Request\AddTaskRequest
     {
-        [$fields, $advanced] = $this->patch($input, true);
-        return new Request\AddTaskRequest($fields, $advanced);
+        $TAGS = $this->TAGS($input);
+        [$fields, $advanced] = $this->patch($input, true, $TAGS);
+        return new Request\AddTaskRequest($fields, $advanced, $TAGS);
     }
 
     public function showTask(InputInterface $input): Request\ShowTaskRequest
@@ -120,8 +145,9 @@ final readonly class TaskInputMapper
 
     public function updateTask(InputInterface $input): Request\UpdateTaskRequest
     {
-        [$fields, $advanced] = $this->patch($input, false);
-        return new Request\UpdateTaskRequest($this->taskId($input), $fields, $advanced, 'task:update');
+        $TAGS = $this->TAGS($input);
+        [$fields, $advanced] = $this->patch($input, false, $TAGS);
+        return new Request\UpdateTaskRequest($this->taskId($input), $fields, $advanced, 'task:update', $TAGS);
     }
 
     public function assignTask(InputInterface $input): Request\UpdateTaskRequest

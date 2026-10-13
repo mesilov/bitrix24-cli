@@ -14,13 +14,13 @@ use Bitrix24\CLI\Application\Task\Port\TaskGateway;
 
 final readonly class AddTaskHandler
 {
-    public function __construct(private TaskGateway $tasks)
+    public function __construct(private TaskGateway $tasks, private \Bitrix24\CLI\Application\Task\TaskTagMutation $tags)
     {
     }
 
     public function routes(AddTaskRequest $request): array
     {
-        return [new Route('tasks.task.add', 3, 'write'), ...($request->advanced ? [new Route('tasks.task.field.list', 3)] : [])];
+        return [new Route('tasks.task.add', 3, 'write'), ...($request->TAGS !== null ? [new Route('tasks.task.update', 1, 'write')] : []), ...($request->advanced ? [new Route('tasks.task.field.list', 3)] : [])];
     }
 
     public function prepare(AddTaskRequest $request): PreparedOperation
@@ -29,9 +29,15 @@ final readonly class AddTaskHandler
             FieldSchema::validateWritable($this->tasks, $request->fields);
         }
 
-        return new PreparedOperation([Plan::step(null, 'tasks.task.add', 3, 'write', $request->fields)], function () use ($request): OperationResult {
+        $steps = [Plan::step(null, 'tasks.task.add', 3, 'write', $request->fields)];
+        if ($request->TAGS !== null) {
+            $steps[] = [...Plan::step(null, 'tasks.task.update', 1, 'write', ['TAGS' => $request->TAGS], 2), 'taskIdFromStep' => 1];
+        }
+
+        return new PreparedOperation($steps, function () use ($request): OperationResult {
             $id = $this->tasks->add($request->fields);
-            return OperationResult::mutation($id, $id, 'add', $request->fields);
+            $result = OperationResult::mutation($id, $id, 'add', $request->fields);
+            return $request->TAGS === null ? $result : $this->tags->finish($id, $request->fields, $request->TAGS, 'add', $result->data['operation']);
         }, 'new task');
     }
 }
