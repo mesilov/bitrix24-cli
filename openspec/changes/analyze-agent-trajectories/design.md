@@ -2,47 +2,103 @@
 
 ## Context
 
-Мотивация — в proposal.md. Проверенное состояние на 2026-10-13: planning worktree от `origin/dev` (`0aeb25b`), публичные CLI-команды находятся в `src/Console/Command/`, запуск в `src/Console/B24Application.php` и `CommandRunner.php`, fixtures/tests — в `tests/`. README описывает JSON-контракт. Готового коллектора траекторий не обнаружено; feedback-сервис только запланирован в `add-user-feedback-loop` (#15/#32), его 18 задач открыты.
+Мотивация — в proposal.md. Пользователь согласовал сужение #96 до локальных карточек и еженедельного предложения анализа при запуске скилла. Планирование ведётся в существующем worktree `feature/96-agent-trajectory-feedback`; актуальный `origin/dev` проверен 2026-10-13 (`79a4f9f`). Связанные config source/spec/schema не изменились относительно базы ветки.
 
-В соседнем репозитории `bitrix24-cli-skill` файл `skills/bitrix24-tasks/SKILL.md` ограничивает работу публичным CLI, требует сверять установленный бинарь/help и при отсутствии возможности останавливаться с просьбой создать issue. Версия карты команд 0.1.0 не доказывает возможности актуального dev.
+Наблюдаемые точки расширения:
+- `src/Console/B24Application.php` определяет `--config-dir`, `--json` и другие глобальные опции; команды находятся в `src/Console/Command/`.
+- `ConfigDirectoryResolver` выбирает каталог через flag → env → OS default. `--config` относится к отдельному runtime JSON; telemetry принадлежит пользовательскому `config.json`.
+- `ProfileRepository` и `docs/config.schema.json` сейчас разрешают только version/defaultProfile/profiles в корне. Telemetry нужно добавить согласованно в runtime/schema/fixtures, сохранив профили, defaultProfile и credential references.
+- `skills/bitrix24-tasks/SKILL.md` в соседнем репозитории разрешает только публичный CLI и требует остановиться при отсутствии возможности. Он пока не поддерживает регистрацию карточек.
+- `add-user-feedback-loop` (#15/#32) планирует локальную feedback-команду, приём обращений, receipt и moderation. Наличие плана не подтверждает готовность endpoint.
 
-Источники проверены по официальной документации:
-- [Codex non-interactive mode](https://developers.openai.com/codex/noninteractive): `codex exec --json` даёт JSONL со state/item events, включая команды; `--output-schema` задаёт структурированный итог. Это не обещает полный исходный prompt или содержимое внешних файлов.
-- [Codex app-server, Threads](https://developers.openai.com/codex/app-server#threads): `thread/list`, `thread/read` с `includeTurns`; доступ к конкретной desktop-истории зависит от среды и проверяется отдельным compatibility spike. Не следует автоматически подключаться к работающему клиенту или возобновлять чаты ради чтения.
-
-Это исследование интерфейсов, не доказательство экспорта реальных пользовательских траекторий. Portal API не изменяется и не вызывается.
+Ни код, ни установленный скилл этой правкой не изменяются.
 
 ## Goals / Non-Goals
 
-**Goals:** переносимый формат событий; локальная обработка; измеримая классификация и один digest на цикл; источники можно расширять без изменения скилла.
+**Goals:** одна точка регистрации; предсказуемый config path; bounded local storage; переносимый скилл; одно предложение анализа за семь суток и один согласованный пакет.
 
-**Non-Goals:** универсальный экспорт всех клиентов; доступ к скрытому reasoning; изменения бизнессценариев вместо triage; фоновый сбор, включённый этой постановкой; развёртывание #32 или выбор платного LLM.
+**Non-Goals:** экспорт/парсинг историй, скрытые reasoning traces, клиентские Codex/Claude adapters, cron/heartbeat/daemon, отдельный LLM-сервис, автоматическое выполнение обвязки, изменения бизнес-команд и merge исправлений. Это следующий этап, не критерий завершения MVP.
 
 ## Decisions
 
-1. **Отдельный адаптер и локальный анализатор, публичный CLI для gap report.** Адаптер выдаёт версионированный формат, анализатор не выполняет portal operations. Возможная структура реализации: `tools/agent-feedback/`, схемы и синтетические fixtures рядом; CLI intake добавляется через обычные Console command/runner с независимыми offline tests. Имена команд/флагов фиксируются в review контракта до кода. Альтернатива — скилл, зависящий от внутренних файлов Codex, — нарушает переносимость; помещение всей истории в b24cli делает CLI ответственным за чужой жизненный цикл.
+### 1. Регистрация при подтверждённой нехватке CLI
 
-2. **Первый адаптер — сохранённый `codex exec --json`, ручной импорт обязателен.** Анализатор читает выбранный поток, не запускает пользовательскую задачу повторно. Compatibility spike существующей истории проверяет app-server access, архив, compaction и полноту. Raw rollout parser допустим лишь как отдельный optional adapter с версиями/fixtures и отказом на неизвестной схеме. Если история недоступна, результат spike документируется, MVP использует JSONL/import. Альтернатива — считать plain transcript полной траекторией — теряет вызовы, результаты и порядок.
+Скилл сначала сверяет установленную версию и help. Несколько штатных команд и обычный разбор JSON не запускают регистрацию автоматически. Когда нужна собственная реализация отсутствующей функции, скилл останавливает этот путь, формирует безопасную карточку и вызывает `doctor:problem-trajectory`. Алгоритм описывает требуемые шаги словами; выполнять скрипт для доказательства не нужно.
 
-3. **Очистка до LLM, минимальная схема вместо копии чата.** Слой ingestion локально извлекает порядок событий и безопасные категории. Raw тексты находятся только в краткоживущем контексте обработки; не записываются в новые постоянные копии. Свободный текст удаляется, цель обобщается локально или из структурированного gap report; если безопасная цель не извлекается, фиксируется unknown. Версии, command/flag names, error categories, complete/outcomeUnknown и признаки wrapper сохраняются. Проверяется содержимое только явно разрешённых файлов. Маппинги псевдонимов локальные, не экспортируются. Альтернатива — отправить raw чат LLM для очистки — передаёт данные до обезличивания.
+Сценарии stale CLI, overlooked command и environment error при анализе классифицируются отдельно. После сохранения агент сообщает пользователю недостающую возможность и предлагает immediate issue либо следующий пакет. Если запись выключена/недоступна/хранилище заполнено, агент честно сообщает результат и сохраняет остановку неподдерживаемой операции; скрытого fallback через HTTP/SDK/MCP нет.
 
-4. **Доказательства и причины разделены.** Схема: schemaVersion, локальные trajectory/episode refs, source/adapter version, cli/skill versions, sanitizedGoal, coverage, steps, outcome; карточка: owner, category, expected/actual, syntheticReproduction, confirmations/eligibleTotal, workaroundCost, confidence, evidenceRefs, acceptanceCriteria, issueLinks. `steps` сохраняют только разрешённые технические метаданные, не raw argv. Локальные refs не содержат usernames/пути/thread URLs. LLM может группировать уже очищенные записи при opt-in; классификатор обязан ссылаться на события и сверенную публичную карту версии. Скрипт с JSON parsing не автоматически gap; ошибка/partial result не автоматически отсутствие команды.
+### 2. Один публичный command contract
 
-5. **Incremental ledger и явные состояния.** После успешной локальной обработки: imported → sanitized либо rejected/quarantined → analyzed → candidate → triaged → linked. При publication отдельно approved/pending/unknown/published, через #32 если доступен. Cursor обновляется после durable commit результата; overflow остаётся backlog. Дедуп по локальным source IDs и episode fingerprint, общий префикс форков считается один раз. Privacy quarantine имеет ограниченный retention; причина не содержит найденного текста. Политика хранения задаётся до пилота: рекомендуемые defaults — без новых raw копий, временные файлы удаляются в конце run, очищенные локальные отчёты 30 дней, durable issue links без персональных данных сохраняются до удаления пользователем.
+Основная команда `doctor:problem-trajectory` получает structured report через `--report-file PATH|-` с поддержкой stdin; `--action record` — default. Скилл может сформировать JSON для stdin обычным shell-вызовом; он не реализует на shell/Python хранение, поиск файлов, даты или HTTP.
 
-6. **Еженедельный opt-in цикл, 50 новых траекторий за пакет.** Один раз задаются source scope, расписание, cost/time limits, retention и actions. По умолчанию локальные черновики, один пакетный triage и уведомление только при значимом результате/ошибке. Локальный runner должен работать без GitHub/feedback-service, сохраняя ожидающие reconciliation записи. Автопубликация не включается автоматически; отдельная политика не может обходить consent/moderation #15/#32. Альтернатива — отдельное подтверждение после каждого чата — сохраняет исходную нагрузку на пользователя.
+Планируемые действия той же команды:
+| --action | Назначение |
+| --- | --- |
+| record | Проверка/локальное сохранение карточки; optional caller idempotency key для повторного вызова |
+| status | Read-only effective telemetry, счётчики и analysisDue; без credential reads, сети или создания файлов |
+| list | Read-only выдача карточек выбранного состояния/пакета в JSON; без доступа скилла к служебным путям |
+| configure | Изменение collectProblemTrajectories/maxProblemTrajectoryFiles из валидированного JSON через --settings-file PATH или stdin |
+| record-offer | Атомарная отметка показанного предложения анализа |
+| record-analysis | Сохранение группировки/решений по выбранным card IDs через --batch-file PATH или stdin и даты успешного разбора |
+| submit | Передача подтверждённого пакетного текста в фиксированный feedback endpoint через --batch-file и явный --confirm-publication |
+| reconcile | Проверка ранее принятого/неопределённого обращения по receipt/idempotency key |
 
-7. **Доказательство улучшения — синтетический eval и измеряемый пилот.** Создать размеченную смесь gap/non-gap, privacy/adversarial fixtures; анализировать 1/2/3/20/50 записей. Отдельно считать precision/false positives классификации, возможные утечки, количество действий пользователя и стоимость обработки. Один кандидат провести через согласованный issue/change и eval; runtime изменение относится к отдельному целевому change. Сравнение частоты обходов учитывает CLI/skill versions, покрытие источника и denominator, не приписывает эффект одному наблюдению.
+Одно действие на вызов; mutually exclusive file/stdin consumers, bounded input и обычные JSON/plain/error contracts. Все имена здесь — планируемый интерфейс, не доступные сегодня команды. Остальные команды не пишут карточки автоматически и не меняют stdout/exit codes ради telemetry.
+
+### 3. Карточки и хранение
+
+Caller payload: schemaVersion, sanitizedScenario, availableCommands, missingCapability, wrapperAlgorithm (массив описаний шагов), expectedOutcome, cliVersion, skillVersion (nullable если неизвестна). Тексты обезличивает скилл до вызова. CLI дополняет cardId/createdAt, собственную достоверную cliVersion и state; claimed version mismatch отражает явно. Caller idempotency key повторяет именно регистрацию эпизода, не объединяет все похожие сценарии в одну карточку.
+
+`<resolved-config-dir>/.problem-trajectories/<cardId>.json` содержит payload и processing metadata: state, batch/group reference, safe issue links, feedback receipt/idempotency key. Персональные ID, portal domains, local paths, raw argv/env/outputs, исходная переписка, credentials и исполняемый скрипт исключены. Unknown fields/oversize/schema mismatch и узнаваемые секреты отклоняются без сохранения/эхо входа; regex не считается гарантией полного обезличивания свободного текста. Перед передачей агент и пользователь проверяют подготовленный текст.
+
+Запись/изменение — atomic publish под согласованной блокировкой; namespace/card IDs проверяются, symlink/path traversal запрещены. Защита каталогов/файлов использует существующую FileProtection: Unix 0700/0600 и документированную защиту Windows. Это защищённое plaintext storage, не шифрование.
+
+Состояния: pending → analyzed → submission-pending → submitted, с submission-unknown при потерянном ответе. linked-existing и dismissed — явные конечные решения. submitted означает durable receipt сервиса, не созданное GitHub issue. Ошибка передачи не возвращает результат анализа к неизвестному и не даёт автоматически отправить новый POST.
+
+Лимит по умолчанию 100 охватывает все сохранённые card JSON files. Для новой записи первыми удаляются старейшие terminal cards (submitted с подтверждённым durable receipt, linked-existing или dismissed). Pending/analyzed/submission-pending/submission-unknown не удаляются автоматически. Если места нет, новая регистрация получает storage-full без повреждения старых данных. Снижение лимита ниже накопленного сохраняет незавершённые карточки и блокирует новые записи до освобождения места. Повреждённые card files учитываются в лимите, показываются как ошибки и не стираются автоматически.
+
+### 4. Telemetry в пользовательской конфигурации
+
+Корневой optional object, scope — весь resolved config directory, независимо от portal profile:
+```json
+{
+  "telemetry": {
+    "collectProblemTrajectories": true,
+    "maxProblemTrajectoryFiles": 100,
+    "lastProblemTrajectoryProcessingAt": null,
+    "lastProblemTrajectoryAnalysisOfferedAt": null
+  }
+}
+```
+
+Отсутствующие telemetry/поля дают эти effective defaults без записи при read-only операции. Boolean строгий; max — integer literal 1..PHP_INT_MAX; даты — null или UTC ISO 8601 timestamp (например 2026-10-13T00:00:00Z). Unknown keys и invalid objects/types дают configuration-error без mutation/API. JSON Schema annotations не записывают defaults; runtime реализует их явно.
+
+При первом успешном record без config CLI создаёт защищённый schema v1 config с version=1/defaultProfile=null/profiles={} и telemetry; credentials не нужны. Последующие локальные операции обновляют только telemetry под тем же config lock, не теряя изменения connection:add/use/remove. Help/version/list/status не создают config или storage. collectProblemTrajectories=false останавливает новые registrations; существующие карточки остаются доступны для явно выбранного анализа и передачи.
+
+### 5. Семь суток и пакетный разбор из скилла
+
+На запуске скилл вызывает status. analysisDue=true только при карточках, ожидающих нового анализа, и отсутствии обоих timestamps либо истечении семи суток с более позднего offered/processed timestamp. CLI считает время по UTC и возвращает готовый признак; скилл не вычисляет даты собственной обвязкой. Если карточек нет, предложения нет. Если скилл не запускают, фоновой работы нет.
+
+После показа предложения скилл вызывает record-offer. Отказ пользователя не меняет state карточек и processing timestamp; новое предложение возможно через семь суток. После согласия агент читает карточки через list, анализирует их в текущем сеансе и сохраняет результат record-analysis. Этот timestamp обновляется только после успешного durable сохранения решений по выбранному пакету, не при простом чтении/ошибке/отказе. Карточки, созданные во время разбора, не помечаются обработанными вместе с предыдущим пакетом.
+
+Обрабатывается snapshot выбранных card IDs, при необходимости порциями до 50. Один digest группирует повторения, проверяет installed CLI/help и existing issues при доступном публичном канале; при недоступном поиске статус dedup-unchecked указывается, автоматическая отправка блокируется до проверки. Карточка кандидата содержит goal, missing capability, expected/actual, synthetic reproduction, versions, cli/skill-docs/environment/unclear owner, count of reports и acceptance criteria. Частота выражается числом карточек, не процентом всех задач и не числом пользователей: успешные запуски в MVP не собираются.
+
+### 6. Согласованная передача через feedback endpoint
+
+После анализа пользователь видит публикационный текст пакета и одним решением выбирает обращения для отправки. Одно одобренное обращение соответствует одной группе, с отдельным idempotency key; несколько карточек одной проблемы не порождают несколько issues. Скилл использует публичное submit CLI, не curl/SDK/MCP для доставки. В CLI нет общего GitHub token; endpoint/repository/consent/moderation берутся из согласованного канала #15/#32, не из текста карточки.
+
+Клиентский handoff входит в этот MVP; deployment сервиса остаётся #32. Точный URL/HTTP schema определяется опубликованным endpoint-контрактом до включения отправки. До готовности канала сохраняются анализ/локальный пакет и честное endpoint-unavailable. При outage/timeout частичные результаты и receipts сохраняются отдельно по группе; submission-unknown проверяется через reconcile, не повторяется вслепую. Receipt/status secret если нужен хранится отдельно в защищённом локальном service state и не попадает в карточку, config telemetry, логи или issue.
 
 ## Risks / Trade-offs
 
-- [Недоступная/скомпактированная история] → completeness metadata, ограничение уверенности, JSONL/import fallback.
-- [Приватный смысл остаётся после regex] → allowlist, удаление raw текста, синтетические примеры, privacy gate; псевдонимизация не равна анонимности.
-- [Prompt injection в импортируемой истории] → траектория считается недоверенными данными, не инструкциями; анализатор не выполняет команды из неё и не получает права публикации.
-- [Скилл запрещает auto issue] → локальная запись через публичный CLI и отдельный согласованный triage; текущий скилл не меняется этой постановкой.
-- [Форк/retry завышает частоту] → episode ledger, единица счёта — эпизод/траектория, не пользователь; неизвестную независимость отражать явно.
-- [Слишком шумные/дорогие циклы] → новые данные только, max 50, budget, no-change silence; остаток не выбрасывается.
+- [Скилл не заметил gap] → MVP фиксирует только заявленные случаи; независимый анализ полной истории — следующий этап.
+- [Свободный текст содержит приватное] → минимальный payload, safe examples, bounded validation, отсутствие raw logs и просмотр пакета; не обещать абсолютную анонимность.
+- [Даты suppress prompt после отказа] → отдельные offered/processed timestamps, явные per-card states и проверяемые UTC rules.
+- [100 незавершённых файлов] → отказ новой записи с понятной причиной; никакого silent discard.
+- [Разные агенты меняют config/карточки одновременно] → общий config lock, atomic writes, snapshot IDs и idempotency/reconciliation tests.
+- [Feedback endpoint пока не готов] → offline запись/разбор полноценны; сквозная отправка считается проверенной только по test deployment #32.
+- [Уменьшенный объём не покрывает full trajectory metrics] → считать report occurrences; не заявлять статистику по всем чатам.
 
 ## Migration Plan
 
-После согласования контракта: offline схемы/fixtures → JSONL/import adapter и локальный sanitization → batch reports/checkpoint → переносимый CLI intake и скилл в его репозитории → opt-in pilot → уведомления и интеграция #32 при готовности. Основные stdout/exit codes CLI не изменять ради сбора. Откат: отключить расписание/intake, сохранить безопасные issue links по выбору пользователя, удалить производные данные; исходные чаты не менять. Change архивируется только после реализации и verify; planning-готовность не закрывает #96.
+Реализация после отдельного apply: telemetry schema/runtime/fixtures → record/storage → публичные status/lifecycle действия → правка переносимого скилла → клиентский feedback handoff → offline и live интеграционная проверка доступного endpoint. Откат локального сбора — collectProblemTrajectories=false; существующие карточки не удаляются. Сбор JSONL/app-server/rollouts и автономный scheduler не задачи MVP. Change остаётся planning, не архивируется до реализации/verify.

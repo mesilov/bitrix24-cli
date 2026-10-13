@@ -2,123 +2,129 @@
 
 ## Purpose
 
-Превращать наблюдаемые траектории работы агентов с b24cli в безопасные, проверяемые кандидаты улучшений CLI и скилла с минимальным регулярным участием пользователя.
+Регистрировать подтверждённые пробелы публичной поверхности b24cli в обезличенных локальных карточках и давать переносимому скиллу периодический пакетный разбор с согласованной передачей в feedback.
 
 ## ADDED Requirements
 
-### Requirement: Explicit collection scope
-Система SHALL собирать данные только из настроенных и разрешённых источников. Однократная настройка MUST задавать область сбора, хранение, бюджет и разрешённые действия. Отключение сбора и удаление производных данных SHALL быть доступны без удаления пользовательских чатов.
+### Requirement: Capability gap trigger
+Скилл SHALL сверять версию/help и регистрировать сценарий, когда для задачи требуется собственная реализация отсутствующей CLI-возможности. Несколько штатных вызовов и обычный JSON parsing MUST NOT сами по себе считаться gap. Неподдерживаемый путь SHALL останавливаться без REST/SDK/MCP обхода и без выполнения обвязки ради регистрации.
 
-#### Scenario: Unconfigured source
-- **WHEN** обнаружен чат вне разрешённой области
-- **THEN** его содержимое не читается и не импортируется
+#### Scenario: Normal multi-command workflow
+- **WHEN** задача решается несколькими публичными командами установленного CLI
+- **THEN** карточка не создаётся только из-за количества вызовов
+
+#### Scenario: Missing CLI capability
+- **WHEN** сверка help подтверждает нехватку операции/параметра
+- **THEN** скилл описывает сценарий и необходимый алгоритм словами, вызывает doctor:problem-trajectory и сообщает пользователю результат сохранения
+- **AND** immediate issue предлагается как возможность, а не обязательное действие после каждого случая
+
+### Requirement: Public problem registration command
+CLI SHALL предоставлять doctor:problem-trajectory с bounded structured JSON через file/stdin и обычными output/error contracts. Карточка MUST содержать sanitizedScenario, availableCommands, missingCapability, wrapperAlgorithm, expectedOutcome и версии. CLI SHALL назначать cardId/createdAt/state; регистрация MUST работать offline без portal credentials.
+
+#### Scenario: Register a valid report
+- **WHEN** включён сбор и передана корректная безопасная карточка
+- **THEN** команда сохраняет её локально и возвращает идентификатор/состояние, без portal/network requests
+
+#### Scenario: Invalid input and competing stdin consumers
+- **WHEN** вход имеет неизвестные поля, превышает лимит, содержит узнаваемые секреты либо одновременно потребляет stdin несколькими опциями
+- **THEN** регистрация отклоняется без сохранения/эхо приватного входа и без ожидания интерактивного ввода
+
+### Requirement: Protected configuration adjacent storage
+Карточки SHALL храниться отдельными JSON files в .problem-trajectories рядом с пользовательским config.json, по существующему config directory resolver. Atomic writes и защита доступа MUST исключать lost update, path traversal и symlink обход. Каталог проекта, cwd и executable directory MUST NOT выбираться как неявный fallback.
+
+#### Scenario: Explicit config directory
+- **WHEN** команда получает --config-dir с путём, содержащим пробелы/Unicode
+- **THEN** файлы находятся в .problem-trajectories этого resolved каталога с защищёнными правами и валидными card IDs
+
+#### Scenario: Unsafe storage or concurrent writes
+- **WHEN** доступ небезопасен, найден symlink либо несколько invocations одновременно пишут карточки
+- **THEN** unsafe storage отклоняется; допустимые concurrent writes не повреждают конфиг/файлы и не перезаписывают чужие карточки
+
+### Requirement: Collection toggle and bounded retention
+collectProblemTrajectories=false MUST выключать новые записи без удаления накопленных карточек. maxProblemTrajectoryFiles SHALL ограничивать число card files, default 100. Для освобождения места SHALL удаляться только старейшие terminal cards с подтверждённой передачей/связью или явным dismiss. Незавершённые и повреждённые карточки MUST NOT молча удаляться.
+
+#### Scenario: Full pending storage
+- **WHEN** все 100 файлов незавершённые и требуется новая запись
+- **THEN** возвращается storage-full, существующие карточки сохраняются и пользователь получает предложение разбора
+
+#### Scenario: Terminal cleanup and lowered limit
+- **WHEN** можно освободить terminal cards или установлен лимит ниже накопленного
+- **THEN** terminal cleanup соблюдает лимит; незавершённые сохраняются, новая запись без места отклоняется
 
 #### Scenario: Collection disabled
-- **WHEN** пользователь отключает сбор и удаляет производные данные
-- **THEN** новые записи не собираются, очередь/производные файлы удаляются, исходные чаты сохраняются
+- **WHEN** collectProblemTrajectories=false
+- **THEN** record сообщает collection-disabled без нового файла; явно выбранные чтение/разбор/отправка существующих карточек остаются доступны
 
-### Requirement: Observable portable trajectory
-Система SHALL поддерживать документированный поток событий хотя бы одной среды и переносимый ручной импорт. Нормализованная траектория MUST содержать безопасную цель, версии, упорядоченные действия, команды/флаги без значений, коды ошибок, полноту и итог. Отсутствующие данные SHALL обозначаться явно; скрытые рассуждения модели MUST NOT требоваться.
+### Requirement: Public telemetry and card lifecycle access
+Скилл SHALL получать effective telemetry, analysisDue, счётчики/карточки и изменять разрешённые настройки/processing state только через публичные действия doctor:problem-trajectory. Он MUST NOT самостоятельно обходить .problem-trajectories, редактировать config или вычислять due dates собственной Bash/Python-обвязкой. Status/list MUST оставаться read-only/offline.
 
-#### Scenario: Missing goal or script content
-- **WHEN** поток содержит command execution, но не содержит цели или содержимого вызванного скрипта
-- **THEN** эти поля помечаются отсутствующими, уверенность ограничивается и содержание не выдумывается
+#### Scenario: Read status without existing configuration
+- **WHEN** скилл вызывает status без config.json и credentials
+- **THEN** CLI возвращает effective defaults/нулевые счётчики без config/storage writes, credential access и сети
 
-#### Scenario: Existing history unavailable
-- **WHEN** адаптер не может получить доступную и полную историю чата
-- **THEN** он сообщает границу доступности и предлагает переносимый импорт/gap report без обхода ограничений
+#### Scenario: Configure or record processing
+- **WHEN** скилл передаёт валидированный settings/batch payload публичному действию
+- **THEN** CLI изменяет только разрешённые поля и выбранные карточки, сохраняя остальные профили и состояния
 
-### Requirement: Local data minimization
-До анализа и передачи система MUST локально создавать минимальную запись по разрешённой схеме. Credentials, персональные ID, контакты, домены, пути, приватный текст задач/чатов, вложения, raw argv/output/env MUST NOT попадать в нормализованный отчёт. Технические имена команд/флагов SHALL сохраняться; примеры SHALL быть синтетическими.
+### Requirement: Seven day offer at skill invocation
+При запуске скилл SHALL проверять CLI status и предлагать один разбор, только если есть карточки для нового анализа и прошли семь суток с более позднего offered/processed timestamp. При обоих null первый запуск с накоплением SHALL предлагать разбор. Отсутствие запусков MUST NOT запускать фоновые jobs; пустая очередь MUST NOT давать предложение.
 
-#### Scenario: Sensitive values in multiple sources
-- **WHEN** команда, ошибка, ответ портала и текст скрипта содержат секреты и персональные данные
-- **THEN** разрешённый отчёт содержит лишь безопасную структуру действия и коды, без исходных значений и текста
+#### Scenario: Declined offer
+- **WHEN** пользователь отказывается от показанного предложения
+- **THEN** offered timestamp фиксируется, processed timestamp/карточки не меняются и следующие запуски до семи суток не повторяют предложение
 
-#### Scenario: Stable relations without identities
-- **WHEN** для понимания эпизода нужна связь между двумя сущностями
-- **THEN** используются локальные псевдонимы, таблица соответствий не экспортируется и результат не называется гарантированно анонимным
+#### Scenario: No skill launch or no pending analysis
+- **WHEN** скилл не запускали либо новых карточек для анализа нет
+- **THEN** daemon/cron/heartbeat не запускаются и уведомление отсутствует
 
-### Requirement: Export privacy gate
-Система MUST проверять очищенный отчёт перед внешним LLM, публикацией и логированием. Сомнительная запись SHALL блокироваться, а не передаваться с предупреждением. Внешний анализ MUST требовать отдельного согласия; исходные чаты MUST NOT копироваться в постоянное хранилище процесса по умолчанию.
+### Requirement: Snapshot based processing state
+Разбор SHALL использовать snapshot выбранных card IDs и сохранять durable результат/решение для каждой. lastProblemTrajectoryProcessingAt MUST обновляться только после успешного сохранения разбора, отдельно от отправки. Новые карточки, появившиеся во время разбора, MUST NOT помечаться обработанными. Сбой/повтор SHALL сохранять отслеживаемые состояния.
 
-#### Scenario: Uncertain redaction
-- **WHEN** проверка выявляет неизвестное поле, секрет или приватный свободный текст
-- **THEN** экспорт блокируется, статус указывает безопасную причину без повторения найденного значения
+#### Scenario: New report during analysis
+- **WHEN** во время разбора snapshot появляется новая карточка
+- **THEN** она остаётся ожидающей следующего анализа; завершение текущего snapshot обновляет processing timestamp
 
-#### Scenario: External provider disabled
-- **WHEN** согласие на внешний LLM отсутствует
-- **THEN** локальный анализ/подготовка продолжается без передачи данных провайдеру
+#### Scenario: Analysis failed or submission unavailable
+- **WHEN** разбор не завершён либо после успешного разбора endpoint недоступен
+- **THEN** сбой разбора не обновляет processed timestamp, а сбой отправки не отменяет сохранённый анализ и не объявляет передачу успешной
 
-### Requirement: Batch accounting and deduplication
-Система SHALL поддерживать пакеты 1, 2, 3, 20 и 50 траекторий и отражать число уникальных эпизодов, неполных/исключённых записей и знаменатель частоты. Повторный импорт, retry и общий префикс форков MUST NOT увеличивать число независимых подтверждений.
+### Requirement: Grouped and evidence limited candidates
+Агент SHALL группировать похожие карточки, проверять версию/help и existing issues, различать CLI, skill/docs, environment и unclear. Кандидат MUST содержать expected/actual, synthetic reproduction, версии, число карточек и acceptance criteria. Синтетические шаги SHALL отличаться от наблюдений; карточки MUST NOT выдавать процент всех запусков или число пользователей.
 
-#### Scenario: Reimport and shared fork prefix
-- **WHEN** пакет содержит повторный импорт, retry и форк с общим эпизодом
-- **THEN** повторный эпизод учитывается один раз, новые отличающиеся эпизоды сохраняются
+#### Scenario: Repeated reports and existing command
+- **WHEN** несколько карточек описывают один gap либо команда уже доступна
+- **THEN** готовится одна группа; существующая возможность/старая версия/ошибка скилла учитываются, а не выдаются за новую CLI-функцию
 
-#### Scenario: Single observation
-- **WHEN** сценарий найден в одной траектории
-- **THEN** отчёт показывает одно подтверждение и статус гипотезы без заявления о массовости
+#### Scenario: Single report or unavailable issue search
+- **WHEN** есть одно наблюдение либо поиск existing issues недоступен
+- **THEN** уверенность/проверка дубликатов отражаются явно; неподтверждённая дедупликация не допускает автоматической отправки
 
-### Requirement: Evidence based ownership classification
-Система SHALL различать отсутствие CLI-возможности, недоступность в версии, ошибку skill/docs, допустимый запуск/JSON parsing, внешнюю композицию, запрещённый обход и проблемы среды/доступа. Классификация MUST проверяться по версии/help, ошибкам и полноте результата; при недостатке данных SHALL использоваться `unclear`.
+### Requirement: Sanitized reviewable publication text
+Скилл MUST обезличивать карточку до record и подготовленный пакет до передачи. Payload MUST исключать credentials, персональные ID/контакты/домены/пути, raw argv/env/output, переписку и исполняемые скрипты. CLI SHALL проверять schema/размеры/узнаваемые секреты без эхо приватного входа. Перед submit пользователь SHALL видеть согласуемый публикационный текст.
 
-#### Scenario: Existing command overlooked
-- **WHEN** агент пишет обвязку для операции, которую поддерживает установленный CLI
-- **THEN** карточка относится к skill/docs или ошибке агента, а не автоматически к новой функции CLI
+#### Scenario: Sensitive text found
+- **WHEN** проверка выявила приватные данные во входе/пакете либо пакет не прошёл обязательные проверки
+- **THEN** запись/передача отклоняется или требует очистки; сырые данные не попадают в файл, логи, endpoint или issue
+- **AND** механическая проверка не объявляется гарантией анонимности любого свободного текста
 
-#### Scenario: Access failure or incomplete result
-- **WHEN** наблюдается ошибка credentials/прав или неполный обход данных
-- **THEN** причина фиксируется отдельно и не считается доказательством отсутствия команды
+### Requirement: Consent based feedback batch handoff
+CLI SHALL передавать выбранные согласованные группы в фиксированный feedback endpoint через публичное submit с явным подтверждением. Одна группа SHALL создавать одно обращение с idempotency key; GitHub publication сохраняет consent/moderation #15/#32. Record и weekly offer MUST NOT сами отправлять данные. Скилл MUST NOT делать HTTP обход CLI.
 
-### Requirement: Reviewable scenario cards
-Каждый кандидат SHALL содержать безопасную цель, ожидаемое/фактическое поведение, синтетическое воспроизведение, версии, владельца, частоту/знаменатель, стоимость обхода, уверенность, безопасные evidence references и acceptance criteria. Синтетические иллюстрации MUST отличаться от фактически наблюдённых эпизодов.
+#### Scenario: Approved batch
+- **WHEN** пользователь проверил текст и разрешил отправку выбранных групп
+- **THEN** CLI отправляет обращения, сохраняет результат отдельно по группе и не публикует без серверной moderation
 
-#### Scenario: Candidate prepared
-- **WHEN** анализ находит проблемный сценарий
-- **THEN** карточка включает все обязательные поля либо явно помечает неизвестные значения и не придумывает доказательства
+#### Scenario: No consent or endpoint
+- **WHEN** согласия нет либо рабочий endpoint ещё не настроен/доступен
+- **THEN** сеть/публикация без согласия отсутствуют; локальные анализ/карточки сохраняются и отсутствие передачи объясняется
 
-### Requirement: Existing issue reconciliation
-Перед подготовкой нового issue система SHALL искать совпадения в репозиториях CLI и скилла и учитывать исправленные версии. Повторный анализ MUST обновлять карточку/ссылку, не создавать дубликат. Неопределённый результат разрешённой публикации SHALL проверяться до повтора.
+### Requirement: Receipt and unknown outcome reconciliation
+Local state MUST различать анализ, принятие обращения endpoint и создание issue. Durable receipt/idempotency key SHALL предотвращать повторы; потерянный ответ MUST давать submission-unknown до reconciliation. Private receipt access secrets MUST храниться отдельно с защитой и не попадать в карточки/telemetry/logs/issues.
 
-#### Scenario: Existing issue or released fix
-- **WHEN** сценарий уже описан в issue либо исправлен в более новой версии
-- **THEN** карточка связывается с ним, а новый issue не предлагается без отдельного нового объёма
+#### Scenario: Lost response and partial batch
+- **WHEN** endpoint принял часть пакета, а для другой группы ответ потерян
+- **THEN** известные receipts сохраняются, unknown не повторяется слепо, reconcile устанавливает прежнее обращение или оставляет неизвестность
 
-#### Scenario: Publication response lost
-- **WHEN** разрешённая публикация могла завершиться, но ответ потерян
-- **THEN** состояние остаётся неопределённым до reconciliation и повторный POST автоматически не выполняется
-
-### Requirement: Incremental periodic processing
-Процесс SHALL иметь настраиваемое расписание, предел пакета и бюджета, cursor/checkpoint и восстановление после сбоя. По умолчанию предлагается еженедельная обработка до 50 новых завершённых траекторий. Backlog SHALL оставаться в очереди; без значимых изменений уведомление MUST NOT отправляться.
-
-#### Scenario: Backlog and restart
-- **WHEN** доступно больше 50 новых траекторий и процесс перезапускается
-- **THEN** сохранённый checkpoint предотвращает потерю/повторный учёт, остаток обрабатывается в следующих ограниченных пакетах
-
-#### Scenario: No actionable change
-- **WHEN** новых пригодных данных и значимых изменений нет
-- **THEN** не создаётся новый digest/уведомление; сбой сбора или очистки учитывается как значимое событие
-
-### Requirement: Batched triage and portable skill integration
-Скилл SHALL сохранять безопасный локальный gap report через публичный контракт CLI, останавливая неподдерживаемую операцию без обхода REST/SDK/MCP. Процесс SHALL собирать кандидатов для одного пакетного triage. Публичная публикация MUST быть выключена по умолчанию и соблюдать consent/moderation канала user-feedback.
-
-#### Scenario: Unsupported operation
-- **WHEN** скилл подтверждает отсутствие нужной CLI-возможности
-- **THEN** он сообщает границу, сохраняет локальный кандидат при настроенном контракте и не требует ручного issue для каждого чата
-
-#### Scenario: No publication policy
-- **WHEN** пакет проанализирован без отдельно согласованной политики публикации
-- **THEN** доступны локальные черновики и пакетное решение, публичные issues не создаются
-
-### Requirement: Measured improvement loop
-Для согласованного сценария процесс SHALL отслеживать issue/OpenSpec, проверку изменения и синтетический regression/eval. Отчёт MUST различать план, реализацию, merge, release и проверку пользователя; измерять действия пользователя, время/стоимость анализа, ошибочные кандидаты и частоту обходов в сопоставимых пакетах.
-
-#### Scenario: Closed issue without release
-- **WHEN** issue закрыт, но релиз и eval не подтверждены
-- **THEN** процесс не объявляет сценарий исправленным в доступной пользователю версии
-
-#### Scenario: One complete pilot scenario
-- **WHEN** подтверждённый кандидат доведён до изменения CLI или скилла
-- **THEN** синтетический eval проверяет сценарий, а следующий сопоставимый пакет показывает измерения без заявления причинности по одному наблюдению
+#### Scenario: Receipt without issue
+- **WHEN** сервис подтвердил durable receipt, но issue ещё не создано
+- **THEN** результат показывает принятое обращение, а не утверждает GitHub publication или выпуск исправления

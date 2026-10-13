@@ -1,43 +1,43 @@
 # Tasks
 
-Только planning: создание этих документов не выполняет перечисленные implementation tasks.
+Только planning: согласованный MVP. Реальные чаты не собираются; checklist не выполнен созданием этих документов.
 
-## 1. Контракт и источники
+## 1. Контракты команды и конфигурации
 
-- [ ] 1.1 Зафиксировать версии схем trajectory/gap-report/card и публичный CLI intake: разрешённые поля, unknown/completeness, ограничения размеров; проверить JSON Schema на valid/invalid синтетических примерах и согласовать названия команд/флагов до кода.
-- [ ] 1.2 Реализовать адаптер сохранённого Codex exec JSONL и переносимый импорт; проверить порядок command/item events, отсутствие goal/script content, неизвестные версии и повреждённые записи; документировать пример импорта без credentials портала.
-- [ ] 1.3 Выполнить compatibility spike существующей Codex истории через документированный read API: проверить доступность desktop records, архив/compaction и completeness на разрешённых тестовых чатах; сохранить таблицу возможностей/ограничений и доказанный fallback без возобновления чатов.
-- [ ] 1.4 Добавить source allowlist/opt-in, отключение и удаление производных данных; проверить отказ читать чужие каталоги/чаты и сохранность исходников; описать однократную настройку источников.
+- [ ] 1.1 Зафиксировать doctor:problem-trajectory actions/flags и bounded схемы report/settings/batch/result; проверить valid/invalid примеры, stdin/file exclusivity и documented JSON envelope; описать help/публичные возможности до изменения скилла.
+- [ ] 1.2 Добавить root telemetry в ProfileRepository/runtime и docs/config.schema.json с defaults true/100/null/null; проверить общие configuration fixtures: omitted object/поля, false, integer/timestamps/unknown keys и schema-runtime agreement; обновить docs/configuration.md, не изменяя REST fields и profile defaults.
 
-## 2. Локальная минимизация и приватность
+## 2. Локальная регистрация и хранение
 
-- [ ] 2.1 Реализовать нормализацию только разрешённых полей и синтетические примеры; проверить fixtures с webhook/token, ФИО, ID, доменами, путями, текстом задач/чатов и скриптами, включая секреты в ошибках/output.
-- [ ] 2.2 Добавить privacy gate и ограниченную quarantine без секретов в причинах/логах; проверить неизвестные поля, приватный свободный текст и adversarial instructions: нет экспорта, исполнения и публикации.
-- [ ] 2.3 Реализовать retention/cleanup без новых постоянных raw копий, локальные псевдонимы и optional external-analysis consent; проверить удаление временных файлов, запрет передачи маппинга и отсутствие сетевых вызовов без согласия; документировать отличие псевдонимизации от анонимности.
+- [ ] 2.1 Реализовать offline record через --report-file/stdin, server-assigned cardId/createdAt/state и registration idempotency; проверить privacy/size/schema errors без эхо входа, duplicate call и отсутствие portal/feedback requests; документировать безопасную карточку с алгоритмом словами.
+- [ ] 2.2 Реализовать .problem-trajectories по config resolver, atomic writes/защиту файлов и config initialization без credentials; проверить --config-dir/env/OS paths, spaces/Unicode, symlinks/path traversal, read-only storage и concurrent config/profile writes.
+- [ ] 2.3 Реализовать collect=false и file limit 100 с terminal-only cleanup; проверить 100 pending/storage-full, corrupt card, lowered limit и сохранность pending/analyzed/unknown; описать отключение и освобождение места без silent discard.
 
-## 3. Анализ, учёт и карточки
+## 3. Публичный доступ и состояние разбора
 
-- [ ] 3.1 Реализовать episode ledger и дедуп импортов/retry/fork prefix; проверить счётчики на пакетах 1/2/3/20/50, частично повреждённых/неполных записях и синтетических форках; документировать denominator и единицу независимого подтверждения.
-- [ ] 3.2 Реализовать сверку с версией/help и классификацию gap/non-gap/unclear; проверить размеченную выборку CLI gap, stale binary, overlooked command, JSON parsing, внешней композиции, доступа и partial result; опубликовать confusion matrix/false positives без приватных данных.
-- [ ] 3.3 Реализовать группировку и карточки с владельцем, evidence refs, synthetic reproduction и acceptance criteria; проверить обязательные поля и отсутствие выдуманных доказательств, one-observation hypothesis; документировать формат безопасного digest.
-- [ ] 3.4 Добавить поиск/связывание существующих CLI/skill issues и учёт исправленных версий; проверить через offline fake GitHub повторный анализ, issue duplicate и released fix; при outage сохранять локальные кандидаты.
+- [ ] 3.1 Реализовать status/list/configure actions, effective telemetry и analysisDue на UTC clock; проверить defaults без writes, настройку false/max, границу семи суток, null timestamps и обычные stdout/exit codes; описать интерфейс, позволяющий скиллу не читать служебные файлы.
+- [ ] 3.2 Реализовать record-offer/record-analysis по snapshot card IDs с atomic dates/states; проверить decline, failure, новые карточки во время разбора, повтор вызова и отсутствие потери concurrent updates; документировать независимость анализа и отправки.
 
-## 4. Публичная интеграция и регулярный запуск
+## 4. Переносимый скилл
 
-- [ ] 4.1 Добавить публичный CLI intake для структурированного локального gap report без доступа к истории клиента; проверить headless/offline, invalid schema, privacy gate и неизменность stdout/exit codes основных команд; описать help/README.
-- [ ] 4.2 Подготовить согласованное изменение bitrix24-cli-skill в его репозитории: локальный кандидат через CLI вместо просьбы оформлять каждый issue, остановка unsupported operation и отсутствие обходов; проверить сценарии доступного/отсутствующего intake и переносимость на разные agent shells, обновить references с точной CLI-версией.
-- [ ] 4.3 Реализовать opt-in scheduler/runner с настраиваемым еженедельным default, max 50, time/cost budget и durable checkpoint; проверить restart, backlog >50, пустой цикл и budget exceeded без потери необработанных записей; документировать запуск/остановку/recovery.
-- [ ] 4.4 Реализовать один пакетный triage/digest и уведомления только при значимом результате или ошибке; проверить повторный run и no-change silence, измерить действия пользователя на синтетическом цикле; описать однократную настройку и пакетное решение.
-- [ ] 4.5 Подготовить handoff очищенного кандидата в #15/#32 с выключенной по умолчанию публикацией и соблюдением consent/moderation; проверить approved/rejected/duplicate/unknown API outcome через fake service; документировать локальный fallback без готового deployment.
+- [ ] 4.1 Обновить bitrix24-cli-skill в его репозитории: version/help check → confirmed gap → sanitized report → CLI record → объяснение/immediate issue как опция; проверить сценарии normal multi-call/JSON parsing, missing command, collect=false/full и старого CLI без doctor; обновить command references без Bash/Python bypass.
+- [ ] 4.2 Добавить startup status и weekly предложение одного разбора с record-offer/record-analysis; проверить decline/suppression до семи суток, empty queue, отсутствие background job и минимальный пакетный UX на поддерживаемых agent shells.
+- [ ] 4.3 Добавить чтение/группировку карточек, сверку версии/дубликатов и подготовку кандидатов; проверить размеченные синтетические пакеты 1/2/3/20/50, one-report hypothesis и dedup-unchecked; документировать report counts без статистики всех запусков/пользователей.
 
-## 5. Сквозная проверка и пилот
+## 5. Клиентский feedback handoff
 
-- [ ] 5.1 Прогнать полную offline цепочку на синтетических пакетах 1/2/3/20/50 с повтором и restart; подтвердить privacy gates, корректность счётчиков, trace refs и один digest; сохранить versioned evidence, время/стоимость анализа и пользовательские действия.
-- [ ] 5.2 После настройки источников провести ограниченный opt-in pilot; сохранить только безопасные агрегаты, оценить ошибочные кандидаты и целевой предел одного пакетного решения за цикл; не выдавать синтетические fixtures за реальные наблюдения.
-- [ ] 5.3 Для одного подтверждённого сценария согласовать/связать целевой issue и OpenSpec change, провести его обычный review и синтетический regression/eval; показать результат следующего сопоставимого пакета с версиями/denominator, отдельно указать merge/release evidence.
-- [ ] 5.4 Выполнить openspec-verify-change, `openspec validate analyze-agent-trajectories --strict` и проверку двусторонних ссылок #96 ↔ proposal, согласованного скилла и критериев пилота; зафиксировать оставшиеся ограничения до решения о завершении.
+- [ ] 5.1 Реализовать публичное submit подтверждённого пакета через согласованный HTTP-контракт #15/#32; проверить fake endpoint, fixed target, отсутствие сети без --confirm-publication, одна group → один idempotency key и privacy checks; документировать preview/consent.
+- [ ] 5.2 Реализовать durable per-group receipt/state и reconcile submission-unknown; проверить partial batch, restart, lost response и отсутствие повторного обращения; хранить приватные status secrets отдельно и проверить отсутствие их в отчёте/логах/issue.
+- [ ] 5.3 Реализовать endpoint-unavailable fallback без прямых HTTP/SDK/MCP из скилла; проверить, что локальные record/analysis работают самостоятельно, pending submission не теряется и анализ не выдаётся за передачу; описать зависимость внешнего запуска от #32.
+
+## 6. Сквозная приёмка MVP
+
+- [ ] 6.1 Прогнать offline end-to-end record → weekly offer → grouped analysis → consent → fake submit/reconcile на пакетах 1/2/3/20/50 и лимите 100; сохранить evidence для privacy, дат, счётчиков и числа пользовательских решений.
+- [ ] 6.2 После доступности test deployment #32 отдельно проверить receipt → moderation → issue link через реальный endpoint, не подменяя live handoff fake tests; сохранить ссылки/статусы и обозначить недоступный внешний этап, если сервис ещё не запущен.
+- [ ] 6.3 Выполнить openspec-verify-change, strict validation, проверки #96 ↔ proposal и CLI/skill/config contracts; подтвердить отсутствие требований/кода full-history collector или scheduler в MVP.
 
 ## Workflow follow-up
 
-- После фактической реализации/verify и подтверждённой поставки архивировать change через openspec-archive-change, синхронизировать spec и обновить путь в #96.
-- Сохранить архив в dev через обычный review; затем проверить и удалить только worktree этой задачи по правилам maintainer. Planning branch не означает merge, реализацию или запуск процесса.
+- После фактической реализации/verify и поставки архивировать change, синхронизировать agent-trajectory-feedback/connection-configuration и обновить путь в #96.
+- Сохранить архив через review в dev, затем удалить только worktree задачи по правилам maintainer.
+- Сбор полных чатовых историй/JSONL/app-server/rollouts, независимые adapters, автономный scheduler и автоматическое исправление оформить отдельным change следующего этапа; эти работы не блокируют завершение MVP.
