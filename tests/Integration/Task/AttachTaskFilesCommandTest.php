@@ -51,7 +51,7 @@ final class AttachTaskFilesCommandTest extends LiveTaskCommandTestCase
         $taskId = $this->createTask();
         $bytes = str_repeat('x', \Bitrix24\CLI\Infrastructure\Filesystem\LocalFileSource::DIRECT_ENCODING_BYTES) . "\0\xff";
         $this->withLocalFile($bytes, function (string $path) use ($folderId, $taskId, $bytes): void {
-            $result = $this->invoke(['task:file:attach', $taskId, '--file', $path, '--folder-id', $folderId]);
+            $result = $this->invoke(['task:file:attach', $taskId, '--file', $path, '--folder-id', $folderId, '--timeout', '120']);
             $id = $result['data']['items'][0]['resourceId'];
             $file = $this->api->call('disk.file.get', 1, ['id' => $id])->result;
             self::assertSame(strlen($bytes), (int) $file['SIZE']);

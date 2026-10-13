@@ -91,3 +91,15 @@ Portal receipt after dev synchronization:
 Native CI receipt: Head `d57738c46edbfca79cb26a1e64d78d1101cbc589`: **17/17 SUCCESS**. [Native package workflow](https://github.com/mesilov/bitrix24-cli/actions/runs/38391213068) passed Linux amd64, macOS arm64, Windows amd64 and final archive set. Each platform logs two passing smoke receipts (original/compressed) with exact `dev-d57738c...` version and local-upload-dry-run/local-upload-strict-policy/local-upload-config-limit. This is native CI artifact acceptance; no merge/release/publication proof.
 
 Findings: O1 warning (restricted-role matrix) remains as above. No critical implementation/requirement mismatch found; restricted-role and independent membership/live 500 MB checks are explicitly bounded evidence rather than passing claims. Archive/worktree cleanup remains a follow-up after implementation merge and issue closure.
+
+## Final dev synchronization receipt — 13.10.2026
+
+Merged origin/dev `fdb9148` (users namespace + role-filter archive) into source `43d8ff60140fa4b28bcd17efedf89e38dc42c45a`. Resolved changelog by retaining both features; adapted owned upload tracking to LiveCommandTestCase.afterInvoke while keeping owned folder/file cleanup. The policy delta retains role/users/observer admissions from dev and adds only the scoped local Disk route. Current change: 13 requirements, **44 scenarios**, 16/16 tasks; 34 task commands preserved alongside the new users commands.
+
+- `make unit`: **585 tests, 4301 assertions**, passed; `make lint-all`, strict OpenSpec/diff checks passed.
+- Configuration schema: **125 fixtures, 2 profile JSON examples, 6 documented runtime differences**, passed with jsonschema 4.25.1. Runtime maxUploadBytes remains separate from the profile schema.
+- PHAR `dev-43d8ff...` and copied-artifact smoke passed, including local-upload-config-limit and the 34-task catalogue.
+- Full 500000000-byte source via production SDK/Symfony MockHttpClient: **666666759 wire bytes**, SHA256 match, PHP limit128M, **14680064-byte peak (14 MiB)** with the expanded bootstrap, exactly 2 calls. Earlier 12 MiB proof applies to the prior bootstrap.
+- First portal rerun after merge: **7 cases/79 assertions, 2 failures, 1 skip**, both failures in the streamed fixture (transport-error/outcomeUnknown and missing happy-path confirmation). Its owned task6098/folder1632 were cleaned; no confirmed Disk ID/attach, no automatic retry. This failure receipt is retained.
+- Separate rerun with a fresh fixture and explicit stream-test timeout120: **7 cases/86 assertions, 6 passed + 1 restricted-role skip**; full10485762-byte SIZE/PARENT_ID/NAME readback and attach ACK succeeded. Other cases passed; all owned cleanupFailures arrays empty. CLI default timeout remains unchanged.
+- Native receipt for d57738c above is historical evidence before this dev merge. Required CI on the final merged PR head is checked separately before reporting readiness; this receipt does not replace it. No merge/release or live500MB claim.
