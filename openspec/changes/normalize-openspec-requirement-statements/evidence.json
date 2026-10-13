@@ -1,0 +1,84 @@
+{
+  "baseline": "f21e0632c9fab5933b632bd649a214d5b7df49f6",
+  "capabilities": [
+    {
+      "name": "cli-experience",
+      "oldRequirementsPreserved": 16,
+      "oldScenariosPreserved": 80,
+      "addedRequirements": 3
+    },
+    {
+      "name": "task-console-runtime",
+      "oldRequirementsPreserved": 21,
+      "oldScenariosPreserved": 71,
+      "addedRequirements": 3
+    },
+    {
+      "name": "task-mvp-scope",
+      "oldRequirementsPreserved": 7,
+      "oldScenariosPreserved": 21,
+      "addedRequirements": 3
+    },
+    {
+      "name": "connection-configuration",
+      "oldRequirementsPreserved": 23,
+      "oldScenariosPreserved": 63,
+      "addedRequirements": 2
+    }
+  ],
+  "statements": [
+    {
+      "capability": "cli-experience",
+      "name": "Explicit file and structured input",
+      "before": 514,
+      "after": 213
+    },
+    {
+      "capability": "task-console-runtime",
+      "name": "Exact MVP command registration",
+      "before": 566,
+      "after": 410
+    },
+    {
+      "capability": "task-console-runtime",
+      "name": "Policy covers the complete route plan",
+      "before": 613,
+      "after": 292
+    },
+    {
+      "capability": "task-mvp-scope",
+      "name": "API admission and future lifecycle acceptance remain explicit",
+      "before": 734,
+      "after": 359
+    },
+    {
+      "capability": "connection-configuration",
+      "name": "Published configuration schema",
+      "before": 521,
+      "after": 216
+    }
+  ],
+  "totalOldScenariosPreserved": 235,
+  "totalAddedRequirements": 11,
+  "openspecVersion": "1.14.1",
+  "verifiedAt": "2026-10-14",
+  "timezone": "Asia/Bishkek",
+  "issue": "https://github.com/mesilov/bitrix24-cli/issues/114",
+  "mainStrict": {
+    "baseline": {
+      "passed": 12,
+      "failed": 4,
+      "lengthWarnings": 5
+    },
+    "after": {
+      "passed": 16,
+      "failed": 0,
+      "warnings": 0
+    }
+  },
+  "changeStrict": "pass",
+  "diffCheck": "pass",
+  "totalOldRequirementsPreserved": 67,
+  "runtimeChanged": false,
+  "historicalArchivesChanged": false
+}
