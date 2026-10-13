@@ -76,8 +76,8 @@ final class UsageDiagnosticsTest extends TestCase
             self::assertSame($direct->stdout, $explicit->stdout, $name);
             self::assertStringContainsString('Назначение:', $direct->stdout);
             self::assertStringContainsString('b24cli ' . $name, $direct->stdout);
-            self::assertLessThan(strpos($direct->stdout, 'Options:'), strpos($direct->stdout, 'Примеры:'));
-            self::assertLessThan(strpos($direct->stdout, 'Advanced input'), strpos($direct->stdout, 'Options:'));
+            self::assertLessThan(strpos($direct->stdout, 'Опции:'), strpos($direct->stdout, 'Примеры:'));
+            self::assertLessThan(strpos($direct->stdout, 'Пояснения и ограничения:'), strpos($direct->stdout, 'Опции:'));
         }
 
         foreach ([['help', 'task:show', '--format=json'], ['help', 'task:update', '--format=xml'], ['--version'], ['list', 'task'], ['help', 'task:find']] as $argv) {

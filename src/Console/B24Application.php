@@ -31,25 +31,41 @@ final class B24Application extends Application
 
     protected function getDefaultCommands(): array
     {
-        return array_map(static fn (Command $command): Command => $command instanceof \Symfony\Component\Console\Command\HelpCommand ? new TaskHelpCommand() : $command, parent::getDefaultCommands());
+        return array_map(static fn (Command $command): Command => BuiltinHelpMetadata::localize(match (true) {
+            $command instanceof \Symfony\Component\Console\Command\HelpCommand => new TaskHelpCommand(),
+            $command instanceof \Symfony\Component\Console\Command\ListCommand => new RussianListCommand(),
+            default => $command,
+        }), parent::getDefaultCommands());
     }
 
     protected function getDefaultInputDefinition(): InputDefinition
     {
         $definition = parent::getDefaultInputDefinition();
         $options = $definition->getOptions();
-        $options['help'] = new InputOption('help', 'h', InputOption::VALUE_NONE, 'Справка команды; без имени команды — обзор b24cli.');
+        $descriptions = [
+            'help' => 'Справка команды; без имени команды — обзор b24cli.',
+            'silent' => 'Не выводить сообщения.',
+            'quiet' => 'Выводить только ошибки.',
+            'verbose' => 'Подробность сообщений: 1 — обычная, 2 — подробная, 3 — отладка.',
+            'version' => 'Показать версию приложения.',
+            'ansi' => 'Включить ANSI-оформление (или отключить через --no-ansi).',
+            'no-interaction' => 'Не задавать интерактивных вопросов.',
+        ];
+        foreach ($options as $name => $option) {
+            $options[$name] = BuiltinHelpMetadata::option($option, $descriptions[$name]);
+        }
+
         $definition->setOptions($options);
         $definition->addOptions([
             new InputOption('about', null, InputOption::VALUE_NONE, 'Сведения о приложении: назначение, версия, автор, лицензия и ссылки.'),
-            new InputOption('json', null, InputOption::VALUE_NONE, 'One JSON envelope on stdout.'),
-            new InputOption('plain', null, InputOption::VALUE_NONE, 'TSV without headers or decoration.'),
-            new InputOption('profile', null, InputOption::VALUE_REQUIRED, 'Saved connection profile; overrides ambient credentials.'),
-            new InputOption('env-file', null, InputOption::VALUE_REQUIRED, 'Explicit credential dotenv; conflicts with --profile.'),
-            new InputOption('config-dir', null, InputOption::VALUE_REQUIRED, 'User configuration directory.'),
-            new InputOption('config', null, InputOption::VALUE_REQUIRED, 'Non-secret JSON runtime config.'),
-            new InputOption('timeout', null, InputOption::VALUE_REQUIRED, 'HTTP timeout in seconds (default 30, maximum 300).'),
-            new InputOption('api-policy', null, InputOption::VALUE_REQUIRED, 'task-v3 (default) or strict-rest3.'),
+            new InputOption('json', null, InputOption::VALUE_NONE, 'Единая структура JSON в stdout.'),
+            new InputOption('plain', null, InputOption::VALUE_NONE, 'TSV без заголовков и оформления.'),
+            new InputOption('profile', null, InputOption::VALUE_REQUIRED, 'Сохранённый профиль подключения; имеет приоритет над учётными данными окружения.'),
+            new InputOption('env-file', null, InputOption::VALUE_REQUIRED, 'Явный dotenv-файл учётных данных; несовместим с --profile.'),
+            new InputOption('config-dir', null, InputOption::VALUE_REQUIRED, 'Каталог пользовательской конфигурации.'),
+            new InputOption('config', null, InputOption::VALUE_REQUIRED, 'JSON-конфигурация выполнения без секретов.'),
+            new InputOption('timeout', null, InputOption::VALUE_REQUIRED, 'Таймаут HTTP в секундах (по умолчанию 30, максимум 300).'),
+            new InputOption('api-policy', null, InputOption::VALUE_REQUIRED, 'Политика API: task-v3 (по умолчанию) или strict-rest3.'),
         ]);
         return $definition;
     }

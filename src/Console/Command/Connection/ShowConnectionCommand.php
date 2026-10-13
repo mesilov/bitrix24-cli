@@ -22,8 +22,8 @@ final class ShowConnectionCommand extends Command
 
     protected function configure(): void
     {
-        $this->addArgument('NAME', InputArgument::OPTIONAL, 'Alias профиля: work, pet, clientA, clientB.');
-        $this->setHelp('Без NAME показывает фактический источник по общим selectors. NAME показывает non-secret metadata сохранённого профиля.');
+        $this->addArgument('NAME', InputArgument::OPTIONAL, 'Имя профиля: work, pet, clientA, clientB.');
+        $this->setHelp('Без NAME показывает фактический источник по общим параметрам выбора подключения. NAME показывает несекретные метаданные сохранённого профиля.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

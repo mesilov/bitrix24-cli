@@ -25,7 +25,7 @@ final class ShowTaskTimeCommand extends Command
     protected function configure(): void
     {
         $this->addArgument('TASK_ID', InputArgument::REQUIRED, 'ID задачи.');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: field, value. REST 3.0.  elapsedTime — связанный контекст API; сумма seconds и полнота записей не подразумеваются. Записи: task:time:list. Пример: b24cli task:time:show 123');
+        $this->setHelp('JSON: структура data/meta/error; столбцы TSV при --plain: field, value. REST 3.0.  elapsedTime — связанный контекст API; сумма seconds и полнота записей не подразумеваются. Записи: task:time:list. Пример: b24cli task:time:show 123');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

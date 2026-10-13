@@ -27,7 +27,7 @@ final class ListTaskChecklistItemsCommand extends Command
     {
         $this->addArgument('TASK_ID', InputArgument::REQUIRED, 'ID задачи.');
         $this->addOption('checklist', null, InputOption::VALUE_REQUIRED, 'ID корневого чек-листа выбранной задачи.');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: id, parentId, title, isComplete. REST 1.0 companion route; strict-rest3 отклоняет вызов до подключения.  --checklist — CHECKLIST_ID корня; вывод включает все его вложенные пункты. Пример: b24cli task:checklist:item:list 123 --checklist 10');
+        $this->setHelp('JSON: структура data/meta/error; столбцы TSV при --plain: id, parentId, title, isComplete. Дополнительный маршрут REST 1.0; strict-rest3 отклоняет вызов до подключения.  --checklist — CHECKLIST_ID корня; вывод включает все его вложенные пункты. Пример: b24cli task:checklist:item:list 123 --checklist 10');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
