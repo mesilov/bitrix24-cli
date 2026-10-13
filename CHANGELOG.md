@@ -98,6 +98,12 @@
 
 ### Изменено
 
+- После merge [PR #122](https://github.com/mesilov/bitrix24-cli/pull/122) в `dev`
+  и закрытия [#118](https://github.com/mesilov/bitrix24-cli/issues/118) требования
+  `task:my` и регистрация 42 task-команд синхронизированы с main specs;
+  проверенный change архивирован в `2026-10-14-add-task-my-command` вместе
+  с unit/live evidence и receipts очистки fixtures.
+
 - После merge [MR #117](https://github.com/mesilov/bitrix24-cli/pull/117)
   в `dev` и закрытия [#114](https://github.com/mesilov/bitrix24-cli/issues/114)
   завершённый OpenSpec change `normalize-openspec-requirement-statements`
