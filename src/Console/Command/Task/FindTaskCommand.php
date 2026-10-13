@@ -28,8 +28,9 @@ final class FindTaskCommand extends Command
         $this->addOption('group-id', null, InputOption::VALUE_REQUIRED, 'Положительный ID группы/проекта (groupId); локальный фильтр.');
         $this->addOption('limit', null, InputOption::VALUE_REQUIRED, 'Лимит вывода; не заменяет бюджет обхода.');
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Снять только лимит вывода; бюджет остаётся конечным.');
+        $this->addOption('order', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Сортировка FIELD:asc|desc; default id:desc (новые сначала).');
         $this->addOption('max-scan', null, InputOption::VALUE_REQUIRED, 'Максимум просмотренных задач (default 10000).');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: id, title. REST 3.0. Поиск title без регистра Unicode; --group-id ограничивает поиск группой/проектом локально. scan budget независим от лимита вывода.  Пример: b24cli task:find --title "договор" --group-id 42 --json');
+        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: id, title. REST 3.0. Поиск title без регистра Unicode; --group-id ограничивает поиск группой/проектом локально. Обход и вывод по умолчанию id DESC (новые сначала); --order меняет оба порядка. meta.order показывает сортировку, meta.complete=false/exit3 означает неполный поиск и не доказывает отсутствие дублей; увеличьте --max-scan. --all снимает только лимит вывода. Пример: b24cli task:find --title "договор" --group-id 42 --json');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

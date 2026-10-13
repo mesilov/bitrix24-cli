@@ -28,7 +28,16 @@ final class ResultPresenter
 
     public function success(OperationResult $result, string $mode, OutputInterface $output, string $command, array $calls): void
     {
-        $error = $result->exitStatus === 0 ? null : ['code' => $result->exitStatus === 130 ? 'interrupted' : 'partial-result', 'message' => $result->meta['reason'] ?? 'The operation is incomplete.'];
+        $message = $result->meta['reason'] ?? 'The operation is incomplete.';
+        if ($result->exitStatus === 3 && in_array($result->profile, ['task-list', 'title-matches'], true)) {
+            $order = $result->meta['order'] ?? [];
+            $message .= '; scanned=' . ($result->meta['scanned'] ?? 0) . '; order=' . implode(',', array_map(static fn (string $field, string $direction): string => $field . ':' . $direction, array_keys($order), array_values($order)));
+            if (isset($result->meta['hint'])) {
+                $message .= '. ' . $result->meta['hint'];
+            }
+        }
+
+        $error = $result->exitStatus === 0 ? null : ['code' => $result->exitStatus === 130 ? 'interrupted' : 'partial-result', 'message' => $message];
         $meta = ['schemaVersion' => 1, 'command' => $command, 'apiCalls' => $calls, 'apiVersions' => array_values(array_unique(array_column($calls, 'apiVersion'))), ...$result->meta];
         if ($mode === 'json') {
             $output->writeln(json_encode(['data' => $result->data, 'meta' => $meta, 'error' => $error], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), OutputInterface::OUTPUT_RAW);

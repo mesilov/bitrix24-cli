@@ -11,7 +11,7 @@ final readonly class TaskQuery
         public array $where = [],
         public ?string $dueBefore = null,
         public array $select = [],
-        public array $order = [],
+        public array $order = ['id' => 'DESC'],
         public ?int $limit = 50,
         public int $maxScan = 10000,
     ) {
