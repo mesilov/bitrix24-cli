@@ -1,0 +1,38 @@
+# Proposal
+
+## Why
+
+CLI 0.1.0 позволяет редактировать задачу, но не начать, приостановить, отложить, возобновить или завершить работу и пройти контроль постановщика. В milestone 0.2.0 нужно закрыть этот сценарий отдельными командами, возвращающими фактическое состояние задачи после действия.
+
+## What Changes
+
+- Добавить `task:start`, `task:pause`, `task:defer`, `task:renew`, `task:complete`, `task:approve` и `task:disapprove` с позиционным `TASK_ID`.
+- Явно допустить семь `tasks.task.<action>` REST 1.0 маршрутов в `task-v3`; `strict-rest3` отклоняет полный план до credentials и запросов. Произвольная запись `status` через `task:update` остаётся запрещена.
+- Проверять точное право действия, `needsControl`, `requireResult` и существование native result перед завершением; не создавать result или сообщение неявно.
+- После подтверждённого действия читать REST3 карточку и показывать настоящий `status`. `supposedly_completed` означает ожидание контроля, а не принятую работу.
+- Сохранять `--dry-run`, единый JSON envelope, plain/human output, partial и `outcomeUnknown`, без повторной записи после сбоя.
+- Добавить отдельную интеграционную проверку каждой команды и сценарии контроля, обязательного результата, отказа прав и побочных эффектов.
+
+## Capabilities
+
+### New Capabilities
+
+- `task-lifecycle`: явные переходы жизненного цикла, условия допуска и подтверждение фактического состояния.
+
+### Modified Capabilities
+
+- `task-console-runtime`: расширить явную регистрацию с 30 до 37 task-команд и допустимые планы семью lifecycle маршрутами.
+- `task-mvp-scope`: отделить исключения MVP 0.1.0 от допуска семи lifecycle команд в 0.2.0; сохранить остальные 22 исключения и запрет raw status write.
+
+## Impact
+
+Затрагиваются `CommandCatalog`, DI/bootstrap, task command/input/request/service/port/adapter слои, вывод результата, unit/integration suites, README и документация разработчика. Существующие `ApiTransport`, REST3 чтение задачи/прав и механизм policy используются повторно. Для `task:complete` допускается только внутреннее REST3 чтение `tasks.task.result.list`; пользовательские result-команды не входят в change. Новые внешние зависимости не требуются. Портальные и platform проверки фиксируются отдельно от локальных проверок.
+
+## GitHub issues
+
+- [#60](https://github.com/mesilov/bitrix24-cli/issues/60) — все семь lifecycle действий, честный результат завершения и контроля; milestone **0.2.0**.
+- Связанный контекст: [#12, O8](https://github.com/mesilov/bitrix24-cli/issues/12), где lifecycle выделен в отдельный change. Реализация остальных направлений #12 не входит в эту задачу.
+
+## Scope boundary
+
+Этот проход создаёт только planning artifacts. Допуск описывает будущую реализацию, не подтверждает её готовность или доступность на портале. Change не архивируется до реализации, verify и выполнения задач.
