@@ -42,10 +42,6 @@ curl -fsSL https://raw.githubusercontent.com/mesilov/bitrix24-cli/main/install.s
 b24cli --version
 ```
 
-> URL `main/install.sh` станет доступен после доставки installer в `main`.
-> До этого используйте ручную установку ниже; наличие скрипта в feature/dev не
-> подтверждает доступность этой команды. Публичные archives уже доступны в Releases.
-
 Installer скачивает архив и `SHA256SUMS` одного [публичного Release](https://github.com/mesilov/bitrix24-cli/releases),
 проверяет SHA-256, notices и точную версию перед заменой executable.
 По умолчанию выбирается latest stable; для конкретного опубликованного тега
