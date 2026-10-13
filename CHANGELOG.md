@@ -16,6 +16,11 @@
 - Синхронизированы спецификации тегов задач и архивирован проверенный change
   `add-task-tags` после merge реализации в `dev`
   ([#71](https://github.com/mesilov/bitrix24-cli/issues/71)).
+- `connection:add` отклоняет существующий alias до ввода webhook и явно сообщает,
+  что параметры не применены; help и документация описывают полное повторное
+  создание профиля. Завершённый OpenSpec change архивирован, требования
+  синхронизированы с основной спецификацией
+  ([#59](https://github.com/mesilov/bitrix24-cli/issues/59)).
 - В скилле мейнтейнера требуется содержательная запись в changelog со ссылкой на issue
   для любого MR в `dev` по issue; проверка обязательна перед открытием MR и merge
   ([#78](https://github.com/mesilov/bitrix24-cli/issues/78)).

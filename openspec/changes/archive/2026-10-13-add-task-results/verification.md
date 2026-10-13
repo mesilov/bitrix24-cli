@@ -54,3 +54,14 @@ No missing result implementation or local spec divergence found. Remaining limit
 - Initial head CI: Command tests (schema and unit), licenses, PHPStan, PhpCsFixer, Rector and Linux worktree isolation succeeded; three native package jobs were still running when checked. This receipt belongs to the initial SHA and is not presented as final-head CI.
 - Final verification tightened mismatched preflight id/taskId to binding error 4; full unit suite then passed with 386 tests / 2361 assertions and all quality gates passed again.
 - Portal recheck after the final binding fix: **7/7 tests, 63 assertions**, all pass again; every disposable fixture cleanup succeeds. Initial records are preserved and the second receipt is appended in the evidence JSON.
+
+## Completion receipt — 2026-10-13
+
+- User authorized merge, issue close, archive/spec sync and removal of the issue worktree.
+- PR #76 confirmed MERGED into dev at `d9b92f1b477194d9a4f89ff97db228d14c34a1f8`, merged at 2026-10-13T10:19:41Z. Its exact head `6288235d25127cc82ce20e1c359450517992aaf5` had 17 successful CI checks, including Linux amd64, macOS arm64, Windows amd64 and archive-set verification.
+- #61 confirmed CLOSED at 2026-10-13T10:20:15Z; its OpenSpec path is updated to this archive.
+- Four capabilities synced before archival: task-results (4 requirements), task-workflows (3 additions), task-console-runtime (1 modification), task-mvp-scope (1 addition). Purpose and unrelated content preserved; all 9 delta requirements match their main-spec blocks.
+- `openspec validate --specs --strict`: 10 passed, 0 failed. Then archive performed with --skip-specs because the verified main specs were already synced.
+- Archive path: `openspec/changes/archive/2026-10-13-add-task-results/`. All 7 tracked tasks and all planning artifacts are complete.
+- #72/add-task-templates remains unchanged and active (0/4 tasks).
+- Archive and reference updates are delivered through a separate PR into dev; worktree is removed only after its confirmed merge and preservation of needed ignored artifacts.

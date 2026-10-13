@@ -35,3 +35,17 @@ Help for `connection:add`, README and the configuration guide SHALL explain that
 - **THEN** `connection:show work` reports `default.task.groupId=187`, `creatorId=3`, `responsibleId=2` as JSON integers and `allowsTimeTracking=true` as a JSON boolean
 - **AND** an offline `task:add --profile work --title Test --dry-run --json` receives those defaults before required-field validation and makes no API calls
 - **AND** a previously selected `work` becomes selected again only after the explicit `connection:use work`; other profiles remain unchanged
+
+## MODIFIED Requirements
+
+### Requirement: Secret input without argv
+connection:add SHALL accept a webhook through hidden interactive input or explicitly requested `--webhook-stdin`. It MUST NOT provide a literal secret argument. Noninteractive missing input and competing stdin consumers MUST fail without waiting or exposing input.
+
+#### Scenario: Hidden or piped input
+- **WHEN** webhook input comes from a terminal or a secret file redirected to stdin with --webhook-stdin
+- **THEN** interactive input is not echoed and piped input is read only when explicitly requested
+- **AND** the secret does not enter subprocess argv
+
+#### Scenario: Noninteractive missing input
+- **WHEN** connection:add for a new alias runs with --no-interaction and no stdin option, or a second option also consumes stdin
+- **THEN** usage-error/exit2 occurs without a prompt or partial profile creation
