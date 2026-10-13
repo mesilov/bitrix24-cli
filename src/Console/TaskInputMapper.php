@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 
 final readonly class TaskInputMapper
 {
-    public function __construct(private InputSourceReader $reader, private ?\Bitrix24\CLI\Infrastructure\Connection\ConnectionManager $connections = null, private ?\Bitrix24\CLI\Application\Task\Port\LocalFileGateway $files = null)
+    public function __construct(private InputSourceReader $reader, private ?\Bitrix24\CLI\Infrastructure\Connection\ConnectionManager $connections = null, private ?\Bitrix24\CLI\Application\Task\Port\LocalFileGateway $files = null, private \Bitrix24\CLI\Application\Task\DeadlineWindowResolver $deadlines = new \Bitrix24\CLI\Application\Task\DeadlineWindowResolver())
     {
     }
 
@@ -178,6 +178,16 @@ final readonly class TaskInputMapper
 
     private function query(InputInterface $input, bool $find): TaskQuery
     {
+        $windows = $input->getOption('deadline-window');
+        if (count($windows) > 1) {
+            throw Failure::usage('Provide --deadline-window only once.');
+        }
+
+        $deadlineWindow = $this->deadlines->resolve($windows[0] ?? null, $input->getOption('overdue'), $input->getOption('timezone'));
+        if ($deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow && ($input->getOption('due-before') !== null || $input->getOption('where') !== null || $input->getOption('where-file') !== null)) {
+            throw Failure::usage('Do not mix --deadline-window/--overdue with --due-before or --where/--where-file.');
+        }
+
         $value = $input->getOption('role');
         $role = $value === null ? null : (is_string($value) ? TaskRole::tryFrom($value) : null);
         if ($value !== null && $role === null) {
@@ -231,6 +241,7 @@ final readonly class TaskInputMapper
             $this->limit($input, 50),
             $input->getOption('max-scan') === null ? 10000 : $this->id($input->getOption('max-scan'), '--max-scan'),
             $role,
+            $deadlineWindow,
         );
     }
 

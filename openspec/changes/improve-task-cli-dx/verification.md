@@ -32,7 +32,7 @@ All 21 original CLI scenarios are retained verbatim in five MODIFIED blocks. All
 - `make lint-all`: allowed licenses, PHP-CS-Fixer, PHPStan and Rector passed.
 - `openspec validate improve-task-cli-dx --strict`: valid.
 - `git diff --check`: passed.
-- Bitrix24 MCP effective config and real search/details confirmed; official REST3 references and limits are recorded in design.md. API field names stay id/title/responsibleId/groupId/status/deadline. Server filter stays id; explicit existing participant-role REST1 reads remain gated by policy.
+- Bitrix24 MCP effective config and real search/details confirmed; official REST3 references and limits are recorded in design.md. API field names stay id/title/responsibleId/groupId/status/deadline. Without temporal flags, server filter stays id; explicit existing participant-role REST1 reads remain gated by policy.
 
 Additional Unicode table regression caught visual-width overflow and repeated interpretation of markup during Symfony cell wrapping. Cells now wrap by grapheme/display width before Table rendering; literal markup and every wide character are retained and terminal control bytes are escaped.
 
@@ -45,8 +45,14 @@ Additional Unicode table regression caught visual-width overflow and repeated in
 
 ## Findings and delivery boundary
 
-No critical issues, warnings or suggestions found in the applicable local completeness/correctness/coherence checks. Runtime code is unchanged by integration of current dev; machine shapes, native verbosity, bounded scanning and current API gates are preserved.
+No critical issues, warnings or suggestions found in the applicable local completeness/correctness/coherence checks. The earlier installer integration left runtime code unchanged; the final integration of dev at 674ccc0 preserves PR #98 temporal filters and adds shared conflict validation for combined find; machine shapes, native verbosity, bounded scanning and current API gates are preserved.
 
 Remote CI status is a separate check on the published SHA. Live portal acceptance remains [#42](https://github.com/mesilov/bitrix24-cli/issues/42); native release binaries and live platform terminals were not tested for this DX change. Local fixtures and documentation checks do not establish portal permissions or universal platform/provider support.
 
 Implementation is verified locally and submitted for review. Archive/sync and worktree removal follow confirmed merge into dev and closure of #12; the change remains active while PR #94 is open.
+
+## Final pre-merge integration and live smoke
+
+2026-10-13: current dev `674ccc0` includes PR #98. The two overlapping query/help files were merged preserving both changes; temporal flags reject where/where-file/due-before in both commands. `make test` passed with **667 tests, 5433 assertions**; `make check`, all four `make lint-all` checks, strict change validation and diff whitespace checks passed. CHANGELOG records #12 in Unreleased.
+
+Read-only public CLI calls on the configured test portal showed tasks 5286 and 5284, task 5286 card with responsible.name, combined title/responsible/status/due-before yielding one result, conflicting status yielding zero complete results, and a scan cap yielding partial/exit3. No tasks were changed. This smoke covers those reads only; it does not complete #42 or prove native release acceptance.

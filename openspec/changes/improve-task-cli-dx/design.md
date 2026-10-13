@@ -101,3 +101,7 @@ b24cli task:find --title "договор" --id 123 --id 124 --due-before 2026-10
 | [nesszer output](https://github.com/nesszer/linear-cli/blob/e100db11a3959a528cf449f2befb505cf5d1a342/src/output.rs), [issues](https://github.com/nesszer/linear-cli/blob/e100db11a3959a528cf449f2befb505cf5d1a342/src/commands/issues.rs), [dependencies](https://github.com/nesszer/linear-cli/blob/e100db11a3959a528cf449f2befb505cf5d1a342/Cargo.toml) | Human/machine formatting, issue filters; tabled/colored/clap. dialoguer — дальнейший O5, вне scope. |
 
 Для URL lookup, интерактивности, output selection, auth context и proof workflows используются дополнительные ссылки O4–O8 в [issue #12](https://github.com/mesilov/bitrix24-cli/issues/12). Эти ref не добавляют implementation tasks или зависимости этого change.
+
+## Integration with current dev before merge
+
+2026-10-13: PR #98 introduced deadline-window/overdue/timezone in dev. The integration preserves those options and their existing REST1 route, server deadline/group filtering and strict-rest3 policy. Without temporal flags, combined find keeps the REST3 contract specified here. In both list and find, temporal flags reject due-before/where/where-file before reading credentials or calling the portal; the existing deadline-filter regression test now covers both commands. This is compatibility with the separate add-task-deadline-windows change, not an additional route introduced by #12.
