@@ -67,3 +67,11 @@ All **17/17** check runs completed with SUCCESS for that PR head: duplicate push
 - [linux](https://github.com/mesilov/bitrix24-cli/actions/runs/38380086823) — SUCCESS.
 
 This receipt is committed after CI completion as documentation only. Its commit changes only tasks.md and verification.md; runtime, tests, dependencies and package inputs are byte-identical to the accepted commit. New documentation-head CI is separate from the terminal runtime receipt above. No merge, published release or live portal acceptance is claimed. Archive/sync/worktree cleanup remain follow-up after confirmed merge and issue closure.
+
+## Final head and delivery receipt
+
+Final implementation PR head `e0daa61e40bb0f6f9894940801e4c4af92f00e17` passed **17/17 SUCCESS** checks, including [native packages and archive-set verification](https://github.com/mesilov/bitrix24-cli/actions/runs/38381061019), [unit/schema](https://github.com/mesilov/bitrix24-cli/actions/runs/38381060890) and all quality/isolation checks. [PR #73](https://github.com/mesilov/bitrix24-cli/pull/73) was confirmed MERGED into `dev` at `2026-10-13T10:18:51Z`, merge commit `ffa19a7b5eb3ea6708d5227bf7a19cf42d78226e`. Issue #59 was explicitly closed at `2026-10-13T10:19:22Z`; the non-default target branch did not auto-close it.
+
+Archive: `openspec/changes/archive/2026-10-13-clarify-existing-connection-profile/`. Both added requirements and all five scenarios were synced into `openspec/specs/connection-configuration/spec.md`. The existing noninteractive missing-input scenario is explicitly scoped to a new alias to keep the main spec consistent with the verified duplicate-error precedence; its other content is preserved, and existing `testInvalidInputAndSelectorFailuresAreSafeAndDoNotWrite` covers the new-alias case. Runtime, API fields and schema are unchanged by this archive. Main-spec validation and strict change validation passed.
+
+The archive PR also records the #59 result in CHANGELOG.md under the maintainer rule newly delivered in dev. Archive delivery must be confirmed merged before removing the task worktree.
