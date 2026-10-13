@@ -60,4 +60,3 @@ MVP SHALL включать task:find --title TEXT: буквальная подс
 #### Scenario: Explicit search order
 - **WHEN** task:find получает повторяемый --order FIELD:asc|desc
 - **THEN** поддерживается тот же allowlist и id ASC tie-breaker, что в task:list; порядок выдачи совпадает с порядком обхода, неподдерживаемое поле/направление отклоняется до API
-
