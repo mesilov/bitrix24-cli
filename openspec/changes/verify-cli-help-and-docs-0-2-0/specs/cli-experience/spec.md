@@ -1,5 +1,22 @@
 # cli-experience Spec Delta
 
+## ADDED Requirements
+
+### Requirement: Application information without remote operations
+CLI SHALL поддерживать корневой `b24cli --about`: назначение приложения, фактическая версия запущенной сборки, автор, лицензия и ссылки на репозитории приложения и скилла. Версия SHALL совпадать с `--version`; автор и лицензия SHALL соответствовать метаданным проекта. Вызов SHALL возвращать 0 без настроенного подключения, авторизации, записи конфигурации и запросов к порталу. Флаг SHALL быть указан в общей справке.
+
+#### Scenario: Application information without a connection
+- **WHEN** пользователь вызывает `b24cli --about` без настроенного подключения
+- **THEN** CLI возвращает 0 и показывает назначение b24cli, версию, автора Maksim Mesilov, лицензию `bitrix24-cli-license` с указанием основы BSD-3-Clause, ссылки `https://github.com/mesilov/bitrix24-cli` и `https://github.com/mesilov/bitrix24-cli-skill`; credentials не читаются, конфигурация не изменяется, API-запросы не выполняются, ссылки автоматически не открываются
+
+#### Scenario: Build identity remains consistent
+- **WHEN** пользователь последовательно вызывает `b24cli --version` и `b24cli --about` в одной релизной или dev сборке
+- **THEN** версия в обоих выводах одинакова и соответствует фактической сборке; планируемый номер будущего релиза не подставляется в about
+
+#### Scenario: About is discoverable
+- **WHEN** пользователь вызывает корневой `b24cli --help` или `b24cli -h`
+- **THEN** общая справка содержит `--about` с кратким пояснением, что флаг показывает сведения о приложении
+
 ## MODIFIED Requirements
 
 ### Requirement: Discoverable help without remote operations
