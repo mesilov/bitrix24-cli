@@ -98,6 +98,12 @@
 
 ### Изменено
 
+- После merge [MR #117](https://github.com/mesilov/bitrix24-cli/pull/117)
+  в `dev` и закрытия [#114](https://github.com/mesilov/bitrix24-cli/issues/114)
+  завершённый OpenSpec change `normalize-openspec-requirement-statements`
+  перенесён в архив `2026-10-14-normalize-openspec-requirement-statements`;
+  все 16 синхронизированных delta-блоков и strict-валидация main specs сохранены.
+
 - После merge [PR #116](https://github.com/mesilov/bitrix24-cli/pull/116) в `dev`
   и закрытия [#113](https://github.com/mesilov/bitrix24-cli/issues/113) требования
   русской CLI-справки и единого блока «Общие» синхронизированы в `cli-experience`;
