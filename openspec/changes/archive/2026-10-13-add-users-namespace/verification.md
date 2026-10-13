@@ -6,11 +6,11 @@ Date: 2026-10-13 (Asia/Bishkek). Issue: https://github.com/mesilov/bitrix24-cli/
 
 | Dimension | Result |
 | --- | --- |
-| Completeness | 20 implementation tasks implemented/checked; 24 ADDED/MODIFIED requirements mapped below. The change remains active pending PR delivery. |
-| Correctness | 432 unit tests, 2462 assertions; 125 shared configuration fixtures, two documentation examples; 73 specification scenarios reviewed against code/tests. Positive live org-manager lookup is **not verified** because the configured portal omitted parent data. |
+| Completeness | 20 implementation tasks implemented/checked; 24 ADDED/MODIFIED requirements mapped below. Implementation delivered by PR #69, merge `fdb9148cbbe483864b710262b4ddd14f35cef030`; archive/spec synchronization follows the explicit user request. |
+| Correctness | 542 unit tests, 4020 assertions; 125 shared configuration fixtures, two documentation examples; 77 specification scenarios including three preserved role-filter scenarios. Positive live org-manager lookup is **not verified** because the configured portal omitted parent data. |
 | Coherence | Explicit catalog, shared runtime/presenter, dedicated User ports/adapters/requests/handlers, unchanged Task user-enrichment port, profile isolation and method/version allow-list follow design. |
 
-There are no known critical implementation gaps from checks that ran. Live org-manager acceptance remains not verified; this report does not claim unrestricted portal/org coverage or archive readiness. No removals or renames are present.
+There are no known critical implementation gaps from checks that ran. Live org-manager acceptance remains not verified; this report does not claim unrestricted portal/org coverage of untested org data. No removals or renames are present.
 
 ## Local checks
 
@@ -94,3 +94,12 @@ On 2026-10-13 the feature branch merged `origin/dev` at `1a2ef63`, preserving ta
 - Official Bitrix24 MCP search/details succeeded again for tasks.task.update. Its combined v1/v3 record was cross-checked against the [classic update reference](https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-update.html); version-specific payloads remain unchanged.
 
 GitHub CI must still be confirmed against the newly published feature head before merge. No earlier package run is substituted for checks on that head.
+
+
+## Confirmed implementation delivery and archive assessment
+
+PR #69 is MERGED into dev at `fdb9148cbbe483864b710262b4ddd14f35cef030` (2026-10-13). Its checked head `f4a299c1ce4c371896fe8fb3ff57577920e43ff5` has **17/17 successful GitHub checks**, including Linux amd64, macOS arm64, Windows amd64, worktree isolation and Verify release archive set. Issue #63 is CLOSED, with milestone 0.2.0 and enhancement label. The exact receipt and the four latest disposable task:add live records are preserved in `delivery-evidence-2026-10-13.json` without credentials or employee names/emails.
+
+Archive input check: all four artifacts done, tasks 20/20, four delta specs. Sync creates user-directory/user-workflows and applies five modified plus nineteen added requirements to the canonical main-spec format. Existing titles/Purpose, unrelated requirements and the three role-filter policy scenarios delivered by #68 are retained. All 77 delta scenarios remain in the resulting requirements. `openspec validate --specs` passes **13/13** with two non-blocking long-description warnings (task-console-runtime registration and the unrelated task-mvp-scope requirement). Strict change validation passes. No requirement is split or shortened during archive synchronization.
+
+The archive path is `openspec/changes/archive/2026-10-13-add-users-namespace/`. Positive live org-manager coverage remains not verified as disclosed above; archiving does not turn its skip into portal proof. Archive delivery is a separate documentation/spec PR into dev; the worktree is removed only after confirming that merge.

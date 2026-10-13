@@ -1,0 +1,359 @@
+{
+  "date": "2026-10-13",
+  "implementationPullRequest": {
+    "baseRefName": "dev",
+    "headRefOid": "f4a299c1ce4c371896fe8fb3ff57577920e43ff5",
+    "mergeCommit": {
+      "oid": "fdb9148cbbe483864b710262b4ddd14f35cef030"
+    },
+    "mergedAt": "2026-10-13T11:49:32Z",
+    "state": "MERGED",
+    "url": "https://github.com/mesilov/bitrix24-cli/pull/69"
+  },
+  "checkedHead": "f4a299c1ce4c371896fe8fb3ff57577920e43ff5",
+  "checks": [
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T11:41:00Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38391790926/job/115277112267",
+      "name": "composer-license-checker",
+      "startedAt": "2026-10-13T11:40:03Z",
+      "status": "COMPLETED",
+      "workflowName": "Allowed licenses checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T11:41:02Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38391786432/job/115277097963",
+      "name": "composer-license-checker",
+      "startedAt": "2026-10-13T11:40:01Z",
+      "status": "COMPLETED",
+      "workflowName": "Allowed licenses checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T11:40:11Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38391790893/job/115277112285",
+      "name": "Configuration schema contract",
+      "startedAt": "2026-10-13T11:40:03Z",
+      "status": "COMPLETED",
+      "workflowName": "Command tests"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T11:40:07Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38391786231/job/115277097224",
+      "name": "Configuration schema contract",
+      "startedAt": "2026-10-13T11:40:01Z",
+      "status": "COMPLETED",
+      "workflowName": "Command tests"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T11:40:50Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38391790973/job/115277112676",
+      "name": "PHPStan",
+      "startedAt": "2026-10-13T11:40:03Z",
+      "status": "COMPLETED",
+      "workflowName": "PHPStan lint checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T11:40:56Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38391786413/job/115277098026",
+      "name": "PHPStan",
+      "startedAt": "2026-10-13T11:40:01Z",
+      "status": "COMPLETED",
+      "workflowName": "PHPStan lint checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T11:47:22Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38391790978/job/115277113430",
+      "name": "packages / Linux amd64 package",
+      "startedAt": "2026-10-13T11:40:04Z",
+      "status": "COMPLETED",
+      "workflowName": "Package standalone binaries"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T11:41:09Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38391790993/job/115277112612",
+      "name": "PhpCsFixer",
+      "startedAt": "2026-10-13T11:40:03Z",
+      "status": "COMPLETED",
+      "workflowName": "PhpCsFixer lint checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T11:40:56Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38391786287/job/115277097517",
+      "name": "PhpCsFixer",
+      "startedAt": "2026-10-13T11:40:01Z",
+      "status": "COMPLETED",
+      "workflowName": "PhpCsFixer lint checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T11:41:05Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38391790949/job/115277112541",
+      "name": "Rector",
+      "startedAt": "2026-10-13T11:40:03Z",
+      "status": "COMPLETED",
+      "workflowName": "Rector lint checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T11:41:14Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38391786197/job/115277097081",
+      "name": "Rector",
+      "startedAt": "2026-10-13T11:40:01Z",
+      "status": "COMPLETED",
+      "workflowName": "Rector lint checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T11:42:20Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38391791033/job/115277113356",
+      "name": "linux",
+      "startedAt": "2026-10-13T11:40:04Z",
+      "status": "COMPLETED",
+      "workflowName": "Worktree isolation"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T11:41:02Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38391790893/job/115277112566",
+      "name": "unit-tests",
+      "startedAt": "2026-10-13T11:40:04Z",
+      "status": "COMPLETED",
+      "workflowName": "Command tests"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T11:40:55Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38391786231/job/115277097543",
+      "name": "unit-tests",
+      "startedAt": "2026-10-13T11:40:01Z",
+      "status": "COMPLETED",
+      "workflowName": "Command tests"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T11:44:10Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38391790978/job/115277113112",
+      "name": "packages / macOS arm64 package",
+      "startedAt": "2026-10-13T11:40:09Z",
+      "status": "COMPLETED",
+      "workflowName": "Package standalone binaries"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T11:45:33Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38391790978/job/115277113401",
+      "name": "packages / Windows amd64 package",
+      "startedAt": "2026-10-13T11:40:03Z",
+      "status": "COMPLETED",
+      "workflowName": "Package standalone binaries"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T11:47:38Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38391790978/job/115279957668",
+      "name": "packages / Verify release archive set",
+      "startedAt": "2026-10-13T11:47:24Z",
+      "status": "COMPLETED",
+      "workflowName": "Package standalone binaries"
+    }
+  ],
+  "localChecks": {
+    "unitTests": 542,
+    "unitAssertions": 4020,
+    "lint": "four checks passed",
+    "configurationFixtures": 125,
+    "documentationExamples": 2,
+    "taskAddLiveTests": 4,
+    "taskAddLiveAssertions": 45
+  },
+  "taskAddPortalReceipts": [
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AddTaskCommandTest",
+      "test": "testHappyPathCreatesTaskWithRequestedFields",
+      "command": "task:add",
+      "happyPath": true,
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        6086
+      ],
+      "ownedDiskFileIds": [],
+      "commands": [
+        {
+          "command": "task:add",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.add",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ],
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      }
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AddTaskCommandTest",
+      "test": "testHappyPathAddsConfiguredObserverWithIndependentMembershipReadback",
+      "command": "task:add",
+      "happyPath": true,
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        6088
+      ],
+      "ownedDiskFileIds": [],
+      "commands": [
+        {
+          "command": "task:add",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.add",
+              "apiVersion": "3.0",
+              "effect": "write"
+            },
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      }
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AddTaskCommandTest",
+      "test": "testCreatesTaskWithTagsAndConfiguredObserver",
+      "command": "task:add",
+      "happyPath": true,
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        6090
+      ],
+      "ownedDiskFileIds": [],
+      "commands": [
+        {
+          "command": "task:add",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.add",
+              "apiVersion": "3.0",
+              "effect": "write"
+            },
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            },
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      }
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AddTaskCommandTest",
+      "test": "testCreatesTaskWithTagsAndRest3Readback",
+      "command": "task:add",
+      "happyPath": true,
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        6092
+      ],
+      "ownedDiskFileIds": [],
+      "commands": [
+        {
+          "command": "task:add",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.add",
+              "apiVersion": "3.0",
+              "effect": "write"
+            },
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      }
+    }
+  ],
+  "limitations": [
+    "Positive live organization-manager chain skipped because PARENT was not available; unit coverage only.",
+    "Name lookup returned documented partial results for directory records with missing name fields."
+  ]
+}
