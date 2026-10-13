@@ -23,6 +23,7 @@ final class CommandContractsTest extends TestCase
         yield 'result delete' => [['task:result:delete', '123', '--result', '17', '--force'], 'tasks.task.result.delete', 3, ['id' => 17]];
         yield 'add' => [['task:add', '--title', 'New task', '--creator', '1', '--responsible', '2'], 'tasks.task.add', 3, ['fields' => ['title' => 'New task', 'creatorId' => 1, 'responsibleId' => 2, 'allowsTimeTracking' => false]]];
         yield 'show' => [['task:show', '123'], 'tasks.task.get', 3, null];
+        yield 'my' => [['task:my', '--user', '2'], 'tasks.task.list', 3, null];
         yield 'list' => [['task:list', '--responsible', '2'], 'tasks.task.list', 3, null];
         yield 'find' => [['task:find', '--title', 'ДОГОВОР'], 'tasks.task.list', 3, null];
         yield 'update' => [['task:update', '123', '--title', 'Changed'], 'tasks.task.update', 3, ['id' => 123, 'fields' => ['title' => 'Changed']]];
@@ -120,7 +121,7 @@ final class CommandContractsTest extends TestCase
         self::assertSame(0, $run->status, $run->stdout . $run->stderr);
         $columns = match ($argv[0]) {
             'task:show', 'task:access:show', 'task:time:show', 'task:find', 'task:checklist:list' => 2,
-            'task:list' => 6,
+            'task:list', 'task:my' => 6,
             'task:fields:list', 'task:time:list' => 5,
             'task:history:list', 'task:result:list' => 6,
             default => 4,

@@ -26,6 +26,12 @@
   сумм при недоказанной полноте. Offline-расчёт и live partial проверены;
   exact live acceptance остаётся открытой
   ([#121](https://github.com/mesilov/bitrix24-cli/issues/121)).
+- `task:my --user ID`: задачи явного исполнителя с `--open`, строгим
+  `--due-before` и конечным `--max-scan` через существующий list scanner.
+  Общие форматы вывода, REST 3.0/strict-rest3, честный partial при неизвестных
+  данных или исчерпании бюджета; отдельные unit/live тесты и документация EMP-01
+  ([#118](https://github.com/mesilov/bitrix24-cli/issues/118)).
+
 - Семь команд жизненного цикла задачи: start/pause/defer/renew/complete/approve/disapprove,
   проверка прав действия и обязательного native result, фактический REST3 статус,
   dry-run и сохранение confirmed/partial/outcomeUnknown. Строгая проверка шести
@@ -96,6 +102,12 @@
   ([#63](https://github.com/mesilov/bitrix24-cli/issues/63)).
 
 ### Изменено
+
+- После merge [MR #117](https://github.com/mesilov/bitrix24-cli/pull/117)
+  в `dev` и закрытия [#114](https://github.com/mesilov/bitrix24-cli/issues/114)
+  завершённый OpenSpec change `normalize-openspec-requirement-statements`
+  перенесён в архив `2026-10-14-normalize-openspec-requirement-statements`;
+  все 16 синхронизированных delta-блоков и strict-валидация main specs сохранены.
 
 - После merge [PR #116](https://github.com/mesilov/bitrix24-cli/pull/116) в `dev`
   и закрытия [#113](https://github.com/mesilov/bitrix24-cli/issues/113) требования

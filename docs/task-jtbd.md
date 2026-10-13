@@ -1,6 +1,6 @@
 # JTBD задач по ролям
 
-Сверка каталога для [#100](https://github.com/mesilov/bitrix24-cli/issues/100) от 14.10.2026, базовый commit `8a4bd2ab0604d905fcf091e0f98ff282380080f4`. Задача исходной документации: [#80](https://github.com/mesilov/bitrix24-cli/issues/80).
+Сверка каталога для [#100](https://github.com/mesilov/bitrix24-cli/issues/100) от 14.10.2026, базовый commit `8a4bd2ab0604d905fcf091e0f98ff282380080f4`. Дополнено для [#118](https://github.com/mesilov/bitrix24-cli/issues/118) от 14.10.2026 на базе `8662ee7` (новая команда поверх этого снимка). Задача исходной документации: [#80](https://github.com/mesilov/bitrix24-cli/issues/80).
 
 [Карта публичных CLI-вызовов](cli-command-map.md) содержит назначения и проверяемые
 примеры команд. Для любого сценария можно открыть `b24cli COMMAND --help`;
@@ -316,9 +316,9 @@
 | Статус | Команда | Тест |
 | --- | --- | --- |
 | ✅ Готово | [`task:list`](../src/Console/Command/Task/ListTaskCommand.php) | [`ListTaskCommandTest.php`](../tests/Integration/Task/ListTaskCommandTest.php) |
-| 🕓 План | `task:my` | Нет |
+| ✅ Готово | [`task:my`](../src/Console/Command/Task/MyTaskCommand.php) | [`MyTaskCommandTest.php`](../tests/Integration/Task/MyTaskCommandTest.php) |
 
-**Границы:** Свои задачи выбираются через --role responsible или явный --responsible ID; --status принимает pending, in_progress, supposedly_completed, completed, deferred, declined. Статус и проект сочетаются через AND; членство после complete/approve/disapprove/renew проверено. task:my остаётся планом, полная очередь по приоритету отдельно не доказана.
+**Границы:** `task:my --user ID` выбирает доступные задачи явного исполнителя; `--open` и `--due-before` сочетаются через AND. Отдельные SDK fixtures проверяют исполнителя, открытые/завершённые задачи, строгую границу срока, отсутствие дедлайна и scan budget; unit-контракты покрывают все четыре открытых состояния и неполные данные. Права задаются подключением. Статус команды означает реализацию; live evidence хранится в verification change #118 и не доказывает доступность всех задач/прав на любом портале. Автоматическая приоритизация и сквозной выбор очереди работ EMP-01 целиком не проверяются. Свои роли и логические --status фильтры task:list сохранены; проверка членства в проекте после complete/approve/disapprove/renew относится к lifecycle change #60.
 
 <a id="emp-02"></a>
 

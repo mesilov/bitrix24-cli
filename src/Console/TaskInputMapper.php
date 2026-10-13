@@ -254,6 +254,16 @@ final readonly class TaskInputMapper
         return new Request\ListTasksRequest($this->query($input, false));
     }
 
+    public function myTasks(InputInterface $input): Request\ListTasksRequest
+    {
+        return new Request\ListTasksRequest(new TaskQuery(
+            where: ['responsibleId' => $this->id($input->getOption('user'), '--user')],
+            dueBefore: $input->getOption('due-before') === null ? null : FieldSchema::date($input->getOption('due-before')),
+            maxScan: $input->getOption('max-scan') === null ? 10000 : $this->id($input->getOption('max-scan'), '--max-scan'),
+            openOnly: $input->getOption('open'),
+        ));
+    }
+
     public function findTasks(InputInterface $input): Request\FindTasksRequest
     {
         return new Request\FindTasksRequest($this->query($input, true), trim($this->text($input, 'title')));

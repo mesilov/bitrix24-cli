@@ -16,7 +16,7 @@
 
 ### 1. Отдельная команда и калькулятор
 
-Предложенные StatusDurationsTaskCommand/CalculateTaskStatusDurationsHandler/request вызывают шлюзы через PreparedOperation/CommandRunner; не запускают task:history:list или task:show как вложенные CLI-команды. Чистый StatusDurationCalculator получает нормализованные события, completeness reasons, snapshot evidence и единую границу asOf. Это позволяет проверять арифметику фиксированными timestamps независимо от сети. Альтернатива — менять history:list — нарушила бы существующий контракт события/TSV.
+Предложенные StatusDurationsTaskCommand/StatusDurationsTaskHandler/StatusDurationsTaskRequest вызывают шлюзы через PreparedOperation/CommandRunner; не запускают task:history:list или task:show как вложенные CLI-команды. Чистый StatusDurationCalculator получает нормализованные события, completeness reasons, snapshot evidence и единую границу asOf. Это позволяет проверять арифметику фиксированными timestamps независимо от сети. Альтернатива — менять history:list — нарушила бы существующий контракт события/TSV.
 
 Все потенциальные маршруты объявлены заранее: REST1 tasks.task.history.list и REST3 tasks.task.get. Сканировать полную доступную историю без FIELD-фильтра: нужны NEW и проверка смешанных событий. Текущие scanner/gateway/adapter переиспользуются, однако статусному расчёту нужен внутренний evidence collection result: исходные offsets, конфликтующие дубликаты и сырые значения нельзя потерять при дедупликации/сортировке. Дополнение внутренних структур не меняет публичный history:list; regression tests подтверждают это. Не ослаблять current navigation gate и budget ради exit0.
 
@@ -70,4 +70,4 @@ Unit: фиксированный reopening пример, conservation total, no-
 
 ## Live constraints recorded during apply
 
-See live-contract-check.md: STATUS-only numeric 2/3/5 is observable but equivalence to REAL_STATUS remains unverified. Canonical STATUS-only reports remain partial. Multiple NEW/DELETE boundaries are ambiguous. Current dev inventory is 41 task commands; adding this command gives 42. Exact live acceptance remains open if navigation cannot prove completeness.
+See live-contract-check.md: STATUS-only numeric 2/3/5 is observable but equivalence to REAL_STATUS remains unverified. Canonical STATUS-only reports remain partial. Multiple NEW/DELETE boundaries are ambiguous. Current dev 2b24edd includes task:my and 42 task commands; adding this command gives 43. Exact live acceptance remains open if navigation cannot prove completeness.
