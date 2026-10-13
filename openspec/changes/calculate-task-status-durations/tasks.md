@@ -13,12 +13,12 @@
 ## 3. CLI, snapshots and traceability
 
 - [x] 3.1 Добавить read-only task:status:durations request/handler/command, единый asOf до API, REST1 history и REST3 контрольные get(status/statusChanged/changed), без вложенного CLI и мутаций. Проверка: deferred input validation, profile/API-policy/strict-rest3/cancel/error contract unit cases и race/mismatch fixtures; русская командная справка описывает read routes и границы.
-- [ ] 3.2 Зарегистрировать команду и result presenter/human/plain вывод, согласовать delta inventory с актуальной dev и параллельным task:my без удаления команд. Проверка: offline help/list/catalog/JSON/TSV tests; README, docs/cli-command-map.md, docs/task-jtbd.md PM-02/AM-03 со статусом/filename теста/датой/source SHA и CHANGELOG #121 обновлены в том же MR, ссылки проверены.
+- [x] 3.2 Зарегистрировать команду и result presenter/human/plain вывод, согласовать delta inventory с актуальной dev и параллельным task:my без удаления команд. Проверка: offline help/list/catalog/JSON/TSV tests; README, docs/cli-command-map.md, docs/task-jtbd.md PM-02/AM-03 со статусом/filename теста/датой/source SHA и CHANGELOG #121 обновлены в том же MR, ссылки проверены.
 - [ ] 3.3 Добавить StatusDurationsTaskCommandTest.php с собственной Group command:task:status:durations/happy-path, SDK fixture/readback/cleanup и двумя повторными открытиями. Проверка: live receipt совпадает с доказанными timestamps/суммами; отдельный navigation partial case требует null totals/точную reason/exit3. Недоступность доказательства exact totals остаётся явно непроверенной, а skip/partial не заменяют exact happy-path.
 
 ## 4. Cross-contract verification
 
-- [ ] 4.1 Выполнить целевые unit/integration и обязательные repository checks, openspec strict validate и openspec-verify-change. Проверка: итоговый receipt разделяет offline arithmetic, CLI contract, portal completeness и CI; каждое невыполненное acceptance условие оставлено открытым.
+- [x] 4.1 Выполнить целевые unit/integration и обязательные repository checks, openspec strict validate и openspec-verify-change. Проверка: итоговый receipt разделяет offline arithmetic, CLI contract, portal completeness и CI; каждое невыполненное acceptance условие оставлено открытым.
 
 ## Workflow follow-up
 

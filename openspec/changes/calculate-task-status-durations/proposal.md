@@ -35,3 +35,7 @@
 - [tasks.task.history.list](https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-history-list.html): taskId, filter.FIELD, order.createdDate; события createdDate/field/value.from/value.to/user/id.
 - Источник реализации: `dev` SHA `5ed034980e58ed950c3c733f3f01ec5ca08dd990`, проверка 14.10.2026; `src/Application/Task/HistoryScanner.php`, REST1 adapter и ListTaskHistoryCommandTest.
 - Официальный MCP search/details ответил; конфигурация fresh worktree включает required bitrix24_dev. Статусные события/навигация на реальном портале не проверялись; текущий integration test доказывает TITLE event и документированную partial boundary, не полный статусный цикл. Это план, runtime не изменён.
+
+## Apply evidence — 14.10.2026
+
+Runtime implemented in draft PR #123, synchronized with dev `2b24edd1a808150fb382812c52d22b235e25d940` (including task:my). See live-contract-check.md and verification.md: STATUS-only reopening/readbacks and partial boundary are verified; navigation/canonical REAL_STATUS and unambiguous creation are not proved, so exact live acceptance remains open.
