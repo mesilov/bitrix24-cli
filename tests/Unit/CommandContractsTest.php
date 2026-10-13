@@ -93,7 +93,7 @@ final class CommandContractsTest extends TestCase
         $app = (new ApplicationFactory())->create(dirname(__DIR__, 2), null, $resolver);
         $registered = array_keys($app->all('task'));
         sort($registered);
-        $expected = array_keys(CommandCatalog::COMMANDS);
+        $expected = array_values(array_filter(array_keys(CommandCatalog::COMMANDS), static fn (string $name): bool => str_starts_with($name, 'task:')));
         sort($expected);
         self::assertSame($expected, $registered);
         foreach ([['list', 'task'], ['task:add', '--help'], ['--version'], ['completion', 'bash']] as $argv) {

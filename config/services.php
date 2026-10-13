@@ -17,6 +17,9 @@ return static function (ContainerBuilder $container, string $root, bool $package
         Bitrix24\CLI\Console\ConnectionCommandRunner::class,
         Bitrix24\CLI\Console\InputSourceReader::class,
         Bitrix24\CLI\Console\TaskInputMapper::class,
+        Bitrix24\CLI\Console\UserInputMapper::class,
+        Bitrix24\CLI\Application\User\UserScanner::class,
+        Bitrix24\CLI\Application\User\UserDirectoryService::class,
         Bitrix24\CLI\Console\ApiPolicyGuard::class,
         Bitrix24\CLI\Console\ResultPresenter::class,
         Bitrix24\CLI\Console\CommandRunner::class,
@@ -61,6 +64,16 @@ return static function (ContainerBuilder $container, string $root, bool $package
         'AddTaskChecklist', 'ListTaskChecklists', 'SetTaskParticipants', 'ListTaskHistory',
     ] as $handler) {
         $container->register('Bitrix24\\CLI\\Application\\Task\\Handler\\' . $handler . 'Handler')->setAutowired(true);
+    }
+
+    foreach (['UserDirectoryGateway' => 'Rest1UserDirectoryAdapter', 'DepartmentGateway' => 'Rest1DepartmentAdapter'] as $port => $adapter) {
+        $class = 'Bitrix24\\CLI\\Infrastructure\\Bitrix24\\' . $adapter;
+        $container->register($class)->setAutowired(true);
+        $container->setAlias('Bitrix24\\CLI\\Application\\User\\Port\\' . $port, $class);
+    }
+
+    foreach (['CurrentUser', 'FindUsers', 'ListColleagues', 'GetManager'] as $handler) {
+        $container->register('Bitrix24\\CLI\\Application\\User\\Handler\\' . $handler . 'Handler')->setAutowired(true);
     }
 
     foreach (CommandCatalog::all() as $command) {

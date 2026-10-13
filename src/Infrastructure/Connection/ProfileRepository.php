@@ -47,7 +47,7 @@ final readonly class ProfileRepository
                 }
 
                 if (property_exists($profile, 'default')) {
-                    if (!$profile->default instanceof \stdClass || (property_exists($profile->default, 'task') && !$profile->default->task instanceof \stdClass)) {
+                    if (!$profile->default instanceof \stdClass || (property_exists($profile->default, 'task') && !$profile->default->task instanceof \stdClass) || (property_exists($profile->default, 'users') && !$profile->default->users instanceof \stdClass)) {
                         throw new \RuntimeException();
                     }
                 }
@@ -57,7 +57,7 @@ final readonly class ProfileRepository
             $this->validate($config);
             return $config;
         } catch (\Throwable) {
-            throw new Failure('configuration-error', 'Invalid config.json schema version 1; check profile name, connection and default.task fields (groupId belongs in default.task.groupId).');
+            throw new Failure('configuration-error', 'Invalid config.json schema version 1; check profile name, connection, default.task and default.users fields (groupId belongs in default.task.groupId).');
         }
     }
 
@@ -85,7 +85,7 @@ final readonly class ProfileRepository
         }
     }
 
-    public function add(string $directory, string $alias, string $webhook, ?string $name, array $task): array
+    public function add(string $directory, string $alias, string $webhook, ?string $name, array $task, array $users = []): array
     {
         self::alias($alias);
         $hostname = FileCredentialStore::hostname($webhook);
@@ -94,12 +94,17 @@ final readonly class ProfileRepository
             throw Failure::usage('--portal-domain must be a bare domain.');
         }
 
-        return $this->locked($directory, function () use ($directory, $alias, $webhook, $hostname, $name, $task): array {
+        $this->validateUsers($users);
+        return $this->locked($directory, function () use ($directory, $alias, $webhook, $hostname, $name, $task, $users): array {
             $config = $this->load($directory);
             $this->assertUnusedAlias($config, $alias);
 
             $reference = $this->credentials->write($directory, $webhook);
             $profile = ['name' => $name, 'connection' => ['hostname' => $hostname, 'credentialFile' => $reference], 'default' => ['task' => $task]];
+            if ($users !== []) {
+                $profile['default']['users'] = $users;
+            }
+
             $config['profiles'][$alias] = $profile;
             try {
                 $this->publish($directory, $config);
@@ -164,8 +169,16 @@ final readonly class ProfileRepository
             $references[] = $connection['credentialFile'];
             if (array_key_exists('default', $profile)) {
                 $default = $profile['default'];
-                if (!is_array($default) || array_diff(array_keys($default), ['task']) !== []) {
+                if (!is_array($default) || array_diff(array_keys($default), ['task', 'users']) !== []) {
                     throw new \RuntimeException();
+                }
+
+                if (array_key_exists('users', $default)) {
+                    if (!is_array($default['users'])) {
+                        throw new \RuntimeException();
+                    }
+
+                    $this->validateUsers($default['users']);
                 }
 
                 if (array_key_exists('task', $default)) {
@@ -185,6 +198,23 @@ final readonly class ProfileRepository
 
         if ($config['defaultProfile'] !== null && (!is_string($config['defaultProfile']) || !isset($config['profiles'][$config['defaultProfile']]))) {
             throw new \RuntimeException();
+        }
+    }
+
+    private function validateUsers(array $users): void
+    {
+        if (array_diff(array_keys($users), ['observerId', 'managerId', 'autoAddObserver']) !== []) {
+            throw new \RuntimeException('Unknown default.users key.');
+        }
+
+        foreach ($users as $field => $value) {
+            if ($field === 'autoAddObserver' ? !is_bool($value) : (!is_int($value) || $value < 1)) {
+                throw new \RuntimeException('Invalid default.users value.');
+            }
+        }
+
+        if (($users['autoAddObserver'] ?? false) && !isset($users['observerId'])) {
+            throw new \RuntimeException('autoAddObserver requires observerId.');
         }
     }
 
@@ -221,6 +251,10 @@ final readonly class ProfileRepository
     {
         $this->validate($config);
         foreach ($config['profiles'] as &$profile) {
+            if (isset($profile['default']['users'])) {
+                $profile['default']['users'] = (object) $profile['default']['users'];
+            }
+
             if (isset($profile['default']['task'])) {
                 $profile['default']['task'] = (object) $profile['default']['task'];
             }
