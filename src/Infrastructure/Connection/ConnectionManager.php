@@ -116,6 +116,11 @@ final class ConnectionManager implements ConnectionResolver
         return $this->selected($offline)['metadata']['default']['task'] ?? [];
     }
 
+    public function userDefaults(bool $offline = false): array
+    {
+        return $this->selected($offline)['metadata']['default']['users'] ?? [];
+    }
+
     public function metadata(bool $offline = false): array
     {
         $selection = $this->selected($offline);
@@ -124,6 +129,7 @@ final class ConnectionManager implements ConnectionResolver
         if ($profile !== []) {
             $selection = [...$selection, ...$profile];
             $selection['default']['task']['allowsTimeTracking'] ??= false;
+            $selection['default']['users']['autoAddObserver'] ??= false;
         }
 
         return $selection;

@@ -26,4 +26,18 @@ final class AddTaskCommandTest extends LiveTaskCommandTestCase
         self::assertSame($this->userId, $card['creatorId']);
         self::assertSame($this->userId, $card['responsibleId']);
     }
+    #[Group('happy-path')]
+    public function testHappyPathAddsConfiguredObserverWithIndependentMembershipReadback(): void
+    {
+        $this->withProfile(['observerId' => $this->userId, 'autoAddObserver' => true], function (string $directory): void {
+            $result = $this->invoke(['task:add', '--title', $this->fixtureTitle(), '--profile', 'fixture', '--config-dir', $directory]);
+            $id = $result['data']['operation']['taskId'];
+            self::assertSame($this->userId, $result['meta']['observerId']);
+            self::assertSame('confirmed', $result['meta']['ledger'][0]['status']);
+            $readback = $this->api->call('tasks.task.get', 1, ['taskId' => $id, 'select' => ['ID', 'AUDITORS']])->result['task'];
+            self::assertSame($id, (int) $readback['id']);
+            self::assertContains($this->userId, array_map(intval(...), $readback['auditors']));
+        });
+    }
+
 }

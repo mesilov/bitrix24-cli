@@ -108,7 +108,13 @@ final readonly class TaskInputMapper
     public function addTask(InputInterface $input): Request\AddTaskRequest
     {
         [$fields, $advanced] = $this->patch($input, true);
-        return new Request\AddTaskRequest($fields, $advanced);
+        $roles = $this->connections?->userDefaults($input->getOption('dry-run')) ?? [];
+        $observer = ($roles['autoAddObserver'] ?? false) ? $roles['observerId'] : null;
+        if ($observer !== null && $this->connections instanceof \Bitrix24\CLI\Infrastructure\Connection\ConnectionManager) {
+            $this->connections->fieldSources['default.users.observerId'] = 'profile-default';
+        }
+
+        return new Request\AddTaskRequest($fields, $advanced, $observer);
     }
 
     public function showTask(InputInterface $input): Request\ShowTaskRequest

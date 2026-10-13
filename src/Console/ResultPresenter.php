@@ -14,6 +14,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class ResultPresenter
 {
     private const COLUMNS = [
+        'user-card' => ['ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'EMAIL', 'UF_DEPARTMENT'],
+        'user-list' => ['ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'EMAIL', 'UF_DEPARTMENT'],
         'connections' => ['profile', 'name', 'hostname', 'default', 'source', 'path', 'isDefault'],
         'task-list' => ['id', 'title', 'responsibleId', 'groupId', 'status', 'deadline'],
         'title-matches' => ['id', 'title'], 'task-fields' => ['name', 'type', 'editable', 'filterable', 'sortable'],
@@ -80,6 +82,12 @@ final class ResultPresenter
             }
 
             return [[$result->profile === 'task-access' ? 'permission' : 'field', $result->profile === 'task-access' ? 'allowed' : 'value'], $rows];
+        }
+
+        if ($result->profile === 'user-card') {
+            $user = $result->data['user'] ?? null;
+            $columns = self::COLUMNS['user-card'];
+            return [$columns, $user === null ? [] : [array_map(static fn (string $field): mixed => $user[$field] ?? null, $columns)]];
         }
 
         $columns = self::COLUMNS[$result->profile] ?? ['field', 'value'];

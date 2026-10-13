@@ -29,6 +29,9 @@ final class AddConnectionCommand extends Command
         $this->addOption('creator-id', null, InputOption::VALUE_REQUIRED, 'Параметр профиля creator-id; не требует API.');
         $this->addOption('responsible-id', null, InputOption::VALUE_REQUIRED, 'Параметр профиля responsible-id; не требует API.');
         $this->addOption('allows-time-tracking', null, InputOption::VALUE_REQUIRED, 'default.task.allowsTimeTracking: true или false.', 'false');
+        $this->addOption('observer-id', null, InputOption::VALUE_REQUIRED, 'default.users.observerId: ID наблюдателя.');
+        $this->addOption('manager-id', null, InputOption::VALUE_REQUIRED, 'default.users.managerId: рабочий руководитель, независимо от оргструктуры.');
+        $this->addOption('auto-add-observer', null, InputOption::VALUE_REQUIRED, 'Добавлять наблюдателя при task:add: true или false; true требует --observer-id.', 'false');
         $this->setHelp('Скрытый ввод в TTY или --webhook-stdin; -n требует stdin flag. Не меняет defaultProfile. Webhook хранится отдельно в защищённом plaintext файле.');
     }
 

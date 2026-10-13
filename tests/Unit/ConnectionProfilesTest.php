@@ -472,4 +472,69 @@ final class ConnectionProfilesTest extends TestCase
         $this->expectException(Failure::class);
         $this->manager->webhook();
     }
+    public function testWorkingRolesRoundTripThroughLocalCommands(): void
+    {
+        $app = $this->app();
+        $run = ConsoleHarness::run($app, ['connection:add', 'work', '--webhook-stdin', '--observer-id', '5', '--manager-id', '9', '--auto-add-observer', 'true', '--json'], 'https://work.invalid/rest/1/RecognizableFixtureSecret/');
+        self::assertSame(0, $run->status, $run->stdout . $run->stderr);
+        $roles = ['observerId' => 5, 'managerId' => 9, 'autoAddObserver' => true];
+        self::assertSame($roles, $this->repository->profile($this->directory, 'work')['default']['users']);
+        $show = ConsoleHarness::run($app, ['connection:show', 'work', '--json']);
+        self::assertSame($roles, $show->json()['data']['items'][0]['default']['users']);
+        self::assertSame([], $show->json()['meta']['apiCalls']);
+        self::assertStringNotContainsString('RecognizableFixtureSecret', $run->stdout . $show->stdout . $show->stderr);
+    }
+
+    public function testWorkingRolesAreScopedToActualSelectedProfile(): void
+    {
+        $this->repository->add($this->directory, 'work', 'https://work.invalid/rest/1/RecognizableFixtureSecret/', null, [], ['observerId' => 5, 'managerId' => 9, 'autoAddObserver' => true]);
+        $this->repository->use($this->directory, 'work');
+        putenv('BITRIX24_WEBHOOK=https://other.invalid/rest/1/OtherFixtureSecret/');
+        $this->manager->configure(null, null, null);
+        self::assertSame([], $this->manager->userDefaults());
+        $this->manager->configure('work', null, null);
+        self::assertSame(5, $this->manager->userDefaults()['observerId']);
+        $this->manager->configure(null, '/fixture.env', null);
+        self::assertSame([], $this->manager->userDefaults());
+    }
+
+    public function testAutoObserverFlagsValidateBeforeSavingOrReadingStdin(): void
+    {
+        foreach ([['--auto-add-observer', 'true'], ['--observer-id', '0'], ['--manager-id', 'false'], ['--observer-id', '5', '--auto-add-observer', 'Y']] as $flags) {
+            $run = ConsoleHarness::run($this->app(), ['connection:add', 'work', '--webhook-stdin', ...$flags, '--json'], 'https://work.invalid/rest/1/RecognizableFixtureSecret/');
+            self::assertSame(2, $run->status, $run->stdout . $run->stderr);
+            self::assertFileDoesNotExist($this->directory . '/config.json');
+        }
+    }
+
+    public function testWorkingRolesDefaultToDisabledAndRemainIntactOnMetadataWrites(): void
+    {
+        $this->repository->add($this->directory, 'work', 'https://work.invalid/rest/1/RecognizableFixtureSecret/', null, [], ['observerId' => 5]);
+        self::assertFalse($this->manager->metadata(true)['default']['users']['autoAddObserver'] ?? false);
+        $this->repository->use($this->directory, 'work');
+        self::assertSame(['observerId' => 5], $this->repository->profile($this->directory, 'work')['default']['users']);
+        $this->manager->configure('work', null, null);
+        self::assertFalse($this->manager->metadata(true)['default']['users']['autoAddObserver']);
+    }
+
+    public function testConfiguredManagerUsesOnlySelectedProfileAndUserLookup(): void
+    {
+        $this->repository->add($this->directory, 'work', 'https://work.invalid/rest/1/RecognizableFixtureSecret/', null, [], ['managerId' => 9]);
+        $fakeApiTransport = new FakeApiTransport(static fn (): \Bitrix24\CLI\Infrastructure\Bitrix24\ApiResponse => new \Bitrix24\CLI\Infrastructure\Bitrix24\ApiResponse([['ID' => '9', 'NAME' => 'Manager']]));
+        $app = (new ApplicationFactory())->create(dirname(__DIR__, 2), $fakeApiTransport, packaged: true);
+        $before = file_get_contents($this->directory . '/config.json');
+        $run = ConsoleHarness::run($app, ['--profile', 'work', 'users:manager', '--source', 'config', '--json']);
+        self::assertSame(0, $run->status, $run->stdout . $run->stderr);
+        self::assertSame('9', $run->json()['data']['user']['ID']);
+        self::assertSame('config', $run->json()['meta']['source']);
+        self::assertSame(['user.get'], array_column($fakeApiTransport->calls, 'method'));
+        self::assertSame(['ID' => 9], $fakeApiTransport->calls[0]['parameters']['FILTER']);
+        self::assertSame($before, file_get_contents($this->directory . '/config.json'));
+        $this->add('pet');
+        $missing = ConsoleHarness::run($app, ['--profile', 'pet', 'users:manager', '--source', 'config', '--json']);
+        self::assertSame(1, $missing->status);
+        self::assertSame('configuration-error', $missing->json()['error']['code']);
+        self::assertCount(1, $fakeApiTransport->calls);
+    }
+
 }
