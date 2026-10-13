@@ -72,6 +72,19 @@ final readonly class ProfileRepository
         return $profile;
     }
 
+    public function assertCanAdd(string $directory, string $alias): void
+    {
+        self::alias($alias);
+        $this->assertUnusedAlias($this->load($directory), $alias);
+    }
+
+    private function assertUnusedAlias(array $config, string $alias): void
+    {
+        if (isset($config['profiles'][$alias])) {
+            throw new Failure('configuration-error', sprintf('Profile "%s" already exists. Parameters were not applied. Inspect it with connection:show %s; to replace it, use connection:remove %s, then connection:add %s with the webhook and all desired defaults. Removal clears a matching defaultProfile; restore it with connection:use %s if needed.', $alias, $alias, $alias, $alias, $alias));
+        }
+    }
+
     public function add(string $directory, string $alias, string $webhook, ?string $name, array $task, array $users = []): array
     {
         self::alias($alias);
@@ -84,9 +97,7 @@ final readonly class ProfileRepository
         $this->validateUsers($users);
         return $this->locked($directory, function () use ($directory, $alias, $webhook, $hostname, $name, $task, $users): array {
             $config = $this->load($directory);
-            if (isset($config['profiles'][$alias])) {
-                throw new Failure('configuration-error', 'Profile already exists; remove it explicitly before adding a replacement.');
-            }
+            $this->assertUnusedAlias($config, $alias);
 
             $reference = $this->credentials->write($directory, $webhook);
             $profile = ['name' => $name, 'connection' => ['hostname' => $hostname, 'credentialFile' => $reference], 'default' => ['task' => $task]];

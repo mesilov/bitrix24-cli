@@ -15,10 +15,12 @@ use Bitrix24\CLI\Infrastructure\Connection\FileCredentialStore;
 use Bitrix24\CLI\Infrastructure\Connection\FileProtection;
 use Bitrix24\CLI\Infrastructure\Connection\ProfileRepository;
 use Bitrix24\CLI\Tests\Support\ConsoleHarness;
+use Bitrix24\CLI\Tests\Support\CapturedOutput;
 use Bitrix24\CLI\Tests\Support\FakeApiTransport;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Component\Console\Input\ArgvInput;
 
 final class ConnectionProfilesTest extends TestCase
 {
@@ -90,6 +92,30 @@ final class ConnectionProfilesTest extends TestCase
                 self::assertSame('configuration-error', $failure->errorCode);
             }
         }
+    }
+
+    public function testRoleIdentityFollowsTheSelectedConnectionRatherThanTaskDefaults(): void
+    {
+        $this->repository->add($this->directory, 'work', 'https://work.invalid/rest/7/RecognizableFixtureSecret/', null, ['creatorId' => 9, 'responsibleId' => 9]);
+        $this->repository->use($this->directory, 'work');
+        putenv('BITRIX24_WEBHOOK=https://ambient.invalid/rest/2/AmbientFixtureSecret/');
+        $path = $this->directory . '/explicit.env';
+        file_put_contents($path, "BITRIX24_WEBHOOK=https://file.invalid/rest/8/FileFixtureSecret/\n");
+        $fakeApiTransport = new FakeApiTransport(static fn (): \Bitrix24\CLI\Infrastructure\Bitrix24\ApiResponse => new \Bitrix24\CLI\Infrastructure\Bitrix24\ApiResponse(['items' => array_map(static fn (int $id): array => ['id' => $id, 'title' => 'task', 'responsibleId' => $id], [2, 7, 8, 9])]));
+        $app = (new ApplicationFactory())->create(dirname(__DIR__, 2), $fakeApiTransport, packaged: true);
+        foreach ([[['--profile', 'work'], 7], [['--env-file', $path], 8], [[], 2]] as [$options, $id]) {
+            $run = ConsoleHarness::run($app, ['--json', 'task:list', '--role', 'responsible', ...$options]);
+            self::assertSame(0, $run->status, $run->stdout);
+            self::assertSame(['role' => 'responsible', 'userId' => $id], $run->json()['meta']['roleFilter']);
+            self::assertSame([$id], array_column($run->json()['data']['items'], 'id'));
+            foreach (['RecognizableFixtureSecret', 'AmbientFixtureSecret', 'FileFixtureSecret'] as $secret) {
+                self::assertStringNotContainsString($secret, $run->stdout . $run->stderr);
+            }
+        }
+
+        putenv('BITRIX24_WEBHOOK');
+        $run = ConsoleHarness::run($app, ['--json', 'task:list', '--role', 'responsible']);
+        self::assertSame(7, $run->json()['meta']['roleFilter']['userId']);
     }
 
     public function testFourProfileLifecycleAndPrivateFiles(): void
@@ -178,6 +204,209 @@ final class ConnectionProfilesTest extends TestCase
                 $run = ConsoleHarness::run($app, [$command, ...($command === 'connection:list' ? [] : [$alias]), $mode]);
                 self::assertSame(0, $run->status, $run->stdout . $run->stderr);
                 self::assertStringNotContainsString('RecognizableFixtureSecret', $run->stdout . $run->stderr);
+            }
+        }
+    }
+
+    public function testDuplicateAddRejectsBeforeWebhookInputAndPreservesFiles(): void
+    {
+        $work = $this->add('work', ['groupId' => 187, 'responsibleId' => 2, 'allowsTimeTracking' => false]);
+        $pet = $this->add('pet');
+        $this->repository->use($this->directory, 'work');
+        $config = file_get_contents($this->directory . '/config.json');
+        $credentials = [];
+        foreach ([$work, $pet] as $profile) {
+            $path = $this->directory . '/' . $profile['connection']['credentialFile'];
+            $credentials[$path] = file_get_contents($path);
+        }
+
+        $app = $this->app();
+        foreach (['--no-ansi', '--plain', '--json'] as $mode) {
+            foreach ([false, true] as $stdin) {
+                $input = new ArgvInput(['b24cli', 'connection:add', 'work', '--creator-id', '3', '--group-id', '99', '--responsible-id', '4', '--allows-time-tracking', 'true', '-n', $mode, ...($stdin ? ['--webhook-stdin'] : [])]);
+                $input->setInteractive(false);
+                $stream = fopen('php://memory', 'r+');
+                fwrite($stream, 'https://replacement.invalid/rest/1/ReplacementFixtureSecret/');
+                rewind($stream);
+                $input->setStream($stream);
+                $output = new CapturedOutput();
+                try {
+                    self::assertSame(1, $app->run($input, $output));
+                    self::assertSame(0, ftell($stream), 'Duplicate add must not consume webhook stdin.');
+                } finally {
+                    fclose($stream);
+                }
+
+                $stdout = $output->fetch();
+                $stderr = $output->getErrorOutput()->fetch();
+                $combined = $stdout . $stderr;
+                self::assertStringContainsString('configuration-error', $combined);
+                self::assertStringContainsString('Parameters were not applied', $combined);
+                foreach (['show', 'remove', 'add', 'use'] as $command) {
+                    self::assertStringContainsString('connection:' . $command . ' work', $combined);
+                }
+
+                self::assertStringNotContainsString('HTTPS incoming webhook:', $combined);
+                self::assertStringNotContainsString('RecognizableFixtureSecret', $combined);
+                self::assertStringNotContainsString('ReplacementFixtureSecret', $combined);
+                if ($mode === '--json') {
+                    $json = json_decode($stdout, true, 512, JSON_THROW_ON_ERROR);
+                    self::assertNull($json['data']);
+                    self::assertSame('configuration-error', $json['error']['code']);
+                    self::assertSame([], $json['meta']['apiCalls']);
+                } else {
+                    self::assertSame('', $stdout);
+                }
+
+                self::assertSame($config, file_get_contents($this->directory . '/config.json'));
+                self::assertEqualsCanonicalizing(array_keys($credentials), glob($this->directory . '/credentials/*.env'));
+                foreach ($credentials as $path => $bytes) {
+                    self::assertSame($bytes, file_get_contents($path));
+                }
+            }
+        }
+
+        // Missing credential must not hide the metadata-only duplicate diagnostic.
+        unlink($this->directory . '/' . $work['connection']['credentialFile']);
+        $run = ConsoleHarness::run($app, ['connection:add', 'work', '--json']);
+        self::assertSame(1, $run->status);
+        self::assertStringContainsString('already exists', $run->json()['error']['message']);
+    }
+
+    public function testRepositoryDuplicateUsesTheSameDiagnosticAndCreatesNoCredential(): void
+    {
+        $this->add();
+        $before = file_get_contents($this->directory . '/config.json');
+        $messages = [];
+        foreach (['preflight', 'locked-add'] as $operation) {
+            try {
+                if ($operation === 'preflight') {
+                    $this->repository->assertCanAdd($this->directory, 'work');
+                } else {
+                    $this->add('work', ['creatorId' => 3]);
+                }
+
+                self::fail('Expected duplicate rejection.');
+            } catch (Failure $failure) {
+                self::assertSame('configuration-error', $failure->errorCode);
+                $messages[] = $failure->getMessage();
+            }
+        }
+
+        self::assertSame($messages[0], $messages[1]);
+        self::assertSame($before, file_get_contents($this->directory . '/config.json'));
+        self::assertCount(1, glob($this->directory . '/credentials/*.env'));
+    }
+
+    public function testHelpExplainsReplacementWithoutConfigurationOrCredentials(): void
+    {
+        $run = ConsoleHarness::run($this->app(), ['help', 'connection:add', '--no-ansi']);
+        self::assertSame(0, $run->status);
+        foreach (['Создаёт только новый профиль', 'переданные параметры не применяются', 'connection:show NAME', 'connection:remove NAME', 'connection:add NAME', 'connection:use NAME', 'не переносятся', 'webhook', 'defaultProfile', 'не отзывается'] as $text) {
+            self::assertStringContainsString($text, $run->stdout);
+        }
+
+        self::assertDirectoryDoesNotExist($this->directory);
+    }
+
+    public function testDocumentedReplacementRestoresDefaultsAndSelectedProfile(): void
+    {
+        $work = $this->add('work', ['groupId' => 187, 'responsibleId' => 2]);
+        $pet = $this->add('pet', ['creatorId' => 8]);
+        $this->repository->use($this->directory, 'work');
+        $petPath = $this->directory . '/' . $pet['connection']['credentialFile'];
+        $petBytes = file_get_contents($petPath);
+        $app = $this->app();
+        $run = ConsoleHarness::run($app, ['connection:show', 'work', '--json']);
+        self::assertSame(0, $run->status);
+        self::assertArrayNotHasKey('creatorId', $run->json()['data']['items'][0]['default']['task']);
+        $run = ConsoleHarness::run($app, ['connection:remove', 'work', '--json']);
+        self::assertSame(0, $run->status);
+        self::assertFileDoesNotExist($this->directory . '/' . $work['connection']['credentialFile']);
+        self::assertNull($this->repository->load($this->directory)['defaultProfile']);
+        $run = ConsoleHarness::run($app, ['connection:add', 'work', '--group-id', '187', '--creator-id', '3', '--responsible-id', '2', '--allows-time-tracking', 'true', '--webhook-stdin', '-n', '--json'], 'https://work.invalid/rest/1/RecognizableFixtureSecret/');
+        self::assertSame(0, $run->status, $run->stdout);
+        self::assertNull($this->repository->load($this->directory)['defaultProfile']);
+        $run = ConsoleHarness::run($app, ['connection:show', 'work', '--json']);
+        self::assertSame(['groupId' => 187, 'creatorId' => 3, 'responsibleId' => 2, 'allowsTimeTracking' => true], $run->json()['data']['items'][0]['default']['task']);
+        $run = ConsoleHarness::run($app, ['connection:use', 'work', '--json']);
+        self::assertSame(0, $run->status);
+        self::assertSame('work', $this->repository->load($this->directory)['defaultProfile']);
+        $run = ConsoleHarness::run($app, ['task:add', '--profile', 'work', '--title', 'Test', '--dry-run', '--json']);
+        self::assertSame(0, $run->status, $run->stdout);
+        self::assertSame(['title' => 'Test', 'groupId' => 187, 'creatorId' => 3, 'responsibleId' => 2, 'allowsTimeTracking' => true], $run->json()['data']['plan']['steps'][0]['fields']);
+        self::assertSame([], $run->json()['meta']['apiCalls']);
+        self::assertSame($pet, $this->repository->profile($this->directory, 'pet'));
+        self::assertSame($petBytes, file_get_contents($petPath));
+    }
+
+    public function testConcurrentRepositoryAddsDoNotOverwriteTheWinner(): void
+    {
+        $script = <<<'PHP'
+require 'vendor/autoload.php';
+$protection = new \Bitrix24\CLI\Infrastructure\Connection\FileProtection();
+$repository = new \Bitrix24\CLI\Infrastructure\Connection\ProfileRepository($protection, new \Bitrix24\CLI\Infrastructure\Connection\FileCredentialStore($protection));
+$repository->assertCanAdd($argv[1], 'work');
+fwrite(STDOUT, "READY\n");
+fflush(STDOUT);
+fgets(STDIN);
+try {
+    $repository->add($argv[1], 'work', 'https://work.invalid/rest/1/RecognizableFixtureSecret/', null, ['creatorId' => (int) $argv[2]]);
+    exit(0);
+} catch (\Bitrix24\CLI\Application\Failure $failure) {
+    fwrite(STDOUT, $failure->errorCode . ': ' . $failure->getMessage());
+    exit(1);
+}
+PHP;
+        $workers = [];
+        try {
+            foreach ([3, 4] as $creator) {
+                $process = proc_open([PHP_BINARY, '-r', $script, $this->directory, (string) $creator], [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, dirname(__DIR__, 2));
+                self::assertIsResource($process);
+                $workers[] = [$process, $pipes];
+                stream_set_timeout($pipes[1], 10);
+                self::assertSame("READY\n", fgets($pipes[1]));
+            }
+
+            foreach ($workers as [$process, $pipes]) {
+                fwrite($pipes[0], "GO\n");
+                fclose($pipes[0]);
+                stream_set_timeout($pipes[1], 120);
+            }
+
+            $statuses = [];
+            foreach ($workers as [$process, $pipes]) {
+                $stdout = stream_get_contents($pipes[1]);
+                $stderr = stream_get_contents($pipes[2]);
+                $status = proc_close($process);
+                $statuses[] = $status;
+                self::assertSame('', $stderr);
+                if ($status === 1) {
+                    self::assertStringContainsString('configuration-error', $stdout);
+                    self::assertStringContainsString('Parameters were not applied', $stdout);
+                }
+
+                self::assertStringNotContainsString('RecognizableFixtureSecret', $stdout);
+            }
+
+            sort($statuses);
+            self::assertSame([0, 1], $statuses);
+            $config = $this->repository->load($this->directory);
+            self::assertCount(1, $config['profiles']);
+            self::assertContains($config['profiles']['work']['default']['task']['creatorId'], [3, 4]);
+            self::assertCount(1, glob($this->directory . '/credentials/*.env'));
+        } finally {
+            foreach ($workers as [$process, $pipes]) {
+                foreach ($pipes as $pipe) {
+                    if (is_resource($pipe)) {
+                        fclose($pipe);
+                    }
+                }
+
+                if (is_resource($process)) {
+                    proc_terminate($process);
+                    proc_close($process);
+                }
             }
         }
     }

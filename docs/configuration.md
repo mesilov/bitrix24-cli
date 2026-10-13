@@ -205,12 +205,27 @@ b24cli --profile work task:add --title "Договор" --dry-run --json
 | Команда | Что создаётся или меняется |
 | --- | --- |
 | Первый `connection:add` | Каталоги, lock file, config.json, один credential file; defaultProfile остаётся null. |
-| Следующий `connection:add` | Запись в config.json и новый credential file; defaultProfile сохраняется. |
+| `connection:add` с новым alias | Запись в config.json и новый credential file; defaultProfile сохраняется. |
+| `connection:add` с существующим alias | configuration-error / exit 1 до ввода webhook; параметры не применяются, config и credentials сохраняются. |
 | `connection:use NAME` | Только metadata defaultProfile, через управляемую атомарную запись. |
 | `connection:list/show`, task reads | Постоянные config/credentials не меняются. |
 | `connection:remove NAME` | Запись и credential file удаляются; default очищается при совпадении, другой профиль автоматически не выбирается. |
 
-`connection:add` сохраняет минимум `default.task.allowsTimeTracking=false`, даже без ID flags. `--portal-domain DOMAIN` меняет только описательный `name`. Для CI настройка принимает `--webhook-stdin`; stdin должен подаваться из защищённого источника, без literal webhook в shell history. `-n`/non-TTY без этого флага возвращает ошибку. Дублирующий профиль не перезаписывается.
+`connection:add` сохраняет минимум `default.task.allowsTimeTracking=false`, даже без ID flags. `--portal-domain DOMAIN` меняет только описательный `name`. Для CI настройка принимает `--webhook-stdin`; stdin должен подаваться из защищённого источника, без literal webhook в shell history. Для нового alias `-n`/non-TTY без этого флага возвращает ошибку. Дублирующий профиль не обновляется: ошибка возникает до запроса или чтения webhook.
+
+Для изменения defaults существующего профиля сначала выполните `connection:show NAME`, сохраните нужные non-secret настройки и обеспечьте доступ к webhook для повторного ввода. `connection:show` не раскрывает webhook. Затем пересоздайте профиль с полным набором нужных параметров:
+
+```sh
+b24cli connection:show work
+b24cli connection:remove work
+# Защищённый secret-файл должен быть доступен до удаления профиля.
+b24cli connection:add work --group-id 187 --creator-id 3 --responsible-id 2 --allows-time-tracking true --webhook-stdin -n < /secure/webhook.txt
+# Только если work должен быть подключением по умолчанию:
+b24cli connection:use work
+b24cli --profile work task:add --title "Договор" --dry-run --json
+```
+
+Удаление стирает локальный credential file и очищает совпадающий `defaultProfile`, но не отзывает webhook на портале. Повторный add не восстанавливает выбор автоматически. Defaults удалённого профиля не переносятся: omitted ID flags оставляют соответствующие ID отсутствующими, а omitted `--allows-time-tracking` задаёт `false`. При необходимости передайте `--portal-domain` заново.
 
 Локальные `connection:*` команды не создают, не проверяют на портале и не отзывают webhook. Отзыв — отдельное действие в Битрикс24.
 

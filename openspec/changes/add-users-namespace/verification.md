@@ -80,3 +80,17 @@ The mandatory Bitrix24 MCP was queried during planning and implementation: effec
 After the final dev synchronization, CHANGELOG.md was updated under Unreleased with the delivered users/role/observer scope and issue #63 link; its actual diff against origin/dev is checked before PR readiness. The dev synchronization changed documentation/workflow only, so source test receipts above remain applicable.
 
 Issue #63 retains milestone 0.2.0 and existing enhancement label with the active change path. No merge, release, deployment or platform binary acceptance follows from local/live source checks. Archive/spec sync and worktree cleanup follow confirmed delivery per maintainer workflow.
+
+
+## Dev synchronization and revalidation before merge
+
+On 2026-10-13 the feature branch merged `origin/dev` at `1a2ef63`, preserving task results, role filtering, recent-first scans, task tags and profile replacement guidance. AddTaskHandler composes optional tag and observer steps in the documented order, stops observer steps after tag failure, and retains confirmed tag writes when observer assignment fails. Three new unit cases cover success/offline preview and both failure boundaries; live task:add adds a combined tag/observer case. Catalog acceptance now covers 34 task commands plus four users commands. Existing verification receipts above remain historical evidence; current checks below supersede their suite counts.
+
+- `make test-unit`: PASS, **542 tests / 4020 assertions**.
+- `make lint-all`: PASS, licenses, PHP CS Fixer, PHPStan and Rector; 246 PHP files.
+- Configuration schema: PASS, 125 shared fixtures / two examples / six additional documented runtime checks.
+- `openspec validate add-users-namespace --strict` and `git diff --check`: PASS; 20/20 tasks, 24 requirements, 74 scenarios including tag/observer composition.
+- Live `--group command:task:add`: PASS, **4 tests / 45 assertions**, independent SDK tag and observer membership readback, owned fixtures removed with zero cleanup failures. Existing users live limits above remain unchanged.
+- Official Bitrix24 MCP search/details succeeded again for tasks.task.update. Its combined v1/v3 record was cross-checked against the [classic update reference](https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-update.html); version-specific payloads remain unchanged.
+
+GitHub CI must still be confirmed against the newly published feature head before merge. No earlier package run is substituted for checks on that head.

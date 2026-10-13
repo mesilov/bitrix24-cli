@@ -67,6 +67,7 @@ final readonly class ConnectionCommandRunner
 
     private function add(string $directory, string $alias, InputInterface $input, OutputInterface $output): array
     {
+        $this->profiles->assertCanAdd($directory, $alias);
         $task = [];
         foreach (['group-id' => 'groupId', 'creator-id' => 'creatorId', 'responsible-id' => 'responsibleId'] as $flag => $field) {
             if ($input->getOption($flag) !== null) {

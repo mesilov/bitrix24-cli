@@ -82,6 +82,8 @@ Creation и companion assignment имеют отдельные ledger entries. �
 
 Basic --dry-run показывает create и companion routes с reference будущего ID и не читает credentials/API. Advanced --fields dry-run сохраняет существующий remote schema preflight; нельзя объявлять его полностью offline.
 
+При совмещении с `--tag` сохраняется порядок create → TAGS → чтение AUDITORS → union update. Ошибка записи тегов останавливает observer companion; ledger сохраняет созданную задачу и помечает observer-шаги skipped. Ошибка observer-шагов сохраняет подтверждённую запись тегов. Basic dry-run показывает все четыре шага до credentials/API.
+
 ### 6. User module and shared runtime
 
 Новые Console/Command/Users команды используют общий CommandRunner, отдельные typed requests/handlers в Application/User и ports UserDirectoryGateway/DepartmentGateway. Infrastructure adapters используют существующий ApiTransport и method/version allow-list; HTTP/SDK не вызываются напрямую из command/handler. Task UserGateway не расширяется current/search/org обязанностями; можно разделить низкоуровневый record validation при доказанной необходимости, не меняя contract task enrichment.

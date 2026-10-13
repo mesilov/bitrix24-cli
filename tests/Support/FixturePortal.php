@@ -16,9 +16,14 @@ final class FixturePortal
         ['ID' => '12', 'TASK_ID' => '123', 'PARENT_ID' => '11', 'TITLE' => 'Nested', 'SORT_INDEX' => '10', 'IS_COMPLETE' => 'Y'],
     ];
 
+    public array $result = ['id' => 17, 'taskId' => 123, 'text' => 'Original result', 'authorId' => 2, 'createdAt' => '2026-10-13T12:00:00+06:00', 'updatedAt' => null, 'status' => 'open', 'fileIds' => [], 'rights' => ['edit' => true, 'remove' => true], 'messageId' => null];
+
     public function respond(string $method, int $version, array $params): ApiResponse
     {
         return match ($method) {
+            'tasks.task.result.add' => new ApiResponse(['item' => [...$this->result, ...$params['fields']]]),
+            'tasks.task.result.list' => new ApiResponse(['items' => [$this->result]]),
+            'tasks.task.result.update' => new ApiResponse(['item' => [...$this->result, ...$params['fields']]]),
             'tasks.task.add' => new ApiResponse(['item' => ['id' => 124, ...$params['fields']]]),
             'tasks.task.get' => new ApiResponse($version === 3 ? ['item' => $this->task] : ['task' => ['id' => '123', 'auditors' => [], 'accomplices' => []]]),
             'tasks.task.list' => new ApiResponse(['items' => [['id' => 123, 'title' => $this->task['title'], 'responsibleId' => 2, 'groupId' => null, 'status' => 'pending', 'deadline' => null]]]),

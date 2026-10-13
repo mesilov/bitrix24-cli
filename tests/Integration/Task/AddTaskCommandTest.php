@@ -40,4 +40,29 @@ final class AddTaskCommandTest extends LiveTaskCommandTestCase
         });
     }
 
+    #[Group('happy-path')]
+    public function testCreatesTaskWithTagsAndConfiguredObserver(): void
+    {
+        $this->withProfile(['observerId' => $this->userId, 'autoAddObserver' => true], function (string $directory): void {
+            $result = $this->invoke(['task:add', '--title', $this->fixtureTitle(), '--tag', '#observer', '--profile', 'fixture', '--config-dir', $directory]);
+            $id = $result['data']['operation']['taskId'];
+            self::assertSame(['confirmed', 'confirmed', 'confirmed', 'confirmed'], array_column($result['meta']['ledger'], 'status'));
+            $card = $this->card($id, ['id', 'tags.id', 'tags.name']);
+            self::assertSame(['#observer'], array_column($card['tags'], 'name'));
+            self::assertContains($this->userId, $this->participants->ids($id, ['auditors'])['auditors']);
+        });
+    }
+
+    #[Group('task-tags')]
+    #[Group('happy-path')]
+    public function testCreatesTaskWithTagsAndRest3Readback(): void
+    {
+        $result = $this->invoke(['task:add', '--title', $this->fixtureTitle(), '--creator', $this->userId, '--responsible', $this->userId, '--tag', '#плановая', '--tag', 'Этап 1']);
+        $id = $result['data']['operation']['taskId'];
+        self::assertSame(['3.0', '1.0'], $result['meta']['apiVersions']);
+        self::assertSame(['confirmed', 'confirmed'], array_column($result['meta']['ledger'], 'status'));
+        $names = array_column($this->card($id, ['id', 'tags.id', 'tags.name'])['tags'], 'name');
+        sort($names);
+        self::assertSame(['#плановая', 'Этап 1'], $names);
+    }
 }

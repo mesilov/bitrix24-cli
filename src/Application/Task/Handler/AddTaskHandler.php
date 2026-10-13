@@ -17,13 +17,14 @@ use Bitrix24\CLI\Application\Task\Port\ParticipantGateway;
 
 final readonly class AddTaskHandler
 {
-    public function __construct(private TaskGateway $tasks, private ParticipantGateway $participants, private RuntimeState $state)
+    public function __construct(private TaskGateway $tasks, private ParticipantGateway $participants, private RuntimeState $state, private \Bitrix24\CLI\Application\Task\TaskTagMutation $tags)
     {
     }
 
     public function routes(AddTaskRequest $request): array
     {
         return [new Route('tasks.task.add', 3, 'write'), ...($request->advanced ? [new Route('tasks.task.field.list', 3)] : []),
+            ...($request->TAGS === null ? [] : [new Route('tasks.task.update', 1, 'write')]),
             ...($request->observerId === null ? [] : [new Route('tasks.task.get', 1), new Route('tasks.task.update', 1, 'write')]),
         ];
     }
@@ -35,19 +36,34 @@ final readonly class AddTaskHandler
         }
 
         $plan = [Plan::step(null, 'tasks.task.add', 3, 'write', $request->fields)];
+        if ($request->TAGS !== null) {
+            $plan[] = [...Plan::step(null, 'tasks.task.update', 1, 'write', ['TAGS' => $request->TAGS], 2), 'taskIdFromStep' => 1];
+        }
+
         if ($request->observerId !== null) {
-            $plan[] = [...Plan::step(null, 'tasks.task.get', 1, 'read', ['select' => ['ID', 'AUDITORS']], 2), 'taskIdSource' => 'created-task'];
-            $plan[] = [...Plan::step(null, 'tasks.task.update', 1, 'write', ['AUDITORS' => [$request->observerId]], 3), 'taskIdSource' => 'created-task', 'mergeWithExisting' => true];
+            $plan[] = [...Plan::step(null, 'tasks.task.get', 1, 'read', ['select' => ['ID', 'AUDITORS']], count($plan) + 1), 'taskIdSource' => 'created-task'];
+            $plan[] = [...Plan::step(null, 'tasks.task.update', 1, 'write', ['AUDITORS' => [$request->observerId]], count($plan) + 1), 'taskIdSource' => 'created-task', 'mergeWithExisting' => true];
         }
 
         return new PreparedOperation($plan, function () use ($request): OperationResult {
             $id = $this->tasks->add($request->fields);
             $result = OperationResult::mutation($id, $id, 'add', $request->fields);
+            if ($request->TAGS !== null) {
+                $result = $this->tags->finish($id, $request->fields, $request->TAGS, 'add', $result->data['operation']);
+            }
+
             if ($request->observerId === null) {
                 return $result;
             }
 
-            $ledger = [['method' => 'tasks.task.add', 'apiVersion' => '3.0', 'taskId' => $id, 'status' => 'confirmed']];
+            if ($result->exitStatus !== 0) {
+                return new OperationResult($result->profile, $result->data, [...$result->meta, 'observerId' => $request->observerId, 'ledger' => [...$result->meta['ledger'],
+                    ['method' => 'tasks.task.get', 'apiVersion' => '1.0', 'taskId' => $id, 'status' => 'skipped'],
+                    ['method' => 'tasks.task.update', 'apiVersion' => '1.0', 'taskId' => $id, 'status' => 'skipped'],
+                ]], $result->exitStatus);
+            }
+
+            $ledger = $result->meta['ledger'] ?? [['method' => 'tasks.task.add', 'apiVersion' => '3.0', 'taskId' => $id, 'status' => 'confirmed']];
             $method = 'tasks.task.get';
             try {
                 $this->state->checkCancellation();

@@ -3,19 +3,19 @@
 ## MODIFIED Requirements
 
 ### Requirement: Exact MVP command registration
-Runtime SHALL предоставлять 30 task-команд из MVP каталога define-task-jtbd и четыре users-команды capability user-directory, отдельно от локальных connection-команд capability connection-configuration и встроенных команд справки/completion. Регистрация SHALL строиться напрямую из единственного явного CommandCatalog без tags/compiler pass и массового сканирования. Unit-tests SHALL проверять уникальность имён/классов, совпадение AsCommand с каталогом и отсутствие исключённых task-операций. Исключённые операции не SHALL возвращаться через aliases.
+Runtime SHALL предоставлять 34 task-команды (30 исходных MVP и четыре task:result команды) и четыре users-команды capability user-directory, отдельно от локальных connection-команд capability connection-configuration и встроенных команд справки/completion. Регистрация SHALL строиться напрямую из единственного явного CommandCatalog без tags/compiler pass и массового сканирования. Unit-tests SHALL проверять уникальность имён/классов, совпадение AsCommand с каталогом и отсутствие исключённых task-операций. Исключённые операции не SHALL возвращаться через aliases.
 
 #### Scenario: Root command inventory
 - **WHEN** пользователь запускает b24cli без имени команды либо list task без профиля подключения
-- **THEN** видны все 30 согласованных task-команд, отсутствуют 29 исключённых команд, включая task:subtask:add; API и чтение credentials не выполняются
+- **THEN** видны все 34 согласованные task-команды, включая result:add/list/update/delete; остальные исключённые команды отсутствуют, включая task:subtask:add; API и чтение credentials не выполняются
 
 #### Scenario: Explicit catalog consistency
 - **WHEN** запускаются unit-tests регистрации приложения
-- **THEN** проверяются все 30 task-имён и четыре users-имени и уникальных Command-классов, совпадение AsCommand и отсутствие aliases; compiler pass и console.command tags не требуются, credentials и API не читаются
+- **THEN** проверяются все 34 task-имени и четыре users-имени и уникальных Command-классов, совпадение AsCommand и отсутствие aliases; compiler pass и console.command tags не требуются, credentials и API не читаются
 
 #### Scenario: Users have their own namespace
 - **WHEN** вызывается list users
-- **THEN** видны только users:current/find/colleagues/manager; list task сохраняет свои 30 команды, а local connection-команды остаются отдельными
+- **THEN** видны только users:current/find/colleagues/manager; list task сохраняет свои 34 команды, а local connection-команды остаются отдельными
 
 
 ### Requirement: Integration happy-path coverage for every CLI command
@@ -86,7 +86,7 @@ Runtime SHALL заранее проверять все потенциальны�
 #### Scenario: Existing explicitly selected strict mode
 - **WHEN** пользователь явно выбрал strict-rest3 для users-команды либо task:add с включённой автодобавкой наблюдателя
 - **THEN** существующий строгий режим отклоняет весь non-v3 план до credentials, чтения портала и создания задачи
-- **AND** task:add без автодобавки сохраняет только свои REST3 маршруты
+- **AND** task:add без автодобавки сохраняет свой существующий план, включая REST1 запись TAGS при явном --tag
 
 
 ## ADDED Requirements
@@ -133,3 +133,8 @@ CLI SHALL сохранять подтверждённый ID созданной 
 - **WHEN** basic task:add --dry-run использует профиль с включённой автодобавкой
 - **THEN** вывод показывает создание, чтение существующих наблюдателей и возможное назначение через AUDITORS с ссылкой на будущий ID, без secrets/API calls
 - **AND** политика проверяет полный потенциальный план и advanced-field preflight сохраняет собственный существующий контракт
+
+#### Scenario: Tags and observer share one creation
+- **WHEN** task:add receives --tag and an enabled default observer
+- **THEN** the plan and execution contain create, TAGS write, AUDITORS read and union update; each step uses the same created task ID
+- **AND** a failed tag write stops observer calls and retains the created task ID with skipped observer steps; a failed observer step retains the confirmed tag write

@@ -17,6 +17,10 @@ final class CommandContractsTest extends TestCase
 {
     public static function cases(): iterable
     {
+        yield 'result add' => [['task:result:add', '123', '--text', 'Done'], 'tasks.task.result.add', 3, ['fields' => ['taskId' => 123, 'text' => 'Done']]];
+        yield 'result list' => [['task:result:list', '123'], 'tasks.task.result.list', 3, ['filter' => [['taskId', 123]], 'select' => \Bitrix24\CLI\Infrastructure\Bitrix24\Rest3TaskResultAdapter::FIELDS, 'order' => ['id' => 'ASC'], 'pagination' => ['offset' => 0, 'limit' => 50]]];
+        yield 'result update' => [['task:result:update', '123', '--result', '17', '--text', 'Changed'], 'tasks.task.result.update', 3, ['id' => 17, 'fields' => ['text' => 'Changed']]];
+        yield 'result delete' => [['task:result:delete', '123', '--result', '17', '--force'], 'tasks.task.result.delete', 3, ['id' => 17]];
         yield 'add' => [['task:add', '--title', 'New task', '--creator', '1', '--responsible', '2'], 'tasks.task.add', 3, ['fields' => ['title' => 'New task', 'creatorId' => 1, 'responsibleId' => 2, 'allowsTimeTracking' => false]]];
         yield 'show' => [['task:show', '123'], 'tasks.task.get', 3, null];
         yield 'list' => [['task:list', '--responsible', '2'], 'tasks.task.list', 3, null];
@@ -118,7 +122,7 @@ final class CommandContractsTest extends TestCase
             'task:show', 'task:access:show', 'task:time:show', 'task:find', 'task:checklist:list' => 2,
             'task:list' => 6,
             'task:fields:list', 'task:time:list' => 5,
-            'task:history:list' => 6,
+            'task:history:list', 'task:result:list' => 6,
             default => 4,
         };
         foreach (explode("\n", rtrim($run->stdout, "\n")) as $line) {

@@ -82,7 +82,7 @@ abstract class LiveCommandTestCase extends TestCase
         self::assertSame($this->commandName(), $argv[0], 'Fixtures and readback must use SDK helpers, not another CLI command.');
         $run = ConsoleHarness::run($app ?? $this->app, ['--json', ...array_map(strval(...), $argv)]);
         $json = $run->json();
-        $this->observedCommands[] = ['command' => $argv[0], 'status' => $run->status, 'apiCalls' => $json['meta']['apiCalls'] ?? [], 'complete' => $json['meta']['complete'] ?? null, 'reason' => $json['meta']['reason'] ?? null, 'errorCode' => $json['error']['code'] ?? null, 'apiErrorCode' => $json['error']['details']['apiErrorCode'] ?? null];
+        $this->observedCommands[] = ['command' => $argv[0], 'status' => $run->status, 'apiCalls' => $json['meta']['apiCalls'] ?? [], 'complete' => $json['meta']['complete'] ?? null, 'reason' => $json['meta']['reason'] ?? null, 'errorCode' => $json['error']['code'] ?? null, 'apiErrorCode' => $json['error']['details']['apiErrorCode'] ?? null, ...(isset($json['meta']['roleFilter']) ? ['roleFilter' => $json['meta']['roleFilter']] : [])];
         $this->afterInvoke($argv, $json);
 
         self::assertContains($run->status, $statuses, $run->stdout . $run->stderr);

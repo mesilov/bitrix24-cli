@@ -8,6 +8,7 @@ use Bitrix24\CLI\Application\Failure;
 use Bitrix24\CLI\Application\Task\FieldSchema;
 use Bitrix24\CLI\Application\Task\Request;
 use Bitrix24\CLI\Application\Task\TaskQuery;
+use Bitrix24\CLI\Application\Task\TaskRole;
 use Symfony\Component\Console\Input\InputInterface;
 
 final readonly class TaskInputMapper
@@ -56,9 +57,13 @@ final readonly class TaskInputMapper
         return $value === null ? null : $this->reader->object($value);
     }
 
-    private function patch(InputInterface $input, bool $create): array
+    private function patch(InputInterface $input, bool $create, ?array $TAGS = null): array
     {
         $advanced = $this->json($input, 'fields');
+        if ($advanced !== null && $TAGS !== null) {
+            throw Failure::usage('Advanced --fields/--fields-file cannot be mixed with --tag/--clear-tags.');
+        }
+
         $fields = [];
         foreach (['title' => 'title', 'description' => 'description', 'creator' => 'creatorId', 'responsible' => 'responsibleId', 'group-id' => 'groupId', 'deadline' => 'deadline'] as $flag => $field) {
             if (!$input->hasOption($flag)) {
@@ -101,20 +106,41 @@ final readonly class TaskInputMapper
             }
         }
 
-        FieldSchema::localPatch($fields, $create);
+        if ($fields !== [] || $create || $TAGS === null) {
+            FieldSchema::localPatch($fields, $create);
+        }
+
         return [$fields, $advanced !== null];
+    }
+
+    private function TAGS(InputInterface $input): ?array
+    {
+        $values = $input->getOption('tag');
+        $clear = $input->hasOption('clear-tags') && $input->getOption('clear-tags');
+        if ($clear && $values !== []) {
+            throw Failure::usage('Choose --tag or --clear-tags.');
+        }
+
+        foreach ($values as $value) {
+            if (!is_string($value) || preg_match('/(*UCP)\\S/u', $value) !== 1) {
+                throw Failure::usage('Provide a nonempty UTF-8 --tag name.');
+            }
+        }
+
+        return $clear ? [] : ($values === [] ? null : array_values(array_unique($values)));
     }
 
     public function addTask(InputInterface $input): Request\AddTaskRequest
     {
-        [$fields, $advanced] = $this->patch($input, true);
+        $TAGS = $this->TAGS($input);
+        [$fields, $advanced] = $this->patch($input, true, $TAGS);
         $roles = $this->connections?->userDefaults($input->getOption('dry-run')) ?? [];
         $observer = ($roles['autoAddObserver'] ?? false) ? $roles['observerId'] : null;
         if ($observer !== null && $this->connections instanceof \Bitrix24\CLI\Infrastructure\Connection\ConnectionManager) {
             $this->connections->fieldSources['default.users.observerId'] = 'profile-default';
         }
 
-        return new Request\AddTaskRequest($fields, $advanced, $observer);
+        return new Request\AddTaskRequest($fields, $advanced, $observer, $TAGS);
     }
 
     public function showTask(InputInterface $input): Request\ShowTaskRequest
@@ -126,8 +152,9 @@ final readonly class TaskInputMapper
 
     public function updateTask(InputInterface $input): Request\UpdateTaskRequest
     {
-        [$fields, $advanced] = $this->patch($input, false);
-        return new Request\UpdateTaskRequest($this->taskId($input), $fields, $advanced, 'task:update');
+        $TAGS = $this->TAGS($input);
+        [$fields, $advanced] = $this->patch($input, false, $TAGS);
+        return new Request\UpdateTaskRequest($this->taskId($input), $fields, $advanced, 'task:update', $TAGS);
     }
 
     public function assignTask(InputInterface $input): Request\UpdateTaskRequest
@@ -151,6 +178,12 @@ final readonly class TaskInputMapper
 
     private function query(InputInterface $input, bool $find): TaskQuery
     {
+        $value = $input->getOption('role');
+        $role = $value === null ? null : (is_string($value) ? TaskRole::tryFrom($value) : null);
+        if ($value !== null && $role === null) {
+            throw Failure::usage('Use --role responsible, accomplice, creator or auditor.');
+        }
+
         $where = $find ? [] : $this->json($input, 'where');
         $predicates = [];
         if ($find && $input->getOption('group-id') !== null) {
@@ -180,8 +213,8 @@ final readonly class TaskInputMapper
             }
         }
 
-        $order = ['id' => 'ASC'];
-        if (!$find && $input->getOption('order') !== []) {
+        $order = ['id' => 'DESC'];
+        if ($input->getOption('order') !== []) {
             $order = [];
             foreach ($input->getOption('order') as $value) {
                 $parts = explode(':', $value);
@@ -203,6 +236,7 @@ final readonly class TaskInputMapper
             $order,
             $this->limit($input, 50),
             $input->getOption('max-scan') === null ? 10000 : $this->id($input->getOption('max-scan'), '--max-scan'),
+            $role,
         );
     }
 
@@ -260,6 +294,26 @@ final readonly class TaskInputMapper
         }
 
         return new Request\AttachTaskFilesRequest($this->taskId($input), array_values(array_unique(array_map(fn ($id): int => $this->id($id, '--file-id'), $input->getOption('file-id')))));
+    }
+
+    public function addTaskResult(InputInterface $input): Request\AddTaskResultRequest
+    {
+        return new Request\AddTaskResultRequest($this->taskId($input), $this->text($input, 'text'));
+    }
+
+    public function listTaskResults(InputInterface $input): Request\ListTaskResultsRequest
+    {
+        return new Request\ListTaskResultsRequest($this->taskId($input), $this->limit($input, 50), $input->getOption('max-scan') === null ? 10000 : $this->id($input->getOption('max-scan'), '--max-scan'));
+    }
+
+    public function updateTaskResult(InputInterface $input): Request\UpdateTaskResultRequest
+    {
+        return new Request\UpdateTaskResultRequest($this->taskId($input), $this->id($input->getOption('result'), '--result'), $this->text($input, 'text'));
+    }
+
+    public function deleteTaskResult(InputInterface $input): Request\DeleteTaskResultRequest
+    {
+        return new Request\DeleteTaskResultRequest($this->taskId($input), $this->id($input->getOption('result'), '--result'));
     }
 
 

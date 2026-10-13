@@ -65,7 +65,7 @@ abstract class LiveTaskCommandTestCase extends LiveCommandTestCase
         }
 
         if (isset($this->userId)) {
-            $evidence = ['class' => static::class, 'test' => $this->name(), 'command' => $this->commandName(), 'happyPath' => $this->isHappyPath(), 'actingUserId' => $this->userId, 'ownedTaskIds' => $this->ownedTaskIds, 'ownedDiskFileIds' => $this->createdDiskFiles, 'commands' => $this->observedCommands, 'cleanupFailures' => ['taskIds' => $failed, 'diskFileIds' => $failedFiles]];
+            $evidence = ['class' => static::class, 'test' => $this->nameWithDataSet(), 'command' => $this->commandName(), 'happyPath' => $this->isHappyPath(), 'actingUserId' => $this->userId, 'ownedTaskIds' => $this->ownedTaskIds, 'ownedDiskFileIds' => $this->createdDiskFiles, 'commands' => $this->observedCommands, 'cleanupFailures' => ['taskIds' => $failed, 'diskFileIds' => $failedFiles]];
             self::assertNotFalse(file_put_contents($this->root() . '/var/cache/portal-evidence.jsonl', json_encode($evidence, JSON_THROW_ON_ERROR) . "\n", FILE_APPEND | LOCK_EX));
         }
 
@@ -86,8 +86,13 @@ abstract class LiveTaskCommandTestCase extends LiveCommandTestCase
 
     protected function afterInvoke(array $argv, array $json): void
     {
-        if ($argv[0] === 'task:add' && is_int($id = $json['data']['operation']['resourceId'] ?? null) && $id > 0) {
-            $this->ownTask($id);
+        if ($argv[0] === 'task:add') {
+            foreach ($json['data']['items'] ?? [$json['data']['operation'] ?? []] as $operation) {
+                $id = $operation['resourceId'] ?? null;
+                if (($operation['action'] ?? null) === 'add' && is_int($id) && $id > 0) {
+                    $this->ownTask($id);
+                }
+            }
         }
     }
 

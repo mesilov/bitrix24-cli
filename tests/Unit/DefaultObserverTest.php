@@ -174,6 +174,46 @@ final class DefaultObserverTest extends TestCase
         self::assertCount(2, $calls);
     }
 
+    public function testTagsAndObserverShareOneCreationAndFullPreview(): void
+    {
+        $this->profile(['observerId' => 5, 'autoAddObserver' => true]);
+        [$status, $json, $calls] = $this->invoke(['--title', 'Fixture', '--tag', '#plan']);
+        self::assertSame(0, $status, json_encode($json));
+        self::assertSame(['tasks.task.add', 'tasks.task.update', 'tasks.task.get', 'tasks.task.update'], array_column($calls, 'method'));
+        self::assertSame([3, 1, 1, 1], array_column($calls, 'version'));
+        self::assertSame(['TAGS' => ['#plan']], $calls[1]['parameters']['fields']);
+        self::assertSame(['AUDITORS' => [6, 5]], $calls[3]['parameters']['fields']);
+        self::assertSame(['confirmed', 'confirmed', 'confirmed', 'confirmed'], array_column($json['meta']['ledger'], 'status'));
+        self::assertContains('TAGS', $json['data']['operation']['changedFields']);
+        [$status, $json, $calls, $reads] = $this->invoke(['--title', 'Fixture', '--tag', '#plan', '--dry-run']);
+        self::assertSame(0, $status);
+        self::assertSame([1, 2, 3, 4], array_column($json['data']['plan']['steps'], 'step'));
+        self::assertSame([], $calls);
+        self::assertSame(0, $reads);
+    }
+
+    public function testFailedTagsSkipObserverAndRetainCreation(): void
+    {
+        $this->profile(['observerId' => 5, 'autoAddObserver' => true]);
+        [$status, $json, $calls] = $this->invoke(['--title', 'Fixture', '--tag', '#plan'], respond: fn ($method, $version, $params): ApiResponse => $method === 'tasks.task.update' ? throw new Failure('transport-error', 'Tag failure.', 1, [], true) : $this->response($method, $version, $params));
+        self::assertSame(3, $status);
+        self::assertSame(123, $json['data']['items'][0]['taskId']);
+        self::assertSame(['confirmed', 'unknown', 'skipped', 'skipped'], array_column($json['meta']['ledger'], 'status'));
+        self::assertTrue($json['meta']['outcomeUnknown']);
+        self::assertCount(2, $calls);
+    }
+
+    public function testFailedObserverRetainsConfirmedTagWrite(): void
+    {
+        $this->profile(['observerId' => 5, 'autoAddObserver' => true]);
+        [$status, $json, $calls] = $this->invoke(['--title', 'Fixture', '--tag', '#plan'], respond: fn ($method, $version, $params): ApiResponse => $method === 'tasks.task.get' ? throw new Failure('permission-denied', 'Observer read denied.') : $this->response($method, $version, $params));
+        self::assertSame(3, $status);
+        self::assertSame(123, $json['data']['operation']['taskId']);
+        self::assertContains('TAGS', $json['data']['operation']['changedFields']);
+        self::assertSame(['confirmed', 'confirmed', 'failed', 'skipped'], array_column($json['meta']['ledger'], 'status'));
+        self::assertCount(3, $calls);
+    }
+
     public function testCancellationAfterCreationStopsAllCompanionCalls(): void
     {
         $runtimeState = new RuntimeState();
@@ -181,7 +221,7 @@ final class DefaultObserverTest extends TestCase
             $runtimeState->cancelled = true;
             return new ApiResponse(['item' => ['id' => 123]]);
         });
-        $addTaskHandler = new AddTaskHandler(new Rest3TaskAdapter($fakeApiTransport), new Rest1ParticipantAdapter($fakeApiTransport), $runtimeState);
+        $addTaskHandler = new AddTaskHandler(new Rest3TaskAdapter($fakeApiTransport), new Rest1ParticipantAdapter($fakeApiTransport), $runtimeState, new \Bitrix24\CLI\Application\Task\TaskTagMutation(new \Bitrix24\CLI\Infrastructure\Bitrix24\Rest1TaskTagAdapter($fakeApiTransport)));
         $operation = $addTaskHandler->prepare(new AddTaskRequest(['title' => 'Fixture'], false, 5));
         $result = ($operation->execute)();
         self::assertSame(130, $result->exitStatus);
