@@ -31,7 +31,7 @@
 
 - [x] 5.1 Выполнить make test, make check и make lint-all; проверить regression JSON/plain/native options/API policy/dry-run/exit status для текущего command catalog. Проверка: offline suite и четыре quality gates, логи без portal secrets; актуальные roles/profiles/results/lifecycle/users/local-file contracts сохраняются.
 - [x] 5.2 Проверить O1–O3 issue/spec и полный diff. Проверка: openspec validate improve-task-cli-dx --strict, git diff --check, сохранение всех current scenarios пяти CLI MODIFIED blocks и четырёх сценариев role query block, отсутствие нового O4–O8 scope; offline evidence отдельно от portal acceptance #42.
-- [ ] 5.3 Опубликовать implementation PR в dev со ссылками issue/change и проверками; planning update не считается выполнением этой задачи. Проверка: remote commit, target dev, PR artifact, двусторонняя трассировка и актуальный milestone; feature readiness не объявляется по planning validation.
+- [x] 5.3 Опубликовать implementation PR в dev со ссылками issue/change и проверками; planning update не считается выполнением этой задачи. Проверка: remote commit, target dev, PR artifact, двусторонняя трассировка и актуальный milestone; feature readiness не объявляется по planning validation.
 
 ## Workflow follow-up
 
