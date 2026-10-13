@@ -169,6 +169,28 @@ final class TaskRoleFilterTest extends TestCase
         self::assertCount(2, $api->calls);
     }
 
+    public function testParticipantRoleComposesWithListStatusGroupAndDeadline(): void
+    {
+        [$run, $api] = $this->invoke('task:list', ['--role', 'auditor', '--group-id', '42', '--status', 'in_progress', '--due-before', '2026-10-13T00:00:00Z'], static function ($method, $version, array $params): ApiResponse {
+            if ($version === 3) {
+                self::assertSame([], $params['filter']);
+                return new ApiResponse(['items' => [
+                    [...self::row(1), 'status' => 'in_progress', 'deadline' => '2026-10-12T00:00:00Z'],
+                    [...self::row(2), 'groupId' => 7, 'status' => 'in_progress', 'deadline' => '2026-10-12T00:00:00Z'],
+                    [...self::row(3), 'deadline' => '2026-10-12T00:00:00Z'],
+                    [...self::row(4), 'status' => 'in_progress', 'deadline' => '2026-10-20T00:00:00Z'],
+                ]]);
+            }
+
+            self::assertSame(1, $params['taskId']);
+            return new ApiResponse(['task' => ['id' => '1', 'auditors' => ['1']]]);
+        });
+        self::assertSame(0, $run->status, $run->stdout);
+        self::assertSame([1], array_column($run->json()['data']['items'], 'id'));
+        self::assertCount(2, $api->calls);
+        self::assertTrue($run->json()['meta']['complete']);
+    }
+
     #[DataProvider('roles')]
     public function testSecondPageLimitAndBudgetAreIndependent(string $command, string $role): void
     {

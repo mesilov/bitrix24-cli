@@ -25,8 +25,8 @@
 
 ## 5. Проверка соответствия и review
 
-- [ ] 5.1 Обновить origin/dev и сверить входящие изменения scanner/handlers без перезаписи чужой работы; выполнить make unit, make lint-all, make check и openspec validate add-task-role-filters --strict, сохранив точные результаты и SHA в verification.md.
-- [ ] 5.2 Выполнить openspec-verify-change: сопоставить все требования/scenarios с кодом и tests, проверить issue ↔ proposal, milestone 0.2.0, Feature/enhancement и exact API names/types; подготовить PR в dev с реальным объёмом, локальными проверками и отдельной границей portal evidence.
+- [x] 5.1 Обновить origin/dev и сверить входящие изменения scanner/handlers без перезаписи чужой работы; выполнить make unit, make lint-all, make check и openspec validate add-task-role-filters --strict, сохранив точные результаты и SHA в verification.md.
+- [x] 5.2 Выполнить openspec-verify-change: сопоставить все требования/scenarios с кодом и tests, проверить issue ↔ proposal, milestone 0.2.0, Feature/enhancement и exact API names/types; подготовить PR в dev с реальным объёмом, локальными проверками и отдельной границей portal evidence.
 
 ## Workflow follow-up
 
