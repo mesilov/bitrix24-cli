@@ -28,8 +28,15 @@
 
 ## Boundaries
 
-This verifies the requested instructions, project-config parsing/loading and responses from the connected documentation MCP. It does not prove an intentionally failed initialization of a new Codex session or execute future post-merge cleanup. No conflicts arose in this task branch, so no conflict-resolution run was needed. Native CI and merge status are separate from these local checks. The current change and its worktree remain active while the MR is open.
+This verifies the requested instructions, project-config parsing/loading and responses from the connected documentation MCP. It does not prove an intentionally failed initialization of a new Codex session or execute post-merge cleanup. No conflicts arose in this task branch, so no conflict-resolution run was needed. Native CI and merge status are recorded separately below. At implementation verification time, the change and its worktree remained active pending MR merge.
 
 ## Assessment
 
 No critical findings, warnings or suggestions in the applicable documentation checks. Archive and worktree removal are workflow follow-up after confirmed merge into `dev` and closure of issue #65.
+
+## Delivery
+
+- [MR #67](https://github.com/mesilov/bitrix24-cli/pull/67) merged into `dev`; merge commit `6d9fe39b4f6d431c70680adefdab970cb0ad2db4`.
+- All 17 CI checks passed for final implementation head `2b16120e349c7e21753f368030aeed095d4c5ca8`; the corrected review thread is resolved.
+- Fresh `origin/dev` contains the implementation head. Issue [#65](https://github.com/mesilov/bitrix24-cli/issues/65) is closed as completed.
+- OpenSpec confirms all artifacts complete, 4/4 tasks complete and `skip_specs: true`; no delta specs need synchronization before archive.
