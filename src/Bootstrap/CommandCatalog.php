@@ -7,6 +7,10 @@ namespace Bitrix24\CLI\Bootstrap;
 final class CommandCatalog
 {
     public const COMMANDS = [
+        'task:result:add' => ['class' => \Bitrix24\CLI\Console\Command\Task\AddTaskResultCommand::class, 'effect' => 'write'],
+        'task:result:list' => ['class' => \Bitrix24\CLI\Console\Command\Task\ListTaskResultsCommand::class, 'effect' => 'read'],
+        'task:result:update' => ['class' => \Bitrix24\CLI\Console\Command\Task\UpdateTaskResultCommand::class, 'effect' => 'write'],
+        'task:result:delete' => ['class' => \Bitrix24\CLI\Console\Command\Task\DeleteTaskResultCommand::class, 'effect' => 'delete'],
         'task:add' => ['class' => \Bitrix24\CLI\Console\Command\Task\AddTaskCommand::class, 'effect' => 'write'],
         'task:show' => ['class' => \Bitrix24\CLI\Console\Command\Task\ShowTaskCommand::class, 'effect' => 'read'],
         'task:list' => ['class' => \Bitrix24\CLI\Console\Command\Task\ListTaskCommand::class, 'effect' => 'read'],
@@ -53,6 +57,10 @@ final class CommandCatalog
     }
 
     public const ROUTES = [
+        'task:result:add' => [['tasks.task.result.add', 3]],
+        'task:result:list' => [['tasks.task.result.list', 3]],
+        'task:result:update' => [['tasks.task.result.list', 3], ['tasks.task.result.update', 3]],
+        'task:result:delete' => [['tasks.task.result.list', 3], ['tasks.task.result.delete', 3]],
         'task:add' => [['tasks.task.add', 3], ['tasks.task.field.list', 3], ['tasks.task.update', 1]],
         'task:show' => [['tasks.task.get', 3], ['tasks.task.get', 1], ['user.get', 1]],
         'task:list' => [['tasks.task.list', 3]],

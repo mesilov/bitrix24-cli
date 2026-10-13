@@ -282,6 +282,26 @@ final readonly class TaskInputMapper
         return new Request\AttachTaskFilesRequest($this->taskId($input), array_values(array_unique(array_map(fn ($id): int => $this->id($id, '--file-id'), $input->getOption('file-id')))));
     }
 
+    public function addTaskResult(InputInterface $input): Request\AddTaskResultRequest
+    {
+        return new Request\AddTaskResultRequest($this->taskId($input), $this->text($input, 'text'));
+    }
+
+    public function listTaskResults(InputInterface $input): Request\ListTaskResultsRequest
+    {
+        return new Request\ListTaskResultsRequest($this->taskId($input), $this->limit($input, 50), $input->getOption('max-scan') === null ? 10000 : $this->id($input->getOption('max-scan'), '--max-scan'));
+    }
+
+    public function updateTaskResult(InputInterface $input): Request\UpdateTaskResultRequest
+    {
+        return new Request\UpdateTaskResultRequest($this->taskId($input), $this->id($input->getOption('result'), '--result'), $this->text($input, 'text'));
+    }
+
+    public function deleteTaskResult(InputInterface $input): Request\DeleteTaskResultRequest
+    {
+        return new Request\DeleteTaskResultRequest($this->taskId($input), $this->id($input->getOption('result'), '--result'));
+    }
+
 
     public function addTaskTimeEntry(InputInterface $input): Request\AddTaskTimeEntryRequest
     {

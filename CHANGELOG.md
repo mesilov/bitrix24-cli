@@ -16,6 +16,9 @@
 - В скилле мейнтейнера требуется содержательная запись в changelog со ссылкой на issue
   для любого MR в `dev` по issue; проверка обязательна перед открытием MR и merge
   ([#78](https://github.com/mesilov/bitrix24-cli/issues/78)).
+- Архивирован завершённый OpenSpec change `require-issue-changelog-before-dev-merge`;
+  сохранены результаты проверки и архивная трассировка
+  ([#78](https://github.com/mesilov/bitrix24-cli/issues/78)).
 
 ## [0.1.0] — 2026-10-12
 

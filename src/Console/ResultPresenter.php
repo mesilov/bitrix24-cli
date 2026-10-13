@@ -18,6 +18,7 @@ final class ResultPresenter
         'task-list' => ['id', 'title', 'responsibleId', 'groupId', 'status', 'deadline'],
         'title-matches' => ['id', 'title'], 'task-fields' => ['name', 'type', 'editable', 'filterable', 'sortable'],
         'chat-messages' => ['id', 'createdDate', 'authorId', 'text'],
+        'task-results' => ['id', 'taskId', 'authorId', 'createdAt', 'status', 'text'],
         'time-entries' => ['id', 'userId', 'seconds', 'text', 'createdDate'], 'checklist-roots' => ['id', 'title'],
         'checklist-items' => ['id', 'parentId', 'title', 'isComplete'],
         'task-history' => ['id', 'createdDate', 'userId', 'field', 'from', 'to'],
