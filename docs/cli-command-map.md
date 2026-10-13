@@ -1,6 +1,6 @@
 # Карта CLI-вызовов
 
-Каталог содержит 47 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
+Каталог содержит 48 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
 
 `b24cli --help`/`-h` показывают назначение, список команд, глобальные опции и примеры задач. Вся справка — на русском; имена команд, флагов и API/JSON-полей сохраняются. Единый первый блок «Общие» содержит `completion`, `help` и `list`; далее пространства имён и команды внутри блоков упорядочены по имени. `b24cli --about` показывает назначение, версию, автора, лицензию и ссылки на [приложение](https://github.com/mesilov/bitrix24-cli) и [скилл](https://github.com/mesilov/bitrix24-cli-skill). Эти вызовы не требуют подключения и не обращаются к порталу. `list --help` описывает именно list; вызов без аргументов выводит список команд.
 
@@ -39,6 +39,7 @@
 | [`task:find`](../src/Console/Command/Task/FindTaskCommand.php) | Найти задачи по буквальной подстроке title | read | `b24cli task:find --title "договор" --group-id 7 --responsible 42` | [`FindTaskCommandTest.php`](../tests/Integration/Task/FindTaskCommandTest.php) |
 | [`task:history:list`](../src/Console/Command/Task/ListTaskHistoryCommand.php) | Показать историю изменений задачи | read | `b24cli task:history:list 123 --json` | [`ListTaskHistoryCommandTest.php`](../tests/Integration/Task/ListTaskHistoryCommandTest.php) |
 | [`task:list`](../src/Console/Command/Task/ListTaskCommand.php) | Показать доступные задачи | read | `b24cli task:list --group-id 7 --responsible 42` | [`ListTaskCommandTest.php`](../tests/Integration/Task/ListTaskCommandTest.php) |
+| [`task:my`](../src/Console/Command/Task/MyTaskCommand.php) | Показать задачи выбранного исполнителя | read | `b24cli task:my --user 42 --open --json` | [`MyTaskCommandTest.php`](../tests/Integration/Task/MyTaskCommandTest.php) |
 | [`task:participants:set`](../src/Console/Command/Task/SetTaskParticipantsCommand.php) | Заменить выбранные роли участников | write | `b24cli task:participants:set 123 --auditor 4 --clear-accomplices --dry-run` | [`SetTaskParticipantsCommandTest.php`](../tests/Integration/Task/SetTaskParticipantsCommandTest.php) |
 | [`task:result:add`](../src/Console/Command/Task/AddTaskResultCommand.php) | Добавить результат задачи | write | `b24cli task:result:add 123 --text "Договор готов" --dry-run` | [`AddTaskResultCommandTest.php`](../tests/Integration/Task/AddTaskResultCommandTest.php) |
 | [`task:result:delete`](../src/Console/Command/Task/DeleteTaskResultCommand.php) | Удалить результат задачи | delete | `b24cli task:result:delete 123 --result 17 --force --dry-run` | [`DeleteTaskResultCommandTest.php`](../tests/Integration/Task/DeleteTaskResultCommandTest.php) |

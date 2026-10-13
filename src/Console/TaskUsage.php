@@ -23,6 +23,7 @@ final class TaskUsage
             'users:manager' => ['b24cli users:manager --department-id 7 --json'],
             'task:add' => ['b24cli task:add --title "Подготовить договор" --creator 1 --responsible 42'],
             'task:show' => ['b24cli task:show 123'],
+            'task:my' => ['b24cli task:my --user 42 --open --json'],
             'task:list' => ['b24cli task:list --group-id 7 --responsible 42'],
             'task:find' => ['b24cli task:find --title "договор" --group-id 7 --responsible 42', 'b24cli task:find --title "договор" --role responsible --all --json'],
             'task:update' => ['b24cli task:update 123 --title "Договор для согласования"', 'b24cli task:update 123 --responsible 42', 'b24cli task:update 123 --description "Проверить реквизиты"'],

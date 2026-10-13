@@ -22,13 +22,14 @@ final readonly class TaskListScanner
     {
         $filter = $query->ids === [] ? [] : [['id', 'in', $query->ids]];
         $deadlineWindow = $query->deadlineWindow;
+        $dueBefore = $query->dueBefore === null ? null : new \DateTimeImmutable($query->dueBefore);
         if ($deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow) {
             $filter = [...$deadlineWindow->filter(), ...($query->ids === [] ? [] : ['ID' => $query->ids]), ...(isset($query->where['groupId']) ? ['GROUP_ID' => $query->where['groupId']] : [])];
         }
 
         $scalarRole = $query->role?->scalarField();
         $participantRole = $query->role?->participantField();
-        $fields = array_values(array_unique([...($title === null ? FieldSchema::LIST_FIELDS : ['id', 'title']), ...$query->select, ...array_keys($query->where), ...($query->dueBefore === null && !$deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow ? [] : ['deadline']), ...($deadlineWindow?->overdue ? ['status'] : [])]));
+        $fields = array_values(array_unique([...($title === null ? FieldSchema::LIST_FIELDS : ['id', 'title']), ...$query->select, ...array_keys($query->where), ...($query->dueBefore === null && !$deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow ? [] : ['deadline']), ...($deadlineWindow?->overdue || $query->openOnly ? ['status'] : [])]));
         $hiddenRoleField = $scalarRole !== null && !in_array($scalarRole, $fields, true) ? $scalarRole : null;
         if ($hiddenRoleField !== null) {
             $fields[] = $hiddenRoleField;
@@ -89,7 +90,7 @@ final readonly class TaskListScanner
 
                 $seen[$id] = true;
                 $progress++;
-                $required = ['title', ...array_keys($query->where), ...($query->dueBefore === null && !$deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow ? [] : ['deadline']), ...($deadlineWindow?->overdue ? ['status'] : [])];
+                $required = ['title', ...array_keys($query->where), ...($query->dueBefore === null && !$deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow ? [] : ['deadline']), ...($deadlineWindow?->overdue || $query->openOnly ? ['status'] : [])];
                 if (array_diff($required, array_keys($row)) !== [] || !is_string($row['title'] ?? null)) {
                     $reason = 'missing-predicate-field';
                     $complete = false;
@@ -102,13 +103,37 @@ final readonly class TaskListScanner
                     continue;
                 }
 
+                if (isset($query->where['responsibleId']) && ((!is_int($row['responsibleId']) && (!is_string($row['responsibleId']) || !ctype_digit($row['responsibleId']))) || filter_var($row['responsibleId'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) === false)) {
+                    $reason = 'missing-predicate-field';
+                    $complete = false;
+                    continue;
+                }
+
                 $matched = $title === null || mb_stripos($row['title'], $title) !== false;
                 foreach ($query->where as $field => $value) {
                     $matched = $matched && (string) $row[$field] === (string) $value;
                 }
 
-                if ($query->dueBefore !== null) {
-                    $matched = $matched && $row['deadline'] !== null && strtotime((string) $row['deadline']) !== false && strtotime((string) $row['deadline']) < strtotime($query->dueBefore);
+                if ($query->openOnly) {
+                    if (!in_array($row['status'], [...DeadlineWindow::OPEN_STATUSES, 'completed', 'declined'], true)) {
+                        $reason = 'missing-predicate-field';
+                        $complete = false;
+                        continue;
+                    }
+
+                    $matched = $matched && in_array($row['status'], DeadlineWindow::OPEN_STATUSES, true);
+                }
+
+                if ($dueBefore instanceof \DateTimeImmutable) {
+                    try {
+                        $deadline = $row['deadline'] === null ? null : new \DateTimeImmutable(FieldSchema::date($row['deadline']));
+                    } catch (\Throwable) {
+                        $reason = 'missing-predicate-field';
+                        $complete = false;
+                        continue;
+                    }
+
+                    $matched = $matched && $deadline instanceof \DateTimeImmutable && $deadline < $dueBefore;
                 }
 
                 if ($deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow) {
