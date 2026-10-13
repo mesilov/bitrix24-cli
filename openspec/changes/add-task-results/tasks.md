@@ -17,7 +17,7 @@
 ## 4. Verification and delivery
 
 - [x] 4.1 Выполнить make unit/check/lint-all, strict OpenSpec и git diff --check; сохранить verification с точными границами доказательств.
-- [ ] 4.2 Синхронизироваться с свежей origin/dev, повторить затронутые проверки и открыть PR в dev с #61 и обоими changes; проверить target/head и доступные CI результаты.
+- [x] 4.2 Синхронизироваться с свежей origin/dev, повторить затронутые проверки и открыть PR в dev с #61 и обоими changes; проверить target/head и доступные CI результаты.
 
 ## Workflow follow-up
 

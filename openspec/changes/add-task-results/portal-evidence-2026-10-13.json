@@ -248,5 +248,251 @@
     "restricted-role matrix not run",
     "multi-page live enumeration not run; unit contract checked",
     "release and native packaged artifacts not established by this portal run"
-  ]
+  ],
+  "recheck_after_final_binding_fix": {
+    "tests": 7,
+    "assertions": 63,
+    "passed": 7,
+    "skipped": 0,
+    "records": [
+      {
+        "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AddTaskResultCommandTest",
+        "test": "testHappyPathCreatesNativeResultWithoutCompletingTask",
+        "command": "task:result:add",
+        "happyPath": true,
+        "actingUserId": 1,
+        "ownedTaskIds": [
+          5872
+        ],
+        "ownedDiskFileIds": [],
+        "commands": [
+          {
+            "command": "task:result:add",
+            "status": 0,
+            "apiCalls": [
+              {
+                "method": "tasks.task.result.add",
+                "apiVersion": "3.0",
+                "effect": "write"
+              }
+            ],
+            "complete": null,
+            "reason": null,
+            "errorCode": null,
+            "apiErrorCode": null
+          }
+        ],
+        "cleanupFailures": {
+          "taskIds": [],
+          "diskFileIds": []
+        }
+      },
+      {
+        "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\DeleteTaskResultCommandTest",
+        "test": "testHappyPathDeletesOwnResult",
+        "command": "task:result:delete",
+        "happyPath": true,
+        "actingUserId": 1,
+        "ownedTaskIds": [
+          5874
+        ],
+        "ownedDiskFileIds": [],
+        "commands": [
+          {
+            "command": "task:result:delete",
+            "status": 0,
+            "apiCalls": [
+              {
+                "method": "tasks.task.result.list",
+                "apiVersion": "3.0",
+                "effect": "read"
+              },
+              {
+                "method": "tasks.task.result.delete",
+                "apiVersion": "3.0",
+                "effect": "delete"
+              }
+            ],
+            "complete": null,
+            "reason": null,
+            "errorCode": null,
+            "apiErrorCode": null
+          }
+        ],
+        "cleanupFailures": {
+          "taskIds": [],
+          "diskFileIds": []
+        }
+      },
+      {
+        "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\DeleteTaskResultCommandTest",
+        "test": "testForceCannotDeleteResultInAnotherTask",
+        "command": "task:result:delete",
+        "happyPath": false,
+        "actingUserId": 1,
+        "ownedTaskIds": [
+          5876,
+          5878
+        ],
+        "ownedDiskFileIds": [],
+        "commands": [
+          {
+            "command": "task:result:delete",
+            "status": 4,
+            "apiCalls": [
+              {
+                "method": "tasks.task.result.list",
+                "apiVersion": "3.0",
+                "effect": "read"
+              }
+            ],
+            "complete": null,
+            "reason": null,
+            "errorCode": "resource-binding-unverified",
+            "apiErrorCode": null
+          }
+        ],
+        "cleanupFailures": {
+          "taskIds": [],
+          "diskFileIds": []
+        }
+      },
+      {
+        "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskResultsCommandTest",
+        "test": "testHappyPathReturnsOnlySelectedTaskResults",
+        "command": "task:result:list",
+        "happyPath": true,
+        "actingUserId": 1,
+        "ownedTaskIds": [
+          5880,
+          5882
+        ],
+        "ownedDiskFileIds": [],
+        "commands": [
+          {
+            "command": "task:result:list",
+            "status": 0,
+            "apiCalls": [
+              {
+                "method": "tasks.task.result.list",
+                "apiVersion": "3.0",
+                "effect": "read"
+              }
+            ],
+            "complete": true,
+            "reason": null,
+            "errorCode": null,
+            "apiErrorCode": null
+          }
+        ],
+        "cleanupFailures": {
+          "taskIds": [],
+          "diskFileIds": []
+        }
+      },
+      {
+        "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskResultsCommandTest",
+        "test": "testEmptyTaskReturnsAnEmptyCompleteList",
+        "command": "task:result:list",
+        "happyPath": false,
+        "actingUserId": 1,
+        "ownedTaskIds": [
+          5884
+        ],
+        "ownedDiskFileIds": [],
+        "commands": [
+          {
+            "command": "task:result:list",
+            "status": 0,
+            "apiCalls": [
+              {
+                "method": "tasks.task.result.list",
+                "apiVersion": "3.0",
+                "effect": "read"
+              }
+            ],
+            "complete": true,
+            "reason": null,
+            "errorCode": null,
+            "apiErrorCode": null
+          }
+        ],
+        "cleanupFailures": {
+          "taskIds": [],
+          "diskFileIds": []
+        }
+      },
+      {
+        "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\UpdateTaskResultCommandTest",
+        "test": "testHappyPathChangesOwnResultText",
+        "command": "task:result:update",
+        "happyPath": true,
+        "actingUserId": 1,
+        "ownedTaskIds": [
+          5886
+        ],
+        "ownedDiskFileIds": [],
+        "commands": [
+          {
+            "command": "task:result:update",
+            "status": 0,
+            "apiCalls": [
+              {
+                "method": "tasks.task.result.list",
+                "apiVersion": "3.0",
+                "effect": "read"
+              },
+              {
+                "method": "tasks.task.result.update",
+                "apiVersion": "3.0",
+                "effect": "write"
+              }
+            ],
+            "complete": null,
+            "reason": null,
+            "errorCode": null,
+            "apiErrorCode": null
+          }
+        ],
+        "cleanupFailures": {
+          "taskIds": [],
+          "diskFileIds": []
+        }
+      },
+      {
+        "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\UpdateTaskResultCommandTest",
+        "test": "testForeignResultIsRejectedWithoutChangingIt",
+        "command": "task:result:update",
+        "happyPath": false,
+        "actingUserId": 1,
+        "ownedTaskIds": [
+          5888,
+          5890
+        ],
+        "ownedDiskFileIds": [],
+        "commands": [
+          {
+            "command": "task:result:update",
+            "status": 4,
+            "apiCalls": [
+              {
+                "method": "tasks.task.result.list",
+                "apiVersion": "3.0",
+                "effect": "read"
+              }
+            ],
+            "complete": null,
+            "reason": null,
+            "errorCode": "resource-binding-unverified",
+            "apiErrorCode": null
+          }
+        ],
+        "cleanupFailures": {
+          "taskIds": [],
+          "diskFileIds": []
+        }
+      }
+    ],
+    "cleanup": "passed"
+  }
 }

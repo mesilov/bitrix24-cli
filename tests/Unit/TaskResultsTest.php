@@ -148,7 +148,8 @@ final class TaskResultsTest extends TestCase
         foreach ([[...$fixturePortal->result, 'id' => 18], [...$fixturePortal->result, 'taskId' => 999], ['id' => 17]] as $item) {
             $api = new FakeApiTransport(static fn (): ApiResponse => new ApiResponse(['items' => [$item]]));
             $run = ConsoleHarness::run((new ApplicationFactory())->create(dirname(__DIR__, 2), $api), ['--json', 'task:result:delete', '123', '--result', '17', '--force']);
-            self::assertContains($run->status, [1, 4]);
+            self::assertSame(4, $run->status);
+            self::assertSame('resource-binding-unverified', $run->json()['error']['code']);
             self::assertFalse($run->json()['meta']['outcomeUnknown']);
             self::assertSame(['read'], array_column($api->calls, 'effect'));
         }

@@ -6,7 +6,7 @@ Date: 2026-10-13. Issue: https://github.com/mesilov/bitrix24-cli/issues/61.
 
 | Dimension | Evidence |
 | --- | --- |
-| Completeness | Four result commands, four own integration classes, three role JTBD, README/development/package inventory, issue/change links. Implementation tasks complete; PR delivery tracked separately. |
+| Completeness | Four result commands, four own integration classes, three role JTBD, README/development/package inventory, issue/change links. 7/7 tracked tasks complete; PR #76 targets dev. Template change remains 0/4. |
 | Correctness | Nine requirements / thirteen scenarios mapped below; unit and configured-portal proof are separate. |
 | Coherence | Console → immutable Request → service/port → REST3 adapter; explicit catalog/DI, shared mapper/runner/presenter, exact API fields and no new dependencies. |
 
@@ -21,7 +21,7 @@ Date: 2026-10-13. Issue: https://github.com/mesilov/bitrix24-cli/issues/61.
 
 ## Verification commands
 
-- `make unit`: **386 tests, 2358 assertions**, all pass.
+- `make unit`: **386 tests, 2361 assertions**, all pass.
 - `make unit TEST_ARGS='--filter TaskResultsTest'` after Rector fixes: **12 tests, 174 assertions**, all pass.
 - `make check`: Composer/schema/platform, PHP syntax and CLI inventory pass.
 - `make lint-all`: licenses, PHP CS Fixer, PHPStan and Rector pass. Initial Rector failure was limited to new unit-test variable naming/array append; corrected and rechecked.
@@ -41,8 +41,16 @@ The first attempt using one comma-separated `--group` selected no tests; it prov
 
 - Restricted-role permission matrix and live multi-page enumeration were not run; offline pagination contracts are checked.
 - Result CRUD does not prove completion/control/approval, client delivery, result from-message, template behavior, or complete PM-05/AM-05/EMP-05 workflows.
-- At this verification point native packaged artifacts, remote CI, merge and release are not established. Subsequent receipts are recorded below when available.
+- Native packaged artifacts at the final head, merge and release are not established. Subsequent receipts are recorded below when available.
 - #72/add-task-templates remains deferred with 0/4 tasks; no template runtime was added.
 - Keep add-task-results active until PR review/merge; archive/spec sync/issue path update/worktree cleanup follow the maintainer completion workflow.
 
-No missing result implementation or local spec divergence found. Remaining limits are explicitly bounded portal/native/release evidence and PR delivery.
+No missing result implementation or local spec divergence found. Remaining limits are explicitly bounded portal/native/release evidence; PR delivery is complete.
+
+## Delivery and PHAR receipt
+
+- PR: https://github.com/mesilov/bitrix24-cli/pull/76; target `dev`, head branch `feature/61-add-task-results`, initial source SHA `93995f00a89574191b99d95db8611c473560efd2`. No merge requested/performed.
+- `make package-phar` from that clean SHA succeeded. Docker PHP 8.5.11 smoke passed: 34 command inventory, every command help, JSON/dry-run, credentials gate, SIGINT, Unicode/autoload, trusted HTTPS and rejected certificate, clean PATH, temporary PHAR cleanup. This is PHAR proof, not standalone/native proof.
+- Initial head CI: Command tests (schema and unit), licenses, PHPStan, PhpCsFixer, Rector and Linux worktree isolation succeeded; three native package jobs were still running when checked. This receipt belongs to the initial SHA and is not presented as final-head CI.
+- Final verification tightened mismatched preflight id/taskId to binding error 4; full unit suite then passed with 386 tests / 2361 assertions and all quality gates passed again.
+- Portal recheck after the final binding fix: **7/7 tests, 63 assertions**, all pass again; every disposable fixture cleanup succeeds. Initial records are preserved and the second receipt is appended in the evidence JSON.

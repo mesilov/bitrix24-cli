@@ -38,6 +38,10 @@ final readonly class Rest3TaskResultAdapter implements TaskResultGateway
             throw new Failure('api-error', 'The task result list response has an unsupported shape.');
         }
 
+        if ($id !== null && array_any($items, static fn ($item): bool => is_array($item) && (($item['id'] ?? null) !== $id || ($item['taskId'] ?? null) !== $taskId))) {
+            throw Failure::binding('Bitrix24 did not return the result belonging to the selected task.');
+        }
+
         $rows = array_map(fn ($item): array => $this->item($item, $taskId), $items);
         return new Page($rows, count($rows) >= $limit ? $offset + count($rows) : null);
     }
