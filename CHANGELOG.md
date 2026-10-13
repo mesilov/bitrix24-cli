@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Добавлено
+
+- POSIX installer для macOS arm64/Linux amd64: публичный Release, SHA-256,
+  проверка версии перед заменой, notices, zsh/bash PATH, custom install directory
+  и `--no-modify-path` ([#28](https://github.com/mesilov/bitrix24-cli/issues/28)).
+
 ## [0.1.0] — 2026-10-12
 
 Первая версия CLI для работы с задачами Битрикс24.
