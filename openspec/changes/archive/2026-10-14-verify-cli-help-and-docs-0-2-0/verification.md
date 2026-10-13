@@ -58,3 +58,12 @@ Docker PHP 8.4.26. composer.lock не изменялся: из-за timeout code
 Completeness: 12/12 задач текущей реализации после передачи итоговой карты скиллу и релизной перепроверки в #109. Spec coverage: 2/2 delta requirements; Scenario coverage: 10/10. Correctness: requirement implementation и source/offline сценарии подтверждены указанными проверками. Coherence: design и существующие Console/DI patterns соблюдены; обязательная запись CHANGELOG и документация JTBD включены.
 
 В проверенной области critical/warning findings нет. Реализация подготовлена для review в dev. Merge, archive и релизная приёмка не следуют из локальных проверок автоматически.
+
+## Доставка и архивирование — 14.10.2026
+
+- PR #110 подтверждён merged в dev, merge SHA `cb31662b089f13467315c876a884c32c8134eb4c`; issue #100 подтверждено closed.
+- GitHub CI PR #110: 13/13 completed/success на head SHA `6b8a2a7dee843ccf0368eb44599ae7b8cb116a31`.
+- Синхронизированы Application information without remote operations (ADDED) и Discoverable help without remote operations (MODIFIED) в каноническую cli-experience; исходные Purpose/title, 14 остальных requirements и существующие сценарии сохранены.
+- Archive: `openspec/changes/archive/2026-10-14-verify-cli-help-and-docs-0-2-0/`, 12/12 задач.
+- `openspec validate --specs`: 15 passed / 0 failed. Strict cli-experience validation сохраняет прежнее предупреждение о 514-символьном Explicit file and structured input; этот requirement побайтно по содержимому не менялся. Синхронизированные два requirements и структура main spec проверены, 14 остальных requirements сохранены.
+- Сборка релиза 0.2.0 не запускалась; отдельный prepare-release-0-2-0 и issue #109 остаются активными.
