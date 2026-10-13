@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bitrix24\CLI\Infrastructure\Connection;
 
+use Bitrix24\CLI\Application\Doctor\TelemetrySettings;
 use Bitrix24\CLI\Application\Failure;
 
 final readonly class ProfileRepository
@@ -41,6 +42,10 @@ final readonly class ProfileRepository
                 throw new \RuntimeException();
             }
 
+            if (property_exists($object, 'telemetry') && !$object->telemetry instanceof \stdClass) {
+                throw new \RuntimeException();
+            }
+
             foreach (get_object_vars($object->profiles) as $profile) {
                 if (!$profile instanceof \stdClass || !($profile->connection ?? null) instanceof \stdClass) {
                     throw new \RuntimeException();
@@ -57,7 +62,7 @@ final readonly class ProfileRepository
             $this->validate($config);
             return $config;
         } catch (\Throwable) {
-            throw new Failure('configuration-error', 'Invalid config.json schema version 1; check profile name, connection, default.task and default.users fields (groupId belongs in default.task.groupId).');
+            throw new Failure('configuration-error', 'Invalid config.json schema version 1; check profile name, connection, default.task, default.users and root telemetry fields (groupId belongs in default.task.groupId).');
         }
     }
 
@@ -146,8 +151,16 @@ final readonly class ProfileRepository
 
     private function validate(array $config): void
     {
-        if (array_diff(array_keys($config), ['version', 'defaultProfile', 'profiles']) !== [] || ($config['version'] ?? null) !== 1 || !array_key_exists('defaultProfile', $config) || !is_array($config['profiles'] ?? null)) {
+        if (array_diff(array_keys($config), ['version', 'defaultProfile', 'profiles', 'telemetry']) !== [] || ($config['version'] ?? null) !== 1 || !array_key_exists('defaultProfile', $config) || !is_array($config['profiles'] ?? null)) {
             throw new \RuntimeException();
+        }
+
+        if (array_key_exists('telemetry', $config)) {
+            if (!is_array($config['telemetry'])) {
+                throw new \RuntimeException();
+            }
+
+            TelemetrySettings::validate($config['telemetry']);
         }
 
         $references = [];
@@ -247,6 +260,43 @@ final readonly class ProfileRepository
         }
     }
 
+    /** The callback receives config by reference; afterCommit runs under the same lock. */
+    public function transaction(string $directory, \Closure $operation, ?\Closure $afterCommit = null): array
+    {
+        return $this->locked($directory, function () use ($directory, $operation, $afterCommit): array {
+            $config = $this->load($directory);
+            $result = $operation($config);
+            $this->publish($directory, $config);
+            if ($afterCommit instanceof \Closure) {
+                $afterCommit();
+            }
+
+            return $result;
+        });
+    }
+
+    public function readTransaction(string $directory, \Closure $operation): array
+    {
+        $path = $directory . '/.lock';
+        $this->protection->noLinks($path);
+        if (!file_exists($path)) {
+            return $operation($this->load($directory));
+        }
+
+        $this->protection->check($path);
+        $stream = @fopen($path, 'rb');
+        if ($stream === false || !flock($stream, LOCK_SH)) {
+            throw new Failure('configuration-error', 'Cannot read configuration under its storage lock.');
+        }
+
+        try {
+            return $operation($this->load($directory));
+        } finally {
+            flock($stream, LOCK_UN);
+            fclose($stream);
+        }
+    }
+
     private function publish(string $directory, array $config): void
     {
         $this->validate($config);
@@ -266,6 +316,10 @@ final readonly class ProfileRepository
 
         unset($profile);
         $config['profiles'] = (object) $config['profiles'];
+        if (isset($config['telemetry'])) {
+            $config['telemetry'] = (object) $config['telemetry'];
+        }
+
         $data = json_encode($config, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n";
         $temporary = $directory . '/.config-' . bin2hex(random_bytes(12));
         $stream = $this->protection->create($temporary);

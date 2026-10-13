@@ -1,6 +1,6 @@
 # Конфигурация подключений b24cli
 
-Пользовательский `config.json` хранит параметры нескольких порталов и defaults создания задач и рабочих адресатов. Полный webhook находится в отдельном credential file. Формат не зависит от расположения и версии бинарника.
+Пользовательский `config.json` хранит параметры нескольких порталов, defaults создания задач/рабочих адресатов и локальную telemetry карточек проблем. Полный webhook находится в отдельном credential file. Формат не зависит от расположения и версии бинарника.
 
 Машиночитаемый контракт: [config.schema.json](config.schema.json), [JSON Schema Draft 2020-12](https://json-schema.org/draft/2020-12/schema). Эта схема описывает пользовательский `config.json`. Глобальный `--config PATH` по-прежнему читает другой файл — runtime JSON с `timeout`, `apiPolicy`, `profile`, `maxUploadBytes`.
 
@@ -267,7 +267,42 @@ b24cli --env-file "/run/secrets/bitrix24.env" task:list --json
 
 ## Проверка схемы и дополнительные проверки CLI
 
-`config.schema.json` можно подключить в редакторе через association с пользовательским config.json. Не добавляйте `$schema` в сам config.json: root schema v1 допускает только version/defaultProfile/profiles. CLI проверяет формат встроенным валидатором; для запуска не требуется Python, скачивание schema или remote `$ref`.
+`config.schema.json` можно подключить в редакторе через association с пользовательским config.json. Не добавляйте `$schema` в сам config.json: root schema v1 допускает version/defaultProfile/profiles и optional telemetry. CLI проверяет формат встроенным валидатором; для запуска не требуется Python, скачивание schema или remote `$ref`.
+
+## Локальная telemetry проблемных сценариев
+
+Корневой optional object действует на весь каталог конфигурации, независимо от
+portal profile. Эффективные defaults: локальный сбор true, лимит 100 и две даты null.
+Отсутствующий узел/поле не записывается при status/list/help. Явный false отключает
+новые карточки без удаления накопленных. Это локальное хранение, без auto send.
+
+```json
+{
+  "version": 1,
+  "defaultProfile": null,
+  "profiles": {},
+  "telemetry": {
+    "collectProblemTrajectories": true,
+    "maxProblemTrajectoryFiles": 100,
+    "lastProblemTrajectoryProcessingAt": null,
+    "lastProblemTrajectoryAnalysisOfferedAt": null
+  }
+}
+```
+
+Collection — strict boolean; max — positive JSON integer literal до PHP_INT_MAX.
+Даты — null или точный UTC timestamp `YYYY-MM-DDTHH:MM:SSZ` с корректной календарной
+датой. Offered фиксирует показанное предложение, Processing — успешно сохранённый
+разбор snapshot, отдельно от отправки. Неизвестные ключи, invalid objects/types
+отклоняются. JSON Schema defaults являются annotations; runtime применяет их явно.
+
+Меняйте настройки через публичное действие
+`doctor:problem-trajectory --action configure --settings-file PATH --json`.
+Read-only doctor actions работают без credentials; первая успешная запись может
+создать config с profiles={}, не добавляя портал. Profile commands сохраняют
+telemetry, а doctor updates не теряют profiles/defaultProfile/credential references.
+Карточки лежат в `.problem-trajectories/` рядом с этим config, с такой же защитой
+доступа. [Формат, лимит, weekly разбор и явный feedback mock](problem-trajectories.md).
 
 Стандартный schema validator проверяет структуру и значения; дополнительно CLI проверяет:
 

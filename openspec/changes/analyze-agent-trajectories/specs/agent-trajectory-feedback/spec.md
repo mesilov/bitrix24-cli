@@ -108,15 +108,20 @@ collectProblemTrajectories=false MUST выключать новые записи
 - **AND** механическая проверка не объявляется гарантией анонимности любого свободного текста
 
 ### Requirement: Consent based feedback batch handoff
-CLI SHALL передавать выбранные согласованные группы в фиксированный feedback endpoint через публичное submit с явным подтверждением. Одна группа SHALL создавать одно обращение с idempotency key; GitHub publication сохраняет consent/moderation #15/#32. Record и weekly offer MUST NOT сами отправлять данные. Скилл MUST NOT делать HTTP обход CLI.
+CLI SHALL предоставлять submit с явным consent и feedback port. В согласованном MVP отправка SHALL работать только через явный --mock-feedback: mocked=true/delivered=false, тестовый receipt и mock-submitted, без сети/issues. Одна группа SHALL иметь один idempotency key. Без mock рабочий endpoint SHALL считаться недоступным; скилл MUST NOT делать HTTP обход CLI.
 
 #### Scenario: Approved batch
 - **WHEN** пользователь проверил текст и разрешил отправку выбранных групп
-- **THEN** CLI отправляет обращения, сохраняет результат отдельно по группе и не публикует без серверной moderation
+- **THEN** явный mock сохраняет тестовый результат отдельно по группе, не отправляет сеть и не объявляет GitHub publication
 
 #### Scenario: No consent or endpoint
 - **WHEN** согласия нет либо рабочий endpoint ещё не настроен/доступен
 - **THEN** сеть/публикация без согласия отсутствуют; локальные анализ/карточки сохраняются и отсутствие передачи объясняется
+
+#### Scenario: Mock receipt is not delivered feedback
+- **WHEN** mock submit/reconcile подтверждает тестовый receipt
+- **THEN** mocked=true/delivered=false отражаются явно, карточки получают mock-submitted и не удаляются как реально доставленные
+- **AND** реальный HTTP-контракт, moderation и live issue link проверяются отдельно после готовности #32
 
 ### Requirement: Receipt and unknown outcome reconciliation
 Local state MUST различать анализ, принятие обращения endpoint и создание issue. Durable receipt/idempotency key SHALL предотвращать повторы; потерянный ответ MUST давать submission-unknown до reconciliation. Private receipt access secrets MUST храниться отдельно с защитой и не попадать в карточки/telemetry/logs/issues.

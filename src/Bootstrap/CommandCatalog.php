@@ -48,6 +48,7 @@ final class CommandCatalog
     ];
 
     public const LOCAL_COMMANDS = [
+        'doctor:problem-trajectory' => ['class' => \Bitrix24\CLI\Console\Command\Doctor\ProblemTrajectoryCommand::class, 'effect' => 'local'],
         'connection:add' => ['class' => \Bitrix24\CLI\Console\Command\Connection\AddConnectionCommand::class, 'effect' => 'local'],
         'connection:list' => ['class' => \Bitrix24\CLI\Console\Command\Connection\ListConnectionsCommand::class, 'effect' => 'local'],
         'connection:show' => ['class' => \Bitrix24\CLI\Console\Command\Connection\ShowConnectionCommand::class, 'effect' => 'local'],

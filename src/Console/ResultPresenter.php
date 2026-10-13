@@ -14,6 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class ResultPresenter
 {
     private const COLUMNS = [
+        'doctor-cards' => ['cardId', 'state', 'sanitizedScenario', 'missingCapability', 'createdAt', 'analysisRef'],
         'user-card' => ['ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'EMAIL', 'UF_DEPARTMENT'],
         'user-list' => ['ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'EMAIL', 'UF_DEPARTMENT'],
         'connections' => ['profile', 'name', 'hostname', 'default', 'source', 'path', 'isDefault'],
@@ -83,6 +84,15 @@ final class ResultPresenter
 
     private function rows(OperationResult $result): array
     {
+        if ($result->profile === 'doctor') {
+            $rows = [];
+            foreach ($result->data as $key => $value) {
+                $rows[] = [$key, $value];
+            }
+
+            return [['field', 'value'], $rows];
+        }
+
         if (in_array($result->profile, ['task-card', 'time-context', 'task-access'], true)) {
             $object = $result->data['task'] ?? $result->data['time'] ?? $result->data['access'] ?? [];
             ksort($object);

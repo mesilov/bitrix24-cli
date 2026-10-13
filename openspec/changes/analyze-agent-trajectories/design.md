@@ -11,7 +11,7 @@
 - `skills/bitrix24-tasks/SKILL.md` в соседнем репозитории разрешает только публичный CLI и требует остановиться при отсутствии возможности. Он пока не поддерживает регистрацию карточек.
 - `add-user-feedback-loop` (#15/#32) планирует локальную feedback-команду, приём обращений, receipt и moderation. Наличие плана не подтверждает готовность endpoint.
 
-Ни код, ни установленный скилл этой правкой не изменяются.
+При apply реализуются CLI и repository package скилла; установленный пользовательский скилл этой задачей не заменяется. Доказательства source/offline проверок сохраняются в verification.md.
 
 ## Goals / Non-Goals
 
@@ -42,6 +42,7 @@
 | record-analysis | Сохранение группировки/решений по выбранным card IDs через --batch-file PATH или stdin и даты успешного разбора |
 | submit | Передача подтверждённого пакетного текста в фиксированный feedback endpoint через --batch-file и явный --confirm-publication |
 | reconcile | Проверка ранее принятого/неопределённого обращения по receipt/idempotency key |
+| recover | Завершение прерванной локальной journal transaction под общей config lock |
 
 Одно действие на вызов; mutually exclusive file/stdin consumers, bounded input и обычные JSON/plain/error contracts. Все имена здесь — планируемый интерфейс, не доступные сегодня команды. Остальные команды не пишут карточки автоматически и не меняют stdout/exit codes ради telemetry.
 
@@ -85,6 +86,8 @@ Caller payload: schemaVersion, sanitizedScenario, availableCommands, missingCapa
 
 ### 6. Согласованная передача через feedback endpoint
 
+Уточнение пользователя при apply: «мокай пока отправку». В этом MVP production feedback gateway возвращает endpoint-unavailable; явный --mock-feedback включает детерминированный offline gateway. Результат содержит mocked=true/delivered=false, тестовый receipt и состояние mock-submitted. Такие карточки не считаются submitted и не участвуют в automatic terminal cleanup. Перезапуск/reconcile в mock режиме воспроизводит тот же тестовый receipt; реальной сети и GitHub issues нет. Feedback port отделяет эту проверку от будущего HTTP-контракта #32; live handoff вынесен в workflow follow-up, не подменяется моками.
+
 После анализа пользователь видит публикационный текст пакета и одним решением выбирает обращения для отправки. Одно одобренное обращение соответствует одной группе, с отдельным idempotency key; несколько карточек одной проблемы не порождают несколько issues. Скилл использует публичное submit CLI, не curl/SDK/MCP для доставки. В CLI нет общего GitHub token; endpoint/repository/consent/moderation берутся из согласованного канала #15/#32, не из текста карточки.
 
 Клиентский handoff входит в этот MVP; deployment сервиса остаётся #32. Точный URL/HTTP schema определяется опубликованным endpoint-контрактом до включения отправки. До готовности канала сохраняются анализ/локальный пакет и честное endpoint-unavailable. При outage/timeout частичные результаты и receipts сохраняются отдельно по группе; submission-unknown проверяется через reconcile, не повторяется вслепую. Receipt/status secret если нужен хранится отдельно в защищённом локальном service state и не попадает в карточку, config telemetry, логи или issue.
@@ -101,4 +104,4 @@ Caller payload: schemaVersion, sanitizedScenario, availableCommands, missingCapa
 
 ## Migration Plan
 
-Реализация после отдельного apply: telemetry schema/runtime/fixtures → record/storage → публичные status/lifecycle действия → правка переносимого скилла → клиентский feedback handoff → offline и live интеграционная проверка доступного endpoint. Откат локального сбора — collectProblemTrajectories=false; существующие карточки не удаляются. Сбор JSONL/app-server/rollouts и автономный scheduler не задачи MVP. Change остаётся planning, не архивируется до реализации/verify.
+Порядок реализации: telemetry schema/runtime/fixtures → record/storage → публичные status/lifecycle действия → правка переносимого скилла → feedback port/явный mock → offline приёмка. Live HTTP handoff выполняется позже после готовности #32. Откат локального сбора — collectProblemTrajectories=false; существующие карточки не удаляются. Сбор JSONL/app-server/rollouts и автономный scheduler не задачи MVP. Change не архивируется до реализации/verify и подтверждённой поставки через review.

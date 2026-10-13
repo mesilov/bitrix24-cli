@@ -12,6 +12,12 @@
 
 ### Добавлено
 
+- `doctor:problem-trajectory`: защищённые локальные карточки, root telemetry
+  (сбор true/лимит 100), публичные status/list/configure и snapshot analysis,
+  даты weekly предложения/обработки, recovery journal и явный offline feedback
+  mock с идемпотентными тестовыми receipts. Реальный endpoint не включён
+  ([#96](https://github.com/mesilov/bitrix24-cli/issues/96)).
+
 - Календарные `--deadline-window`, `--overdue` и `--timezone` в `task:list`/`task:find`:
   серверные диапазоны дедлайна через REST 1.0, AND с проектом/ролью/названием,
   нормализованные lifecycle статусы и явный отказ strict-rest3 до запросов
