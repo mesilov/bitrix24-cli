@@ -21,6 +21,7 @@ return static function (ContainerBuilder $container, string $root, bool $package
         Bitrix24\CLI\Console\ResultPresenter::class,
         Bitrix24\CLI\Console\CommandRunner::class,
         Bitrix24\CLI\Infrastructure\Connection\B24ClientProvider::class,
+        Bitrix24\CLI\Infrastructure\Connection\IncomingWebhookCurrentUserAdapter::class,
         Bitrix24\CLI\Infrastructure\Bitrix24\SdkApiTransport::class,
         Bitrix24\CLI\Application\Task\TaskListScanner::class,
         Bitrix24\CLI\Application\Task\ChatSupport::class,
@@ -43,6 +44,7 @@ return static function (ContainerBuilder $container, string $root, bool $package
     $container->register(Bitrix24\CLI\Infrastructure\Connection\ConnectionManager::class)->setAutowired(true)->setArgument('$projectRoot', $root)->setArgument('$packaged', $packaged);
     $container->setAlias(Bitrix24\CLI\Infrastructure\Connection\CredentialStore::class, Bitrix24\CLI\Infrastructure\Connection\FileCredentialStore::class);
     $container->setAlias(Bitrix24\CLI\Infrastructure\Connection\ConnectionResolver::class, Bitrix24\CLI\Infrastructure\Connection\ConnectionManager::class);
+    $container->setAlias(Bitrix24\CLI\Application\Task\Port\CurrentUserGateway::class, Bitrix24\CLI\Infrastructure\Connection\IncomingWebhookCurrentUserAdapter::class);
     $container->setAlias(Bitrix24\CLI\Infrastructure\Bitrix24\ApiTransport::class, Bitrix24\CLI\Infrastructure\Bitrix24\SdkApiTransport::class);
     foreach ([
         'TaskResultGateway' => 'Rest3TaskResultAdapter',

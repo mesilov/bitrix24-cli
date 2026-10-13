@@ -12,6 +12,10 @@
 
 ### Добавлено
 
+- Фильтр `--role responsible|accomplice|creator|auditor` в `task:list` и
+  `task:find`: свои задачи владельца подключения, сочетание с другими критериями
+  через AND и явный маршрут REST 1.0 для соисполнителя и наблюдателя
+  ([#68](https://github.com/mesilov/bitrix24-cli/issues/68)).
 - Теги задач: повторяемый `--tag` в `task:add`/`task:update` и `--clear-tags`
   в `task:update`. Явный набор заменяет теги; отсутствие опции сохраняет их
   ([#71](https://github.com/mesilov/bitrix24-cli/issues/71)).
