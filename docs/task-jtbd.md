@@ -10,6 +10,7 @@
 
 - **Текущие команды** — связи из [jtbd-coverage.json](../openspec/changes/define-task-jtbd/jtbd-coverage.json), существующие в [CommandCatalog](../src/Bootstrap/CommandCatalog.php). Ссылки ведут на классы команд.
 - **Планируемые команды** — остальные связи исходной матрицы; их нет в текущем runtime. [Каталог кандидатов](../openspec/changes/define-task-jtbd/cli-candidates.md) описывает план, а не доступные команды. Ветки разработки и открытые issues не считаются реализацией в этом снимке.
+- **Статус** — «Реализована» означает наличие текущей команды в коде; «Нет реализации» — отсутствие текущих mapped команд. Статус не сообщает результат запуска теста.
 - **Тесты** — существующие идентификаторы `Class::method` в `tests/Integration/Task`, с группами PHPUnit `command:<имя команды>` / `happy-path`. Они проверяют команды по отдельности; отдельных сквозных интеграционных тестов с ID `PM-*`, `AM-*`, `EMP-*` сейчас нет. Повторение метода в нескольких сценариях означает общую команду, а не независимое покрытие каждого JTBD.
 - Поле **границы** показывает, чего командные тесты не доказывают. Ссылка на тест означает наличие его исходника, а не успешный запуск. Открытая [portal-приёмка #42](https://github.com/mesilov/bitrix24-cli/issues/42) и [границы релиза](rc-0.1.0.md) сохраняются; в этой задаче live-тесты не запускались.
 
@@ -26,10 +27,12 @@
 
 **Текущие команды и интеграционные тесты**
 
-- [`task:add`](../src/Console/Command/Task/AddTaskCommand.php) → [`AddTaskCommandTest::testHappyPathCreatesTaskWithRequestedFields`](../tests/Integration/Task/AddTaskCommandTest.php)
-- [`task:show`](../src/Console/Command/Task/ShowTaskCommand.php) → [`ShowTaskCommandTest::testHappyPathReturnsTaskCard`](../tests/Integration/Task/ShowTaskCommandTest.php)
-- [`task:checklist:add`](../src/Console/Command/Task/AddTaskChecklistCommand.php) → [`AddTaskChecklistCommandTest::testHappyPathCreatesChecklistRoot`](../tests/Integration/Task/AddTaskChecklistCommandTest.php)
-- [`task:checklist:item:add`](../src/Console/Command/Task/AddTaskChecklistItemCommand.php) → [`AddTaskChecklistItemCommandTest::testHappyPathAddsItemToSelectedChecklist`](../tests/Integration/Task/AddTaskChecklistItemCommandTest.php)
+| Статус | Команда | Тест |
+| --- | --- | --- |
+| Реализована | [`task:add`](../src/Console/Command/Task/AddTaskCommand.php) | [`AddTaskCommandTest::testHappyPathCreatesTaskWithRequestedFields`](../tests/Integration/Task/AddTaskCommandTest.php) |
+| Реализована | [`task:show`](../src/Console/Command/Task/ShowTaskCommand.php) | [`ShowTaskCommandTest::testHappyPathReturnsTaskCard`](../tests/Integration/Task/ShowTaskCommandTest.php) |
+| Реализована | [`task:checklist:add`](../src/Console/Command/Task/AddTaskChecklistCommand.php) | [`AddTaskChecklistCommandTest::testHappyPathCreatesChecklistRoot`](../tests/Integration/Task/AddTaskChecklistCommandTest.php) |
+| Реализована | [`task:checklist:item:add`](../src/Console/Command/Task/AddTaskChecklistItemCommand.php) | [`AddTaskChecklistItemCommandTest::testHappyPathAddsItemToSelectedChecklist`](../tests/Integration/Task/AddTaskChecklistItemCommandTest.php) |
 
 **Планируемые команды**
 
@@ -48,7 +51,9 @@
 
 **Текущие команды и интеграционные тесты**
 
-- [`task:list`](../src/Console/Command/Task/ListTaskCommand.php) → [`ListTaskCommandTest::testHappyPathListsSelectedTask`](../tests/Integration/Task/ListTaskCommandTest.php)
+| Статус | Команда | Тест |
+| --- | --- | --- |
+| Реализована | [`task:list`](../src/Console/Command/Task/ListTaskCommand.php) | [`ListTaskCommandTest::testHappyPathListsSelectedTask`](../tests/Integration/Task/ListTaskCommandTest.php) |
 
 **Планируемые команды**
 
@@ -69,7 +74,9 @@
 
 **Текущие команды и интеграционные тесты**
 
-- [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) → [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php)
+| Статус | Команда | Тест |
+| --- | --- | --- |
+| Реализована | [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) | [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php) |
 
 **Планируемые команды**
 
@@ -89,8 +96,10 @@
 
 **Текущие команды и интеграционные тесты**
 
-- [`task:assign`](../src/Console/Command/Task/AssignTaskCommand.php) → [`AssignTaskCommandTest::testHappyPathSetsResponsibleUser`](../tests/Integration/Task/AssignTaskCommandTest.php)
-- [`task:deadline:set`](../src/Console/Command/Task/SetTaskDeadlineCommand.php) → [`SetTaskDeadlineCommandTest::testHappyPathSetsDeadlineWithOffset`](../tests/Integration/Task/SetTaskDeadlineCommandTest.php)
+| Статус | Команда | Тест |
+| --- | --- | --- |
+| Реализована | [`task:assign`](../src/Console/Command/Task/AssignTaskCommand.php) | [`AssignTaskCommandTest::testHappyPathSetsResponsibleUser`](../tests/Integration/Task/AssignTaskCommandTest.php) |
+| Реализована | [`task:deadline:set`](../src/Console/Command/Task/SetTaskDeadlineCommand.php) | [`SetTaskDeadlineCommandTest::testHappyPathSetsDeadlineWithOffset`](../tests/Integration/Task/SetTaskDeadlineCommandTest.php) |
 
 **Планируемые команды**
 
@@ -111,7 +120,9 @@
 
 **Текущие команды и интеграционные тесты**
 
-Нет реализованных mapped команд и соответствующих интеграционных тестов.
+| Статус | Команда | Тест |
+| --- | --- | --- |
+| Нет реализации | — | Нет |
 
 **Планируемые команды**
 
@@ -133,8 +144,10 @@
 
 **Текущие команды и интеграционные тесты**
 
-- [`task:chat:list`](../src/Console/Command/Task/ListTaskChatCommand.php) → [`ListTaskChatCommandTest::testHappyPathListsMessagesOfSelectedTask`](../tests/Integration/Task/ListTaskChatCommandTest.php)
-- [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) → [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php)
+| Статус | Команда | Тест |
+| --- | --- | --- |
+| Реализована | [`task:chat:list`](../src/Console/Command/Task/ListTaskChatCommand.php) | [`ListTaskChatCommandTest::testHappyPathListsMessagesOfSelectedTask`](../tests/Integration/Task/ListTaskChatCommandTest.php) |
+| Реализована | [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) | [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php) |
 
 **Планируемые команды**
 
@@ -156,9 +169,11 @@
 
 **Текущие команды и интеграционные тесты**
 
-- [`task:add`](../src/Console/Command/Task/AddTaskCommand.php) → [`AddTaskCommandTest::testHappyPathCreatesTaskWithRequestedFields`](../tests/Integration/Task/AddTaskCommandTest.php)
-- [`task:show`](../src/Console/Command/Task/ShowTaskCommand.php) → [`ShowTaskCommandTest::testHappyPathReturnsTaskCard`](../tests/Integration/Task/ShowTaskCommandTest.php)
-- [`task:find`](../src/Console/Command/Task/FindTaskCommand.php) → [`FindTaskCommandTest::testHappyPathReturnsTwoUnicodeTitleMatches`](../tests/Integration/Task/FindTaskCommandTest.php)
+| Статус | Команда | Тест |
+| --- | --- | --- |
+| Реализована | [`task:add`](../src/Console/Command/Task/AddTaskCommand.php) | [`AddTaskCommandTest::testHappyPathCreatesTaskWithRequestedFields`](../tests/Integration/Task/AddTaskCommandTest.php) |
+| Реализована | [`task:show`](../src/Console/Command/Task/ShowTaskCommand.php) | [`ShowTaskCommandTest::testHappyPathReturnsTaskCard`](../tests/Integration/Task/ShowTaskCommandTest.php) |
+| Реализована | [`task:find`](../src/Console/Command/Task/FindTaskCommand.php) | [`FindTaskCommandTest::testHappyPathReturnsTwoUnicodeTitleMatches`](../tests/Integration/Task/FindTaskCommandTest.php) |
 
 **Планируемые команды**
 
@@ -177,7 +192,9 @@
 
 **Текущие команды и интеграционные тесты**
 
-Нет реализованных mapped команд и соответствующих интеграционных тестов.
+| Статус | Команда | Тест |
+| --- | --- | --- |
+| Нет реализации | — | Нет |
 
 **Планируемые команды**
 
@@ -198,7 +215,9 @@
 
 **Текущие команды и интеграционные тесты**
 
-Нет реализованных mapped команд и соответствующих интеграционных тестов.
+| Статус | Команда | Тест |
+| --- | --- | --- |
+| Нет реализации | — | Нет |
 
 **Планируемые команды**
 
@@ -218,7 +237,9 @@
 
 **Текущие команды и интеграционные тесты**
 
-- [`task:update`](../src/Console/Command/Task/UpdateTaskCommand.php) → [`UpdateTaskCommandTest::testHappyPathChangesTitleAndKeepsOmittedDescription`](../tests/Integration/Task/UpdateTaskCommandTest.php)
+| Статус | Команда | Тест |
+| --- | --- | --- |
+| Реализована | [`task:update`](../src/Console/Command/Task/UpdateTaskCommand.php) | [`UpdateTaskCommandTest::testHappyPathChangesTitleAndKeepsOmittedDescription`](../tests/Integration/Task/UpdateTaskCommandTest.php) |
 
 **Планируемые команды**
 
@@ -238,7 +259,9 @@
 
 **Текущие команды и интеграционные тесты**
 
-Нет реализованных mapped команд и соответствующих интеграционных тестов.
+| Статус | Команда | Тест |
+| --- | --- | --- |
+| Нет реализации | — | Нет |
 
 **Планируемые команды**
 
@@ -261,8 +284,10 @@
 
 **Текущие команды и интеграционные тесты**
 
-- [`task:chat:list`](../src/Console/Command/Task/ListTaskChatCommand.php) → [`ListTaskChatCommandTest::testHappyPathListsMessagesOfSelectedTask`](../tests/Integration/Task/ListTaskChatCommandTest.php)
-- [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) → [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php)
+| Статус | Команда | Тест |
+| --- | --- | --- |
+| Реализована | [`task:chat:list`](../src/Console/Command/Task/ListTaskChatCommand.php) | [`ListTaskChatCommandTest::testHappyPathListsMessagesOfSelectedTask`](../tests/Integration/Task/ListTaskChatCommandTest.php) |
+| Реализована | [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) | [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php) |
 
 **Планируемые команды**
 
@@ -284,7 +309,9 @@
 
 **Текущие команды и интеграционные тесты**
 
-- [`task:list`](../src/Console/Command/Task/ListTaskCommand.php) → [`ListTaskCommandTest::testHappyPathListsSelectedTask`](../tests/Integration/Task/ListTaskCommandTest.php)
+| Статус | Команда | Тест |
+| --- | --- | --- |
+| Реализована | [`task:list`](../src/Console/Command/Task/ListTaskCommand.php) | [`ListTaskCommandTest::testHappyPathListsSelectedTask`](../tests/Integration/Task/ListTaskCommandTest.php) |
 
 **Планируемые команды**
 
@@ -303,11 +330,13 @@
 
 **Текущие команды и интеграционные тесты**
 
-- [`task:show`](../src/Console/Command/Task/ShowTaskCommand.php) → [`ShowTaskCommandTest::testHappyPathReturnsTaskCard`](../tests/Integration/Task/ShowTaskCommandTest.php)
-- [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) → [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php)
-- [`task:find`](../src/Console/Command/Task/FindTaskCommand.php) → [`FindTaskCommandTest::testHappyPathReturnsTwoUnicodeTitleMatches`](../tests/Integration/Task/FindTaskCommandTest.php)
-- [`task:checklist:list`](../src/Console/Command/Task/ListTaskChecklistsCommand.php) → [`ListTaskChecklistsCommandTest::testHappyPathListsOnlyChecklistRoots`](../tests/Integration/Task/ListTaskChecklistsCommandTest.php)
-- [`task:checklist:item:list`](../src/Console/Command/Task/ListTaskChecklistItemsCommand.php) → [`ListTaskChecklistItemsCommandTest::testHappyPathListsItemsInsideSelectedChecklist`](../tests/Integration/Task/ListTaskChecklistItemsCommandTest.php)
+| Статус | Команда | Тест |
+| --- | --- | --- |
+| Реализована | [`task:show`](../src/Console/Command/Task/ShowTaskCommand.php) | [`ShowTaskCommandTest::testHappyPathReturnsTaskCard`](../tests/Integration/Task/ShowTaskCommandTest.php) |
+| Реализована | [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) | [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php) |
+| Реализована | [`task:find`](../src/Console/Command/Task/FindTaskCommand.php) | [`FindTaskCommandTest::testHappyPathReturnsTwoUnicodeTitleMatches`](../tests/Integration/Task/FindTaskCommandTest.php) |
+| Реализована | [`task:checklist:list`](../src/Console/Command/Task/ListTaskChecklistsCommand.php) | [`ListTaskChecklistsCommandTest::testHappyPathListsOnlyChecklistRoots`](../tests/Integration/Task/ListTaskChecklistsCommandTest.php) |
+| Реализована | [`task:checklist:item:list`](../src/Console/Command/Task/ListTaskChecklistItemsCommand.php) | [`ListTaskChecklistItemsCommandTest::testHappyPathListsItemsInsideSelectedChecklist`](../tests/Integration/Task/ListTaskChecklistItemsCommandTest.php) |
 
 **Планируемые команды**
 
@@ -326,7 +355,9 @@
 
 **Текущие команды и интеграционные тесты**
 
-- [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) → [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php)
+| Статус | Команда | Тест |
+| --- | --- | --- |
+| Реализована | [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) | [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php) |
 
 **Планируемые команды**
 
@@ -345,7 +376,9 @@
 
 **Текущие команды и интеграционные тесты**
 
-- [`task:show`](../src/Console/Command/Task/ShowTaskCommand.php) → [`ShowTaskCommandTest::testHappyPathReturnsTaskCard`](../tests/Integration/Task/ShowTaskCommandTest.php)
+| Статус | Команда | Тест |
+| --- | --- | --- |
+| Реализована | [`task:show`](../src/Console/Command/Task/ShowTaskCommand.php) | [`ShowTaskCommandTest::testHappyPathReturnsTaskCard`](../tests/Integration/Task/ShowTaskCommandTest.php) |
 
 **Планируемые команды**
 
@@ -366,7 +399,9 @@
 
 **Текущие команды и интеграционные тесты**
 
-- [`task:file:attach`](../src/Console/Command/Task/AttachTaskFilesCommand.php) → [`AttachTaskFilesCommandTest::testHappyPathConfirmsDiskFileAttachment`](../tests/Integration/Task/AttachTaskFilesCommandTest.php)
+| Статус | Команда | Тест |
+| --- | --- | --- |
+| Реализована | [`task:file:attach`](../src/Console/Command/Task/AttachTaskFilesCommand.php) | [`AttachTaskFilesCommandTest::testHappyPathConfirmsDiskFileAttachment`](../tests/Integration/Task/AttachTaskFilesCommandTest.php) |
 
 **Планируемые команды**
 
@@ -387,11 +422,13 @@
 
 **Текущие команды и интеграционные тесты**
 
-- [`task:time:show`](../src/Console/Command/Task/ShowTaskTimeCommand.php) → [`ShowTaskTimeCommandTest::testHappyPathReturnsTimeContextWithItsCompletenessBoundary`](../tests/Integration/Task/ShowTaskTimeCommandTest.php)
-- [`task:time:add`](../src/Console/Command/Task/AddTaskTimeEntryCommand.php) → [`AddTaskTimeEntryCommandTest::testHappyPathCreatesOwnTimeEntry`](../tests/Integration/Task/AddTaskTimeEntryCommandTest.php)
-- [`task:time:list`](../src/Console/Command/Task/ListTaskTimeEntriesCommand.php) → [`ListTaskTimeEntriesCommandTest::testHappyPathListsOwnTimeEntry`](../tests/Integration/Task/ListTaskTimeEntriesCommandTest.php)
-- [`task:time:update`](../src/Console/Command/Task/UpdateTaskTimeEntryCommand.php) → [`UpdateTaskTimeEntryCommandTest::testHappyPathUpdatesSecondsAndKeepsOmittedText`](../tests/Integration/Task/UpdateTaskTimeEntryCommandTest.php)
-- [`task:time:delete`](../src/Console/Command/Task/DeleteTaskTimeEntryCommand.php) → [`DeleteTaskTimeEntryCommandTest::testHappyPathDeletesOwnTimeEntry`](../tests/Integration/Task/DeleteTaskTimeEntryCommandTest.php)
+| Статус | Команда | Тест |
+| --- | --- | --- |
+| Реализована | [`task:time:show`](../src/Console/Command/Task/ShowTaskTimeCommand.php) | [`ShowTaskTimeCommandTest::testHappyPathReturnsTimeContextWithItsCompletenessBoundary`](../tests/Integration/Task/ShowTaskTimeCommandTest.php) |
+| Реализована | [`task:time:add`](../src/Console/Command/Task/AddTaskTimeEntryCommand.php) | [`AddTaskTimeEntryCommandTest::testHappyPathCreatesOwnTimeEntry`](../tests/Integration/Task/AddTaskTimeEntryCommandTest.php) |
+| Реализована | [`task:time:list`](../src/Console/Command/Task/ListTaskTimeEntriesCommand.php) | [`ListTaskTimeEntriesCommandTest::testHappyPathListsOwnTimeEntry`](../tests/Integration/Task/ListTaskTimeEntriesCommandTest.php) |
+| Реализована | [`task:time:update`](../src/Console/Command/Task/UpdateTaskTimeEntryCommand.php) | [`UpdateTaskTimeEntryCommandTest::testHappyPathUpdatesSecondsAndKeepsOmittedText`](../tests/Integration/Task/UpdateTaskTimeEntryCommandTest.php) |
+| Реализована | [`task:time:delete`](../src/Console/Command/Task/DeleteTaskTimeEntryCommand.php) | [`DeleteTaskTimeEntryCommandTest::testHappyPathDeletesOwnTimeEntry`](../tests/Integration/Task/DeleteTaskTimeEntryCommandTest.php) |
 
 **Планируемые команды**
 
@@ -410,8 +447,10 @@
 
 **Текущие команды и интеграционные тесты**
 
-- [`task:chat:list`](../src/Console/Command/Task/ListTaskChatCommand.php) → [`ListTaskChatCommandTest::testHappyPathListsMessagesOfSelectedTask`](../tests/Integration/Task/ListTaskChatCommandTest.php)
-- [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) → [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php)
+| Статус | Команда | Тест |
+| --- | --- | --- |
+| Реализована | [`task:chat:list`](../src/Console/Command/Task/ListTaskChatCommand.php) | [`ListTaskChatCommandTest::testHappyPathListsMessagesOfSelectedTask`](../tests/Integration/Task/ListTaskChatCommandTest.php) |
+| Реализована | [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) | [`SendTaskChatMessageCommandTest::testHappyPathSendsMessageToTaskChat`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php) |
 
 **Планируемые команды**
 

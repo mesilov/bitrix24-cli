@@ -5,7 +5,7 @@
     "AM": 6,
     "EMP": 7
   },
-  "format": "headings-and-lists-no-tables",
+  "format": "scenario-lists-with-status-command-test-tables",
   "command_refs": 32,
   "test_method_refs": 32,
   "unique_commands": 19,
