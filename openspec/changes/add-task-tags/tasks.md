@@ -24,7 +24,7 @@
 
 - [x] 4.1 Добавить собственные live cases AddTaskCommandTest/UpdateTaskCommandTest через production bootstrap: create с тегами, replace/clear/preserve и tags-only; проверить отдельные command groups, Unicode/#/пробелы, SDK readback и cleanup; записать роль/версию/ограничения отдельно от unit results.
 - [x] 4.2 Выполнить make unit и quality targets из актуального Makefile, strict OpenSpec validation и diff check; сохранить результаты в verification.md и не засчитывать skips как portal success.
-- [ ] 4.3 Проверить issue #71 ↔ proposal/path, milestone0.2.0/enhancement и отсутствие userFields/общего editable fix в diff; выполнить fresh fetch + merge origin/dev, повторить затронутые проверки и открыть implementation PR в dev со ссылками и проверенными результатами.
+- [x] 4.3 Проверить issue #71 ↔ proposal/path, milestone0.2.0/enhancement и отсутствие userFields/общего editable fix в diff; выполнить fresh fetch + merge origin/dev, повторить затронутые проверки и открыть implementation PR в dev со ссылками и проверенными результатами.
 
 ## Workflow follow-up
 

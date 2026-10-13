@@ -6,7 +6,7 @@
 
 | Dimension | Result |
 | --- | --- |
-| Completeness | 13/14 задач завершены; delivery task 4.3 ожидает публикации implementation в PR |
+| Completeness | 14/14 задач завершены; implementation опубликован в PR #75 с target dev |
 | Correctness | 5/5 ADDED/MODIFIED requirements реализованы; 18 scenarios сверены с кодом и tests, включая сохранённые границы MVP |
 | Coherence | D1–D4 соблюдены, точные API-поля/версии сохранены; код использует существующие DI/ApiTransport/ExecutionLedger слои |
 
@@ -35,4 +35,4 @@ Runtime: изолированный Docker PHP 8.4.26, locked Composer dependenc
 
 ## Findings and assessment
 
-Critical implementation findings: 0. Warnings: 0. Suggestions: 0 в выполненной сверке требований и дизайна. Доставка в PR и remote CI проверяются отдельно; merge/release не заявляются. Change остаётся активным до review/merge и последующего maintainer archive workflow.
+Critical implementation findings: 0. Warnings: 0. Suggestions: 0 в выполненной сверке требований и дизайна. Доставка implementation подтверждена PR #75: head feature/71-add-task-tags, base dev; перед публикацией свежий fetch/merge origin/dev — Already up to date. Remote CI проверяется отдельно; merge/release не заявляются. Change остаётся активным до review/merge и последующего maintainer archive workflow.
