@@ -6,7 +6,7 @@
 
 | Dimension | Result |
 | --- | --- |
-| Completeness | 3/3 tracked tasks complete; proposal, design and tasks present |
+| Completeness | 4/4 tracked tasks complete; proposal, design and tasks present |
 | Correctness | Spec coverage, requirement mapping and scenario coverage: not applicable (`skip_specs: true`, documentation and development-tool configuration) |
 | Coherence | Skill, AGENTS.md and project MCP config follow proposal/design, existing isolation/cleanup requirements and official MCP configuration guidance |
 
@@ -24,6 +24,7 @@
 - `codex mcp get bitrix24_dev --json` from the worktree, using Codex CLI 0.162.1, reports the enabled server, matching URL and `streamable_http` transport. No user-level configuration or trust settings were changed.
 - The connected official Bitrix24 documentation MCP returned the [connection article](https://apidocs.bitrix24.ru/ai-tools/mcp.html) through `bitrix-search` → `bitrix-article-details` and the parameters of [crm.item.add](https://apidocs.bitrix24.ru/api-reference/crm/universal/crm-item-add.html) through `bitrix-search` → `bitrix-method-details`: required `entityTypeId` (integer) and `fields` (object). These were documentation requests, not portal API calls.
 - AGENTS.md and the skill require MCP lookup for Bitrix24 documentation/API contracts, explain trusted-project configuration and stop dependent work if the MCP is unavailable.
+- The review finding about removing the current working directory was reproduced in an isolated temporary Git repository: removal succeeded, then `git worktree list` exited 128 with `Unable to read current working directory`. Removal and verification through a surviving checkout succeeded. Skill cleanup steps now require leaving the task checkout before deletion and verifying from the surviving checkout.
 
 ## Boundaries
 
