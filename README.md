@@ -26,7 +26,16 @@ CLI для работы с задачами Битрикс24.
 [странице релизов](https://github.com/mesilov/bitrix24-cli/releases).
 
 Для проверки изменений из `dev` доступны
-[CI-сборки](https://github.com/mesilov/bitrix24-cli/actions/workflows/package-static.yml?query=branch%3Adev).
+[ручные CI-сборки](https://github.com/mesilov/bitrix24-cli/actions/workflows/package-static.yml?query=branch%3Adev).
+С правами записи откройте **Actions → Package standalone binaries → Run workflow**,
+выберите ветку `dev` или нужную ветку изменений и запустите workflow.
+Бинарники автоматически собираются только по релизному тегу; на MR и push в `dev`
+выполняются тесты и линтеры. Команда ручного запуска:
+
+```sh
+gh workflow run package-static.yml --ref dev
+```
+
 Выберите завершённый run со статусом **Success** и artifact `b24cli-release-assets`:
 он содержит три установочных архива и `SHA256SUMS`. Версия этих бинарников —
 `dev-<полный source SHA>`. Для скачивания CI artifacts нужен вход в GitHub;

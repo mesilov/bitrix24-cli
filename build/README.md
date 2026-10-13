@@ -91,7 +91,17 @@ payload. Он не входит в public archive; в основном CLI не�
 
 ## CI и release
 
-`Package standalone binaries`: PR в dev/main, push в dev, manual dispatch.
+`Package standalone binaries` запускается вручную для выбранной ветки или ref.
+В **Actions → Package standalone binaries → Run workflow** выберите `dev`
+или нужную ветку изменений. Для запуска нужны права записи в репозиторий.
+Через GitHub CLI:
+
+```sh
+gh workflow run package-static.yml --ref dev
+```
+
+На MR в `dev`/`main` и push в `dev` работают тесты и линтеры.
+Автоматическая сборка бинарников выполняется только по релизному тегу.
 Матрица: Ubuntu 24.04 amd64 / macOS 15 arm64 / Windows 2022 amd64.
 После smoke загружаются `b24cli-linux-amd64`, `b24cli-macos-arm64`,
 `b24cli-windows-amd64`, включая диагностические PHAR/probe и build metadata.
@@ -107,10 +117,11 @@ Production-бинарники собираются в CI из конкретно
 Тег на отдельной feature/dev истории отклоняется до запуска platform builders.
 Можно собрать и более ранний коммит `main`; совпадение с текущим tip не требуется.
 Production identity сохраняет точное имя тега, например `0.1.0` или `v0.1.0`.
-PR/dev/manual workflow создаёт тестовые artifacts с `dev-<full SHA>`.
+Ручной workflow создаёт тестовые artifacts с `dev-<full SHA>` выбранного коммита
+и не публикует Release.
 
 Version-tag workflow использует те же builders; publish зависит от всех checks.
-Failure блокирует публикацию; на PR Release не создаётся. Публикация создаёт или
+Failure блокирует публикацию. Публикация создаёт или
 переиспользует draft, загружает все четыре проверенных assets и только затем
 делает Release публичным. Повторный запуск после create/upload/publish failure
 возобновляет draft; уже публичный Release оставляет без изменений. Assets:
