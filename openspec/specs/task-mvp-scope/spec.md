@@ -50,10 +50,10 @@ task:subtask:add
 - **THEN** отдельная task:subtask:add не регистрируется и не вызывается; task:add сохраняет явное поле, проверяет его допустимость и не выбирает parent неявно. Рабочее предположение касается удаления отдельной команды и уточняется при запросе полного запрета подзадач
 
 ### Requirement: API admission and future lifecycle acceptance remain explicit
-Каталог SHALL отделять release scope от API support: 59 операций = 30 кандидатов MVP, 0 API-policy-pending и 29 после MVP. Через REST1 явно допущены 4 time, 8 checklist/root/item, 2 participants/history команды и выбранные companion reads участников task:show. Права SHALL проверяться для кандидатов; lifecycle SHALL оставаться после MVP независимо от возможности записи status. Наличие команды в каталоге не SHALL означать принятие иных API exceptions, доказанную семантику или runtime readiness.
+Каталог SHALL отделять release scope от API support: 59 операций = 30 кандидатов MVP, 0 API-policy-pending и 29 после MVP. Через REST1 явно допущены 4 time, 8 checklist/root/item, 2 participants/history команды и выбранные companion reads участников task:show. Для milestone 0.2.0 дополнительно SHALL допускаться REST1 tasks.task.update только с TAGS в task:add/task:update. Права SHALL проверяться для кандидатов; lifecycle SHALL оставаться после MVP независимо от возможности записи status. Наличие команды в каталоге не SHALL означать принятие иных API exceptions, доказанную семантику или runtime readiness.
 
 #### Scenario: Legacy admission is limited to selected commands
-- **WHEN** вызывается legacy маршрут вне согласованных команд/companion reads либо общий tasks.task.update используется для действий за пределами participants:set
+- **WHEN** вызывается legacy маршрут вне согласованных команд/companion reads/записи TAGS либо общий tasks.task.update используется для действий за пределами participants:set и записи TAGS в task:add/task:update
 - **THEN** допуск выбранных REST1 команд и чтений не разрешает такую операцию; policy отклоняет запрос и не выполняет скрытый fallback или исключённый lifecycle переход
 
 #### Scenario: Lifecycle commands after MVP
@@ -67,6 +67,15 @@ task:subtask:add
 #### Scenario: Explicit user enrichment of selected task participants
 - **WHEN** task:show получает select auditors/accomplices в default task-v3 режиме
 - **THEN** допустимы только REST3 карточка без этих relations, REST1 tasks.task.get для ID выбранных ролей и user.get для нужных полей выбранных пользователей; версии отражаются в meta, strict-rest3 отклоняет план до credentials/API, недоступные данные дают partial вместо пустого подтверждённого списка
+
+
+#### Scenario: Tag writes have an explicit narrow legacy admission
+- **WHEN** task:add/task:update в task-v3 policy получает явные теги
+- **THEN** CLI допускает REST1 tasks.task.update только с TAGS; status, userFields и произвольные legacy поля не допускаются, число task-команд не увеличивается
+
+#### Scenario: Strict policy rejects tag composition
+- **WHEN** команда с tag/clear-tags вызвана в strict-rest3
+- **THEN** весь план отклоняется до credentials и первого запроса с policy-denied/exit4; CLI не создаёт задачу без тегов и не переключает API policy
 
 ### Requirement: Time entries are included through explicit legacy routes
 MVP SHALL включать task:time:add/list/update/delete через явно согласованные REST 1.0 task.elapseditem.add/getlist/update/delete. Этот допуск SHALL ограничиваться четырьмя маршрутами, отражать API version в meta и сохранять запрет non-v3 запросов в strict-rest3. Update/delete SHALL проверять связь TASK_ID/ENTRY_ID и права подключения. Task:time:show SHALL сохранять свой REST3 маршрут.
