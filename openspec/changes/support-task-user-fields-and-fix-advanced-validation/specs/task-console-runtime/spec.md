@@ -1,7 +1,7 @@
 ## MODIFIED Requirements
 
 ### Requirement: Explicit patch and bounded advanced input
-Runtime SHALL различать пропущенное поле, явное пустое значение и явное очищение. Advanced JSON SHALL проходить allowlist и проверку формы до записи. Разрешённый JSON объект не SHALL предоставлять произвольный REST метод, версии API, TASK_ID вне выбранной задачи либо исключённые действия. task:assign и task:deadline:set SHALL менять только своё поле. Для известных writable REST3 полей CLI SHALL проверять документированные имена и типы локально; false/null/отсутствие editable в metadata не SHALL запрещать такой патч. Метаданные не SHALL расширять allowlist или подтверждать права пользователя.
+Runtime SHALL различать пропущенное поле, явное пустое значение и явное очищение. Advanced JSON SHALL проходить allowlist и проверку формы до записи. Разрешённый JSON объект не SHALL предоставлять произвольный REST метод, версии API, TASK_ID вне выбранной задачи либо исключённые действия. task:assign и task:deadline:set SHALL менять только своё поле.
 
 #### Scenario: Restricted update convenience commands
 - **WHEN** вызывается task:assign либо task:deadline:set
@@ -11,20 +11,20 @@ Runtime SHALL различать пропущенное поле, явное п�
 - **WHEN** --fields, --where или --params пытаются задать неподдержанные ключи, другую цель, смену status либо произвольный маршрут
 - **THEN** ввод отклоняется до mutating request; допуск REST1 для участников не превращается в общий legacy update
 
-#### Scenario: Advanced and basic fields have equivalent admission
-- **WHEN** эквивалентный корректный патч title/creatorId/responsibleId/groupId задан basic-флагами или advanced JSON, а metadata editable=false, null либо отсутствует
-- **THEN** оба режима допускаются по документированному REST3 write contract; advanced не требует editable=true и не запрашивает metadata как gate
+#### Scenario: Documented write contract instead of editable gate
+- **WHEN** an ordinary documented add/update patch has correct types but portal editable is false/null/absent
+- **THEN** CLI validates exact names and operation-specific local rules without a metadata gate; remote rights/validation failures retain their classifications
 
-#### Scenario: Offline advanced plan and remote rejection
-- **WHEN** корректный ordinary advanced патч вызывается с dry-run либо сервер запрещает его при исполнении
-- **THEN** dry-run проверяет локальный контракт без API; реальное выполнение сохраняет ошибку прав/валидации сервера без retry/fallback и не трактует локальную допустимость как подтверждение серверной записи
+#### Scenario: Offline ordinary advanced preview
+- **WHEN** ordinary --fields is used in dry-run
+- **THEN** CLI checks the local REST3 contract without credentials/API reads; custom creation uses its explicit native REST1 contract
 
 
 ### Requirement: Planned task tag routes
-CLI SHALL передавать обычные поля в REST3, а теги — отдельным заранее объявленным REST1 update с полем TAGS. Dry-run SHALL показывать версии, порядок, поля и зависимость ID новой задачи, не выполняя записи. Strict-rest3 SHALL отклонять весь план с тегами до credentials/API; отказ REST3 не SHALL запускать fallback.
+Без custom creation CLI SHALL передавать обычные поля в REST3; custom creation SHALL использовать REST1 по task-user-fields, а теги — отдельным заранее объявленным REST1 update с полем TAGS. Dry-run SHALL показывать версии, порядок, поля и зависимость ID новой задачи, не выполняя записи. Strict-rest3 SHALL отклонять весь план с тегами до credentials/API; отказ REST3 не SHALL запускать fallback.
 
 #### Scenario: Create preview with a dependent tag write
-- **WHEN** task:add с тегами выполняется с dry-run/json
+- **WHEN** task:add с тегами и без custom input выполняется с dry-run/json
 - **THEN** план содержит REST3 tasks.task.add с обычными полями, затем REST1 tasks.task.update с `TAGS` и ссылкой на ID результата первого шага; оба шага не выполнены
 
 #### Scenario: Mixed update and strict policy
@@ -34,7 +34,7 @@ CLI SHALL передавать обычные поля в REST3, а теги —
 
 #### Scenario: Advanced tags remain read-only
 - **WHEN** пользователь передаёт tags или TAGS через fields/fields-file
-- **THEN** CLI отклоняет advanced-запись этих полей и предлагает явную опцию tag; обычные advanced поля проверяются по документированному REST3 write contract, независимо от portal editable; запрет tags/TAGS сохраняется
+- **THEN** CLI отклоняет advanced-запись этих полей и предлагает явную опцию tag; ordinary advanced validation uses the documented local REST3 contract rather than portal editable
 
 ### Requirement: Creation and observer assignment have explicit outcomes
 CLI SHALL сохранять подтверждённый ID созданной задачи при ошибке последующего чтения/назначения наблюдателя. Частичное выполнение SHALL возвращать exit3, complete=false и ledger подтверждённых/невыполненных шагов; Ctrl-C SHALL сохранять exit130. Неизвестный исход записи SHALL отмечаться outcomeUnknown без автоматического повторения или отката создания.
@@ -55,7 +55,7 @@ CLI SHALL сохранять подтверждённый ID созданной 
 #### Scenario: Offline creation plan
 - **WHEN** basic task:add --dry-run использует профиль с включённой автодобавкой
 - **THEN** вывод показывает создание, чтение существующих наблюдателей и возможное назначение через AUDITORS с ссылкой на будущий ID, без secrets/API calls
-- **AND** политика проверяет полный потенциальный план и ordinary advanced fields проходят локальную документированную REST3 validation без metadata gate; custom user fields сохраняют отдельный schema preflight
+- **AND** политика проверяет полный потенциальный план и ordinary advanced fields are checked locally; custom input has its explicitly declared schema read
 
 #### Scenario: Tags and observer share one creation
 - **WHEN** task:add receives --tag and an enabled default observer

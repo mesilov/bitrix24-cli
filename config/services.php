@@ -70,6 +70,7 @@ return static function (ContainerBuilder $container, string $root, bool $package
         'DiskUploadGateway' => 'Rest1DiskUploadAdapter',
         'DeadlineTaskGateway' => 'Rest1TaskListAdapter',
         'TaskResultGateway' => 'Rest3TaskResultAdapter',
+        'TaskUserFieldGateway' => 'Rest1TaskUserFieldAdapter',
         'TaskGateway' => 'Rest3TaskAdapter', 'TaskTagGateway' => 'Rest1TaskTagAdapter', 'TaskChatGateway' => 'TaskChatAdapter', 'ChecklistGateway' => 'Rest1ChecklistAdapter',
         'TimeEntryGateway' => 'Rest1TimeEntryAdapter', 'ParticipantGateway' => 'Rest1ParticipantAdapter', 'TaskHistoryGateway' => 'Rest1TaskHistoryAdapter', 'UserGateway' => 'Rest1UserAdapter',
     ] as $port => $adapter) {

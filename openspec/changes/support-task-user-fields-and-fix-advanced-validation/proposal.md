@@ -1,31 +1,30 @@
 ## Why
 
-Issue #58 blocks the task creation workflow when a custom field such as «Порядок выполнения» (`UF_QUERY`) must be saved. Two separate gates cause the failure: `FieldSchema::localPatch` rejects REST3 `userFields`, while `validateWritable` requires portal `editable === true` for every advanced field, including fields that the documented write contract and basic flags already permit. The author's portal returns false for those fields; this portal observation has not been reproduced in this change.
+#58 prevents creation of tasks that need custom values, and advanced ordinary creation wrongly requires editable=true for creatorId. Live SDK probes confirmed REST3 rejects both flat UF_* and userFields input; REST1 create/save and readback work. See research/2026-10-14-sdk-portal-probe.md.
 
 ## What Changes
 
-- Validate advanced ordinary fields against a versioned, documented REST3 write schema instead of treating field metadata `editable` as the sole admission gate. Preserve bounded names, types and the rejection of raw status and relation objects.
-- Add explicit `--user-fields` / `--user-fields-file` JSON input to task:add/task:update, using exact custom `UF_*` API keys, such as `{"UF_QUERY":"5"}`. Keep REST3 `userFields` read-only and provide an actionable error pointing to the new input.
-- Plan a narrow REST1 custom-field update after REST3 creation or ordinary update, using the existing composition/ledger/policy conventions. Reject mixed plans in strict-rest3 before credentials or API requests.
-- Preserve partial outcomes and known task IDs if a subsequent step fails. Account for composition with existing tags and the optional default observer.
-- Update help, README, fixtures and targeted regression tests; independently verify stored values on a portal before claiming portal acceptance.
-
-Scope excludes custom-field definition CRUD, raw legacy API access, system UF file/CRM/mail operations, changes to tag semantics (#71), lifecycle and profile defaults for custom fields. Supported values start with JSON scalars and flat scalar arrays; field-specific semantic validation and clearing must be grounded in the selected field's metadata. Unsupported complex types must produce a clear error.
+- Ordinary add/update keep REST3 and validate exact field names, types and per-operation contracts locally, independently of portal editable flags.
+- Add --user-fields / --user-fields-file PATH|- for exact custom UF_* keys and scalar/flat-list values. Existing field schema supplies names/types; the server validates mandatory fields and multiplicity because getFields does not expose these reliably.
+- With custom input, task:add uses one explicit REST1 add containing ordinary and custom values. It never creates through REST3 then attempts to fill required custom values afterwards.
+- Basic flags and profile defaults select documented version-specific wire fields. Advanced JSON is never silently renamed: custom creation accepts native REST1 TITLE/DESCRIPTION/CREATED_BY/RESPONSIBLE_ID/GROUP_ID/DEADLINE/ALLOW_TIME_TRACKING; other advanced input uses exact REST3 names.
+- Custom-only update uses REST1; mixed ordinary/custom update explicitly runs REST3 then REST1 and reports partial outcomes. Tags/observer composition and strict-rest3 are preserved.
+- Add tests, Russian help, README, CHANGELOG and fresh CLI portal receipts.
 
 ## Capabilities
 
 ### New Capabilities
-- `task-user-fields`: explicit custom-field inputs, bounded version-specific write routes and partial outcome semantics.
+- `task-user-fields`: explicit input, single-request legacy creation, bounded update and outcomes.
 
 ### Modified Capabilities
-- `task-console-runtime`: documented ordinary-field validation independent of misleading editable metadata, preserving strict input and composition behavior.
-- `task-mvp-scope`: narrow 0.2.0 admission for custom-field REST1 writes and schema reads.
+- `task-console-runtime`: local ordinary write validation and native JSON names for custom create.
+- `task-mvp-scope`: explicit legacy custom creation/update/schema admission for 0.2.0.
 
 ## Impact
 
-TaskInputMapper, FieldSchema, add/update commands and requests/handlers, ApplicationFactory, CommandCatalog and API policy; a scoped custom-field gateway/adapter using ApiTransport; tests, README and OpenSpec. No dependency replacement is planned. Existing editable=true fixtures must be expanded to false, missing and null metadata.
+Task input, request/handler/port/adapter, DI/catalog, tests and documentation. No SDK replacement. No custom definition CRUD, raw API access, system UF_CRM_TASK/UF_TASK_WEBDAV_FILES/UF_MAIL_MESSAGE, custom profile defaults, or arbitrary legacy lifecycle fields.
 
 ## GitHub issues
 
-- https://github.com/mesilov/bitrix24-cli/issues/58 — custom fields and advanced-field editable validation; milestone 0.2.0, bug.
-- https://github.com/mesilov/bitrix24-cli/issues/71 — related, already separated tag work; its implementation is a dependency, not work covered by this change.
+- https://github.com/mesilov/bitrix24-cli/issues/58 — custom values and advanced editable validation; bug, milestone 0.2.0.
+- https://github.com/mesilov/bitrix24-cli/issues/71 — existing tag behavior preserved; its implementation is outside this change.

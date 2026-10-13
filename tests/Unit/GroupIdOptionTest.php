@@ -120,8 +120,8 @@ final class GroupIdOptionTest extends TestCase
                 $json = json_encode($fields, JSON_THROW_ON_ERROR);
                 $run = ConsoleHarness::run((new ApplicationFactory())->create(dirname(__DIR__, 2), $api), ['--json', 'task:' . $command, ...($command === 'update' ? ['123'] : []), $option, $option === '--fields' ? $json : '-'], $json);
                 self::assertSame(0, $run->status, $run->stdout);
-                self::assertSame(['tasks.task.field.list', 'tasks.task.' . $command], array_column($api->calls, 'method'));
-                self::assertSame($fields, $api->calls[1]['parameters']['fields']);
+                self::assertSame(['tasks.task.' . $command], array_column($api->calls, 'method'));
+                self::assertSame($fields, $api->calls[0]['parameters']['fields']);
             }
         }
     }

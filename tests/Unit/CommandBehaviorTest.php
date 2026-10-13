@@ -100,18 +100,18 @@ final class CommandBehaviorTest extends TestCase
         self::assertSame(['id' => 123, 'fields' => ['title' => 'x']], $fakeApiTransport->calls[1]['parameters']);
     }
 
-    public function testAdvancedPatchRequiresEditableMetadataAndDryRunDoesNotWrite(): void
+    public function testAdvancedPatchUsesLocalContractAndDryRunDoesNotReadOrWrite(): void
     {
         $fixturePortal = new FixturePortal();
         $fakeApiTransport = new FakeApiTransport($fixturePortal->respond(...));
         $app = (new ApplicationFactory())->create(dirname(__DIR__, 2), $fakeApiTransport);
         $run = ConsoleHarness::run($app, ['task:update', '123', '--fields', '{"title":"x"}', '--dry-run', '--json']);
         self::assertSame(0, $run->status, $run->stdout);
-        self::assertSame(['tasks.task.field.list'], array_column($fakeApiTransport->calls, 'method'));
+        self::assertSame([], $fakeApiTransport->calls);
         self::assertTrue($run->json()['meta']['dryRun']);
         $run = ConsoleHarness::run($app, ['task:update', '123', '--fields', '{"responsibleId":2}', '--json']);
-        self::assertSame(2, $run->status);
-        self::assertNotContains('tasks.task.update', array_column($fakeApiTransport->calls, 'method'));
+        self::assertSame(0, $run->status);
+        self::assertSame(['tasks.task.update'], array_column($fakeApiTransport->calls, 'method'));
     }
 
     public function testStdinMayNotFeedBothConfigAndFields(): void
@@ -137,8 +137,8 @@ final class CommandBehaviorTest extends TestCase
         });
         $run = ConsoleHarness::run((new ApplicationFactory())->create(dirname(__DIR__, 2), $fakeApiTransport), ['--json', 'task:add', '--fields', json_encode($fields, JSON_THROW_ON_ERROR)]);
         self::assertSame(0, $run->status, $run->stdout);
-        self::assertSame(['tasks.task.field.list', 'tasks.task.add'], array_column($fakeApiTransport->calls, 'method'));
-        self::assertSame(['fields' => $fields], $fakeApiTransport->calls[1]['parameters']);
+        self::assertSame(['tasks.task.add'], array_column($fakeApiTransport->calls, 'method'));
+        self::assertSame(['fields' => $fields], $fakeApiTransport->calls[0]['parameters']);
     }
 
     public function testNativeOptionsSeparatorAndUnambiguousAbbreviation(): void

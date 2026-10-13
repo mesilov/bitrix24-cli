@@ -206,7 +206,7 @@ final class TaskTagsTest extends TestCase
         }
     }
 
-    public function testReadbackUsesExistingRest3TagProjectionAndEditableGateRemains(): void
+    public function testReadbackUsesExistingRest3TagProjectionAndAdvancedFieldsUseLocalContract(): void
     {
         $api = $this->api();
         $app = (new ApplicationFactory())->create(dirname(__DIR__, 2), $api);
@@ -215,9 +215,8 @@ final class TaskTagsTest extends TestCase
         self::assertSame([['id' => 11, 'name' => '#плановая']], $run->json()['data']['task']['tags']);
         self::assertSame(['id', 'tags.id', 'tags.name'], $api->calls[0]['parameters']['select']);
         $run = ConsoleHarness::run($app, ['--json', 'task:update', '123', '--fields', '{"title":"x"}']);
-        self::assertSame(2, $run->status, $run->stdout);
-        self::assertStringContainsString('not confirmed editable', $run->json()['error']['message']);
-        self::assertSame(['tasks.task.get', 'tasks.task.field.list'], array_column($api->calls, 'method'));
+        self::assertSame(0, $run->status, $run->stdout);
+        self::assertSame(['tasks.task.get', 'tasks.task.update'], array_column($api->calls, 'method'));
     }
 
     public function testHelpWorksOfflineAndAdvertisesOptions(): void

@@ -1,0 +1,479 @@
+{
+  "portalHost": "bitrix24-php-sdk-playground.bitrix24.ru",
+  "checkedLocalDate": "2026-10-14",
+  "liveTests": 4,
+  "assertions": 63,
+  "skipped": 0,
+  "scenarios": [
+    {
+      "scenario": "custom-create",
+      "actingUserId": 1,
+      "taskId": 6296,
+      "submitted": {
+        "UF_AUTO_411664353318": "required-b24cli-test-123c976816d9c83c",
+        "UF_AUTO_199893122420": 58,
+        "UF_AUTO_860796849253": "b24cli-test-123c976816d9c83c",
+        "UF_AUTO_584558105987": [
+          "a-b24cli-test-123c976816d9c83c",
+          "b-b24cli-test-123c976816d9c83c"
+        ]
+      },
+      "readback": {
+        "UF_AUTO_411664353318": "required-b24cli-test-123c976816d9c83c",
+        "UF_AUTO_584558105987": [
+          "a-b24cli-test-123c976816d9c83c",
+          "b-b24cli-test-123c976816d9c83c"
+        ],
+        "UF_AUTO_199893122420": 58,
+        "UF_AUTO_860796849253": "b24cli-test-123c976816d9c83c",
+        "UF_AUTO_328523888294": null,
+        "UF_AUTO_367535268262": null,
+        "UF_AUTO_635374690198": null,
+        "UF_AUTO_806125117113": null
+      },
+      "apiCalls": [
+        {
+          "method": "tasks.task.getFields",
+          "apiVersion": "1.0",
+          "effect": "read"
+        },
+        {
+          "method": "tasks.task.add",
+          "apiVersion": "1.0",
+          "effect": "write"
+        }
+      ]
+    },
+    {
+      "scenario": "required-create-rejection",
+      "actingUserId": 1,
+      "title": "b24cli-test-aef1a3a1d3e597f0",
+      "error": {
+        "code": "api-error",
+        "message": "Bitrix24 rejected the request; verify the target, fields and permissions.",
+        "details": []
+      },
+      "remainingTasks": []
+    },
+    {
+      "scenario": "ordinary-advanced-create",
+      "actingUserId": 1,
+      "taskId": 6298,
+      "apiCalls": [
+        {
+          "method": "tasks.task.add",
+          "apiVersion": "3.0",
+          "effect": "write"
+        }
+      ]
+    },
+    {
+      "scenario": "custom-only-update",
+      "actingUserId": 1,
+      "taskId": 6300,
+      "submitted": {
+        "UF_AUTO_411664353318": "required-b24cli-test-3fb74d32c0d4fd0f",
+        "UF_AUTO_199893122420": 58,
+        "UF_AUTO_860796849253": "b24cli-test-3fb74d32c0d4fd0f",
+        "UF_AUTO_584558105987": [
+          "a-b24cli-test-3fb74d32c0d4fd0f",
+          "b-b24cli-test-3fb74d32c0d4fd0f"
+        ]
+      },
+      "readback": {
+        "UF_AUTO_411664353318": "required-b24cli-test-3fb74d32c0d4fd0f",
+        "UF_AUTO_584558105987": [
+          "a-b24cli-test-3fb74d32c0d4fd0f",
+          "b-b24cli-test-3fb74d32c0d4fd0f"
+        ],
+        "UF_AUTO_199893122420": 58,
+        "UF_AUTO_860796849253": "b24cli-test-3fb74d32c0d4fd0f",
+        "UF_AUTO_328523888294": null,
+        "UF_AUTO_367535268262": null,
+        "UF_AUTO_635374690198": null,
+        "UF_AUTO_806125117113": null
+      },
+      "apiCalls": [
+        {
+          "method": "tasks.task.getFields",
+          "apiVersion": "1.0",
+          "effect": "read"
+        },
+        {
+          "method": "tasks.task.update",
+          "apiVersion": "1.0",
+          "effect": "write"
+        }
+      ]
+    },
+    {
+      "scenario": "mixed-update",
+      "actingUserId": 1,
+      "taskId": 6300,
+      "apiCalls": [
+        {
+          "method": "tasks.task.getFields",
+          "apiVersion": "1.0",
+          "effect": "read"
+        },
+        {
+          "method": "tasks.task.update",
+          "apiVersion": "3.0",
+          "effect": "write"
+        },
+        {
+          "method": "tasks.task.update",
+          "apiVersion": "1.0",
+          "effect": "write"
+        }
+      ],
+      "readback": {
+        "UF_AUTO_411664353318": "required-b24cli-test-3fb74d32c0d4fd0f",
+        "UF_AUTO_584558105987": [
+          "a-b24cli-test-3fb74d32c0d4fd0f",
+          "b-b24cli-test-3fb74d32c0d4fd0f"
+        ],
+        "UF_AUTO_199893122420": 58,
+        "UF_AUTO_860796849253": "b24cli-test-e5242a8ba17935af",
+        "UF_AUTO_328523888294": null,
+        "UF_AUTO_367535268262": null,
+        "UF_AUTO_635374690198": null,
+        "UF_AUTO_806125117113": null
+      }
+    },
+    {
+      "scenario": "custom-clearing",
+      "actingUserId": 1,
+      "taskId": 6300,
+      "readback": {
+        "UF_AUTO_411664353318": "required-b24cli-test-3fb74d32c0d4fd0f",
+        "UF_AUTO_584558105987": [],
+        "UF_AUTO_199893122420": 58,
+        "UF_AUTO_860796849253": null,
+        "UF_AUTO_328523888294": null,
+        "UF_AUTO_367535268262": null,
+        "UF_AUTO_635374690198": null,
+        "UF_AUTO_806125117113": null
+      },
+      "apiCalls": [
+        {
+          "method": "tasks.task.getFields",
+          "apiVersion": "1.0",
+          "effect": "read"
+        },
+        {
+          "method": "tasks.task.update",
+          "apiVersion": "1.0",
+          "effect": "write"
+        }
+      ]
+    },
+    {
+      "scenario": "custom-preview-strict-unknown",
+      "actingUserId": 1,
+      "taskId": 6302,
+      "unknownError": {
+        "code": "usage-error",
+        "message": "Unknown or unsupported custom field: UF_B24CLI_MISSING. Пример: b24cli task:update 123 --title \"Договор для согласования\" --dry-run. Справка: b24cli task:update --help.",
+        "details": []
+      },
+      "strictError": {
+        "code": "policy-denied",
+        "message": "This command requires an IM or REST 1.0 route; strict-rest3 prohibits it.",
+        "details": []
+      },
+      "previewPlan": {
+        "command": "task:update",
+        "target": "task 6302",
+        "steps": [
+          {
+            "taskId": 6302,
+            "step": 1,
+            "method": "tasks.task.getFields",
+            "apiVersion": "1.0",
+            "effect": "read",
+            "fields": []
+          },
+          {
+            "taskId": 6302,
+            "step": 2,
+            "method": "tasks.task.update",
+            "apiVersion": "1.0",
+            "effect": "write",
+            "fields": {
+              "UF_AUTO_860796849253": "x"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "cleanup": [
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AddTaskUserFieldsCommandTest",
+      "test": "testNativeCustomCreateReadbackAndRequiredFieldRejection",
+      "command": "task:add",
+      "happyPath": true,
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        6296
+      ],
+      "ownedDiskFileIds": [],
+      "ownedDiskFolderIds": [],
+      "commands": [
+        {
+          "command": "task:add",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.getFields",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.add",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": true,
+          "outcomeUnknown": null
+        },
+        {
+          "command": "task:add",
+          "status": 1,
+          "apiCalls": [
+            {
+              "method": "tasks.task.getFields",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.add",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "complete": null,
+          "reason": null,
+          "errorCode": "api-error",
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": null,
+          "outcomeUnknown": false
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": [],
+        "diskFolderIds": []
+      }
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AddTaskUserFieldsCommandTest",
+      "test": "testOrdinaryAdvancedCreateDoesNotReadEditableMetadata",
+      "command": "task:add",
+      "happyPath": true,
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        6298
+      ],
+      "ownedDiskFileIds": [],
+      "ownedDiskFolderIds": [],
+      "commands": [
+        {
+          "command": "task:add",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.add",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ],
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": true,
+          "outcomeUnknown": null
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": [],
+        "diskFolderIds": []
+      }
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\UpdateTaskUserFieldsCommandTest",
+      "test": "testCustomOnlyMixedClearingAndReadback",
+      "command": "task:update",
+      "happyPath": true,
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        6300
+      ],
+      "ownedDiskFileIds": [],
+      "ownedDiskFolderIds": [],
+      "commands": [
+        {
+          "command": "task:update",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.getFields",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": true,
+          "outcomeUnknown": null
+        },
+        {
+          "command": "task:update",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.getFields",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "3.0",
+              "effect": "write"
+            },
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": true,
+          "outcomeUnknown": null
+        },
+        {
+          "command": "task:update",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.getFields",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": true,
+          "outcomeUnknown": null
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": [],
+        "diskFolderIds": []
+      }
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\UpdateTaskUserFieldsCommandTest",
+      "test": "testUnknownStrictAndDryRunHaveNoMutations",
+      "command": "task:update",
+      "happyPath": false,
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        6302
+      ],
+      "ownedDiskFileIds": [],
+      "ownedDiskFolderIds": [],
+      "commands": [
+        {
+          "command": "task:update",
+          "status": 2,
+          "apiCalls": [
+            {
+              "method": "tasks.task.getFields",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": null,
+          "reason": null,
+          "errorCode": "usage-error",
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": null,
+          "outcomeUnknown": false
+        },
+        {
+          "command": "task:update",
+          "status": 4,
+          "apiCalls": [],
+          "complete": null,
+          "reason": null,
+          "errorCode": "policy-denied",
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": null,
+          "outcomeUnknown": false
+        },
+        {
+          "command": "task:update",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.getFields",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": null,
+          "outcomeUnknown": null
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": [],
+        "diskFolderIds": []
+      }
+    }
+  ],
+  "limitations": [
+    "UF_QUERY and reporter portal not available",
+    "Restricted-role acceptance not run; fixture denied/outcomeUnknown/cancellation coverage is local"
+  ]
+}

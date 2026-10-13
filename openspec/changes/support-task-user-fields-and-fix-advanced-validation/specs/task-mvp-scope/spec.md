@@ -1,10 +1,19 @@
+## ADDED Requirements
+
+### Requirement: Milestone custom field admission
+For 0.2.0 CLI SHALL admit REST1 tasks.task.getFields and custom-only tasks.task.update on explicit custom input; custom task creation SHALL admit one REST1 tasks.task.add with bounded native ordinary fields and custom values. This SHALL not admit arbitrary legacy fields or raw lifecycle writes.
+
+#### Scenario: Narrow custom routes
+- **WHEN** task:add/task:update receives explicit custom values
+- **THEN** only the declared custom routes are admitted; strict-rest3 rejects them before credentials/API
+
 ## MODIFIED Requirements
 
 ### Requirement: API admission and future lifecycle acceptance remain explicit
-Каталог SHALL отделять release scope от API support: 59 операций = 30 кандидатов MVP, 0 API-policy-pending и 29 после MVP. Через REST1 явно допущены 4 time, 8 checklist/root/item, 2 participants/history команды и выбранные companion reads участников task:show. Для milestone 0.2.0 дополнительно SHALL допускаться REST1 tasks.task.update с TAGS и отдельно с явно переданными custom UF_* полями в task:add/task:update; schema preflight custom полей SHALL использовать только REST1 tasks.task.getFields. В 0.2.0 дополнительно SHALL допускаться disk.folder.uploadFile REST1 только для явного локального режима task:file:attach. Права SHALL проверяться для кандидатов; lifecycle SHALL оставаться после MVP независимо от возможности записи status. Наличие команды в каталоге не SHALL означать принятие иных API exceptions, доказанную семантику или runtime readiness.
+Каталог SHALL отделять release scope от API support: 59 операций = 30 кандидатов MVP, 0 API-policy-pending и 29 после MVP. Права SHALL проверяться для кандидатов; lifecycle SHALL оставаться после MVP независимо от возможности записи status. Наличие команды в каталоге не SHALL означать принятие иных API exceptions, доказанную семантику или runtime readiness.
 
 #### Scenario: Legacy admission is limited to selected commands
-- **WHEN** вызывается legacy маршрут вне согласованных команд/companion reads/записи TAGS/custom UF_* и их schema preflight либо общий tasks.task.update используется для действий за пределами participants:set, записи TAGS и явных custom UF_* в task:add/task:update
+- **WHEN** вызывается legacy маршрут вне согласованных команд/companion reads/записи TAGS/custom schema and writes либо общий tasks.task.update используется для действий за пределами participants:set, записи TAGS и explicit custom writes в task:add/task:update
 - **THEN** допуск выбранных REST1 команд и чтений не разрешает такую операцию; policy отклоняет запрос и не выполняет скрытый fallback или исключённый lifecycle переход
 
 #### Scenario: Lifecycle commands after MVP
@@ -21,7 +30,7 @@
 
 #### Scenario: Tag writes have an explicit narrow legacy admission
 - **WHEN** task:add/task:update в task-v3 policy получает явные теги
-- **THEN** CLI допускает REST1 tasks.task.update только с TAGS; status, REST3 userFields и произвольные legacy поля не допускаются; явный custom UF_* input использует отдельный ограниченный маршрут по task-user-fields, число task-команд не увеличивается
+- **THEN** CLI допускает REST1 tasks.task.update только с TAGS; status, REST3 userFields и произвольные legacy поля не допускаются, число task-команд не увеличивается
 
 #### Scenario: Strict policy rejects tag composition
 - **WHEN** команда с tag/clear-tags вызвана в strict-rest3
@@ -30,8 +39,3 @@
 #### Scenario: Scoped Disk upload admission
 - **WHEN** пользователь прикрепляет локальный файл через task:file:attach --file PATH --folder-id ID
 - **THEN** допускается только disk.folder.uploadFile REST1 с последующим attach REST3; каталог сохраняет 34 task команд, общий Disk API/произвольные методы не открываются, strict-rest3 запрещает mixed plan до credentials/API
-
-#### Scenario: Narrow custom field admission
-- **WHEN** task:add/task:update получает явные --user-fields/--user-fields-file в task-v3 policy
-- **THEN** допустимы REST1 tasks.task.getFields для preflight и tasks.task.update только с проверенными custom UF_*; system UF_CRM_TASK/UF_TASK_WEBDAV_FILES/UF_MAIL_MESSAGE и произвольные legacy keys исключены
-- **AND** strict-rest3 отклоняет весь потенциальный план до credentials/API, включая schema read и первый create

@@ -1,64 +1,38 @@
 ## Context
 
-See proposal.md — Why. Analysis baseline: dev `0aeb25b68dad641be57e6356222373d4fc9782d3`. The dirty primary checkout is preserved; work is isolated in `/private/tmp/bitrix24-cli-issue-58` on `bugfix/58-task-user-fields-editability`.
-
-TaskInputMapper::patch always applies localPatch; advanced requests additionally call validateWritable in AddTaskHandler/UpdateTaskHandler. That function reads tasks.task.field.list and insists on editable=true. Rest3TaskAdapter passes metadata through without synthesizing false. Basic flags skip this gate. CommandBehaviorTest supplies editable=true fixtures; TaskTagsTest explicitly asserts rejection with false, so tests currently preserve the reported defect.
-
-The tag change already introduced a scoped REST1 tasks.task.update adapter, explicit routes, a dependent-ID plan and ExecutionLedger. AddTaskHandler also composes optional observer reads/writes after tags. Reuse these patterns with a custom-field port instead of exposing general legacy update.
+See proposal.md and the dated SDK/portal research. Worktree /private/tmp/bitrix24-cli-issue-58 preserves the dirty primary checkout. Refreshed dev includes lifecycle and normalized specs; raw status remains outside generic fields.
 
 ## Goals / Non-Goals
 
-Goals: equivalent ordinary-field admission, explicit custom input and a verifiable mixed-version result. No universal guarantee of portal write permission or acceptance of every custom type is implied. Scope exclusions are in proposal.md.
+Deliver #58 with explicit routes, exact wire names and genuine CLI read-after-write receipts. Retain tags/observer behavior. No definition CRUD or general legacy API.
 
 ## Decisions
 
-### 1. Distinguish schema, writable contract and effective rights
+1. Replace validateWritable metadata gate with local documented FieldSchema validation. Add/update use explicit validation contexts; required creation fields apply to add only. Validate IDs, time, strings, enums, booleans, list elements and ISO dates. Keep the current ordinary allowlist and remote rights errors; do not derive new writable names from metadata. task:fields:list retains raw flags. Ordinary advanced dry-run is offline.
+2. Custom input is a nonempty object of exact UF_* codes, no aliases, duplicate keys or nested values. Support string/integer/double/boolean/date/datetime scalar or scalar-list values and explicit empty string/list clearing. Reject null and special system types. tasks.task.getFields is an explicit preflight read for names/types. Absent/unsupported types fail before any write. Its missing mandatory/multiple flags are not fabricated: server validates field semantics. Creation relies on REST1's required-field validation before a task is created.
+3. task:add with custom values uses a single REST1 tasks.task.add. Basic flags and known profile defaults map directly to documented native TITLE, DESCRIPTION, CREATED_BY, RESPONSIBLE_ID, GROUP_ID, DEADLINE, ALLOW_TIME_TRACKING (Y/N); this is an explicit CLI option mapping. Custom-create advanced --fields must use those native REST1 keys and is never translated from v3 JSON. Validate JSON ALLOW_TIME_TRACKING as Y/N; do not accept aliases. Defaults remain in their documented profile structure and apply only to missing ordinary values.
+4. task:update keeps ordinary REST3 fields and uses a separate scoped REST1 update for supplied custom values. Custom-only updates make no empty v3 write. Process custom before existing tag writes. Compose confirmed ledger operations and preserve task ID, failed/unknown and skipped later steps. A sole rejected custom write remains the original error, not partial success. Cancellation preserves 130; no retry or automatic rollback.
+5. Add a narrow TaskUserFieldGateway and adapter through existing ApiTransport; validate legacy result.task.id, including matching target ID on update. Handler routes declare every possible REST1 read/write before credential resolution, so strict-rest3 refuses the entire plan. Dry-run can perform custom schema reads but never mutation; show single legacy create with UFs together and exact version-specific fields.
+6. Existing tag update remains separate; observer assignment follows tags as before. On a failed custom update, later tag steps are skipped. A legacy-created task retains its confirmed ID if tag/observer assignment fails.
 
-Replace ordinary-field metadata admission with a complete local schema for the existing WRITABLE subset: exact REST3 names, scalar/array element types, enums, dates, nullable representations and required create fields. Keep basic/advanced mutual exclusion and profile default precedence. No arbitrary field is admitted just because metadata says editable=true. task:fields:list continues returning raw portal metadata; missing editable remains unknown, not inferred true/false.
+## Sources and evidence boundaries
 
-Remove field.list from ordinary advanced handler routes/preparation. All ordinary dry-runs become offline schema checks. Actual API rights/validation errors retain their existing classifications. Update docs/development.md, docs/configuration.md and README references to remote preflight. The existing tag and observer requirements explicitly referring to the old gate are modified in the delta.
+Official bitrix24_dev MCP was queried (search, then method/article details); its tasks.task.add record mixes v3 parameters with classic examples, so native legacy keys are additionally grounded in locked SDK Legacy/Services/Task and the raw live add receipts. See research/2026-10-14-sdk-portal-probe.md/json.
 
-Alternative: require an explicit metadata select and continue hard-blocking editable=false. That cannot satisfy #58's reported valid writes with false metadata. Select experiments can diagnose a portal discrepancy but are not a reliable admission contract. Removing all validation is also rejected: the static write schema replaces the gate.
+- https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-add.html — classic create and exact uppercase fields.
+- https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-update.html — taskId/fields and task.id confirmation.
+- https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-get-fields.html — available ordinary/custom types.
+- https://apidocs.bitrix24.ru/api-reference/tasks/fields-rest-v3.html — REST3 types/enums/relations and userFields write prohibition.
 
-### 2. Custom fields use their exact legacy API keys
-
-New optional --user-fields / --user-fields-file PATH|- accepts an object of exact `UF_*` custom codes, e.g. `{"UF_QUERY":"5"}`; input must preserve JSON value types and detect duplicate keys. These are separate from request.fields, which remains REST3. Basic or ordinary advanced input may be combined with custom fields; tags keep their existing advanced mutual-exclusion behavior. REST3 `userFields` remains rejected with a specific new-option hint.
-
-Permit scalars and flat scalar lists whose type/multiplicity can be confirmed by custom metadata. Read REST1 tasks.task.getFields before any mutations; reject missing fields or insufficient/unsupported metadata with a field-specific error. Exclude system UF_CRM_TASK, UF_TASK_WEBDAV_FILES and UF_MAIL_MESSAGE. Initial support is existing field values; defining fields, special file/CRM binding and arbitrary object payloads are out of scope. Empty string/list clearing requires matching field semantics; null is not an unverified universal clearing command.
-
-Alternative: allow `userFields` inside --fields and silently convert to UF keys. This would mix distinct read/write contracts and API versions. Moving all task creation to REST1 is unnecessary and would alter ordinary field semantics.
-
-### 3. Declare the full composition before credentials
-
-Add a narrowly scoped TaskUserFieldGateway/REST1 adapter using existing ApiTransport. Route admission permits only custom schema read and verified UF update for explicit input. strict-rest3 checks every potential route, including custom schema read, before credentials/API.
-
-Execution order: custom schema preflight; REST3 ordinary create/update if needed; REST1 custom update; existing TAGS write; optional observer steps. The plan and execution share this order, the same TASK_ID and cancellation checks. Custom-only update performs no empty REST3 write. The custom adapter confirms the selected task ID from the documented REST1 update result and treats malformed/mismatched confirmation as outcomeUnknown. No automatic API fallback, retry or deletion is introduced.
-
-Dry-run with custom input performs only declared schema reads and displays unexecuted write steps; creation references the ID returned by its first mutating step. Document this distinction from offline ordinary advanced dry-run.
-
-Use the existing ledger contract for confirmed/failed/unknown/skipped steps. Failure after create retains the task ID and exit3; cancellation preserves 130; a denied sole custom write remains the original failure. Recovery tells users to inspect that existing task and retry only task:update. Tests cover custom+tags+observer at each failure boundary.
-
-## Source contract and evidence boundaries
-
-Official documentation read on 2026-10-13:
-
-- [REST3 task fields](https://apidocs.bitrix24.ru/api-reference/tasks/fields-rest-v3.html): exact camelCase fields and booleans; userFields/tags/participants/object fields cannot be sent to add/update. Effective write rights depend on task/user context.
-- [REST3 add](https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-add-rest-v3.html): title, creatorId and responsibleId are required.
-- [REST3 field.list](https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-field-list.html): editable is a selectable metadata attribute; examples omit it. Documentation does not establish why the author's portal returns false for every field.
-- [REST1 update](https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-update.html): taskId plus fields object; result.task.id confirmation.
-- [REST1 getFields](https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-get-fields.html): description of standard and user fields, result.fields map. The exact custom descriptor/type/multiplicity shape must be recorded from a supported portal before enabling that type, rather than assuming REST3 metadata compatibility.
-- [Legacy task fields](https://apidocs.bitrix24.ru/api-reference/tasks/fields.html): UF_* user fields; selected reads can return names using different casing, which must not rename write keys.
-
-UF_QUERY legacy add/read success is an issue-author report, not a fresh check here. No live portal reads/writes have been performed in this planning turn. Implementation must add a sanitized raw metadata receipt and read-after-write verification for custom creation/update, plus ordinary advanced writes on the reported false-metadata shape.
+Locked SDK 3.7.0/8ebd4c154d5557db949b0196825f347a3a6c5bf0 and prior live probes are research, not implementation acceptance. UF_QUERY is absent on the available test portal; fresh acceptance uses existing fields of the same supported types. No claim of acceptance on the reporter's portal.
 
 ## Risks / Trade-offs
 
-- [Portal metadata defect remains unexplained] → capture explicit-select and default raw responses during acceptance; retain raw output, distinguish metadata from rights and avoid universal portal claims.
-- [Required custom field prevents initial REST3 creation] → retain the API validation error and perform no dependent calls; this composition does not claim support for portals requiring an unsupported custom value during create. Record this limitation in help/acceptance.
-- [Field types differ by portal] → enable only descriptor shapes grounded in docs and sanitized receipts; unsupported types fail before mutation.
-- [Multiple writes are not atomic] → ledger, known-ID recovery and no automatic retry/rollback.
-- [Parallel work changes handlers] → refresh dev before implementation and PR; preserve tags and observer regressions.
+- Mixed updates are not atomic: preserve ledger and inspect existing task before retrying.
+- getFields lacks mandatory/multiple flags: validate names and scalar element types locally; report portal semantic rejections. No universal metadata completeness claim.
+- Custom create changes wire contract explicitly: document native JSON and reject v3 names there. Basic flags remain convenient.
+- Clearing can fail for mandatory fields: surface server error, never convert omission into clearing.
 
 ## Migration Plan
 
-Deliver through a PR to dev for milestone 0.2.0. Existing basic flags remain unchanged; custom input is additive. Advanced ordinary input gains local documented validation and offline previews. Rollback reverts this scoped change; no data migration or custom-field definition changes are needed. Archive only after implementation and verification, then update the issue path under the repository completion workflow.
+Publish PR to dev with current Unreleased changelog and bidirectional issue links. Archive and deliver synced specs only after merged completion under maintainer rules. No data migration or SDK changes.

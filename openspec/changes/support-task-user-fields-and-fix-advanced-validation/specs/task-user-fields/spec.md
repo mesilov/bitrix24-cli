@@ -1,45 +1,56 @@
 ## Purpose
 
-Allow task creation and updates to save explicitly supplied custom fields while preserving exact API names, declared API versions and recoverable partial results.
+Allow task creation and updates to save explicitly supplied custom fields with exact API keys, declared routes and recoverable outcomes.
 
 ## ADDED Requirements
 
-### Requirement: Explicit custom field input
-CLI SHALL support mutually exclusive --user-fields and --user-fields-file PATH|- JSON objects on task:add/task:update. Keys SHALL be exact custom UF_* API codes. Basic flags or ordinary advanced fields SHALL be combinable with this input; missing keys SHALL remain untouched. REST3 userFields SHALL remain read-only.
+### Requirement: Explicit custom value input
+CLI SHALL accept mutually exclusive --user-fields and --user-fields-file PATH|- nonempty JSON objects of exact custom UF_* keys. It SHALL reject duplicate/alias/system keys, nested values and null. Scalars and flat scalar lists SHALL preserve their types. Omitted fields SHALL remain unchanged.
 
-#### Scenario: Set execution order
-- **WHEN** task:add or task:update receives --user-fields '{"UF_QUERY":"5"}'
-- **THEN** the custom value is planned under the unchanged UF_QUERY key, separately from REST3 ordinary fields
+#### Scenario: Execution order input and clearing
+- **WHEN** user supplies --user-fields '{"UF_QUERY":"5"}', empty string or an empty list
+- **THEN** supplied values are preserved, with explicit emptiness submitted to portal validation; omission never clears anything
 
-#### Scenario: Bounded keys and values
-- **WHEN** input contains a non-UF key, system UF_CRM_TASK/UF_TASK_WEBDAV_FILES/UF_MAIL_MESSAGE, an empty object, conflicting sources, duplicate JSON keys, a nested object or unsupported value type
-- **THEN** CLI returns usage-error/exit2 before credentials or API calls and does not silently rename or stringify values
+#### Scenario: Invalid input before credentials
+- **WHEN** custom JSON is malformed, contains duplicate keys, non-UF keys, system UF_CRM_TASK/UF_TASK_WEBDAV_FILES/UF_MAIL_MESSAGE, nested values or null
+- **THEN** CLI returns usage-error/exit2 before credentials/API
 
-### Requirement: Custom field schema preflight
-Before writes CLI SHALL confirm supplied custom codes exist using REST1 tasks.task.getFields and validate supported scalar or flat scalar-list shapes against available field metadata. Unsupported or insufficient metadata SHALL fail explicitly. Field-specific clearing SHALL be accepted only when its representation is confirmed; omission SHALL never clear a field.
+### Requirement: Bounded custom schema preflight
+Before mutation CLI SHALL confirm custom names/types through explicit REST1 tasks.task.getFields. It SHALL reject unknown/unsupported types or mismatched scalar elements. It SHALL not fabricate mandatory/multiple metadata; those semantics SHALL be validated by the portal.
 
-#### Scenario: Invalid custom field is caught before creation
-- **WHEN** a custom code is absent from portal metadata or its type/multiplicity is incompatible
-- **THEN** CLI rejects the operation before task creation or any other mutation and identifies the offending code
+#### Scenario: Unknown field before creation
+- **WHEN** a supplied custom field is absent or incompatible with its documented supported type
+- **THEN** the whole operation is rejected before any write with the offending code
 
-### Requirement: Declared mixed version custom writes
-CLI SHALL use REST3 for ordinary fields and a separately declared REST1 tasks.task.update for custom fields. Strict-rest3 SHALL reject the full potential plan before credentials/API. Dry-run SHALL show routes, fields and new-ID dependencies without mutation; custom schema preflight SHALL be identified as a read.
+### Requirement: Single request custom task creation
+With custom values task:add SHALL use one declared REST1 add containing ordinary and custom values. Basic flags SHALL map to native REST1 fields. Advanced JSON SHALL require exact TITLE/DESCRIPTION/CREATED_BY/RESPONSIBLE_ID/GROUP_ID/DEADLINE/ALLOW_TIME_TRACKING keys and SHALL reject v3 aliases. Missing required custom values SHALL produce the portal error without dependent writes.
 
-#### Scenario: Create and custom-only update
-- **WHEN** a task is created with UF_QUERY or an existing task is updated with only UF_QUERY
-- **THEN** creation runs REST3 add followed by REST1 update with its returned ID, while custom-only update runs no empty REST3 update
+#### Scenario: Required custom values at creation
+- **WHEN** task:add supplies the required custom values and ordinary basic flags
+- **THEN** a single REST1 add submits all creation values and returns one task ID; no REST3 create or later custom update occurs
 
-#### Scenario: Existing tags and observer composition
-- **WHEN** custom fields are combined with tags or an enabled default observer
-- **THEN** every planned step uses the same task ID, versions are explicit, failures stop subsequent steps, and strict-rest3 prevents every request
+#### Scenario: Native JSON and defaults
+- **WHEN** custom creation uses native ordinary JSON, profile defaults or explicit flags
+- **THEN** explicit values take precedence, REST1 payload uses native keys/Y-N, and v3 JSON keys are rejected rather than renamed
 
-### Requirement: Recoverable custom field outcomes
-CLI SHALL preserve confirmed task IDs and step results if later writes fail, return partial/exit3 after confirmed mutation, preserve cancellation/exit130 and mark unknown outcomes. It SHALL not retry writes, create a second task or promise rollback automatically.
+### Requirement: Declared updates and strict policy
+Custom-only task:update SHALL use REST1 without an empty REST3 update. Mixed updates SHALL declare ordinary REST3 then custom REST1 then any tags. Strict-rest3 SHALL reject every custom plan before credentials/API. Dry-run SHALL expose versions, native fields and custom schema reads without writes.
 
-#### Scenario: Custom write fails after creation
-- **WHEN** task creation is confirmed but its custom-field write fails or loses its response
-- **THEN** output retains the created task ID, confirmed/failed/unknown/skipped steps and guidance to inspect that task before retrying only task:update
+#### Scenario: Custom and mixed updates
+- **WHEN** task:update has custom input, with or without ordinary fields
+- **THEN** only needed routes execute for the same ID; omitted custom keys and tags remain unchanged
 
-#### Scenario: Custom-only update is rejected
-- **WHEN** the only mutating step is denied by the portal
-- **THEN** CLI returns the original error rather than success or a claimed confirmed partial mutation
+#### Scenario: Strict and preview
+- **WHEN** custom creation/update is requested in strict-rest3 or with dry-run
+- **THEN** strict rejects the entire plan before requests; allowed dry-run performs only schema reads and exposes unexecuted writes
+
+### Requirement: Recoverable composed outcomes
+CLI SHALL retain confirmed task ID/steps on later custom/tag/observer failure, return partial/exit3 after confirmed mutation, preserve cancellation/exit130 and unknown outcomes, and skip subsequent writes. It SHALL never retry creation/update or delete a task automatically.
+
+#### Scenario: Mixed update fails after ordinary write
+- **WHEN** ordinary update succeeds but custom update fails or loses its response
+- **THEN** known ID/confirmed step remain, custom is failed/unknown, later tags are skipped, and output directs inspection before task:update retry
+
+#### Scenario: Legacy create composition
+- **WHEN** legacy creation succeeds then tags/observer fail, or the only custom write is rejected
+- **THEN** creation's ID is retained for later failure; a sole rejection returns the original error without claiming confirmed partial success
