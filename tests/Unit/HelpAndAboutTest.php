@@ -63,7 +63,7 @@ final class HelpAndAboutTest extends TestCase
         self::assertStringNotContainsString('extra:read', $direct->stdout);
         $listHelp = ConsoleHarness::run($application, ['list', '--help']);
         self::assertSame($listHelp->stdout, ConsoleHarness::run($application, ['help', 'list'])->stdout);
-        self::assertStringContainsString('list [options]', $listHelp->stdout);
+        self::assertStringContainsString('list [опции]', $listHelp->stdout);
         self::assertStringNotContainsString(ApplicationInformation::PURPOSE, $listHelp->stdout);
         $implicitList = ConsoleHarness::run($application, []);
         self::assertSame($implicitList->stdout, ConsoleHarness::run($application, ['list'])->stdout);
@@ -149,6 +149,17 @@ final class HelpAndAboutTest extends TestCase
         self::assertSame($names, $documented);
         foreach (CommandCatalog::all() as $name => $entry) {
             self::assertStringContainsString(TaskUsage::examples($application->get($name))[0], $map, $name);
+        }
+
+        preg_match_all('/\| `(b24cli [^`]+)` \| /', $map, $examples);
+        self::assertCount(count($names), $examples[1]);
+        foreach ($examples[1] as $example) {
+            $tokens = explode(' ', $example, 3);
+            $command = $application->get($tokens[1]);
+            $command->mergeApplicationDefinition(false);
+            $input = new StringInput(str_replace('\\|', '|', $tokens[2] ?? ''));
+            $input->bind($command->getDefinition());
+            $input->validate();
         }
 
         $readme = file_get_contents(dirname(__DIR__, 2) . '/README.md');

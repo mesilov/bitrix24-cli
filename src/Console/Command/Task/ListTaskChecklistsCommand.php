@@ -25,7 +25,7 @@ final class ListTaskChecklistsCommand extends Command
     protected function configure(): void
     {
         $this->addArgument('TASK_ID', InputArgument::REQUIRED, 'ID задачи.');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: id, title. REST 1.0 companion route; strict-rest3 отклоняет вызов до подключения.   Пример: b24cli task:checklist:list 123');
+        $this->setHelp('JSON: структура data/meta/error; столбцы TSV при --plain: id, title. Дополнительный маршрут REST 1.0; strict-rest3 отклоняет вызов до подключения.   Пример: b24cli task:checklist:list 123');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

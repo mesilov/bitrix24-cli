@@ -6,7 +6,6 @@ namespace Bitrix24\CLI\Console;
 
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Formatter\OutputFormatter;
-use Symfony\Component\Console\Helper\DescriptorHelper;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -37,29 +36,31 @@ final class ApplicationInformation
             '  b24cli — ' . self::PURPOSE,
             '',
             '<comment>Использование:</comment>',
-            '  b24cli [global options] COMMAND [arguments] [options]',
+            '  b24cli [глобальные опции] COMMAND [аргументы] [опции]',
             '',
             '<comment>Команды:</comment>',
         ]);
-        $commands = $application->all();
-        ksort($commands);
-        $namespace = null;
-        foreach ($commands as $name => $command) {
+        $groups = [];
+        foreach ($application->all() as $name => $command) {
             if ($command->isHidden()) {
                 continue;
             }
 
-            $group = str_contains($name, ':') ? explode(':', $name, 2)[0] : 'Общие';
-            if ($namespace !== $group) {
-                $output->writeln('  <comment>' . $group . '</comment>');
-                $namespace = $group;
-            }
+            $group = str_contains($name, ':') ? explode(':', $name, 2)[0] : '';
+            $groups[$group][$name] = $command;
+        }
 
-            $output->writeln('    ' . OutputFormatter::escape($name) . ' — ' . OutputFormatter::escape($command->getDescription()));
+        ksort($groups);
+        foreach ($groups as $namespace => $commands) {
+            ksort($commands);
+            $output->writeln('  <comment>' . ($namespace === '' ? 'Общие' : OutputFormatter::escape($namespace)) . '</comment>');
+            foreach ($commands as $name => $command) {
+                $output->writeln('    ' . OutputFormatter::escape($name) . ' — ' . OutputFormatter::escape($command->getDescription()));
+            }
         }
 
         $output->writeln(['', '<comment>Глобальные опции:</comment>']);
-        (new DescriptorHelper())->describe($output, new InputDefinition($application->getDefinition()->getOptions()));
+        HelpDescriptors::create()->describe($output, new InputDefinition($application->getDefinition()->getOptions()));
         $output->writeln(['', '', '<comment>Примеры работы с задачами:</comment>']);
         foreach (['task:add', 'task:show', 'task:find'] as $name) {
             $output->writeln('  ' . OutputFormatter::escape(TaskUsage::examples($application->get($name))[0]));

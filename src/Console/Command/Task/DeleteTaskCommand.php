@@ -28,7 +28,7 @@ final class DeleteTaskCommand extends Command
         $this->addArgument('TASK_ID', InputArgument::REQUIRED, 'ID задачи.');
         $this->addOption('force', null, InputOption::VALUE_NONE, 'Подтвердить удаление без диалога; проверки доступа и принадлежности сохраняются.');
         $this->addOption('dry-run', null, InputOption::VALUE_NONE, 'Показать план без записи; проверочные чтения обозначены.');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: taskId, resourceId, action, changedFields. REST 3.0.   Пример: b24cli task:delete 123 --dry-run; b24cli task:delete 123 --force');
+        $this->setHelp('JSON: структура data/meta/error; столбцы TSV при --plain: taskId, resourceId, action, changedFields. REST 3.0.   Пример: b24cli task:delete 123 --dry-run; b24cli task:delete 123 --force');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

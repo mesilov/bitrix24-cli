@@ -27,9 +27,9 @@ final class DeleteTaskResultCommand extends Command
     {
         $this->addArgument('TASK_ID', InputArgument::REQUIRED, 'ID задачи.');
         $this->addOption('result', null, InputOption::VALUE_REQUIRED, 'ID результата выбранной задачи из task:result:list.');
-        $this->addOption('dry-run', null, InputOption::VALUE_NONE, 'Показать план без записи; update/delete проверяют принадлежность результата.');
+        $this->addOption('dry-run', null, InputOption::VALUE_NONE, 'Показать план без записи; обновление/удаление проверяют принадлежность результата.');
         $this->addOption('force', null, InputOption::VALUE_NONE, 'Подтвердить удаление без диалога; проверка принадлежности сохраняется.');
-        $this->setHelp('REST 3.0; strict-rest3 поддерживается. JSON: data/meta/error envelope; plain TSV columns: taskId, resourceId, action, changedFields. Результаты задачи доступны в пределах прав подключения. Пример: b24cli task:result:delete 123 --result 17 --force');
+        $this->setHelp('REST 3.0; strict-rest3 поддерживается. JSON: структура data/meta/error; столбцы TSV при --plain: taskId, resourceId, action, changedFields. Результаты задачи доступны в пределах прав подключения. Пример: b24cli task:result:delete 123 --result 17 --force');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
