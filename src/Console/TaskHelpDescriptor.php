@@ -12,7 +12,7 @@ final class TaskHelpDescriptor extends TextDescriptor
 {
     protected function describeCommand(Command $command, array $options = []): void
     {
-        if (!str_starts_with($command->getName() ?? '', 'task:')) {
+        if (!isset(\Bitrix24\CLI\Bootstrap\CommandCatalog::all()[$command->getName() ?? ''])) {
             parent::describeCommand($command, $options);
             return;
         }
@@ -25,7 +25,7 @@ final class TaskHelpDescriptor extends TextDescriptor
 
         $this->writeText("\n<comment>Usage:</comment>\n  " . OutputFormatter::escape($command->getSynopsis(true)) . "\n\n", $options);
         $this->describeInputDefinition($command->getDefinition(), $options);
-        $this->writeText("\n\n<comment>Advanced input и ограничения:</comment>\n  " . $command->getProcessedHelp() . "\n\nДокументация: https://github.com/mesilov/bitrix24-cli#команды-задач\n", $options);
+        $this->writeText("\n\n<comment>Advanced input и ограничения:</comment>\n  " . $command->getProcessedHelp() . "\n\nДокументация: https://github.com/mesilov/bitrix24-cli/blob/dev/docs/cli-command-map.md\n", $options);
     }
     private function writeText(string $content, array $options = []): void
     {

@@ -37,7 +37,11 @@ final class B24Application extends Application
     protected function getDefaultInputDefinition(): InputDefinition
     {
         $definition = parent::getDefaultInputDefinition();
+        $options = $definition->getOptions();
+        $options['help'] = new InputOption('help', 'h', InputOption::VALUE_NONE, 'Справка команды; без имени команды — обзор b24cli.');
+        $definition->setOptions($options);
         $definition->addOptions([
+            new InputOption('about', null, InputOption::VALUE_NONE, 'Сведения о приложении: назначение, версия, автор, лицензия и ссылки.'),
             new InputOption('json', null, InputOption::VALUE_NONE, 'One JSON envelope on stdout.'),
             new InputOption('plain', null, InputOption::VALUE_NONE, 'TSV without headers or decoration.'),
             new InputOption('profile', null, InputOption::VALUE_REQUIRED, 'Saved connection profile; overrides ambient credentials.'),
@@ -58,6 +62,45 @@ final class B24Application extends Application
             $suggestion = UsageDiagnostics::closest($name, array_keys($this->all()));
             throw Failure::usage('Неизвестная или неоднозначная команда. ' . ($suggestion === null ? 'Используйте b24cli list для выбора полного имени.' : 'Возможно, нужна ' . $suggestion . '. ' . TaskUsage::advice($this->get($suggestion))));
         }
+    }
+
+    public function doRun(InputInterface $input, OutputInterface $output): int
+    {
+        if ($input->hasParameterOption(['--version', '-V'], true)) {
+            return parent::doRun($input, $output);
+        }
+
+        try {
+            $input->bind($this->getDefinition());
+        } catch (\Symfony\Component\Console\Exception\ExceptionInterface) {
+            if ($input->hasParameterOption('--about', true)) {
+                throw Failure::usage('Используйте b24cli --about без имени команды.');
+            }
+
+            return parent::doRun($input, $output);
+        }
+
+        $name = $this->getCommandName($input);
+        $about = $input->hasParameterOption('--about', true);
+        if ($about && $name !== null) {
+            throw Failure::usage('Используйте b24cli --about без имени команды.');
+        }
+
+        $help = $input->hasParameterOption(['--help', '-h'], true);
+        if ($name === null && ($help || $about)) {
+            $input->bind(new InputDefinition($this->getDefinition()->getOptions()));
+            $input->validate();
+            $applicationInformation = new ApplicationInformation();
+            if ($help) {
+                $applicationInformation->help($this, $output);
+            } else {
+                $applicationInformation->about($this, $output);
+            }
+
+            return 0;
+        }
+
+        return parent::doRun($input, $output);
     }
 
     public function run(?InputInterface $input = null, ?OutputInterface $output = null): int

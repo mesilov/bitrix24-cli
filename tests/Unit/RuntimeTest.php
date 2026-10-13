@@ -158,7 +158,7 @@ final class RuntimeTest extends TestCase
     public function testBothEntrypointsRunOfflineWithoutReadingSelectedEnvFile(): void
     {
         foreach (['bin/b24cli', 'bin/console'] as $entrypoint) {
-            foreach ([['--version'], ['list', 'task', '--raw'], ['task:add', '--help'], ['completion', 'bash']] as $argv) {
+            foreach ([['--version'], ['--help'], ['-h'], ['--about'], ['list', 'task', '--raw'], ['task:add', '--help'], ['completion', 'bash']] as $argv) {
                 $env = [...getenv(), 'B24CLI_ENV_FILE' => '/does/not/exist'];
                 unset($env['BITRIX24_WEBHOOK'], $env['BITRIX24_PHP_SDK_PLAYGROUND_WEBHOOK']);
                 $process = proc_open([PHP_BINARY, $entrypoint, ...$argv], [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, dirname(__DIR__, 2), $env);
