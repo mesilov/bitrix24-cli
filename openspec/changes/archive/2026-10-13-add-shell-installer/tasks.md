@@ -22,7 +22,7 @@
 
 ## 5. Distribution readiness and verification
 
-- [ ] 5.1 После доставки script в main и появления первого public Release выполнить anonymous download/install smoke с опубликованного URL и явно выбранного tag; записать URL/tag/version/checksum и результаты, отдельно от fixtures и CI. До этого не отмечать публичную доставку выполненной.
+- [x] 5.1 После доставки script в main и появления первого public Release выполнить anonymous download/install smoke с опубликованного URL и явно выбранного tag; записать URL/tag/version/checksum и результаты, отдельно от fixtures и CI. До этого не отмечать публичную доставку выполненной.
 - [x] 5.2 Сопоставить реализацию со всеми delta requirements/scenarios, выполнить strict OpenSpec validation и diff checks, подтвердить issue #28 ↔ change и milestone 0.2.0; записать verification с отдельными local/CI/public-distribution/signing результатами и ограничениями.
 
 ## Workflow follow-up
