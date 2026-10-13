@@ -89,7 +89,7 @@ def main():
         check(unknown["error"]["code"] == "usage-error" and unknown["meta"]["apiCalls"] == [],
               "Unknown command did not preserve the usage contract")
         commands = [line.split()[0] for line in invoke("b24cli", ["list", "task", "--raw", "--no-ansi"]).splitlines()]
-        check(len(commands) == 30 and all(name.startswith("task:") for name in commands),
+        check(len(commands) == 34 and all(name.startswith("task:") for name in commands),
               "Task command registration differs: " + repr(commands))
         for name in commands:
             check("Usage:" in invoke("b24cli", [name, "--help", "--no-ansi"]), "Task help failed: " + name)
@@ -101,6 +101,30 @@ def main():
         check(dry_run["data"]["plan"]["steps"] == [{"taskId": None, "step": 1, "method": "tasks.task.add",
               "apiVersion": "3.0", "effect": "write", "fields": {"title": "Привет, Битрикс24", "creatorId": 1,
               "responsibleId": 2, "allowsTimeTracking": False}}], "Task DI/UTF-8 arguments or plan changed")
+        local_file = clean / 'Локальный отчёт.bin'
+        local_file.write_bytes(b'BINARY-NOT-FOR-OUTPUT\0\xff')
+        upload_args = ['task:file:attach', '123', '--file', str(local_file), '--folder-id', '456', '--json']
+        upload_plan = json.loads(invoke('b24cli', upload_args + ['--dry-run']))
+        steps = upload_plan['data']['plan']['steps']
+        check(upload_plan['meta']['apiCalls'] == [] and upload_plan['error'] is None,
+              'Local upload dry-run attempted credentials/API')
+        check([step['method'] for step in steps] == ['disk.folder.uploadFile', 'tasks.task.file.attach']
+              and steps[0]['fields']['data']['NAME'] == local_file.name
+              and steps[0]['fields']['sizeBytes'] == local_file.stat().st_size,
+              'Local upload filesystem/Unicode/SDK DI preview differs')
+        check('BINARY-NOT-FOR-OUTPUT' not in json.dumps(upload_plan), 'Local preview leaked file bytes')
+        blocked = json.loads(invoke('b24cli', upload_args + ['--api-policy', 'strict-rest3', '--dry-run'], 4))
+        check(blocked['error']['code'] == 'policy-denied' and blocked['meta']['apiCalls'] == [],
+              'Strict policy allowed local Disk upload')
+        upload_config = clean / 'upload-runtime.json'
+        upload_config.write_text(json.dumps({'maxUploadBytes': local_file.stat().st_size - 1}))
+        limited = json.loads(invoke('b24cli', ['--config', str(upload_config), *upload_args, '--dry-run'], 2))
+        check(limited['error']['code'] == 'usage-error' and limited['meta']['apiCalls'] == [],
+              'Configured upload limit did not override default before credentials')
+        upload_config.write_text(json.dumps({'maxUploadBytes': 750000000}))
+        configured = json.loads(invoke('b24cli', ['--config', str(upload_config), *upload_args, '--dry-run']))
+        check(configured['data']['plan']['steps'][0]['fields']['maxUploadBytes'] == 750000000,
+              'Config above 500 MB default was capped or ignored')
         missing = json.loads(invoke("b24cli", ["task:show", "123", "--json", "--no-ansi"], 1))
         check(missing["error"]["code"] == "connection-unavailable" and missing["meta"]["apiCalls"] == [],
               "Missing connection did not stop before API calls")
@@ -160,7 +184,7 @@ def main():
         check(all(path.name in allowed_phars for path in clean.glob("*.phar")),
               "Temporary application PHAR was not removed")
         print(json.dumps({"status": "passed", "version": args.expected_version, "runtime": probe,
-                          "checks": ["version", "help", "list", "usage-exit", "30-task-commands", "task-dry-run",
+                          "checks": ["version", "help", "list", "usage-exit", "34-task-commands", "task-dry-run", "local-upload-dry-run", "local-upload-strict-policy", "local-upload-config-limit",
                                      "missing-connection", *( ["task-SIGINT"] if os.name != 'nt' else [] ),
                                      "autoload", "extensions", "unicode",
                                      "trusted-https", "rejected-certificate", "clean-PATH", "temporary-phar-cleanup"]}, ensure_ascii=False))

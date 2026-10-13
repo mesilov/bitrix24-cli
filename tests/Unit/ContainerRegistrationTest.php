@@ -30,7 +30,7 @@ final class ContainerRegistrationTest extends TestCase
             $classes[] = $command::class;
         }
 
-        self::assertCount(30, array_unique($classes));
+        self::assertCount(38, array_unique($classes));
         self::assertSame(0, $spyConnectionResolver->reads);
         self::assertSame([], $fakeApiTransport->calls);
     }

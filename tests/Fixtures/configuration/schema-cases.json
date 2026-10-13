@@ -653,6 +653,109 @@
       "schemaValid": true,
       "runtimeValid": false,
       "reason": "Runtime rejects duplicate credential references so removal cannot delete another profile's secret."
+    },
+    {
+      "name": "empty users object",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false},\"users\":{}}}}}",
+      "schemaValid": true,
+      "runtimeValid": true
+    },
+    {
+      "name": "independent roles",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false},\"users\":{\"observerId\":5,\"managerId\":9,\"autoAddObserver\":true}}}}}",
+      "schemaValid": true,
+      "runtimeValid": true
+    },
+    {
+      "name": "disabled auto observer",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false},\"users\":{\"autoAddObserver\":false}}}}}",
+      "schemaValid": true,
+      "runtimeValid": true
+    },
+    {
+      "name": "enabled without observer",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false},\"users\":{\"autoAddObserver\":true}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "string role ID",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false},\"users\":{\"observerId\":\"5\"}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "null role ID",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false},\"users\":{\"managerId\":null}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "boolean role ID",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false},\"users\":{\"observerId\":true}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "zero role ID",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false},\"users\":{\"managerId\":0}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "negative role ID",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false},\"users\":{\"observerId\":-1}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "fractional role ID",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false},\"users\":{\"observerId\":1.5}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "overflow role ID",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false},\"users\":{\"observerId\":9223372036854775808}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "string auto flag",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false},\"users\":{\"autoAddObserver\":\"false\"}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "unknown role key",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false},\"users\":{\"unknown\":1}}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "users array",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false},\"users\":[]}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "users null",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false},\"users\":null}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "users scalar",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false},\"users\":5}}}}",
+      "schemaValid": false,
+      "runtimeValid": false
+    },
+    {
+      "name": "decimal role literal",
+      "json": "{\"version\":1,\"defaultProfile\":\"work\",\"profiles\":{\"work\":{\"name\":\"work.example\",\"connection\":{\"hostname\":\"portal.example\",\"credentialFile\":\"credentials/7d2d26f2.env\"},\"default\":{\"task\":{\"groupId\":42,\"creatorId\":1,\"responsibleId\":2,\"allowsTimeTracking\":false},\"users\":{\"observerId\":1.0}}}}}",
+      "schemaValid": true,
+      "runtimeValid": false,
+      "reason": "Runtime requires integer literal syntax without float coercion."
     }
   ]
 }

@@ -1,0 +1,68 @@
+name: Shell installer
+
+on:
+  pull_request:
+    paths:
+      - install.sh
+      - build/tests/shell-installer-check.py
+      - .github/workflows/shell-installer.yml
+  push:
+    branches: [dev, main]
+    paths:
+      - install.sh
+      - build/tests/shell-installer-check.py
+      - .github/workflows/shell-installer.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  installer:
+    name: Installer ${{ matrix.target }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            target: linux-amd64
+          - runner: macos-15
+            target: macos-arm64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.13'
+      - name: Prepare zsh acceptance on Linux
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y zsh
+      - name: POSIX syntax and offline fixtures
+        run: |
+          sh -n install.sh
+          python3 build/tests/shell-installer-check.py
+      - name: Native published archive through controlled release transport
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/installer-assets"
+          # Pinned public version identity, no credentials or CI artifact fallback.
+          base=https://github.com/mesilov/bitrix24-cli/releases/download/0.1.0
+          curl -q -fsSL --proto '=https' --proto-redir '=https' "$base/b24cli-$TARGET.tar.gz" -o "$RUNNER_TEMP/installer-assets/b24cli-$TARGET.tar.gz"
+          curl -q -fsSL --proto '=https' --proto-redir '=https' "$base/SHA256SUMS" -o "$RUNNER_TEMP/installer-assets/SHA256SUMS"
+          python3 build/tests/shell-installer-check.py --assets "$RUNNER_TEMP/installer-assets" --version 0.1.0
+      - name: Anonymous installation (published script on main)
+        run: |
+          test_home="$RUNNER_TEMP/b24cli public installer home"
+          mkdir -p "$test_home"
+          installer=install.sh
+          if [ "$GITHUB_REF" = refs/heads/main ]; then
+            installer="$RUNNER_TEMP/public-install.sh"
+            curl -q -fsSL --proto '=https' --proto-redir '=https' https://raw.githubusercontent.com/mesilov/bitrix24-cli/main/install.sh -o "$installer"
+            cmp install.sh "$installer"
+            echo "Verified anonymous public installer URL against $GITHUB_SHA"
+          fi
+          HOME="$test_home" sh "$installer" --version 0.1.0 --no-modify-path
+          HOME="$test_home" sh "$installer" --no-modify-path
+          HOME="$test_home" /bin/sh -c '. "$HOME/.local/share/b24cli/env"; cd /; b24cli --version --no-ansi'

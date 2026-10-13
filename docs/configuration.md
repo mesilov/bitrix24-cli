@@ -1,8 +1,8 @@
 # Конфигурация подключений b24cli
 
-Пользовательский `config.json` хранит параметры нескольких порталов и defaults создания задач. Полный webhook находится в отдельном credential file. Формат не зависит от расположения и версии бинарника.
+Пользовательский `config.json` хранит параметры нескольких порталов и defaults создания задач и рабочих адресатов. Полный webhook находится в отдельном credential file. Формат не зависит от расположения и версии бинарника.
 
-Машиночитаемый контракт: [config.schema.json](config.schema.json), [JSON Schema Draft 2020-12](https://json-schema.org/draft/2020-12/schema). Эта схема описывает пользовательский `config.json`. Глобальный `--config PATH` по-прежнему читает другой файл — runtime JSON с `timeout`, `apiPolicy`, `profile`.
+Машиночитаемый контракт: [config.schema.json](config.schema.json), [JSON Schema Draft 2020-12](https://json-schema.org/draft/2020-12/schema). Эта схема описывает пользовательский `config.json`. Глобальный `--config PATH` по-прежнему читает другой файл — runtime JSON с `timeout`, `apiPolicy`, `profile`, `maxUploadBytes`.
 
 ## Каталог и файлы
 
@@ -106,6 +106,7 @@ Credential file содержит `BITRIX24_WEBHOOK` с полным входящ
 | `connection.credentialFile` | Да | Относительная ссылка на managed credential file. |
 | `default` | Нет | Объект defaults выбранного профиля. |
 | `default.task` | Нет | Объект defaults только для `task:add`. |
+| `default.users` | Нет | Рабочие роли и флаг автодобавки наблюдателя. |
 
 Alias чувствителен к регистру: от 1 до 64 символов, первая буква ASCII, далее буквы, цифры, `_` или `-`. `work` и `Work` — разные профили.
 
@@ -140,6 +141,53 @@ b24cli --profile work task:add --fields '{"title":"Договор","allowsTimeTr
 
 `groupId` на корне профиля и `authorId` запрещены. Используются только `default.task.groupId` и `default.task.creatorId`; aliases и автоматического переименования нет.
 
+## default.users
+
+Служебные настройки CLI относятся только к фактически выбранному сохранённому профилю:
+
+| Ключ | Тип | При отсутствии |
+| --- | --- | --- |
+| `observerId` | Положительный integer literal | Дефолтного наблюдателя нет. |
+| `managerId` | Положительный integer literal | Настроенного рабочего руководителя нет. |
+| `autoAddObserver` | Boolean | `false`; автоматическое назначение отключено. |
+
+`autoAddObserver=true` требует `observerId`. `managerId` может отличаться от руководителя по оргструктуре; получить его можно явно через `users:manager --source config`. Обычная `users:manager` использует оргструктуру. ID не вычисляются из webhook и не заменяют `creatorId`/`responsibleId`.
+
+```json
+{
+  "version": 1,
+  "defaultProfile": "work",
+  "profiles": {
+    "work": {
+      "name": "work.example",
+      "connection": {
+        "hostname": "work.example",
+        "credentialFile": "credentials/7d2d26f2.env"
+      },
+      "default": {
+        "users": {
+          "observerId": 5,
+          "managerId": 9,
+          "autoAddObserver": true
+        }
+      }
+    }
+  }
+}
+```
+
+```sh
+b24cli connection:add work --observer-id 5 --manager-id 9 --auto-add-observer true
+b24cli --profile work connection:show
+b24cli --profile work users:manager --source config
+```
+
+Для существующего профиля эти optional поля можно добавить в его `config.json`; сохраняйте защищённые права файла и проверяйте его по JSON Schema. Сохранение настроек не обращается к порталу. `observerId`/`managerId` являются локальными role selectors и не передаются как поля REST.
+
+При включённой автодобавке `task:add` создаёт задачу, читает существующих наблюдателей и добавляет `observerId`, сохраняя остальные ID. Назначение использует REST1 `AUDITORS`; read relation REST3 `auditors` не записывается. При ошибке после создания CLI возвращает partial/exit3 с ID задачи и ledger: проверяйте уже созданную задачу перед следующим действием. `false` или отсутствие флага не добавляет запросов. Env/file/process подключения не наследуют роли сохранённых профилей.
+
+Basic `task:add --dry-run` показывает будущие шаги без credentials/API; advanced `--fields` сохраняет remote schema preflight. Явно выбранная строгая API policy проверяется до создания задачи.
+
 ## Настройка и состояние файлов
 
 `--help`, `--version`, `list`, completion и offline dry-run не создают конфигурацию и не читают secrets. JSON Schema также не создаёт и не изменяет файлы.
@@ -157,12 +205,27 @@ b24cli --profile work task:add --title "Договор" --dry-run --json
 | Команда | Что создаётся или меняется |
 | --- | --- |
 | Первый `connection:add` | Каталоги, lock file, config.json, один credential file; defaultProfile остаётся null. |
-| Следующий `connection:add` | Запись в config.json и новый credential file; defaultProfile сохраняется. |
+| `connection:add` с новым alias | Запись в config.json и новый credential file; defaultProfile сохраняется. |
+| `connection:add` с существующим alias | configuration-error / exit 1 до ввода webhook; параметры не применяются, config и credentials сохраняются. |
 | `connection:use NAME` | Только metadata defaultProfile, через управляемую атомарную запись. |
 | `connection:list/show`, task reads | Постоянные config/credentials не меняются. |
 | `connection:remove NAME` | Запись и credential file удаляются; default очищается при совпадении, другой профиль автоматически не выбирается. |
 
-`connection:add` сохраняет минимум `default.task.allowsTimeTracking=false`, даже без ID flags. `--portal-domain DOMAIN` меняет только описательный `name`. Для CI настройка принимает `--webhook-stdin`; stdin должен подаваться из защищённого источника, без literal webhook в shell history. `-n`/non-TTY без этого флага возвращает ошибку. Дублирующий профиль не перезаписывается.
+`connection:add` сохраняет минимум `default.task.allowsTimeTracking=false`, даже без ID flags. `--portal-domain DOMAIN` меняет только описательный `name`. Для CI настройка принимает `--webhook-stdin`; stdin должен подаваться из защищённого источника, без literal webhook в shell history. Для нового alias `-n`/non-TTY без этого флага возвращает ошибку. Дублирующий профиль не обновляется: ошибка возникает до запроса или чтения webhook.
+
+Для изменения defaults существующего профиля сначала выполните `connection:show NAME`, сохраните нужные non-secret настройки и обеспечьте доступ к webhook для повторного ввода. `connection:show` не раскрывает webhook. Затем пересоздайте профиль с полным набором нужных параметров:
+
+```sh
+b24cli connection:show work
+b24cli connection:remove work
+# Защищённый secret-файл должен быть доступен до удаления профиля.
+b24cli connection:add work --group-id 187 --creator-id 3 --responsible-id 2 --allows-time-tracking true --webhook-stdin -n < /secure/webhook.txt
+# Только если work должен быть подключением по умолчанию:
+b24cli connection:use work
+b24cli --profile work task:add --title "Договор" --dry-run --json
+```
+
+Удаление стирает локальный credential file и очищает совпадающий `defaultProfile`, но не отзывает webhook на портале. Повторный add не восстанавливает выбор автоматически. Defaults удалённого профиля не переносятся: omitted ID flags оставляют соответствующие ID отсутствующими, а omitted `--allows-time-tracking` задаёт `false`. При необходимости передайте `--portal-domain` заново.
 
 Локальные `connection:*` команды не создают, не проверяют на портале и не отзывают webhook. Отзыв — отдельное действие в Битрикс24.
 
@@ -226,3 +289,19 @@ make unit TEST_ARGS="--filter ConfigSchemaContractTest"
 ```
 
 Парные fixture expectations явно отделяют структурные ограничения от дополнительных runtime checks. Эта проверка не делает запросов к порталу.
+
+## Лимит загрузки локального файла
+
+В runtime JSON, который выбирается через `--config PATH` (или `--config -` для JSON из stdin), поле `maxUploadBytes` задаёт положительное целое число в байтах. При отсутствии применяется **500 MB = 500000000 байт**. Явный config имеет приоритет над default: может уменьшить или увеличить лимит. `null`, строки, boolean, дробные числа, ноль и отрицательные значения дают usage-error до credentials/API.
+
+```sh
+cat > runtime.json <<'JSON'
+{
+  "timeout": 120,
+  "maxUploadBytes": 750000000
+}
+JSON
+b24cli --config ./runtime.json task:file:attach 123 --file './Отчёт.pdf' --folder-id 456 --dry-run --json
+```
+
+Лимит применяется к локальному исходному файлу, включая preview. Runtime настройка не передаётся в Bitrix24 payload и не относится к `default.task` или schema пользовательского `config.json`. Портальные квоты/права и timeout проверяются независимо; локальный лимит не обещает серверное принятие файла такого размера.

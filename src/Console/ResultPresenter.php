@@ -11,13 +11,16 @@ use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-final class ResultPresenter
+final readonly class ResultPresenter
 {
     private const COLUMNS = [
+        'user-card' => ['ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'EMAIL', 'UF_DEPARTMENT'],
+        'user-list' => ['ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'EMAIL', 'UF_DEPARTMENT'],
         'connections' => ['profile', 'name', 'hostname', 'default', 'source', 'path', 'isDefault'],
         'task-list' => ['id', 'title', 'responsibleId', 'groupId', 'status', 'deadline'],
         'title-matches' => ['id', 'title'], 'task-fields' => ['name', 'type', 'editable', 'filterable', 'sortable'],
         'chat-messages' => ['id', 'createdDate', 'authorId', 'text'],
+        'task-results' => ['id', 'taskId', 'authorId', 'createdAt', 'status', 'text'],
         'time-entries' => ['id', 'userId', 'seconds', 'text', 'createdDate'], 'checklist-roots' => ['id', 'title'],
         'checklist-items' => ['id', 'parentId', 'title', 'isComplete'],
         'task-history' => ['id', 'createdDate', 'userId', 'field', 'from', 'to'],
@@ -25,9 +28,22 @@ final class ResultPresenter
         'plan' => ['taskId', 'step', 'method', 'apiVersion', 'effect', 'fields'],
     ];
 
+    public function __construct(private TaskHumanRenderer $tasks = new TaskHumanRenderer())
+    {
+    }
+
     public function success(OperationResult $result, string $mode, OutputInterface $output, string $command, array $calls): void
     {
-        $error = $result->exitStatus === 0 ? null : ['code' => $result->exitStatus === 130 ? 'interrupted' : 'partial-result', 'message' => $result->meta['reason'] ?? 'The operation is incomplete.'];
+        $message = $result->meta['reason'] ?? 'The operation is incomplete.';
+        if ($result->exitStatus === 3 && in_array($result->profile, ['task-list', 'title-matches'], true)) {
+            $order = $result->meta['order'] ?? [];
+            $message .= '; scanned=' . ($result->meta['scanned'] ?? 0) . '; order=' . implode(',', array_map(static fn (string $field, string $direction): string => $field . ':' . $direction, array_keys($order), array_values($order)));
+            if (isset($result->meta['hint'])) {
+                $message .= '. ' . $result->meta['hint'];
+            }
+        }
+
+        $error = $result->exitStatus === 0 ? null : ['code' => $result->exitStatus === 130 ? 'interrupted' : 'partial-result', 'message' => $message];
         $meta = ['schemaVersion' => 1, 'command' => $command, 'apiCalls' => $calls, 'apiVersions' => array_values(array_unique(array_column($calls, 'apiVersion'))), ...$result->meta];
         if ($mode === 'json') {
             $output->writeln(json_encode(['data' => $result->data, 'meta' => $meta, 'error' => $error], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), OutputInterface::OUTPUT_RAW);
@@ -37,13 +53,23 @@ final class ResultPresenter
                 foreach ($rows as $row) {
                     $output->writeln(implode("\t", array_map($this->escape(...), $row)), OutputInterface::OUTPUT_RAW);
                 }
+            } elseif ($result->profile === 'task-card') {
+                $this->tasks->card($result->data['task'] ?? [], $output);
+            } elseif (in_array($result->profile, ['task-list', 'title-matches'], true)) {
+                $this->tasks->listing($result, $output);
             } else {
                 (new Table($output))->setHeaders($columns)->setRows(array_map(fn ($row): array => array_map(fn ($value): string => OutputFormatter::escape($this->string($value)), $row), $rows))->render();
             }
         }
 
+        if ($mode !== 'json' && in_array($result->profile, ['task-list', 'title-matches'], true)) {
+            $stream = $mode === 'plain' && $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
+            $this->tasks->summary($result->meta, $stream);
+        }
+
         if ($error !== null) {
-            $this->diagnostic($output, $error['message']);
+            $hint = $mode !== 'json' && in_array($result->profile, ['task-list', 'title-matches'], true) ? ' ' . $this->tasks->hint($result->meta['reason'] ?? '') : '';
+            $this->diagnostic($output, $error['message'] . $hint);
         }
 
         if ($mode === 'human' && in_array('1.0', $meta['apiVersions'], true)) {
@@ -82,7 +108,17 @@ final class ResultPresenter
             return [[$result->profile === 'task-access' ? 'permission' : 'field', $result->profile === 'task-access' ? 'allowed' : 'value'], $rows];
         }
 
+        if ($result->profile === 'user-card') {
+            $user = $result->data['user'] ?? null;
+            $columns = self::COLUMNS['user-card'];
+            return [$columns, $user === null ? [] : [array_map(static fn (string $field): mixed => $user[$field] ?? null, $columns)]];
+        }
+
         $columns = self::COLUMNS[$result->profile] ?? ['field', 'value'];
+        if ($result->profile === 'plan' && array_any($result->data['plan']['steps'] ?? [], static fn (array $step): bool => isset($step['taskIdFromStep']))) {
+            $columns[] = 'taskIdFromStep';
+        }
+
         $items = $result->profile === 'plan' ? ($result->data['plan']['steps'] ?? []) : ($result->data['items'] ?? [$result->data['operation'] ?? []]);
         return [$columns, array_map(static fn (array $item): array => array_map(static fn (string $field): mixed => $item[$field] ?? null, $columns), $items)];
     }

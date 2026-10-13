@@ -1,0 +1,126 @@
+{
+  "checkedAtUtc": "2026-10-13T13:23:16.585968+00:00",
+  "readOnly": true,
+  "sampleDeadlineFound": true,
+  "window": {
+    "fromInclusive": "2026-10-05T00:00:00+03:00",
+    "toExclusive": "2026-10-06T00:00:00+03:00"
+  },
+  "records": [
+    {
+      "label": "rest3-control-without-filter",
+      "apiVersion": 3,
+      "method": "tasks.task.list",
+      "parameters": {
+        "select": [
+          "id",
+          "deadline"
+        ],
+        "order": {
+          "id": "DESC"
+        },
+        "pagination": {
+          "limit": 50,
+          "offset": 0
+        }
+      },
+      "httpStatus": 200,
+      "returned": 50,
+      "next": null,
+      "success": true
+    },
+    {
+      "label": "deadline-day-window",
+      "apiVersion": 3,
+      "method": "tasks.task.list",
+      "parameters": {
+        "select": [
+          "id",
+          "deadline"
+        ],
+        "filter": [
+          [
+            "deadline",
+            ">=",
+            "2026-10-05T00:00:00+03:00"
+          ],
+          [
+            "deadline",
+            "<",
+            "2026-10-06T00:00:00+03:00"
+          ]
+        ],
+        "order": {
+          "id": "DESC"
+        },
+        "pagination": {
+          "limit": 50,
+          "offset": 0
+        }
+      },
+      "httpStatus": 400,
+      "error": {
+        "code": "BITRIX_REST_V3_EXCEPTION_VALIDATION_REQUESTVALIDATIONEXCEPTION",
+        "message": "Ошибка при валидации объекта запроса",
+        "validation": [
+          {
+            "message": "В DTO `TaskDto` в поле `deadline` требуется наличие атрибута `Filterable` для такого запроса",
+            "field": "deadline"
+          }
+        ]
+      },
+      "returned": 0,
+      "next": null,
+      "success": false
+    },
+    {
+      "label": "deadline-day-window",
+      "apiVersion": 1,
+      "method": "tasks.task.list",
+      "parameters": {
+        "select": [
+          "ID",
+          "DEADLINE"
+        ],
+        "filter": {
+          ">=DEADLINE": "2026-10-05T00:00:00+03:00",
+          "<DEADLINE": "2026-10-06T00:00:00+03:00"
+        },
+        "order": {
+          "ID": "DESC"
+        },
+        "start": 0
+      },
+      "httpStatus": 200,
+      "returned": 5,
+      "next": null,
+      "success": true,
+      "nullOrInvalidDeadlines": 0,
+      "outsideWindow": 0,
+      "nonemptyVerifiedWindow": true
+    },
+    {
+      "label": "contradictory-deadline-range-control",
+      "apiVersion": 1,
+      "method": "tasks.task.list",
+      "parameters": {
+        "select": [
+          "ID",
+          "DEADLINE"
+        ],
+        "filter": {
+          ">=DEADLINE": "2026-10-06T00:00:00+03:00",
+          "<DEADLINE": "2026-10-05T00:00:00+03:00"
+        },
+        "order": {
+          "ID": "DESC"
+        },
+        "start": 0
+      },
+      "httpStatus": 200,
+      "returned": 0,
+      "next": null,
+      "success": true
+    }
+  ]
+}

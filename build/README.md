@@ -91,7 +91,17 @@ payload. Он не входит в public archive; в основном CLI не�
 
 ## CI и release
 
-`Package standalone binaries`: PR в dev/main, push в dev, manual dispatch.
+`Package standalone binaries` запускается вручную для выбранной ветки или ref.
+В **Actions → Package standalone binaries → Run workflow** выберите `dev`
+или нужную ветку изменений. Для запуска нужны права записи в репозиторий.
+Через GitHub CLI:
+
+```sh
+gh workflow run package-static.yml --ref dev
+```
+
+На MR в `dev`/`main` и push в `dev` работают тесты и линтеры.
+Автоматическая сборка бинарников выполняется только по релизному тегу.
 Матрица: Ubuntu 24.04 amd64 / macOS 15 arm64 / Windows 2022 amd64.
 После smoke загружаются `b24cli-linux-amd64`, `b24cli-macos-arm64`,
 `b24cli-windows-amd64`, включая диагностические PHAR/probe и build metadata.
@@ -107,10 +117,11 @@ Production-бинарники собираются в CI из конкретно
 Тег на отдельной feature/dev истории отклоняется до запуска platform builders.
 Можно собрать и более ранний коммит `main`; совпадение с текущим tip не требуется.
 Production identity сохраняет точное имя тега, например `0.1.0` или `v0.1.0`.
-PR/dev/manual workflow создаёт тестовые artifacts с `dev-<full SHA>`.
+Ручной workflow создаёт тестовые artifacts с `dev-<full SHA>` выбранного коммита
+и не публикует Release.
 
 Version-tag workflow использует те же builders; publish зависит от всех checks.
-Failure блокирует публикацию; на PR Release не создаётся. Публикация создаёт или
+Failure блокирует публикацию. Публикация создаёт или
 переиспользует draft, загружает все четыре проверенных assets и только затем
 делает Release публичным. Повторный запуск после create/upload/publish failure
 возобновляет draft; уже публичный Release оставляет без изменений. Assets:
@@ -136,6 +147,33 @@ lock. Диагностика: CI logs и `runtime/package-*/static-php-cli-*/log
 При локальном API rate limit задайте свой `GITHUB_TOKEN` в окружении native builder.
 
 ## Установка
+
+Основной Unix путь — корневой [install.sh](../install.sh); интерфейс, prerequisites,
+public Release source и предварительный просмотр приведены в
+[README → Установка](../README.md#установка). Публичный URL
+`https://raw.githubusercontent.com/mesilov/bitrix24-cli/main/install.sh`.
+Проверка опубликованного скрипта в main выполняется отдельно от fixture acceptance.
+Установщик сохраняет все packaged licenses, включая runtime/compression notices,
+в `$HOME/.local/share/b24cli/package/` и создаёт `$HOME/.local/share/b24cli/env`.
+Download/checksum/unpack/candidate version failures сохраняют прежний binary.
+
+```sh
+sh -n install.sh
+python3 build/tests/shell-installer-check.py
+python3 build/tests/shell-installer-check.py --dist dist/macos-arm64
+```
+
+`--dist` упаковывает native artifacts через release-assets.py и передаёт их
+installer через controlled curl fixture с version identity из build-info.json.
+Unix package jobs сохраняют существующие smoke/install checks и добавляют этот
+acceptance. Workflow `Shell installer` запускает fixtures на Linux/macOS,
+проверяет настоящие archives публичного `0.1.0` через controlled transport и
+отдельно выполняет anonymous latest/explicit install системным curl.
+Fixture scripts имитируют transport только в тестовом PATH; production installer
+использует фиксированный GitHub Release URL без CI fallback или token.
+Shell проверки начинают с PATH без install directory и переходят в другой каталог.
+Local, native CI, public script URL и signing evidence фиксируются раздельно.
+
 
 Подробные команды скачивания, checksum, распаковки, первого запуска и пользовательского
 PATH находятся в [README → Установка](../README.md#установка). Там же описаны предупреждения

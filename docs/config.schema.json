@@ -101,9 +101,12 @@
           "properties": {
             "task": {
               "$ref": "#/$defs/taskDefaults"
+            },
+            "users": {
+              "$ref": "#/$defs/userDefaults"
             }
           },
-          "description": "Optional operation defaults for this profile; only task creation consumes task defaults."
+          "description": "Optional task creation defaults and local user working-role selectors for this profile."
         }
       }
     },
@@ -130,6 +133,44 @@
         }
       },
       "description": "Optional defaults. Missing participant IDs still require explicit creatorId/responsibleId at task creation; the webhook user is not inferred."
+    },
+    "userDefaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "observerId": {
+          "$ref": "#/$defs/positiveId",
+          "description": "Local CLI role selector for the default observer, never sent as an API field."
+        },
+        "managerId": {
+          "$ref": "#/$defs/positiveId",
+          "description": "Local working manager, selected explicitly by users:manager --source config."
+        },
+        "autoAddObserver": {
+          "type": "boolean",
+          "default": false,
+          "description": "Opt in to assigning observerId after task creation; requires observerId when true."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "autoAddObserver"
+            ],
+            "properties": {
+              "autoAddObserver": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "observerId"
+            ]
+          }
+        }
+      ]
     }
   }
 }

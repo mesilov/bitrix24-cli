@@ -1,0 +1,104 @@
+{
+  "timestamp": "2026-10-13T13:34:05.156787+00:00",
+  "script_url": "https://raw.githubusercontent.com/mesilov/bitrix24-cli/main/install.sh",
+  "script_sha256": "cf4e8187492de8b3b54ede3bf5ea6131092d436b5c2b3cc904ace663d3a3973a",
+  "main_sha": "fd86141169eed9cfe2a8b6b6c18a68310d209040",
+  "root": "/private/var/folders/3z/_x62ck311hb398c9c101ckd80000gn/T/b24cli-28-public-smoke-ep_ksu9u",
+  "platform": "macos-arm64",
+  "checks": [
+    {
+      "selection": "latest",
+      "version": "0.1.0",
+      "archive_url": "https://github.com/mesilov/bitrix24-cli/releases/download/0.1.0/b24cli-macos-arm64.tar.gz",
+      "archive_sha256": "d216957d7973a8f8a74d93c55a6984097afd77c395691d382bbadc9798aba91b",
+      "repeat": "passed",
+      "current_shell": "passed",
+      "bash_interactive_login": "passed",
+      "zsh_interactive_login": "passed",
+      "config_preserved": true,
+      "notices": "passed"
+    },
+    {
+      "selection": "explicit",
+      "version": "0.1.0",
+      "archive_url": "https://github.com/mesilov/bitrix24-cli/releases/download/0.1.0/b24cli-macos-arm64.tar.gz",
+      "archive_sha256": "d216957d7973a8f8a74d93c55a6984097afd77c395691d382bbadc9798aba91b",
+      "repeat": "passed",
+      "current_shell": "passed",
+      "bash_interactive_login": "passed",
+      "zsh_interactive_login": "passed",
+      "config_preserved": true,
+      "notices": "passed"
+    }
+  ],
+  "main_ci": [
+    {
+      "conclusion": "success",
+      "databaseId": 38406007928,
+      "headSha": "fd86141169eed9cfe2a8b6b6c18a68310d209040",
+      "name": "Shell installer",
+      "status": "completed",
+      "url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38406007928"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 38406007851,
+      "headSha": "fd86141169eed9cfe2a8b6b6c18a68310d209040",
+      "name": "PHPStan lint checks",
+      "status": "completed",
+      "url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38406007851"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 38406007698,
+      "headSha": "fd86141169eed9cfe2a8b6b6c18a68310d209040",
+      "name": "Allowed licenses checks",
+      "status": "completed",
+      "url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38406007698"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 38406007399,
+      "headSha": "fd86141169eed9cfe2a8b6b6c18a68310d209040",
+      "name": "Command tests",
+      "status": "completed",
+      "url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38406007399"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 38406007402,
+      "headSha": "fd86141169eed9cfe2a8b6b6c18a68310d209040",
+      "name": "PhpCsFixer lint checks",
+      "status": "completed",
+      "url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38406007402"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 38406007603,
+      "headSha": "fd86141169eed9cfe2a8b6b6c18a68310d209040",
+      "name": "Rector lint checks",
+      "status": "completed",
+      "url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38406007603"
+    }
+  ],
+  "promotion_pr": "https://github.com/mesilov/bitrix24-cli/pull/93",
+  "promotion_head": "a5130dfb5ed551097ef1a8128a0a8e0cdbb7c986",
+  "promotion_merge": "fd86141169eed9cfe2a8b6b6c18a68310d209040",
+  "promotion_checks": {
+    "passed": 19,
+    "total": 19
+  },
+  "literal_curl_pipe_sh": {
+    "status": "passed",
+    "installed_version": "0.1.0",
+    "activation_from_other_directory": "passed"
+  },
+  "linux_public_smoke": {
+    "run_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38406007928",
+    "job_id": 115325670973,
+    "script_matches_main_sha": "fd86141169eed9cfe2a8b6b6c18a68310d209040",
+    "latest": "0.1.0",
+    "explicit": "0.1.0",
+    "archive_sha256": "0e934f42f7d563b64dbac8017a83a5d4d06afc5c5b5376f52d36d73559964aaf"
+  }
+}

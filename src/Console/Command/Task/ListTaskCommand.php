@@ -6,6 +6,7 @@ namespace Bitrix24\CLI\Console\Command\Task;
 
 use Bitrix24\CLI\Application\Task\Handler\ListTasksHandler;
 use Bitrix24\CLI\Application\Task\Request\ListTasksRequest;
+use Bitrix24\CLI\Application\Task\TaskRole;
 use Bitrix24\CLI\Console\CommandRunner;
 use Bitrix24\CLI\Console\TaskInputMapper;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -24,6 +25,10 @@ final class ListTaskCommand extends Command
 
     protected function configure(): void
     {
+        $this->addOption('deadline-window', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Календарное окно дедлайна (задайте один раз). REST 1.0.', suggestedValues: \Bitrix24\CLI\Application\Task\DeadlineWindowResolver::WINDOWS);
+        $this->addOption('overdue', null, InputOption::VALUE_NONE, 'Дедлайн прошёл; исключить completed/declined, включая deferred/supposedly_completed. REST 1.0.');
+        $this->addOption('timezone', null, InputOption::VALUE_REQUIRED, 'IANA timezone для временных фильтров; default TZ или timezone PHP окружения.');
+        $this->addOption('role', null, InputOption::VALUE_REQUIRED, 'Своя роль: responsible — делаю, accomplice — помогаю, creator — поручил, auditor — наблюдаю.', suggestedValues: array_column(TaskRole::cases(), 'value'));
         $this->addOption('id', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'ID для серверной выборки; флаг можно повторять.');
         $this->addOption('responsible', null, InputOption::VALUE_REQUIRED, 'ID ответственного.');
         $this->addOption('group-id', null, InputOption::VALUE_REQUIRED, 'Положительный ID группы/проекта (groupId).');
@@ -32,11 +37,11 @@ final class ListTaskCommand extends Command
         $this->addOption('where', null, InputOption::VALUE_REQUIRED, 'Локальный фильтр равенств JSON object.');
         $this->addOption('where-file', null, InputOption::VALUE_REQUIRED, 'Локальный JSON filter из PATH или -.');
         $this->addOption('select', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Выбранное поле; флаг можно повторять.');
-        $this->addOption('order', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'FIELD:asc или FIELD:desc; флаг можно повторять.');
+        $this->addOption('order', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'FIELD:asc или FIELD:desc; флаг можно повторять; default id:desc (новые сначала).');
         $this->addOption('limit', null, InputOption::VALUE_REQUIRED, 'Лимит вывода; не заменяет бюджет обхода.');
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Снять только лимит вывода; бюджет остаётся конечным.');
         $this->addOption('max-scan', null, InputOption::VALUE_REQUIRED, 'Максимум просмотренных задач (default 10000).');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: id, title, responsibleId, groupId, status, deadline. REST 3.0.   Пример: b24cli task:list --responsible 2 --group-id 42 --all');
+        $this->setHelp(' Новые --deadline-window today|tomorrow|yesterday|day-before-yesterday|this-week|this-month|this-quarter и --overdue используют серверный DEADLINE range REST1; strict-rest3 запрещает этот маршрут до запросов. Окна [from,to), неделя с понедельника, полный месяц/квартал. --timezone IANA: default TZ или PHP timezone; meta.deadlineFilter показывает now/границы/route. --overdue исключает completed/declined, включает deferred/supposedly_completed; это дедлайн, не дата фактического закрытия. Не смешивайте temporal flags с --where/--due-before. Пример: b24cli task:list --group-id 42 --deadline-window this-week --overdue --timezone Asia/Bishkek --json. JSON: data/meta/error envelope; plain TSV columns: id, title, responsibleId, groupId, status, deadline. Без временных флагов REST 3.0. Обход и вывод по умолчанию id DESC (новые сначала); --order меняет оба порядка. Без новых временных флагов только --id фильтруется на сервере; остальные фильтры локальны. meta.order показывает сортировку; meta.complete=false/exit3 означает неполный обход. Увеличьте --max-scan для просмотра большего числа задач; --all снимает только лимит вывода. Пример: b24cli task:list --responsible 2 --group-id 42 --all. --role относится к владельцу выбранного вебхука и сочетается с другими критериями через AND; статус не ограничивается. без временных флагов responsible/creator используют REST3; accomplice/auditor требуют REST1 чтения участников и недоступны при strict-rest3. Пример: b24cli task:list --role responsible; b24cli task:list --role auditor --group-id 42 --all');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -46,7 +51,7 @@ final class ListTaskCommand extends Command
             $input,
             $output,
             fn (): ListTasksRequest => $this->mapper->listTasks($input),
-            fn (ListTasksRequest $request): array => $this->handler->routes(),
+            fn (ListTasksRequest $request): array => $this->handler->routes($request),
             fn (ListTasksRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->handler->prepare($request),
         );
     }
