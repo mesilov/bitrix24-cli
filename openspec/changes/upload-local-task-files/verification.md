@@ -55,3 +55,39 @@ All recorded task/file/folder cleanupFailures arrays are empty. Setup, readback 
 - Native macOS/Windows/Linux standalone binaries and remote CI are not established by the local PHAR receipt; the expanded packaging smoke checks them when native CI runs.
 - Task attachment ACK is confirmed by the API method; independent membership readback is not claimed. Disk NAME/SIZE/PARENT_ID readback proves Disk persistence only.
 - No critical implementation/spec mismatch found in checks that ran. Restricted-role/native evidence boundaries above remain explicit; release/publication/merge are separate.
+
+## Revision receipt: 500 MB default and config priority — 13.10.2026
+
+Production source: `352432ed037c624e70a60c8d359fa5636906446e`, synchronized with origin/dev `1a2ef638571d562a5006e5fdaf31a0b2a30cbb21`. Subsequent documentation fixes do not change production PHP. Earlier 10 MiB receipts above describe the earlier implementation and remain historical evidence.
+
+| Dimension | Result |
+|---|---|
+| Completeness | 16 tasks tracked; 10 ADDED + 3 MODIFIED requirements, 42 scenarios including retained role/tag scenarios from dev; no removals/renames |
+| Correctness | All 13 requirements mapped below/above; config boundaries, full-file transport, memory/framing/hash, read failures and portal stream exercised. Restricted-role matrix not verified: separate webhook absent |
+| Coherence | Symfony Filesystem/Path + locked SDK Base64Encoder reused; large stream decorator remains inside SDK Core and existing ApiTransport, unchanged REST methods/fields/accounting. Code pattern consistency checked against diff origin/dev...HEAD: ports/immutable requests/provider DI/ledger/presenters match existing code |
+
+Additional requirement mapping:
+
+| Requirement | Implementation | Scenario evidence |
+|---|---|---|
+| Configured upload limit overrides the default | CommandRunner context → TaskInputMapper → immutable LocalFile.maxUploadBytes → LocalFileSource; preview metadata only | UploadLimitConfigurationTest accepts default/explicit below/above/default, strict invalid types/values, sparse exact/limit+1; no credentials/API on rejected inputs. PHAR/native smoke local-upload-config-limit |
+| Large uploads preserve bounded memory and SDK transport | LocalFileSource 60000-byte SDK-encoded chunks, StreamingBase64, StreamingJsonHttpClient injected into SDK Core | large-upload-worker sends 500000000 and configured 500000001 bytes via production bootstrap/SDK and Symfony MockHttpClient at memory_limit=128M; hash/framing/Content-Length verified; cancellation/change abort chunks, source failure during send gives unknown/skipped and no attach/retry |
+
+Retained role/tag policy scenarios were checked by the full regression after the dev merge; the route/spec deltas retain those admissions. Existing ID-only attachment and 34 task commands remain.
+
+Local receipt:
+
+- `make unit`: **516 tests, 3921 assertions**, passed after dev synchronization.
+- `make lint-all`, Composer validate, strict OpenSpec validate, `git diff --check`: passed.
+- `python build/tests/config-schema-check.py` with pinned jsonschema 4.25.1: **108 shared fixtures, 1 profile JSON example, 5 documented extra runtime checks**, passed. Runtime --config example is an executable shell heredoc; profile config.schema.json does not describe runtime settings.
+- Full **500000000**-byte local input: wire JSON **666666759** bytes, decoded SHA256 matched source, **12582912 bytes (12 MiB)** peak memory, PHP memory_limit **128M**, exactly upload + attach. Separate **500000001**-byte input succeeds when runtime maxUploadBytes equals its size. These are local SDK/MockHttpClient transport receipts, not live 500 MB portal acceptance.
+- `make package-phar`: passed for version `dev-352432ed037c624e70a60c8d359fa5636906446e`; copied artifact smoke passed without checkout/vendor/credentials/network, including local-upload-dry-run, local-upload-strict-policy, local-upload-config-limit, 34-task-commands.
+
+Portal receipt after dev synchronization:
+
+- `make integration TEST_ARGS='--group command:task:file:attach'`: **7 cases, 86 assertions — 6 passed, 1 skipped**. Acting user ID 1; no role inference. Real upload path includes a **10485762-byte** file, so it uses the streaming branch; Disk SIZE/PARENT_ID/NAME and attach ACK confirmed. Other cases cover existing-ID, binary/Unicode, collision, denied missing task with explicit recovery, deleted folder. All cleanupFailures arrays empty for owned fixtures.
+- Restricted-role webhook unavailable; denied-role test remains explicitly skipped. Task membership readback and live 500 MB server quota/timeout acceptance remain unverified. No merge or release claim.
+
+Native CI receipt: Head `d57738c46edbfca79cb26a1e64d78d1101cbc589`: **17/17 SUCCESS**. [Native package workflow](https://github.com/mesilov/bitrix24-cli/actions/runs/38391213068) passed Linux amd64, macOS arm64, Windows amd64 and final archive set. Each platform logs two passing smoke receipts (original/compressed) with exact `dev-d57738c...` version and local-upload-dry-run/local-upload-strict-policy/local-upload-config-limit. This is native CI artifact acceptance; no merge/release/publication proof.
+
+Findings: O1 warning (restricted-role matrix) remains as above. No critical implementation/requirement mismatch found; restricted-role and independent membership/live 500 MB checks are explicitly bounded evidence rather than passing claims. Archive/worktree cleanup remains a follow-up after implementation merge and issue closure.
