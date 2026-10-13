@@ -475,5 +475,16 @@
   "limitations": [
     "UF_QUERY and reporter portal not available",
     "Restricted-role acceptance not run; fixture denied/outcomeUnknown/cancellation coverage is local"
-  ]
+  ],
+  "independentCleanupAudit": {
+    "method": "tasks.task.list",
+    "apiVersion": "1.0",
+    "ids": [
+      6296,
+      6298,
+      6300,
+      6302
+    ],
+    "remaining": []
+  }
 }
