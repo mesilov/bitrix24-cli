@@ -200,7 +200,7 @@ esac
     def test_failures_preserve_previous_install(self):
         for scenario in ['download', 'latest', 'checksum-download', 'missing', 'malformed', 'duplicate',
                          'mismatch', 'invalid-archive', 'version', 'candidate-failure',
-                         'missing-license', 'traversal', 'symlink', 'unsupported', 'bad-tag', 'relative-dir', 'staged-failure']:
+                         'missing-license', 'traversal', 'symlink', 'unsupported', 'bad-tag', 'relative-dir', 'staged-failure', 'unpack']:
             with self.subTest(scenario=scenario):
                 before = self.sentinel()
                 self.env.pop('FIXTURE_DOWNLOAD_FAIL', None)
@@ -219,6 +219,9 @@ esac
                 if scenario == 'unsupported': self.env['FIXTURE_ARCH'] = 'aarch64'
                 if scenario == 'bad-tag': options = ['--version', '../bad']
                 if scenario == 'relative-dir': options = ['--install-dir', '.']
+                if scenario == 'unpack':
+                    real_tar = shutil.which('tar')
+                    self.script('tar', '#!/bin/sh\n[ "$1" != -xzf ] || exit 9\nexec ' + real_tar + ' "$@"\n')
                 self.run_installer(*options, success=False)
                 self.unchanged(before)
 

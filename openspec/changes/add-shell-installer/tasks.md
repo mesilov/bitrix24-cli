@@ -17,7 +17,7 @@
 
 ## 4. Native CI and documentation
 
-- [ ] 4.1 Подключить installer acceptance к Unix native packages в CI через controlled release fixtures с recorded version identity; подтвердить успешные macOS arm64/Linux amd64 runs, fixtures и сохранение существующих packaging smoke/install checks.
+- [x] 4.1 Подключить installer acceptance к Unix native packages в CI через controlled release fixtures с recorded version identity; подтвердить успешные macOS arm64/Linux amd64 runs, fixtures и сохранение существующих packaging smoke/install checks.
 - [x] 4.2 Обновить README/build README: installer URL, public Release source, inspect-before-execution, manual installation #24 и launch/signing #23/#25; проверить локальные ссылки/anchors, документированные команды и точное обозначение публичной готовности.
 
 ## 5. Distribution readiness and verification
