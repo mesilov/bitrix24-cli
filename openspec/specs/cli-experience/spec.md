@@ -68,7 +68,7 @@ CLI SHALL предоставлять `--title`, `--creator`, `--responsible`, `-
 - **THEN** первый вызов задаёт пустое описание, а второй сохраняет существующее; пустой заголовок отклоняется
 
 ### Requirement: Explicit file and structured input
-CLI SHALL различать литеральный текст, JSON в `--fields` и файл JSON в `--fields-file`; текстовые и JSON файловые флаги SHALL принимать PATH или `-` для stdin. Бинарный `task:file:attach --file` SHALL принимать только локальный PATH с ограничениями task-file-upload, без stdin `-`. `--fields` и `--fields-file` SHALL быть отдельным advanced режимом без смешивания с флагами редактирования полей. CLI SHALL проверять формат и доступность ввода до записи, не читать stdin неявно и не разрешать два потребителя stdin.
+CLI SHALL различать литеральный текст, JSON в --fields и файл JSON в --fields-file. Текстовые и JSON файловые флаги SHALL принимать PATH или '-' для stdin. CLI SHALL проверять формат и доступность ввода до записи.
 
 #### Scenario: Description from a file or pipe
 - **WHEN** пользователь задаёт `--description-file brief.md` либо передаёт текст в pipe и задаёт `--description-file -`
@@ -85,6 +85,27 @@ CLI SHALL различать литеральный текст, JSON в `--field
 #### Scenario: Local binary attachment input
 - **WHEN** task:file:attach получает --file PATH либо --file -
 - **THEN** обычный локальный файл проверяется по task-file-upload; `-` отклоняется с usage-error/exit2 без чтения stdin/credentials/API, текстовые и JSON файловые флаги сохраняют собственный stdin режим
+
+### Requirement: Binary attachment input restrictions
+Бинарный task:file:attach --file SHALL принимать только локальный PATH с ограничениями task-file-upload, без stdin '-'.
+
+#### Scenario: Reject stdin as a binary attachment
+- **WHEN** task:file:attach получает --file -
+- **THEN** CLI отклоняет бинарный stdin по task-file-upload; текстовые и JSON файловые флаги сохраняют свой stdin режим.
+
+### Requirement: Advanced field input is a separate mode
+--fields и --fields-file SHALL быть отдельным advanced режимом без смешивания с флагами редактирования полей.
+
+#### Scenario: Advanced input cannot mix edit flags
+- **WHEN** пользователь передаёт advanced JSON вместе с флагами редактирования полей
+- **THEN** CLI отклоняет смешанный режим до записи; advanced input принимает один JSON object по существующему контракту.
+
+### Requirement: Explicit stdin ownership
+CLI SHALL не читать stdin неявно и не разрешать два потребителя stdin. '-' для текстового или JSON файлового ввода SHALL требовать redirected stdin, а не терминал.
+
+#### Scenario: A single explicit stdin consumer
+- **WHEN** файловый флаг содержит '-' при terminal stdin либо два файловых флага требуют stdin
+- **THEN** CLI немедленно завершает вызов с usage error и объясняет явный файл или pipe; без '-' stdin не читается неявно.
 
 ### Requirement: Human output and composable structured output
 При обычной verbosity CLI SHALL выводить компактные карточки или таблицы для человека; --quiet/--silent подавляют вывод по нативным правилам Symfony. `--plain` SHALL давать стабильный текст без оформления, `--json` — один JSON object с data, meta и error; meta SHALL содержать schemaVersion. Результат SHALL идти в stdout, диагностика и progress — в stderr. `--json` и `--plain` SHALL исключать друг друга.

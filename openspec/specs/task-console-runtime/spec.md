@@ -7,7 +7,7 @@
 ## Requirements
 
 ### Requirement: Exact MVP command registration
-Runtime SHALL предоставлять 34 task-команды (30 исходных MVP и четыре task:result команды) и четыре users-команды capability user-directory, отдельно от локальных connection-команд capability connection-configuration и встроенных команд справки/completion. Регистрация SHALL строиться напрямую из единственного явного CommandCatalog без tags/compiler pass и массового сканирования. Unit-tests SHALL проверять уникальность имён/классов, совпадение AsCommand с каталогом и отсутствие исключённых task-операций. Исключённые операции не SHALL возвращаться через aliases.
+Runtime SHALL предоставлять 34 task-команды (30 исходных MVP и четыре task:result команды) и четыре users-команды user-directory, отдельно от локальных connection-команд connection-configuration и встроенной справки/completion. Регистрация SHALL строиться напрямую из единственного явного CommandCatalog без tags/compiler pass и массового сканирования. Исключённые операции не SHALL возвращаться через aliases.
 
 #### Scenario: Root command inventory
 - **WHEN** пользователь запускает b24cli без имени команды либо list task без профиля подключения
@@ -21,6 +21,13 @@ Runtime SHALL предоставлять 34 task-команды (30 исходн
 - **WHEN** вызывается list users
 - **THEN** видны только users:current/find/colleagues/manager; list task сохраняет свои 34 команды, а local connection-команды остаются отдельными
 
+
+### Requirement: Command registration validation
+Unit-tests SHALL проверять уникальность имён и Command-классов, совпадение AsCommand с единственным явным каталогом и отсутствие исключённых task-операций, включая aliases.
+
+#### Scenario: Validate the declared command registry
+- **WHEN** запускаются unit-tests регистрации
+- **THEN** проверяются имена, классы, AsCommand и excluded operations/aliases для согласованных task/users namespaces.
 
 ### Requirement: Deferred connection resolution
 Runtime SHALL проверять синтаксис и локальные ограничения ввода до получения credentials и создания API клиента. Help, list, version и completion SHALL работать без подключения. Доступность команд не SHALL зависеть от роли пользователя на портале; серверные права проверяются при выполнении выбранной операции.
@@ -124,8 +131,7 @@ Runtime SHALL раскрывать корневые participant selects в id/na
 - **THEN** user.get фильтруется только по выбранным ID порциями до 50 и общим budget 10000; чужие rows не добавляются к карточке, недоказанная полнота обозначается partial; неподдержанные projections отклоняются до credentials
 
 ### Requirement: Policy covers the complete route plan
-
-Runtime SHALL заранее проверять все потенциальные маршруты операции, включая preflight, по паре method/API version и разрешённым полям. task-v3 SHALL допускать выбранные REST3, IM companion, согласованные REST1 task-маршруты, users-маршруты, opt-in назначение наблюдателя после task:add, выбранное обогащение участников task:show и ролевое чтение участников для task:list/task:find и REST1 disk.folder.uploadFile только в локальном режиме task:file:attach; strict-rest3 SHALL отклонять любой non-v3 план до первого запроса. Совпадение имени метода не SHALL означать взаимозаменяемость версий или скрытый fallback.
+Runtime SHALL заранее проверять все потенциальные маршруты операции, включая preflight, по паре method/API version и разрешённым полям. strict-rest3 SHALL отклонять любой non-v3 план до первого запроса. Совпадение имени метода не SHALL означать взаимозаменяемость версий или скрытый fallback.
 
 #### Scenario: Strict policy with participant enrichment
 - **WHEN** task:show с auditors/accomplices выбран при strict-rest3
@@ -163,6 +169,20 @@ Runtime SHALL заранее проверять все потенциальны�
 #### Scenario: Local attachment mixed route plan
 - **WHEN** task:file:attach выбрана с --file/--folder-id
 - **THEN** task-v3 допускает только disk.folder.uploadFile REST1 и tasks.task.file.attach REST3; strict-rest3 возвращает policy-denied/exit4 до credentials/API, включая dry-run; режим --file-id сохраняет только REST3
+
+### Requirement: Default policy selected route admission
+task-v3 SHALL допускать выбранные REST3, IM companion, согласованные REST1 task-маршруты, users-маршруты, opt-in назначение наблюдателя после task:add, выбранное обогащение участников task:show и ролевое чтение участников для task:list/task:find.
+
+#### Scenario: Selected documented default-policy routes
+- **WHEN** операция в task-v3 использует согласованный task/users/IM маршрут, opt-in observer или выбранное participant enrichment/role read
+- **THEN** policy допускает только выбранный маршрут и проверяет полный план по method/API version и allowed fields.
+
+### Requirement: Local attachment upload route admission
+task-v3 SHALL допускать REST1 disk.folder.uploadFile только в локальном режиме task:file:attach.
+
+#### Scenario: Upload route is confined to local attachment mode
+- **WHEN** план task:file:attach включает disk.folder.uploadFile
+- **THEN** REST1 upload допускается только для локального режима; strict-rest3 отклоняет весь non-v3 план до первого запроса.
 
 ### Requirement: Verified task chat message binding
 Перед изменением или удалением сообщения runtime SHALL получить chat выбранной TASK_ID и доказать принадлежность MESSAGE_ID этому чату. Проверка SHALL иметь конечный budget. Недостаточные данные, исчерпание budget либо отсутствие сообщения не SHALL разрешать mutation; права автора/администратора SHALL оставаться серверным условием.
