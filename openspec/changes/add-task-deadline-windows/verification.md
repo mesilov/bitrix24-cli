@@ -27,7 +27,7 @@ Date: 2026-10-13. Scope: implementation in feature/95-task-deadline-windows, iss
 
 ## Verification commands
 
-- `make unit`: 626 tests, 4636 assertions, passed on the final implementation; a subsequent test-only invalid-sort case also passed in targeted suite.
+- `make unit`: 626 tests, 4644 assertions, passed after fresh origin/dev synchronization and the final invalid-sort case.
 - `make unit TEST_ARGS='--filter "DeadlineWindowTest|TaskDeadlineFilterTest"'`: 41 tests, 341 assertions, passed after that case.
 - `make lint-all`: dependency licenses, PHP-CS-Fixer, PHPStan, Rector; passed after applying repository formatting/type rules.
 - `make check`: Composer strict validation/platform requirements, PHP syntax and CLI startup passed.

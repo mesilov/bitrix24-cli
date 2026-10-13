@@ -92,4 +92,3 @@ The CLI SHALL accept task:find --group-id as a positive integer and combine a lo
 #### Scenario: Temporal group scope
 - **WHEN** task:find --title TEXT --group-id 42 получает новый временной флаг
 - **THEN** явный REST1 маршрут получает GROUP_ID=42 и диапазон DEADLINE; REST3 groupId filter не отправляется; результат нормализуется в public CLI contract
-
