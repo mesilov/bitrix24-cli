@@ -432,6 +432,8 @@ advanced fields сохраняют описанный preflight editable metadat
 
 ## CLI-команды
 
+[JTBD по ролям: сценарии, CLI-команды и интеграционные тесты](docs/task-jtbd.md).
+
 | Команда | Назначение |
 | --- | --- |
 | `users:current` | Пользователь текущего подключения |
