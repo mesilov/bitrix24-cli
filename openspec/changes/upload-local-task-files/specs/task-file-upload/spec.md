@@ -34,6 +34,17 @@ CLI MUST принимать только читаемый обычный лок�
 - **WHEN** файл растёт сверх лимита либо становится недоступным при чтении перед upload
 - **THEN** CLI завершает локальную подготовку без записи, не отправляет усечённый файл и не объявляет загрузку успешной
 
+### Requirement: Shared filesystem abstraction and SDK reuse
+Локальный файловый ввод SHALL использовать абстракцию Symfony Filesystem/Path. До реализации MUST быть оценены файловые и upload механизмы locked b24phpsdk; совместимые helpers/services SHALL переиспользоваться. Причины собственной реализации MUST быть зафиксированы. Reuse SHALL сохранять лимит файла, точные байты, API policy, preview, accounting и cancellation.
+
+#### Scenario: Existing SDK mechanisms fit the contract
+- **WHEN** оценка зафиксированной версии SDK обнаруживает подходящий публичный helper/service
+- **THEN** реализация использует его через CLI абстракцию с контрактной проверкой, а не дублирует готовую функцию
+
+#### Scenario: SDK mechanism does not provide bounded reading or runtime guards
+- **WHEN** готовый SDK путь читает файл без лимита либо не сохраняет CLI policy/accounting/cancellation
+- **THEN** design фиксирует ограничение и используемые совместимые части/подходы; недостающая адаптация остаётся внутри файловой/upload абстракции и проверяется отдельно
+
 ### Requirement: Explicit upload filename and collision behavior
 CLI SHALL использовать `--name NAME` либо basename локального пути. Имя MUST быть непустым valid UTF-8 до 255 символов без path separators и управляющих символов. CLI SHALL отправлять одинаковое имя в `data.NAME` и `fileContent[0]` и boolean `generateUniqueName=true`; существующий файл не SHALL перезаписываться.
 
