@@ -58,6 +58,11 @@
 
 ### Изменено
 
+- Закреплено обновление `docs/task-jtbd.md` в том же MR при реализации новых JTBD
+  и изменении связанных команд: ID, роли, статусы, ссылки на файлы тестов и границы
+  покрытия проверяются перед MR/merge. JTBD добавлены в верхнюю навигацию README
+  ([#105](https://github.com/mesilov/bitrix24-cli/issues/105)).
+
 - Архивирован завершённый OpenSpec change `document-role-jtbd-traceability` после merge
   документации 22 JTBD в `dev` и закрытия [#80](https://github.com/mesilov/bitrix24-cli/issues/80);
   сохранены результаты проверок и подтверждённая доставка PR #82.
