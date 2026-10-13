@@ -140,16 +140,14 @@ final readonly class TaskListScanner
         } while ($next !== null);
 
         $matchedCount = count($matches);
-        if ($title !== null) {
-            usort($matches, static fn (array $a, array $b): int => $a['id'] <=> $b['id']);
-        }
-
         $items = $query->limit === null ? $matches : array_slice($matches, 0, $query->limit);
         return new OperationResult($title === null ? 'task-list' : 'title-matches', ['items' => $items], [
             'scope' => $query->ids === [] ? 'tasks-visible-to-connection' : 'explicit-task-ids',
             'complete' => $complete, 'scanned' => $scanned, 'matched' => $matchedCount, 'returned' => count($items),
             'limitApplied' => count($items) < $matchedCount, 'reason' => $reason,
             ...($query->role instanceof \Bitrix24\CLI\Application\Task\TaskRole ? ['roleFilter' => ['role' => $query->role->value, 'userId' => $userId]] : []),
+            'order' => $query->order,
+            ...($reason === 'scan-budget-exhausted' ? ['hint' => 'Increase --max-scan to inspect more tasks; --all only removes the output limit. An incomplete search does not prove that no duplicate exists.'] : []),
         ], $complete ? 0 : 3);
     }
 }

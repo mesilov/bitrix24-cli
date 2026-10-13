@@ -2,6 +2,44 @@
 
 ## [Unreleased]
 
+### Исправлено
+
+- `task:list` и `task:find` обходят свежие задачи первыми (`id DESC`), сохраняя
+  порядок в выводе. Поиск поддерживает `--order`; неполный обход показывает
+  фактическую сортировку и число просмотренных задач, а при исчерпании бюджета
+  предлагает увеличить `--max-scan` и предупреждает о неполной проверке дублей
+  ([#64](https://github.com/mesilov/bitrix24-cli/issues/64)).
+
+### Добавлено
+
+- Фильтр `--role responsible|accomplice|creator|auditor` в `task:list` и
+  `task:find`: свои задачи владельца подключения, сочетание с другими критериями
+  через AND и явный маршрут REST 1.0 для соисполнителя и наблюдателя
+  ([#68](https://github.com/mesilov/bitrix24-cli/issues/68)).
+- Теги задач: повторяемый `--tag` в `task:add`/`task:update` и `--clear-tags`
+  в `task:update`. Явный набор заменяет теги; отсутствие опции сохраняет их
+  ([#71](https://github.com/mesilov/bitrix24-cli/issues/71)).
+- Явные составные dry-run планы REST 3.0 и записи `TAGS` через REST 1.0,
+  ранний отказ strict-rest3 и частичный результат с ID задачи для восстановления
+  без повторного создания ([#71](https://github.com/mesilov/bitrix24-cli/issues/71)).
+
+### Изменено
+
+- Синхронизированы спецификации тегов задач и архивирован проверенный change
+  `add-task-tags` после merge реализации в `dev`
+  ([#71](https://github.com/mesilov/bitrix24-cli/issues/71)).
+- `connection:add` отклоняет существующий alias до ввода webhook и явно сообщает,
+  что параметры не применены; help и документация описывают полное повторное
+  создание профиля. Завершённый OpenSpec change архивирован, требования
+  синхронизированы с основной спецификацией
+  ([#59](https://github.com/mesilov/bitrix24-cli/issues/59)).
+- В скилле мейнтейнера требуется содержательная запись в changelog со ссылкой на issue
+  для любого MR в `dev` по issue; проверка обязательна перед открытием MR и merge
+  ([#78](https://github.com/mesilov/bitrix24-cli/issues/78)).
+- Архивирован завершённый OpenSpec change `require-issue-changelog-before-dev-merge`;
+  сохранены результаты проверки и архивная трассировка
+  ([#78](https://github.com/mesilov/bitrix24-cli/issues/78)).
+
 ## [0.1.0] — 2026-10-12
 
 Первая версия CLI для работы с задачами Битрикс24.

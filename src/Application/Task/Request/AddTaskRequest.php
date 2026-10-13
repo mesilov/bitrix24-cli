@@ -6,7 +6,7 @@ namespace Bitrix24\CLI\Application\Task\Request;
 
 final readonly class AddTaskRequest
 {
-    public function __construct(public array $fields, public bool $advanced)
+    public function __construct(public array $fields, public bool $advanced, public ?array $TAGS = null)
     {
     }
 }
