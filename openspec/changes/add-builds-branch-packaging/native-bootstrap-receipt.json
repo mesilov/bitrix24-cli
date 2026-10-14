@@ -1,0 +1,89 @@
+{
+  "run_id": 38532046240,
+  "run_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38532046240",
+  "event": "push",
+  "branch": "builds",
+  "source_sha": "30fa7053a2b031b4c80ac2aa3b503027a2a3e4b9",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "completed_at": "2026-10-14T08:17:21Z",
+      "conclusion": "success",
+      "html_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38532046240/job/115745978829",
+      "id": 115745978829,
+      "name": "packages / macOS arm64 package",
+      "started_at": "2026-10-14T08:00:14Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-10-14T08:21:11Z",
+      "conclusion": "success",
+      "html_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38532046240/job/115745979188",
+      "id": 115745979188,
+      "name": "packages / Linux amd64 package",
+      "started_at": "2026-10-14T08:00:01Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-10-14T08:20:18Z",
+      "conclusion": "success",
+      "html_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38532046240/job/115745979263",
+      "id": 115745979263,
+      "name": "packages / Windows amd64 package",
+      "started_at": "2026-10-14T08:00:01Z",
+      "status": "completed"
+    },
+    {
+      "completed_at": "2026-10-14T08:21:31Z",
+      "conclusion": "success",
+      "html_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38532046240/job/115753976700",
+      "id": 115753976700,
+      "name": "packages / Verify release archive set",
+      "started_at": "2026-10-14T08:21:14Z",
+      "status": "completed"
+    }
+  ],
+  "artifacts": [
+    {
+      "created_at": "2026-10-14T08:20:55Z",
+      "expired": false,
+      "expires_at": "2026-10-21T08:20:48Z",
+      "id": 11880011489,
+      "name": "b24cli-linux-amd64",
+      "size_in_bytes": 130442679
+    },
+    {
+      "created_at": "2026-10-14T08:21:29Z",
+      "expired": false,
+      "expires_at": "2026-11-13T08:21:26Z",
+      "id": 11879756879,
+      "name": "b24cli-release-assets",
+      "size_in_bytes": 80066904
+    },
+    {
+      "created_at": "2026-10-14T08:20:56Z",
+      "expired": false,
+      "expires_at": "2027-01-12T07:59:59Z",
+      "id": 11879602397,
+      "name": "mesilov~bitrix24-cli~JBI9DM.dockerbuild",
+      "size_in_bytes": 109906
+    },
+    {
+      "created_at": "2026-10-14T08:17:14Z",
+      "expired": false,
+      "expires_at": "2026-10-21T08:17:05Z",
+      "id": 11879521630,
+      "name": "b24cli-macos-arm64",
+      "size_in_bytes": 135244951
+    },
+    {
+      "created_at": "2026-10-14T08:20:14Z",
+      "expired": false,
+      "expires_at": "2026-10-21T08:20:07Z",
+      "id": 11879266842,
+      "name": "b24cli-windows-amd64",
+      "size_in_bytes": 132285375
+    }
+  ],
+  "boundary": "Initial bootstrap before #121 and RC follow-up; native CI only; no GitHub Release or live portal acceptance"
+}
