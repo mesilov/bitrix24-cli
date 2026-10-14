@@ -78,3 +78,7 @@ The user requested separate logical-group tables in README with columns Кома
 The Markdown CLI map and generator now output four columns (command, purpose, effect, example), with no integration-test column or obsolete explanation of that column. JSON reference metadata retains its contract. The existing HelpAndAboutTest example matcher now also accepts the example cell at the end of a row. CHANGELOG covers both requested layout changes and links #134.
 
 Validation: GitHub GFM rendering parsed into 13 three-column README command tables and one four-column CLI-map table; each contains all 56 commands exactly once. `make cli-reference-check`, `make unit TEST_ARGS='--filter HelpAndAboutTest'` (5 tests / 588 assertions), PHP-CS-Fixer (0 of 342 files need changes), OpenSpec strict validation and whitespace checks passed. All 246 remaining relative links/anchors are valid; the reduction from 302 reflects removal of the map's 56 test links.
+
+## Final column-order refinement after implementation merge
+
+The user requested the purpose and example columns to swap places. The 13 README command tables now use Команда / Назначение / Пример, preserving all 56 commands, descriptions and examples. This small post-merge formatting refinement is delivered with archive PR #139; the original 13 completed tasks and implementation delivery receipt describe PR #135. The CLI map keeps its existing four-column order.

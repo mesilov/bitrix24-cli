@@ -130,124 +130,124 @@ ID, имена профилей и тексты в примерах замени
 
 ### Справка и автодополнение
 
-| Команда | Пример | Назначение |
+| Команда | Назначение | Пример |
 | --- | --- | --- |
-| `completion` | `b24cli completion bash` | Вывести скрипт автодополнения для оболочки |
-| `help` | `b24cli help task:add` | Показать справку команды |
-| `list` | `b24cli list task` | Показать список команд |
+| `completion` | Вывести скрипт автодополнения для оболочки | `b24cli completion bash` |
+| `help` | Показать справку команды | `b24cli help task:add` |
+| `list` | Показать список команд | `b24cli list task` |
 
 ### Подключения
 
-| Команда | Пример | Назначение |
+| Команда | Назначение | Пример |
 | --- | --- | --- |
-| `connection:add` | `b24cli connection:add work --group-id 7 --creator-id 1 --responsible-id 42` | Сохранить локальное подключение |
-| `connection:list` | `b24cli connection:list` | Показать сохранённые подключения |
-| `connection:remove` | `b24cli connection:remove work` | Удалить локальный профиль и его учётные данные |
-| `connection:show` | `b24cli connection:show work` | Показать безопасные параметры выбранного подключения |
-| `connection:use` | `b24cli connection:use work` | Выбрать сохранённый профиль по умолчанию |
+| `connection:add` | Сохранить локальное подключение | `b24cli connection:add work --group-id 7 --creator-id 1 --responsible-id 42` |
+| `connection:list` | Показать сохранённые подключения | `b24cli connection:list` |
+| `connection:remove` | Удалить локальный профиль и его учётные данные | `b24cli connection:remove work` |
+| `connection:show` | Показать безопасные параметры выбранного подключения | `b24cli connection:show work` |
+| `connection:use` | Выбрать сохранённый профиль по умолчанию | `b24cli connection:use work` |
 
 ### Сотрудники
 
-| Команда | Пример | Назначение |
+| Команда | Назначение | Пример |
 | --- | --- | --- |
-| `users:colleagues` | `b24cli users:colleagues --department-id 7 --json` | Коллеги текущего отдела по оргструктуре |
-| `users:current` | `b24cli users:current --json` | Пользователь текущего подключения |
-| `users:find` | `b24cli users:find --name "Иванов Иван" --json` | Найти активных сотрудников по ФИО или email |
-| `users:manager` | `b24cli users:manager --department-id 7 --json` | Непосредственный или настроенный руководитель |
+| `users:colleagues` | Коллеги текущего отдела по оргструктуре | `b24cli users:colleagues --department-id 7 --json` |
+| `users:current` | Пользователь текущего подключения | `b24cli users:current --json` |
+| `users:find` | Найти активных сотрудников по ФИО или email | `b24cli users:find --name "Иванов Иван" --json` |
+| `users:manager` | Непосредственный или настроенный руководитель | `b24cli users:manager --department-id 7 --json` |
 
 ### Создание и редактирование задач
 
-| Команда | Пример | Назначение |
+| Команда | Назначение | Пример |
 | --- | --- | --- |
-| `task:add` | `b24cli task:add --title "Подготовить договор" --creator 1 --responsible 42 --dry-run` | Создать задачу |
-| `task:assign` | `b24cli task:assign 123 --responsible 3 --dry-run` | Сменить ответственного |
-| `task:deadline:set` | `b24cli task:deadline:set 123 --at 2026-12-01T12:00:00+06:00 --dry-run` | Изменить срок задачи |
-| `task:delete` | `b24cli task:delete 123 --dry-run` | Удалить задачу |
-| `task:participants:set` | `b24cli task:participants:set 123 --auditor 4 --clear-accomplices --dry-run` | Заменить выбранные роли участников |
-| `task:update` | `b24cli task:update 123 --title "Договор для согласования" --dry-run` | Изменить явные поля задачи |
+| `task:add` | Создать задачу | `b24cli task:add --title "Подготовить договор" --creator 1 --responsible 42 --dry-run` |
+| `task:assign` | Сменить ответственного | `b24cli task:assign 123 --responsible 3 --dry-run` |
+| `task:deadline:set` | Изменить срок задачи | `b24cli task:deadline:set 123 --at 2026-12-01T12:00:00+06:00 --dry-run` |
+| `task:delete` | Удалить задачу | `b24cli task:delete 123 --dry-run` |
+| `task:participants:set` | Заменить выбранные роли участников | `b24cli task:participants:set 123 --auditor 4 --clear-accomplices --dry-run` |
+| `task:update` | Изменить явные поля задачи | `b24cli task:update 123 --title "Договор для согласования" --dry-run` |
 
 ### Просмотр и поиск задач
 
-| Команда | Пример | Назначение |
+| Команда | Назначение | Пример |
 | --- | --- | --- |
-| `task:access:show` | `b24cli task:access:show 123` | Показать права текущего пользователя |
-| `task:fields:list` | `b24cli task:fields:list --name title` | Показать поля задачи |
-| `task:find` | `b24cli task:find --title "договор" --group-id 7 --responsible 42` | Найти задачи по буквальной подстроке title |
-| `task:list` | `b24cli task:list --group-id 7 --responsible 42` | Показать доступные задачи |
-| `task:my` | `b24cli task:my --user 42 --open --json` | Показать задачи выбранного исполнителя |
-| `task:show` | `b24cli task:show 123` | Показать карточку задачи |
+| `task:access:show` | Показать права текущего пользователя | `b24cli task:access:show 123` |
+| `task:fields:list` | Показать поля задачи | `b24cli task:fields:list --name title` |
+| `task:find` | Найти задачи по буквальной подстроке title | `b24cli task:find --title "договор" --group-id 7 --responsible 42` |
+| `task:list` | Показать доступные задачи | `b24cli task:list --group-id 7 --responsible 42` |
+| `task:my` | Показать задачи выбранного исполнителя | `b24cli task:my --user 42 --open --json` |
+| `task:show` | Показать карточку задачи | `b24cli task:show 123` |
 
 ### Жизненный цикл
 
-| Команда | Пример | Назначение |
+| Команда | Назначение | Пример |
 | --- | --- | --- |
-| `task:approve` | `b24cli task:approve 123 --dry-run` | Принять результат задачи |
-| `task:complete` | `b24cli task:complete 123 --dry-run` | Завершить задачу или передать на контроль |
-| `task:defer` | `b24cli task:defer 123 --dry-run` | Отложить задачу |
-| `task:disapprove` | `b24cli task:disapprove 123 --dry-run` | Вернуть задачу на доработку |
-| `task:pause` | `b24cli task:pause 123 --dry-run` | Приостановить выполнение задачи |
-| `task:renew` | `b24cli task:renew 123 --dry-run` | Возобновить задачу |
-| `task:start` | `b24cli task:start 123 --dry-run` | Начать работу над задачей |
+| `task:approve` | Принять результат задачи | `b24cli task:approve 123 --dry-run` |
+| `task:complete` | Завершить задачу или передать на контроль | `b24cli task:complete 123 --dry-run` |
+| `task:defer` | Отложить задачу | `b24cli task:defer 123 --dry-run` |
+| `task:disapprove` | Вернуть задачу на доработку | `b24cli task:disapprove 123 --dry-run` |
+| `task:pause` | Приостановить выполнение задачи | `b24cli task:pause 123 --dry-run` |
+| `task:renew` | Возобновить задачу | `b24cli task:renew 123 --dry-run` |
+| `task:start` | Начать работу над задачей | `b24cli task:start 123 --dry-run` |
 
 ### История и время в статусах
 
-| Команда | Пример | Назначение |
+| Команда | Назначение | Пример |
 | --- | --- | --- |
-| `task:history:list` | `b24cli task:history:list 123 --json` | Показать историю изменений задачи |
-| `task:status:durations` | `b24cli task:status:durations 123 --as-of 2026-10-01T12:00:00+03:00 --json` | Рассчитать календарное время задачи в статусах |
+| `task:history:list` | Показать историю изменений задачи | `b24cli task:history:list 123 --json` |
+| `task:status:durations` | Рассчитать календарное время задачи в статусах | `b24cli task:status:durations 123 --as-of 2026-10-01T12:00:00+03:00 --json` |
 
 ### Файлы
 
-| Команда | Пример | Назначение |
+| Команда | Назначение | Пример |
 | --- | --- | --- |
-| `task:file:attach` | `b24cli task:file:attach 123 --file-id 50 --dry-run` | Прикрепить файл Диска или загрузить локальный файл |
+| `task:file:attach` | Прикрепить файл Диска или загрузить локальный файл | `b24cli task:file:attach 123 --file-id 50 --dry-run` |
 
 ### Результаты
 
-| Команда | Пример | Назначение |
+| Команда | Назначение | Пример |
 | --- | --- | --- |
-| `task:result:add` | `b24cli task:result:add 123 --text "Договор готов" --dry-run` | Добавить результат задачи |
-| `task:result:delete` | `b24cli task:result:delete 123 --result 17 --force --dry-run` | Удалить результат задачи |
-| `task:result:list` | `b24cli task:result:list 123 --all` | Показать результаты задачи |
-| `task:result:update` | `b24cli task:result:update 123 --result 17 --text "Договор проверен" --dry-run` | Изменить текст результата задачи |
+| `task:result:add` | Добавить результат задачи | `b24cli task:result:add 123 --text "Договор готов" --dry-run` |
+| `task:result:delete` | Удалить результат задачи | `b24cli task:result:delete 123 --result 17 --force --dry-run` |
+| `task:result:list` | Показать результаты задачи | `b24cli task:result:list 123 --all` |
+| `task:result:update` | Изменить текст результата задачи | `b24cli task:result:update 123 --result 17 --text "Договор проверен" --dry-run` |
 
 ### Чат задачи
 
-| Команда | Пример | Назначение |
+| Команда | Назначение | Пример |
 | --- | --- | --- |
-| `task:chat:delete` | `b24cli task:chat:delete 123 --message 900 --force --dry-run` | Удалить сообщение чата задачи |
-| `task:chat:list` | `b24cli task:chat:list 123 --limit 20` | Показать сообщения чата задачи |
-| `task:chat:send` | `b24cli task:chat:send 123 --text "Договор готов" --dry-run` | Отправить сообщение в чат задачи |
-| `task:chat:update` | `b24cli task:chat:update 123 --message 900 --text "Договор согласован" --dry-run` | Изменить сообщение чата задачи |
+| `task:chat:delete` | Удалить сообщение чата задачи | `b24cli task:chat:delete 123 --message 900 --force --dry-run` |
+| `task:chat:list` | Показать сообщения чата задачи | `b24cli task:chat:list 123 --limit 20` |
+| `task:chat:send` | Отправить сообщение в чат задачи | `b24cli task:chat:send 123 --text "Договор готов" --dry-run` |
+| `task:chat:update` | Изменить сообщение чата задачи | `b24cli task:chat:update 123 --message 900 --text "Договор согласован" --dry-run` |
 
 ### Чек-листы
 
-| Команда | Пример | Назначение |
+| Команда | Назначение | Пример |
 | --- | --- | --- |
-| `task:checklist:add` | `b24cli task:checklist:add 123 --title "Подготовка" --dry-run` | Создать чек-лист |
-| `task:checklist:item:add` | `b24cli task:checklist:item:add 123 --checklist 10 --title "Проверить реквизиты" --dry-run` | Добавить пункт чек-листа |
-| `task:checklist:item:complete` | `b24cli task:checklist:item:complete 123 --item 11 --dry-run` | Выполнить пункт чек-листа |
-| `task:checklist:item:delete` | `b24cli task:checklist:item:delete 123 --item 11 --dry-run` | Удалить пункт с дочерними пунктами |
-| `task:checklist:item:list` | `b24cli task:checklist:item:list 123 --checklist 10` | Показать пункты чек-листа |
-| `task:checklist:item:renew` | `b24cli task:checklist:item:renew 123 --item 11 --dry-run` | Возобновить пункт чек-листа |
-| `task:checklist:item:update` | `b24cli task:checklist:item:update 123 --item 11 --title "Уточнить реквизиты" --dry-run` | Изменить заголовок пункта |
-| `task:checklist:list` | `b24cli task:checklist:list 123` | Показать чек-листы |
+| `task:checklist:add` | Создать чек-лист | `b24cli task:checklist:add 123 --title "Подготовка" --dry-run` |
+| `task:checklist:item:add` | Добавить пункт чек-листа | `b24cli task:checklist:item:add 123 --checklist 10 --title "Проверить реквизиты" --dry-run` |
+| `task:checklist:item:complete` | Выполнить пункт чек-листа | `b24cli task:checklist:item:complete 123 --item 11 --dry-run` |
+| `task:checklist:item:delete` | Удалить пункт с дочерними пунктами | `b24cli task:checklist:item:delete 123 --item 11 --dry-run` |
+| `task:checklist:item:list` | Показать пункты чек-листа | `b24cli task:checklist:item:list 123 --checklist 10` |
+| `task:checklist:item:renew` | Возобновить пункт чек-листа | `b24cli task:checklist:item:renew 123 --item 11 --dry-run` |
+| `task:checklist:item:update` | Изменить заголовок пункта | `b24cli task:checklist:item:update 123 --item 11 --title "Уточнить реквизиты" --dry-run` |
+| `task:checklist:list` | Показать чек-листы | `b24cli task:checklist:list 123` |
 
 ### Трудозатраты
 
-| Команда | Пример | Назначение |
+| Команда | Назначение | Пример |
 | --- | --- | --- |
-| `task:time:add` | `b24cli task:time:add 123 --seconds 3600 --text "Подготовка договора" --dry-run` | Добавить запись времени |
-| `task:time:delete` | `b24cli task:time:delete 123 --entry 30 --force --dry-run` | Удалить запись времени |
-| `task:time:list` | `b24cli task:time:list 123` | Показать записи времени |
-| `task:time:show` | `b24cli task:time:show 123` | Показать контекст учёта времени |
-| `task:time:update` | `b24cli task:time:update 123 --entry 30 --seconds 1800 --dry-run` | Исправить запись времени |
+| `task:time:add` | Добавить запись времени | `b24cli task:time:add 123 --seconds 3600 --text "Подготовка договора" --dry-run` |
+| `task:time:delete` | Удалить запись времени | `b24cli task:time:delete 123 --entry 30 --force --dry-run` |
+| `task:time:list` | Показать записи времени | `b24cli task:time:list 123` |
+| `task:time:show` | Показать контекст учёта времени | `b24cli task:time:show 123` |
+| `task:time:update` | Исправить запись времени | `b24cli task:time:update 123 --entry 30 --seconds 1800 --dry-run` |
 
 ### Диагностика агента
 
-| Команда | Пример | Назначение |
+| Команда | Назначение | Пример |
 | --- | --- | --- |
-| `doctor:problem-trajectory` | `b24cli doctor:problem-trajectory --action status --json` | Сохранить и разобрать обезличенные карточки нехватки CLI |
+| `doctor:problem-trajectory` | Сохранить и разобрать обезличенные карточки нехватки CLI | `b24cli doctor:problem-trajectory --action status --json` |
 
 Полный список с примерами и назначением — в [карте CLI-вызовов](docs/cli-command-map.md).
 Проверить свою сборку и открыть справку:
