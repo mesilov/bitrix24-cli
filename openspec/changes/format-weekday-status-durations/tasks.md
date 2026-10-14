@@ -10,7 +10,7 @@
 
 - [x] 2.1 Update independent live integration expectations and run exact/partial/pending acceptance with owned cleanup.
 - [x] 2.2 Replay retained task 6372 raw history through production calculation/presentation; retain JSON and assert 55 transitions, 56 intervals, old-event exclusions and agreed totals.
-- [ ] 2.3 Run full unit, lint-all and OpenSpec strict/diff checks; record requirement mapping and open PR to dev.
+- [x] 2.3 Run full unit, lint-all and OpenSpec strict/diff checks; record requirement mapping and open PR to dev.
 
 ## Workflow follow-up
 

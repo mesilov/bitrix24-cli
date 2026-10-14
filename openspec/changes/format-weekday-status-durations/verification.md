@@ -12,8 +12,12 @@
 
 | Dimension | Evidence |
 | --- | --- |
-| Completeness | All three requirements implemented; task completion updated after PR delivery |
+| Completeness | All three requirements implemented; 6/6 tracked tasks complete after PR delivery |
 | Correctness | Traceable units: JSON/human/plain/null/rounding tests; calendar: weekends/offsets/boundaries/full weeks and independent live arithmetic; source fields and timestamps preserved |
 | Coherence | Pure helper, shared runtime/presenter; no additional API route or mutation, user timezone or holiday calendar |
 
 No critical findings, warnings or skipped checks within the declared format/calendar scope. Server calendar is explicitly the fixed offset in confirmed created (or unique verified NEW), not an inferred IANA region. Hours/days JSON are numeric and may omit trailing zeros. Public numeric totals become unit objects as explicitly requested; this is documented as a breaking unreleased change. Merge, release and fresh long-task portal query are not claimed.
+
+## Publication
+
+PR [#137](https://github.com/mesilov/bitrix24-cli/pull/137) targets dev; issue #136 is enhancement, milestone 0.2.0, with reverse OpenSpec trace. Fresh dev 5330662 integrated at 9e6eda8; only build/packaging/docs/workflow files changed, not runtime/test PHP. Post-merge OpenSpec all-strict: 27 passed/0 failed. CI is checked against the final published head; merge/release are not part of this request.
