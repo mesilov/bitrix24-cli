@@ -4,6 +4,13 @@
 
 ### Исправлено
 
+- README стал краткой входной страницей с установкой для Linux/macOS/Windows,
+  подключениями в платформенных спойлерах, обзором 56 CLI-команд и описанием конфига.
+  Подробные инструкции вынесены в `docs/install.md`, `docs/connection.md` и
+  `docs/config.md`, сценарии задач и сотрудников — в отдельные руководства;
+  ссылки и проверки примеров актуализированы
+  ([#134](https://github.com/mesilov/bitrix24-cli/issues/134)).
+
 - Advanced-поля задач проверяются локально по документированным контрактам add/update; editable=false не блокирует допустимые поля создания, ordinary advanced dry-run работает без API ([#58](https://github.com/mesilov/bitrix24-cli/issues/58)).
 
 - Выборка проекта при groupId=null в REST3 list: принадлежность проверяется через

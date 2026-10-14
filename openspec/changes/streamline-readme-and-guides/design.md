@@ -61,3 +61,7 @@ Check heading order, removed text, preserved badges/downloads, links/anchors aft
 ## Migration Plan
 
 Extract the guides first, update their relative links, replace README blocks with quick starts and references, then check the whole navigation together. Deliver through a PR to `dev`; reverting the documentation commit restores the previous layout. No user-data migration or runtime change is required.
+
+## Review follow-up
+
+Review of PR #135 identified a missing issue-linked changelog entry. Add the delivered README/guide result under `Unreleased` and verify the actual PR diff contains #134. Integration of dev at `5330662` also changes development packaging instructions: use the builds workflow, its selected source SHA and 30-day archive retention; refer maintainers to the existing builds/RC guide rather than retaining the obsolete dev dispatch example. README itself remains unchanged by these corrections.

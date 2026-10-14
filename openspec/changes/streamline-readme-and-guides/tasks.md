@@ -19,6 +19,11 @@
 - [x] 3.1 Review README and guides together against every criterion in #134: section order, three installation paths, three connection spoilers, complete guide destinations, working relative links/anchors and current-build language; record documentation checks and any platform execution separately.
 - [x] 3.2 Run `openspec validate streamline-readme-and-guides --strict` and `git diff --check`; confirm issue #134 still has milestone 0.2.0, documentation category and bidirectional proposal/path links before the implementation PR to dev.
 
+## 4. Review corrections
+
+- [x] 4.1 Add a substantive `Unreleased` CHANGELOG entry describing the delivered README and guides with a link to #134; verify it appears in the actual diff against current origin/dev.
+- [x] 4.2 Align extracted CI download instructions with the builds/RC workflow integrated from dev; verify workflow refs, version and retention against current workflow/build guide and recheck documentation links and OpenSpec.
+
 ## Workflow follow-up
 
 - Preserve final release snapshot and binary acceptance in #109; do not mark those tasks done from documentation checks.

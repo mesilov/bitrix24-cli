@@ -10,21 +10,22 @@
 Для конкретной версии выберите её на
 [странице релизов](https://github.com/mesilov/bitrix24-cli/releases).
 
-Для проверки изменений из `dev` доступны
-[ручные CI-сборки](https://github.com/mesilov/bitrix24-cli/actions/workflows/package-static.yml?query=branch%3Adev).
-С правами записи откройте **Actions → Package standalone binaries → Run workflow**,
-выберите ветку `dev` или нужную ветку изменений и запустите workflow.
-Бинарники автоматически собираются только по релизному тегу; на MR и push в `dev`
-выполняются тесты и линтеры. Команда ручного запуска:
+Для проверки выбранных снимков `dev` и релизных кандидатов доступны
+[ручные CI-сборки](https://github.com/mesilov/bitrix24-cli/actions/workflows/package-static.yml?query=branch%3Abuilds).
+Мейнтейнер выбирает снимок через ветку `builds`; её push запускает упаковку.
+Повторный ручной запуск той же ветки:
 
 ```sh
-gh workflow run package-static.yml --ref dev
+gh workflow run package-static.yml --ref builds
 ```
 
 Выберите завершённый run со статусом **Success** и artifact `b24cli-release-assets`:
-он содержит три установочных архива и `SHA256SUMS`. Версия этих бинарников —
-`dev-<полный source SHA>`. Для скачивания CI artifacts нужен вход в GitHub;
-срок хранения — 90 дней.
+он содержит три установочных архива и `SHA256SUMS`. Версия снимка —
+`dev-<полный source SHA>`; версия RC совпадает с тегом `MAJOR.MINOR.PATCH-rc-N`.
+Для скачивания CI artifacts нужен вход в GitHub. Итоговые архивы снимков `builds`
+и RC хранятся 30 дней, диагностика — 7 дней. Артефакты не публикуют Release
+и не меняют latest. Выбор снимка, скачивание по run ID и проверка RC описаны
+в [руководстве сборки](../build/README.md#промежуточные-снимки-из-dev).
 
 ## Установщик для Linux и macOS
 
@@ -148,7 +149,7 @@ b24cli help task:show
 
 Для обновления проверьте checksum нового архива и повторите установку вместе
 с копированием notices/metadata, затем сверьте `b24cli --version`.
-Публичный релиз должен показывать версию тега, CI-сборка — `dev-<полный SHA>`.
+Публичный релиз и RC должны показывать версию своего тега, снимок `builds` — `dev-<полный SHA>`.
 
 </details>
 
