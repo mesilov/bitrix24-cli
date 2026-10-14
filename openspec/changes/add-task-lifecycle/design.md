@@ -6,7 +6,7 @@
 
 ### Синхронизация с dev — 14.10.2026
 
-После обновления dev каталог включает 41 task-команду (30 исходных, четыре result и семь lifecycle), четыре users-команды и шесть локальных команд. Сохраняются русская справка, явные --role фильтры своей роли, календарные дедлайны, теги, загрузки и id DESC. Проверка неизвестной группы через REST3 карточку применяется к REST3 scan, после остальных predicates; REST1 deadline scan сохраняет свой серверный GROUP_ID и полный route plan. Собственные задачи также можно явно выбирать через --role responsible, но task:my этот change не добавляет.
+После обновления dev каталог включает 42 task-команды (30 исходных, четыре result, семь lifecycle и отдельно доставленную task:my по #118), четыре users-команды и шесть локальных команд. Сохраняются русская справка, явные --role фильтры своей роли, календарные дедлайны, теги, загрузки и id DESC. Проверка неизвестной группы через REST3 карточку применяется к REST3 scan, после остальных predicates; REST1 deadline scan сохраняет свой серверный GROUP_ID и полный route plan. Собственные задачи также можно явно выбирать через --role responsible, но task:my этот change не добавляет.
 
 ### Проверенные источники API
 
@@ -109,3 +109,7 @@ b24cli task:list --where '{"groupId":7,"responsibleId":99,"status":"completed"}'
 ## Migration Plan
 
 Реализовать change в отдельном worktree от актуальной dev. После unit/static/command checks и записанного portal evidence обновить README/development command catalogue, verify, архивировать change и обновить двустороннюю issue trace. Доставка — PR в dev; release 0.2.0 отдельным процессом. При откате кода удалить семь registrations/routes вместе с документацией; откат CLI не отменяет уже выполненные действия на портале.
+
+## Reconciliation after task:my delivery — 2026-10-14
+
+Issue #118 / merged PR #122 adds task:my independently of lifecycle. The active registration delta is rebased to the canonical 42-command block and preserves the lifecycle coverage scenario. task-mvp-scope records 17 remaining post-MVP exclusions and 42 current task commands; the historical 0.1.0 exclusion list is unchanged. Canonical normalized statements from #114 remain intact so future lifecycle sync cannot regress the inventory or strict validation. No lifecycle runtime or authorization behavior changes in this reconciliation.
