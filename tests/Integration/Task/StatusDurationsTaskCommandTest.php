@@ -68,6 +68,7 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
     private function reopenedFixture(): int
     {
         $id = $this->createTask(fields: ['needsControl' => false, 'requireResult' => false]);
+        $receipt = ['taskId' => $id, 'steps' => []];
         foreach ([LifecycleAction::Start, LifecycleAction::Complete, LifecycleAction::Renew, LifecycleAction::Start, LifecycleAction::Complete, LifecycleAction::Renew, LifecycleAction::Complete] as $action) {
             // Keep this arithmetic fixture's boundaries in distinct seconds; equal-time ordering is tested offline.
             usleep(1100000);
@@ -75,7 +76,10 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
             $expected = match ($action) {
                 LifecycleAction::Start => 'in_progress', LifecycleAction::Complete => 'completed', default => 'pending'
             };
-            self::assertSame($expected, $this->card($id, ['status'])['status']);
+            $card = $this->card($id, ['status', 'statusChanged', 'changed']);
+            self::assertSame($expected, $card['status']);
+            $receipt['steps'][] = ['action' => $action->value, 'card' => $card];
+            file_put_contents($this->root() . '/var/cache/reopened-' . $this->name() . '.json', json_encode($receipt, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT) . "\n");
         }
 
         return $id;
@@ -91,7 +95,13 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
         $this->reviewCycle(5000000, 'five-second-review-cycle-history.json', true);
     }
 
-    private function reviewCycle(int $delayMicroseconds, string $receiptName, bool $waitInCompleted = false): void
+    #[Group('long-running')]
+    public function testLongReviewAndReopenCyclePreservesMoreThanFiftyStatusEvents(): void
+    {
+        $this->reviewCycle(5000000, 'long-review-reopen-history.json', true, 8);
+    }
+
+    private function reviewCycle(int $delayMicroseconds, string $receiptName, bool $waitInCompleted = false, int $cycles = 1): void
     {
         [$id, $executorApi] = $this->controlledTask();
         $rest1TaskLifecycleAdapter = new \Bitrix24\CLI\Infrastructure\Bitrix24\Rest1TaskLifecycleAdapter($executorApi);
@@ -102,27 +112,36 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
         self::assertSame('pending', $initial['status']);
         self::assertTrue($initial['needsControl']);
         self::assertNotSame($initial['creator']['id'], $initial['responsible']['id']);
-        $receipt = ['taskId' => $id, 'apiVersions' => ['1.0', '3.0'], 'initial' => $initial, 'delaySeconds' => $delayMicroseconds / 1000000];
+        $receipt = ['taskId' => $id, 'apiVersions' => ['1.0', '3.0'], 'initial' => $initial, 'delaySeconds' => $delayMicroseconds / 1000000, 'cycles' => $cycles];
         try {
             $receipt['creationBefore'] = $this->creationReadback($id);
             $baseline = $this->captureHistory($id);
             $receipt['baseline'] = $baseline;
             $seen = array_column($baseline['events'], null, 'id');
             $previous = '2';
-            foreach ([
+            $cycle = [
                 [LifecycleAction::Start, 'in_progress', '3'],
                 [LifecycleAction::Complete, 'supposedly_completed', '4'],
                 [LifecycleAction::Disapprove, 'pending', '2'],
                 [LifecycleAction::Start, 'in_progress', '3'],
                 [LifecycleAction::Complete, 'supposedly_completed', '4'],
                 [LifecycleAction::Approve, 'completed', '5'],
-            ] as [$action, $expected, $rawStatus]) {
+            ];
+            $actions = [];
+            for ($iteration = 0; $iteration < $cycles; $iteration++) {
+                array_push($actions, ...$cycle);
+                if ($iteration < $cycles - 1) {
+                    $actions[] = [LifecycleAction::Renew, 'pending', '2'];
+                }
+            }
+
+            foreach ($actions as [$action, $expected, $rawStatus]) {
                 $started = hrtime(true);
                 usleep($delayMicroseconds);
                 $delayElapsedSeconds = (hrtime(true) - $started) / 1000000000;
                 self::assertGreaterThanOrEqual($delayMicroseconds / 1000000, $delayElapsedSeconds);
                 $beforeAction = $this->card($id, ['status', 'statusChanged', 'changed']);
-                if (in_array($action, [LifecycleAction::Disapprove, LifecycleAction::Approve], true)) {
+                if (in_array($action, [LifecycleAction::Disapprove, LifecycleAction::Approve, LifecycleAction::Renew], true)) {
                     $this->transition($id, $action);
                 } else {
                     $rest1TaskLifecycleAdapter->transition($id, $action);
@@ -133,6 +152,7 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
                 $new = array_values(array_filter($history['events'], static fn (array $row): bool => !isset($seen[$row['id']])));
                 $snapshots[] = ['action' => $action->value, 'delayElapsedSeconds' => $delayElapsedSeconds, 'beforeCard' => $beforeAction, 'expectedStatus' => $expected, 'card' => $card, 'history' => $history, 'newEvents' => $new];
                 $receipt['steps'] = $snapshots;
+                file_put_contents($this->root() . '/var/cache/' . $receiptName, json_encode($receipt, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
                 self::assertSame($expected, $card['status']);
                 $statusEvents = array_values(array_filter($new, static fn (array $row): bool => in_array($row['field'], ['STATUS', 'REAL_STATUS'], true)));
                 self::assertNotEmpty($statusEvents, 'Each controlled action needs an independently captured history event.');
@@ -156,6 +176,13 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
             $receipt['creationAfter'] = $this->creationReadback($id);
             if ($waitInCompleted) {
                 $receipt['controlledResult'] = $this->controlledArithmetic($receipt);
+                self::assertTrue($result['meta']['complete'], json_encode($result['meta']));
+                self::assertSame($receipt['controlledResult']['data']['totals'], $result['data']['totals']);
+            }
+
+            if ($cycles > 1) {
+                self::assertCount($cycles * 7 - 1, $result['data']['observedTransitions']);
+                self::assertGreaterThan(50, count($result['data']['observedTransitions']));
             }
 
             self::assertNotContains('write', array_column($result['meta']['apiCalls'], 'effect'));
@@ -247,12 +274,18 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
 
         $asOf = new \DateTimeImmutable();
         $result = $this->invoke(['task:status:durations', $id, '--as-of', $asOf->format(DATE_ATOM)]);
+        $receipt = json_decode(file_get_contents($this->root() . '/var/cache/reopened-' . $this->name() . '.json'), true, 512, JSON_THROW_ON_ERROR);
+        $receipt['commandResult'] = $result;
+        $receipt['history'] = $history->data['evidence'];
+        $receipt['creation'] = $creation;
+        file_put_contents($this->root() . '/var/cache/exact-reopen-cli-result.json', json_encode($receipt, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT) . "\n");
         $cutoff = new \DateTimeImmutable($result['data']['asOf']);
         $previous = $created;
         $totals = ['pending' => 0, 'in_progress' => 0, 'completed' => 0];
         $mapping = ['2' => 'pending', '3' => 'in_progress', '5' => 'completed'];
         $status = 'pending';
-        foreach ($events as $event) {
+        foreach ($events as $index => $event) {
+            self::assertSame($receipt['steps'][$index]['card']['statusChanged'], $event['createdDate']);
             self::assertSame($status, $mapping[(string) $event['from']] ?? $event['from']);
             $time = new \DateTimeImmutable($event['createdDate']);
             $totals[$status] += CalendarInstant::elapsed($previous, $time);
@@ -269,22 +302,46 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
         self::assertTrue($result['meta']['complete']);
     }
 
-    public function testUnverifiedNavigationReturnsNullTotalsWithReopenEvidence(): void
+    public function testConcurrentChangeReturnsNullTotalsAfterCompleteCollection(): void
     {
         $id = $this->reopenedFixture();
-        $history = $this->evidence($id);
-        if (!in_array('history-navigation-unverified', $history->meta['reasons'], true)) {
-            self::markTestSkipped('This portal now supplies navigation; partial navigation is covered by offline fixtures.');
-        }
+        $api = new readonly class ($this->api, $this->tasks, $id) implements \Bitrix24\CLI\Infrastructure\Bitrix24\ApiTransport {
+            public function __construct(private \Bitrix24\CLI\Infrastructure\Bitrix24\ApiTransport $api, private \Bitrix24\CLI\Infrastructure\Bitrix24\Rest3TaskAdapter $tasks, private int $id)
+            {
+            }
 
-        $result = $this->invoke(['task:status:durations', $id], [3]);
-        self::assertFalse($result['meta']['historyComplete']);
+            public function call(string $method, int $version, array $parameters, string $effect = 'read'): \Bitrix24\CLI\Infrastructure\Bitrix24\ApiResponse
+            {
+                $response = $this->api->call($method, $version, $parameters, $effect);
+                if ($method === 'tasks.task.history.list') {
+                    usleep(1100000);
+                    $this->tasks->update($this->id, ['title' => 'Controlled concurrent fixture update']);
+                }
+
+                return $response;
+            }
+        };
+        $app = (new \Bitrix24\CLI\Bootstrap\ApplicationFactory())->create($this->root(), $api);
+        $result = $this->invoke(['task:status:durations', $id], [3], $app);
+        self::assertTrue($result['meta']['historyComplete']);
         self::assertFalse($result['meta']['complete']);
-        self::assertContains('history-navigation-unverified', $result['meta']['reasons']);
+        self::assertContains('concurrent-task-change', $result['meta']['reasons']);
         self::assertSame('partial-result', $result['error']['code']);
         self::assertSame([null], array_values(array_unique($result['data']['totals'])));
         self::assertGreaterThanOrEqual(7, count($result['data']['observedTransitions']));
         self::assertNotContains('write', array_column($result['meta']['apiCalls'], 'effect'));
         self::assertSame('completed', $this->card($id, ['status'])['status']);
+    }
+
+    public function testNewPendingTaskUsesCreatedWithoutInventingAStatusTransition(): void
+    {
+        $id = $this->createTask();
+        usleep(1100000);
+        $creation = $this->creationReadback($id);
+        $result = $this->invoke(['task:status:durations', $id]);
+        self::assertSame('pending', $this->card($id, ['status'])['status']);
+        self::assertSame(CalendarInstant::elapsed(new \DateTimeImmutable($creation['created']), new \DateTimeImmutable($result['data']['asOf'])), $result['data']['totals']['pending']);
+        self::assertSame([], $result['data']['observedTransitions']);
+        self::assertCount(1, $result['data']['intervals']);
     }
 }

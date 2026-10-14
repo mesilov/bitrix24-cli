@@ -25,8 +25,8 @@
 
 - `task:status:durations`: календарные интервалы повторных открытий, единая
   граница `asOf`, evidence и строгий partial-result с `null` вместо точных
-  сумм при недоказанной полноте. Offline-расчёт и live partial проверены;
-  exact live acceptance остаётся открытой. Добавлен live-сценарий возврата с контроля
+  сумм при недоказанной полноте. Offline-арифметика, ordinary CLI exact totals и live race partial проверены;
+  terminal REST1 next exhaustion исправлена, total не обязателен. Добавлен live-сценарий возврата с контроля
   и повторного принятия; history-код 4 распознаётся как supposedly_completed.
   Добавлены HTTP/SDK/adapter проверка изоляции и 60 контрольных изменений,
   regression fixture для старых NEW/DELETE с тем же TASK_ID и воспроизводимый

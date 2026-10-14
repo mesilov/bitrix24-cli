@@ -45,3 +45,5 @@ Follow-up investigation: synced dev 464bdb9; raw HTTP and legacy TASK_ID establi
 Five-second follow-up: a separate live test holds each review-cycle state for at least five seconds and records the actual command output. See five-second-review-cycle-check.md; 10/11 tasks complete, exact acceptance still open.
 
 Current-lifetime follow-up: REST3 id/created before/after now separates earlier history without discarding evidence, and confirmed numeric STATUS 2/3/4/5 is accepted. Fresh controlled fixture arithmetic has non-null totals (current-lifetime-check.md); ordinary CLI still has a separate navigation gate. 13/14 tasks complete; exact ordinary CLI acceptance 3.3 remains open.
+
+Final exhaustion correction: mandatory MCP article Особенности списочных методов explicitly defines absent next as the terminal page, and total as optional. Adapter now follows this protocol and rejects contradictory counters; earlier navigation blocker is superseded. Public history:list format is preserved but its false terminal partial is corrected. Ordinary CLI exact arithmetic and race/new-pending checks now pass; long >50 status acceptance is retained separately.

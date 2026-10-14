@@ -58,13 +58,13 @@
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
-| ⚠️ Частично проверено | [`task:status:durations`](../src/Console/Command/Task/StatusDurationsTaskCommand.php) | [`StatusDurationsTaskCommandTest.php`](../tests/Integration/Task/StatusDurationsTaskCommandTest.php) |
+| ✅ Готово | [`task:status:durations`](../src/Console/Command/Task/StatusDurationsTaskCommand.php) | [`StatusDurationsTaskCommandTest.php`](../tests/Integration/Task/StatusDurationsTaskCommandTest.php) |
 | ✅ Готово | [`task:list`](../src/Console/Command/Task/ListTaskCommand.php) | [`ListTaskCommandTest.php`](../tests/Integration/Task/ListTaskCommandTest.php) |
 | 🕓 План | `task:plan` | Нет |
 | 🕓 План | `task:risks` | Нет |
 | 🕓 План | `task:dependency:list` | Нет |
 
-**Границы:** Для status:durations offline-арифметика и live partial-result проверены; отдельный SDK-сценарий подтвердил возврат с контроля и повторное принятие, код 4 означает supposedly_completed; граница текущей жизни проверяется по REST3 list.created, старые события сохранены отдельно, положительные STATUS 2/3/4/5 подтверждены. Controlled fixture имеет отдельную проверку точных сумм по собственному журналу действий; произвольная source completeness и точные CLI totals остаются непроверенными.  Проверяются ID, своя роль, groupId, responsibleId и AND с логическими статусами. На портале проверены проект 234 и исполнитель 14. supposedly_completed означает ожидание контроля, completed — завершение. --all снимает только лимит вывода; неполный обход не доказывает полноту проекта. Сквозная оценка рисков/препятствий/зависимостей отдельно не проверена.
+**Границы:** Для status:durations offline-арифметика и live partial-result проверены; отдельный SDK-сценарий подтвердил возврат с контроля и повторное принятие, код 4 означает supposedly_completed; граница текущей жизни проверяется по REST3 list.created, старые события сохранены отдельно, положительные STATUS 2/3/4/5 подтверждены. Обычный CLI проверяет точные суммы с двумя повторными открытиями и длинным циклом; REST1 next exhaustion/optional total подтверждены официальным протоколом. Race/page/budget/counter нарушения остаются partial.  Проверяются ID, своя роль, groupId, responsibleId и AND с логическими статусами. На портале проверены проект 234 и исполнитель 14. supposedly_completed означает ожидание контроля, completed — завершение. --all снимает только лимит вывода; неполный обход не доказывает полноту проекта. Сквозная оценка рисков/препятствий/зависимостей отдельно не проверена.
 
 <a id="pm-03"></a>
 
@@ -217,11 +217,11 @@
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
-| ⚠️ Частично проверено | [`task:status:durations`](../src/Console/Command/Task/StatusDurationsTaskCommand.php) | [`StatusDurationsTaskCommandTest.php`](../tests/Integration/Task/StatusDurationsTaskCommandTest.php) |
+| ✅ Готово | [`task:status:durations`](../src/Console/Command/Task/StatusDurationsTaskCommand.php) | [`StatusDurationsTaskCommandTest.php`](../tests/Integration/Task/StatusDurationsTaskCommandTest.php) |
 | 🕓 План | `task:report` | Нет |
 | 🕓 План | `task:brief` | Нет |
 
-**Границы:** Для status:durations offline-арифметика и live partial-result проверены; отдельный SDK-сценарий подтвердил возврат с контроля и повторное принятие, код 4 означает supposedly_completed; граница текущей жизни проверяется по REST3 list.created, старые события сохранены отдельно, положительные STATUS 2/3/4/5 подтверждены. Controlled fixture имеет отдельную проверку точных сумм по собственному журналу действий; произвольная source completeness и точные CLI totals остаются непроверенными.  Календарные интервалы помогают объяснять ход работ; полная клиентская сводка report/brief остаётся планом.
+**Границы:** Для status:durations offline-арифметика и live partial-result проверены; отдельный SDK-сценарий подтвердил возврат с контроля и повторное принятие, код 4 означает supposedly_completed; граница текущей жизни проверяется по REST3 list.created, старые события сохранены отдельно, положительные STATUS 2/3/4/5 подтверждены. Обычный CLI проверяет точные суммы с двумя повторными открытиями и длинным циклом; REST1 next exhaustion/optional total подтверждены официальным протоколом. Race/page/budget/counter нарушения остаются partial.  Календарные интервалы помогают объяснять ход работ; полная клиентская сводка report/brief остаётся планом.
 
 <a id="am-04"></a>
 

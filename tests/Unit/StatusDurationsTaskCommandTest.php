@@ -38,7 +38,7 @@ final class StatusDurationsTaskCommandTest extends TestCase
             return new ApiResponse(['list' => [
                 ['id' => 1, 'field' => 'NEW', 'createdDate' => '2026-10-01T00:00:00Z', 'value' => ['from' => null, 'to' => null]],
                 ['id' => 2, 'field' => 'REAL_STATUS', 'createdDate' => '2026-10-01T00:00:10Z', 'user' => ['id' => 7], 'value' => ['from' => 'pending', 'to' => 'in_progress']],
-            ]], null, $navigation ? 2 : null);
+            ]], null, $navigation ? 2 : 3); // Missing next contradicts total=3 with only two rows.
         });
     }
 

@@ -39,7 +39,7 @@ CLI SHALL сохранять отдельный интервал каждого 
 - **THEN** каждый вход сохранён, интервалы повторных статусов суммированы, первое завершение не обрывает расчёт
 
 ### Requirement: Initial state has an explicit boundary
-Начальный интервал SHALL начинаться только с доказанной даты создания и доказанного начального статуса при полной непротиворечивой истории. Первое наблюдаемое событие не SHALL заменять создание. Текущий статус не SHALL подставляться вместо начального; отсутствие доказательства SHALL оставлять unknown boundary.
+Начальный интервал SHALL начинаться только с доказанной даты создания и доказанного начального статуса при полной непротиворечивой истории. Первое наблюдаемое событие не SHALL заменять создание. Текущий статус без доказательства отсутствия переходов не SHALL подставляться вместо начального; отсутствие доказательства SHALL оставлять unknown boundary.
 
 #### Scenario: History starts after task creation
 - **WHEN** NEW/дата создания или начальный статус не доказаны
@@ -48,6 +48,10 @@ CLI SHALL сохранять отдельный интервал каждого 
 #### Scenario: Stable current creation separates earlier lifetimes
 - **WHEN** two REST3 list reads confirm the same task id and created instant
 - **THEN** only strictly earlier valid-dated events are excluded from current-lifetime arithmetic, excluded evidence is retained, and the initial boundary uses created even when NEW is logged later; identity errors or changing creation evidence remain partial
+
+#### Scenario: Newly created task has no status transition
+- **WHEN** source history is exhausted, current creation is stable, there are no current status events and matching before/after snapshots have statusChanged=null
+- **THEN** the unchanged supported status is proven as initial and occupies created→asOf without an invented transition; missing statusChanged or an incomplete source still prevents exact totals
 
 ### Requirement: Single reproducible as-of boundary
 CLI SHALL зафиксировать default asOf до сетевых чтений. Расчёт SHALL использовать полуоткрытые интервалы [enteredAt,leftAt), обрезанные asOf, и секунды абсолютного времени. События после asOf SHALL служить проверке цепочки, не начисляя время. asOf ранее доказанного создания SHALL отклоняться как usage-error после чтения данных.
@@ -73,6 +77,13 @@ CLI SHALL зафиксировать default asOf до сетевых чтени
 #### Scenario: API fails after a first page
 - **WHEN** часть событий получена, затем API возвращает ошибку или отсутствует подтверждённая навигация
 - **THEN** события и исходная причина сохранены, complete=false/exit3; исходная ошибка до любых данных сохраняет существующий error contract
+
+### Requirement: Documented REST1 exhaustion
+REST1 traversal SHALL follow next until absent under the documented exhaustion contract. Total SHALL be optional but consistent if supplied; row count SHALL NOT replace next.
+
+#### Scenario: Documented terminal response has no total
+- **WHEN** valid REST1 history responses are followed via next until it is absent, without a total counter
+- **THEN** API collection exhaustion is confirmed without a row-count heuristic; malformed lists, conflicting counters, page errors and budgets still prevent exact totals
 
 ### Requirement: Traceable intervals and status totals
 JSON SHALL содержать asOf, интервалы enteredAt/leftAt/status/seconds/verified/evidenceIds и totals по статусам. Для неизвестных границ/распределения seconds SHALL быть null; разница наблюдаемых timestamps SHALL выводиться отдельно как elapsedBetweenEventsSeconds, без обещания времени в статусе. Human/plain SHALL показывать неизвестность и причины, а не ноль.

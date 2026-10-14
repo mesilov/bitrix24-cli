@@ -2,7 +2,7 @@
 
 ## Outcome
 
-Implementation is reviewable as a **draft**, not complete acceptance. Task 3.3 remains open: exact live calendar totals cannot be proved with the available portal history. No merge/closure/archive is warranted from partial acceptance. Primary dirty checkout was preserved; work ran in /private/tmp/bitrix24-cli-issue-121, existing PR #123 targets dev.
+Final status: implementation and ordinary CLI exact acceptance are verified. The earlier draft/navigation blocker below is historical and superseded by the documented REST1 exhaustion correction and final acceptance receipts. Primary dirty checkout was preserved; work ran in /private/tmp/bitrix24-cli-issue-121, existing PR #123 targets dev.
 
 ## Follow-up: history identity and exhaustive-source investigation
 
@@ -106,3 +106,15 @@ Full unit suite **817 tests / 12859 assertions**, pass; targeted **18 tests / 18
 Final gates: license/CS Fixer/PHPStan/Rector pass, CLI reference matches 56 public commands, OpenSpec all-strict 26 passed/0 failed, diff check clean. Unrelated define-task-jtbd archive INFO advisories remain separate.
 
 Fresh dev 5eb733f (#42 partial portal acceptance evidence) merged in fc38758. CHANGELOG entries from both branches preserved; LiveTaskCommandTestCase retains incomplete while adding acceptance/passed and safe evidence-directory creation. Incomplete cases are not marked passed. New support code prompted live repetition after merge: **1 test / 83 assertions**, pass, owned cleanup successful; current-lifetime-post-merge-check.json retains the exact new result. Post-merge lint-all passes; OpenSpec all-strict **25 passed/0 failed**. Production calculator/handler unchanged by merge, no repeat of the already passing full unit suite needed.
+
+## Final verification — REST1 exhaustion and ordinary CLI acceptance
+
+All tracked tasks complete. Completeness: 16/16 tasks; correctness: declared read-only command/calendar/source/lifetime/chain/asOf/tail/output scenarios checked through unit and live fixtures; coherence: shared ports/scanner/runtime, no trust flags or fake pagination. No critical archive blocker remains. Historical draft reports and partial receipts are retained rather than overwritten.
+
+Official MCP search (doc_type=other) and article-details returned Особенности списочных методов. It explicitly states absent next is the terminal page and total is optional. The old adapter required an unnecessary total, producing false incomplete results. The corrected adapter follows next, validates any provided total, rejects malformed list shape and preserves page errors/no progress/budget. history:list shape is unchanged; its incorrect terminal partial is fixed.
+
+Full unit: **821 tests / 12901 assertions**, pass. Mandatory lint-all passes. Source terminal cases cover 1/50/58 rows without total and 55 across two pages; counter contradictions and malformed data remain failures. Existing conflict/chain/race/budget/offset tests remain. Live ordinary CLI two reopenings, concurrent update partial and new pending task: **3 tests / 62 assertions**, all pass. Repeated exact case saves independent per-action statusChanged readbacks in exact-reopen-cli-acceptance.json.
+
+User-requested long cycle: 8 reviews, 8 disapprovals, 7 reopenings, **55 transitions** and >=5-second pauses; initial probe **1 test/526 assertions**, final ordinary CLI acceptance **1 test/528 assertions**, both with successful owned cleanup. Task 6372 ordinary CLI complete=true/exit0 totals pending=92, in_progress=97, supposedly_completed=96, completed=48.621677, deferred/declined=0; sum=333.621677 matches created→asOf and the independent action journal. No injected API total/next or controlled-only override is used by the CLI. See long-status-history-acceptance.json and ordinary-cli-status-durations-result.json.
+
+Source confidence is bounded by the authenticated API collection contract, not a guarantee against server retention/permissions or arbitrary server defects. Current-lifetime created, supported status mapping and stable tail remain required. Old NEW/DELETE stay excluded evidence; their server-allocation cause is not invented. Negative/unknown statuses, malformed dates, ambiguous equal-time order, current DELETE, conflicting IDs, total inconsistencies and races still produce null exact totals.

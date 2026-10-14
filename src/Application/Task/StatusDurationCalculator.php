@@ -153,7 +153,8 @@ final class StatusDurationCalculator
             throw Failure::usage('--as-of precedes the proven creation of the task.');
         }
 
-        $initial = $ordered[0]['fromStatus'] ?? null;
+        $unchanged = $historyComplete && $scopeCreated instanceof \DateTimeImmutable && $observed === [] && array_key_exists('statusChanged', $before) && array_key_exists('statusChanged', $after) && $before['statusChanged'] === null && $after['statusChanged'] === null && ($before['status'] ?? null) === ($after['status'] ?? null) && is_string($after['status'] ?? null) && TaskStatus::tryFrom($after['status']) !== null;
+        $initial = $ordered[0]['fromStatus'] ?? ($unchanged ? $after['status'] : null);
         if ($initial === null) {
             $reasons[] = 'initial-status-unverified';
         }
@@ -169,7 +170,7 @@ final class StatusDurationCalculator
 
         $last = $ordered === [] ? null : $ordered[array_key_last($ordered)];
         $tailDate = CalendarInstant::parse($after['statusChanged'] ?? null);
-        if ($last === null || $last['toStatus'] !== ($after['status'] ?? null) || !$tailDate instanceof \DateTimeImmutable || $tailDate != $last['date'] || !CalendarInstant::parse($before['changed'] ?? null) instanceof \DateTimeImmutable || !CalendarInstant::parse($after['changed'] ?? null) instanceof \DateTimeImmutable) {
+        if ((!$unchanged && ($last === null || $last['toStatus'] !== ($after['status'] ?? null) || !$tailDate instanceof \DateTimeImmutable || $tailDate != $last['date'])) || !CalendarInstant::parse($before['changed'] ?? null) instanceof \DateTimeImmutable || !CalendarInstant::parse($after['changed'] ?? null) instanceof \DateTimeImmutable) {
             $reasons[] = 'tail-state-unverified';
         }
 

@@ -333,7 +333,7 @@ REST1 маршруты не добавляются и strict-rest3 остаёт�
 командой `task:status:durations`. Внутренний результат сохраняет исходные
 нормализованные события, включая конфликтующие дубликаты ID, offsets и
 совокупность причин navigation/page-error/budget. Публичный `task:history:list`
-сохраняет прежний JSON/TSV и дедупликацию. Budget — 10000 событий; ID не является
+сохраняет JSON/TSV и дедупликацию; ошибочная terminal completeness исправлена. Budget — 10000 событий; ID не является
 доказательством порядка событий с одинаковым timestamp.
 
 `StatusDurationCalculator` строит полуоткрытые интервалы в абсолютном времени;
@@ -402,3 +402,17 @@ Controlled five-second test отдельно сверяет known current event 
 В receipt раздельно сохраняются commandResult (обычный CLI/source gate) и
 controlledResult (точные суммы для собственной fixture). API pagination не
 подделывается; доказательства из теста не передаются обычной CLI-команде.
+
+REST1 completeness исправлена по официальному контракту списочных методов:
+next ведёт на следующую страницу; его отсутствие означает конец, total
+необязателен. Никакого вывода по короткой странице/числу 50 нет. Если total
+передан, он обязан согласоваться с offset/returned/next; malformed payload,
+page-error, no-progress и budget сохраняют partial. Это исправляет и прежнее
+ложное partial-result history:list, сохраняя формат событий.
+
+Длинный сценарий `testLongReviewAndReopenCyclePreservesMoreThanFiftyStatusEvents`
+(group long-running) выполняет 8 review/reopen циклов, 55 переходов и 5-секундные
+паузы. Запуск занимает около 5.5 минут; receipt long-review-reopen-history.json
+обновляется после каждого действия. Ordinary CLI totals сверяются с independent
+control journal. Live race отдельно требует null totals; новая pending task
+с полной историей и statusChanged=null начинает интервал с created.

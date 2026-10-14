@@ -143,13 +143,13 @@ final class ScanningAndBindingTest extends TestCase
         self::assertSame(['taskId' => 123, 'fields' => ['AUDITORS' => [2]]], $api->calls[1]['parameters']);
     }
 
-    public function testHistoryMissingNavigationDeclaresPartialAndNormalizesNestedValues(): void
+    public function testHistoryTerminalResponseWithoutCountersIsCompleteAndNormalizesNestedValues(): void
     {
         [$run] = $this->invoke(['task:history:list', '123'], static fn (): ApiResponse => new ApiResponse(['list' => [['id' => 1, 'createdDate' => '2026-10-09', 'user' => ['id' => 2], 'field' => 'TITLE', 'value' => ['from' => 'old', 'to' => 'new']]]]));
-        self::assertSame(3, $run->status, $run->stdout);
+        self::assertSame(0, $run->status, $run->stdout);
         self::assertSame('old', $run->json()['data']['items'][0]['from']);
         self::assertSame(2, $run->json()['data']['items'][0]['userId']);
-        self::assertFalse($run->json()['meta']['complete']);
+        self::assertTrue($run->json()['meta']['complete']);
     }
 
     public function testAttachmentPartialLedgerDoesNotRetryLostWrite(): void
