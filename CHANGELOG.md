@@ -32,6 +32,12 @@
 
 ### Добавлено
 
+- OpenSpec упрощения README и руководств архивирован после merge: сохранены
+  13 выполненных задач, результаты проверки таблиц/примеров и подтверждение
+  успешного CI. В таблицах README установлен итоговый порядок
+  «Команда / Назначение / Пример»; актуальные спецификации не меняются
+  ([#134](https://github.com/mesilov/bitrix24-cli/issues/134)).
+
 - Подготовлена проверка уже собранных RC-пакетов на native Linux/macOS/Windows:
   checksums и source/version metadata, help/about всех 56 публичных команд,
   offline JSON/errors и запуск вне checkout без credentials; результаты RC
