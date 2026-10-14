@@ -68,7 +68,7 @@ CLI SHALL зафиксировать default asOf до сетевых чтени
 - **THEN** точный хвост и итог не выдаются, вывод содержит соответствующую причину неполноты
 
 ### Requirement: Incomplete history never yields exact totals
-Неполная история, ошибка страницы, исчерпание бюджета, недоказанная navigation или противоречие SHALL приводить к complete=false, reasons и exit3. Наблюдаемые переходы SHALL сохраняться, но exact totals SHALL быть null. Согласованные соседние события не SHALL доказывать отсутствие пропущенных циклов; промежутки не SHALL называться гарантированной нижней границей времени в статусе.
+Неполная история, ошибка страницы, исчерпание бюджета, недоказанная navigation или противоречие SHALL приводить к complete=false, reasons и exit3. Наблюдаемые переходы SHALL сохраняться, но все единицы каждого totals.<status> SHALL быть null. Согласованные соседние события не SHALL доказывать отсутствие пропущенных циклов; промежутки не SHALL называться гарантированной нижней границей времени в статусе.
 
 #### Scenario: A hidden reopen cycle fits between observed events
 - **WHEN** источник неполон, хотя from/to соседних полученных переходов согласованы
@@ -86,18 +86,26 @@ REST1 traversal SHALL follow next until absent under the documented exhaustion c
 - **THEN** API collection exhaustion is confirmed without a row-count heuristic; malformed lists, conflicting counters, page errors and budgets still prevent exact totals
 
 ### Requirement: Traceable intervals and status totals
-JSON SHALL содержать asOf, интервалы enteredAt/leftAt/status/seconds/verified/evidenceIds и totals по статусам. Для неизвестных границ/распределения seconds SHALL быть null; разница наблюдаемых timestamps SHALL выводиться отдельно как elapsedBetweenEventsSeconds, без обещания времени в статусе. Human/plain SHALL показывать неизвестность и причины, а не ноль.
+JSON SHALL сохранять asOf, даты/offset, status/verified/evidenceIds и elapsedBetweenEventsSeconds. Интервалы и totals.<status> SHALL содержать seconds (целое), hours/days (до двух знаков), независимо округлённые из точной длительности; дни равны 24 часам. Для неподтверждённого времени все три единицы SHALL быть null. precision SHALL отсутствовать. Human/plain SHALL показывать единицы и неизвестность.
 
 #### Scenario: Known boundaries but unverified occupancy
 - **WHEN** две временные метки известны, но полнота между ними не доказана
 - **THEN** elapsedBetweenEventsSeconds содержит разницу, seconds=null и verified=false; суммарное время по статусу не подменяется этой разницей
 
+#### Scenario: Independent rounding after aggregation
+- **WHEN** completed содержит 48.621677 точных секунд либо повторные интервалы одного статуса дробные
+- **THEN** итог содержит seconds=49, hours=0.01, days=0; часы/дни не вычисляются из округлённых секунд, totals не складываются из округлённых интервалов, precision отсутствует
+
 ### Requirement: Calendar time is distinct from effort
-Расчёт SHALL учитывать календарные секунды, включая ночи, выходные и время в completed. CLI SHALL явно обозначать эту семантику; данные трудозатрат не SHALL смешиваться с длительностями. Точные totals при полном диапазоне SHALL покрывать создание → asOf без пропусков/двойного начисления.
+Расчёт SHALL учитывать все часы понедельника–пятницы по серверному offset создания, исключая субботу и воскресенье, включая ночи и время completed. Рабочие часы, праздники и трудозатраты SHALL не влиять на расчёт. Точные суммы до округления SHALL покрывать только буднюю часть создания → asOf без пропусков/двойного начисления; meta SHALL указывать weekdays-only и календарь.
 
 #### Scenario: Calendar period exceeds tracked effort
-- **WHEN** задача находится в статусе сутки, а учёт времени содержит один час
+- **WHEN** задача находится в статусе будние сутки, а учёт времени содержит один час
 - **THEN** календарная длительность составляет 86400 секунд независимо от трудозатрат и рабочих часов
+
+#### Scenario: Weekend between Friday and Monday
+- **WHEN** интервал длится от пятницы 16:00 до понедельника 10:00 в серверном offset
+- **THEN** учитываются 18 часов, days=0.75, seconds=64800; суббота/воскресенье не учитываются, исходные даты сохранены
 
 ### Requirement: Independent evidence and documentation
 Команда SHALL иметь отдельные offline проверки и собственный integration test с SDK fixtures/readback/cleanup. Live evidence SHALL проверять повторное открытие и фактические status timestamps; документированный partial-result SHALL проверяться отдельно и не доказывать точные totals. PM-02/AM-03 SHALL трассироваться на команду и файл её теста в JTBD документации.
@@ -117,3 +125,10 @@ JSON SHALL содержать asOf, интервалы enteredAt/leftAt/status/s
 #### Scenario: Controlled fixture has an independent complete action journal
 - **WHEN** the live fixture's known current event ID set, initial state, per-action readbacks, stable created and final state are independently verified
 - **THEN** the pure production calculator can return exact totals for that explicitly controlled coverage and preserve a separate ordinary CLI result; this does not infer arbitrary history completeness or fabricate API pagination
+
+### Requirement: Server offset determines excluded weekdays
+CLI SHALL определять выходные по offset подтверждённого серверного created (либо единственного доказанного NEW). Пользовательская timezone и timezone хоста SHALL не применяться. Offset SHALL быть указан в meta.calendar с timezoneSource=server; календарь не SHALL угадывать IANA-зону или праздники. Вычисления SHALL учитывать абсолютную asOf, сохраняя исходные строковые даты.
+
+#### Scenario: Client UTC cutoff crosses server midnight
+- **WHEN** asOf выражен в UTC, а created и история имеют серверный offset +03:00 либо отрицательный offset
+- **THEN** суббота/воскресенье определяются в указанном серверном offset независимо от зоны хоста, а enteredAt/leftAt и evidence остаются исходными
