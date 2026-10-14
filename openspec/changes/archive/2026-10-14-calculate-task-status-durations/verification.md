@@ -4,6 +4,14 @@
 
 Final status: implementation and ordinary CLI exact acceptance are verified. The earlier draft/navigation blocker below is historical and superseded by the documented REST1 exhaustion correction and final acceptance receipts. Primary dirty checkout was preserved; work ran in /private/tmp/bitrix24-cli-issue-121, existing PR #123 targets dev.
 
+## Delivery and archive verification
+
+- Final implementation head: `0466d963fe8526659f2e49f04eac2bf03021e7c2`; integrated dev `357cb7a` added only unrelated lifecycle archive/spec updates. Strict OpenSpec: 25 passed/0 failed; runtime and live evidence were unaffected.
+- PR [#123](https://github.com/mesilov/bitrix24-cli/pull/123) is verified MERGED into dev at `da8c14865e06d9d8b09728e042dbf8d69516b249`, 14.10.2026 08:03:01 UTC. Issue #121 is verified CLOSED at 08:03:23 UTC.
+- Final head CI: 13/13 checks successful. First [worktree isolation attempt](https://github.com/mesilov/bitrix24-cli/actions/runs/38531833364/attempts/1) failed on Docker Hub HTTP 500 resolving php:8.4-cli-alpine3.23; downloaded lifecycle.log proves that external failure. [Second attempt](https://github.com/mesilov/bitrix24-cli/actions/runs/38531833364/attempts/2) succeeded without code changes.
+- Archive sync creates task-status-durations with all 12 requirements and preserves its authored Purpose. task-console-runtime changes only Exact MVP command registration to 43 task commands, retaining all four scenarios including lifecycle integration coverage and all unrelated content. Specs strict validation: 20 passed/0 failed.
+- The change moved to `openspec/changes/archive/2026-10-14-calculate-task-status-durations/` after 4/4 artifacts and 16/16 tracked tasks were verified complete. CLI archive used --skip-specs because the inline semantic sync had already been independently checked, rather than skipping the sync.
+
 ## Follow-up: history identity and exhaustive-source investigation
 
 OpenSpec task 3.5 completed; **9/10 tasks**, with 3.3 still critical/open. Fresh origin/dev 464bdb9 was integrated in 79201db; CHANGELOG conflict was resolved preserving both #121 and #58. Runtime completeness and creation gates were not changed.
