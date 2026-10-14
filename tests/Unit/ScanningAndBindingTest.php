@@ -26,14 +26,14 @@ final class ScanningAndBindingTest extends TestCase
     {
         [$run, $api] = $this->invoke(['task:find', '--title', 'ЁЖ[', '--limit', '1'], static function ($method, $version, array $params): ApiResponse {
             if ($params['pagination']['offset'] === 0) {
-                return new ApiResponse(['items' => array_map(static fn ($id): array => ['id' => $id, 'title' => $id === 2 ? 'ёж[ first' : 'other'], range(1, 50))]);
+                return new ApiResponse(['items' => array_map(static fn ($id): array => ['id' => $id, 'title' => $id === 50 ? 'ёж[ first' : 'other'], range(51, 2))]);
             }
 
-            return new ApiResponse(['items' => [['id' => 51, 'title' => 'Ёж[ second']]]);
+            return new ApiResponse(['items' => [['id' => 1, 'title' => 'Ёж[ second']]]);
         });
         self::assertSame(0, $run->status, $run->stdout);
         $json = $run->json();
-        self::assertSame([['id' => 2, 'title' => 'ёж[ first']], $json['data']['items']);
+        self::assertSame([['id' => 50, 'title' => 'ёж[ first']], $json['data']['items']);
         self::assertSame(51, $json['meta']['scanned']);
         self::assertSame(2, $json['meta']['matched']);
         self::assertTrue($json['meta']['limitApplied']);
@@ -143,13 +143,13 @@ final class ScanningAndBindingTest extends TestCase
         self::assertSame(['taskId' => 123, 'fields' => ['AUDITORS' => [2]]], $api->calls[1]['parameters']);
     }
 
-    public function testHistoryMissingNavigationDeclaresPartialAndNormalizesNestedValues(): void
+    public function testHistoryTerminalResponseWithoutCountersIsCompleteAndNormalizesNestedValues(): void
     {
         [$run] = $this->invoke(['task:history:list', '123'], static fn (): ApiResponse => new ApiResponse(['list' => [['id' => 1, 'createdDate' => '2026-10-09', 'user' => ['id' => 2], 'field' => 'TITLE', 'value' => ['from' => 'old', 'to' => 'new']]]]));
-        self::assertSame(3, $run->status, $run->stdout);
+        self::assertSame(0, $run->status, $run->stdout);
         self::assertSame('old', $run->json()['data']['items'][0]['from']);
         self::assertSame(2, $run->json()['data']['items'][0]['userId']);
-        self::assertFalse($run->json()['meta']['complete']);
+        self::assertTrue($run->json()['meta']['complete']);
     }
 
     public function testAttachmentPartialLedgerDoesNotRetryLostWrite(): void

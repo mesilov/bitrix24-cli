@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Bitrix24\CLI\Application\Task;
 
 use Bitrix24\CLI\Application\Failure;
-use Bitrix24\CLI\Application\Task\Port\TaskGateway;
 
 final class FieldSchema
 {
@@ -44,16 +43,24 @@ final class FieldSchema
         }
 
         foreach ($fields as $name => $value) {
+            if (in_array($name, ['tags', 'TAGS'], true)) {
+                throw Failure::usage('Tags are read-only in REST 3.0 fields; use --tag or --clear-tags.');
+            }
+
+            if ($name === 'userFields' || str_starts_with((string) $name, 'UF_')) {
+                throw Failure::usage('Use --user-fields/--user-fields-file for custom task values; REST3 userFields is read-only.');
+            }
+
             if (!in_array($name, self::WRITABLE, true)) {
-                throw Failure::usage('Unsupported or read-only task field; status changes are outside MVP.');
+                throw Failure::usage('Unsupported or read-only task field; use lifecycle commands for status changes.');
             }
 
             if (in_array($name, ['creatorId', 'responsibleId', 'groupId', 'parentId', 'estimatedTime'], true) && (!is_int($value) || $value < 1)) {
                 throw Failure::usage('ID and time estimate fields must be positive integers.');
             }
 
-            if ($name === 'allowsTimeTracking' && !is_bool($value)) {
-                throw Failure::usage('allowsTimeTracking must be a JSON boolean.');
+            if (in_array($name, ['allowsTimeTracking', 'needsControl', 'allowsChangeDeadline', 'addInReport', 'requireResult'], true) && !is_bool($value)) {
+                throw Failure::usage($name . ' must be a JSON boolean.');
             }
 
             if ($name === 'title' && (!is_string($value) || trim($value) === '')) {
@@ -64,13 +71,27 @@ final class FieldSchema
                 throw Failure::usage('Description must be a string; an empty string clears it.');
             }
 
-            if (in_array($name, ['deadline', 'startPlan', 'endPlan'], true)) {
+            if ($name === 'priority' && !in_array($value, ['high', 'average', 'low'], true)) {
+                throw Failure::usage('priority must be high, average or low.');
+            }
+
+            if ($name === 'mark' && !in_array($value, ['positive', 'negative', 'none'], true)) {
+                throw Failure::usage('mark must be positive, negative or none.');
+            }
+
+            if (in_array($name, ['crmItemIds', 'fileIds'], true)) {
+                if (!is_array($value) || !array_is_list($value) || array_any($value, static fn ($item): bool => $name === 'fileIds' ? !is_int($item) || $item < 1 : !is_string($item) || preg_match('/^(?:L|D|C|CO|SI|T[0-9]+)_[0-9]+$/', $item) !== 1)) {
+                    throw Failure::usage($name . ' must be a JSON list of documented identifiers.');
+                }
+            }
+
+            if (in_array($name, ['deadline', 'startPlan', 'endPlan'], true) && $value !== null) {
                 self::date($value);
             }
         }
 
         if ($create && array_diff(['title', 'creatorId', 'responsibleId'], array_keys($fields)) !== []) {
-            throw Failure::usage('Missing required creation fields: ' . implode(', ', array_diff(['title', 'creatorId', 'responsibleId'], array_keys($fields))) . '. Supply explicit values or matching profile defaults.');
+            throw Failure::usage('Missing required creation fields: ' . implode(', ', array_diff(['title', 'creatorId', 'responsibleId'], array_keys($fields))) . '. Supply --title, --creator and --responsible or matching profile defaults.');
         }
     }
 
@@ -93,32 +114,4 @@ final class FieldSchema
         return $value;
     }
 
-    public static function validateWritable(TaskGateway $gateway, array $fields): void
-    {
-        $schema = [];
-        foreach ($gateway->fields() as $field) {
-            $schema[$field['name'] ?? ''] = $field;
-        }
-
-        foreach ($fields as $name => $value) {
-            $field = $schema[$name] ?? null;
-            if (!is_array($field) || ($field['editable'] ?? null) !== true) {
-                throw Failure::usage('An advanced field is not confirmed editable by the portal metadata.');
-            }
-
-            $type = $field['type'] ?? null;
-            $valid = match ($type) {
-                'integer', 'int' => is_int($value), 'boolean', 'bool' => is_bool($value),
-                'string', 'datetime', 'date' => is_string($value), 'array' => is_array($value),
-                'object' => is_array($value) || is_object($value), default => false,
-            };
-            if (($field['multiple'] ?? false) === true) {
-                $valid = is_array($value);
-            }
-
-            if (!$valid) {
-                throw Failure::usage('An advanced field has an unsupported or mismatched metadata type.');
-            }
-        }
-    }
 }

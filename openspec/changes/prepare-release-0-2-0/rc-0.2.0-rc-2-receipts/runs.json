@@ -1,0 +1,215 @@
+{
+  "intermediate": {
+    "id": 38544589313,
+    "html_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38544589313",
+    "event": "push",
+    "head_branch": "builds",
+    "head_sha": "6931fd0440143878f6a19601bd87bbcfd51cbe70",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-14T09:44:40Z",
+    "updated_at": "2026-10-14T09:52:59Z"
+  },
+  "intermediate_jobs": [
+    {
+      "name": "Validate development or RC source",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38544589313/job/115787394244",
+      "started_at": "2026-10-14T09:44:43Z",
+      "completed_at": "2026-10-14T09:44:50Z"
+    },
+    {
+      "name": "packages / Windows amd64 package",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38544589313/job/115787457278",
+      "started_at": "2026-10-14T09:44:52Z",
+      "completed_at": "2026-10-14T09:50:26Z"
+    },
+    {
+      "name": "packages / macOS arm64 package",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38544589313/job/115787457481",
+      "started_at": "2026-10-14T09:44:56Z",
+      "completed_at": "2026-10-14T09:48:20Z"
+    },
+    {
+      "name": "packages / Linux amd64 package",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38544589313/job/115787457576",
+      "started_at": "2026-10-14T09:44:53Z",
+      "completed_at": "2026-10-14T09:52:16Z"
+    },
+    {
+      "name": "packages / Verify release archive set",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38544589313/job/115790444794",
+      "started_at": "2026-10-14T09:52:18Z",
+      "completed_at": "2026-10-14T09:52:58Z"
+    }
+  ],
+  "package": {
+    "id": 38545765746,
+    "html_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38545765746",
+    "event": "push",
+    "head_branch": "0.2.0-rc-2",
+    "head_sha": "6931fd0440143878f6a19601bd87bbcfd51cbe70",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-14T09:54:22Z",
+    "updated_at": "2026-10-14T10:17:24Z"
+  },
+  "package_jobs": [
+    {
+      "name": "Validate development or RC source",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38545765746/job/115791299928",
+      "started_at": "2026-10-14T09:54:25Z",
+      "completed_at": "2026-10-14T09:54:30Z"
+    },
+    {
+      "name": "packages / Linux amd64 package",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38545765746/job/115791347328",
+      "started_at": "2026-10-14T09:54:32Z",
+      "completed_at": "2026-10-14T10:17:00Z"
+    },
+    {
+      "name": "packages / macOS arm64 package",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38545765746/job/115791347363",
+      "started_at": "2026-10-14T09:54:37Z",
+      "completed_at": "2026-10-14T10:11:40Z"
+    },
+    {
+      "name": "packages / Windows amd64 package",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38545765746/job/115791347397",
+      "started_at": "2026-10-14T09:54:32Z",
+      "completed_at": "2026-10-14T10:16:07Z"
+    },
+    {
+      "name": "packages / Verify release archive set",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38545765746/job/115800298282",
+      "started_at": "2026-10-14T10:17:03Z",
+      "completed_at": "2026-10-14T10:17:23Z"
+    }
+  ],
+  "acceptance": {
+    "id": 38548634484,
+    "html_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38548634484",
+    "event": "workflow_dispatch",
+    "head_branch": "feature/109-verify-rc2-binaries",
+    "head_sha": "d6cb248ce313155dfee8e22d8430c19b4a4e1a8c",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-14T10:18:24Z",
+    "updated_at": "2026-10-14T10:19:40Z"
+  },
+  "acceptance_jobs": [
+    {
+      "name": "Verify windows-amd64 RC archive",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38548634484/job/115800862590",
+      "started_at": "2026-10-14T10:18:28Z",
+      "completed_at": "2026-10-14T10:19:38Z"
+    },
+    {
+      "name": "Verify linux-amd64 RC archive",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38548634484/job/115800862806",
+      "started_at": "2026-10-14T10:18:28Z",
+      "completed_at": "2026-10-14T10:19:17Z"
+    },
+    {
+      "name": "Verify macos-arm64 RC archive",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38548634484/job/115800862938",
+      "started_at": "2026-10-14T10:18:33Z",
+      "completed_at": "2026-10-14T10:19:07Z"
+    }
+  ],
+  "tag": {
+    "node_id": "TA_kwDOVACKONoAKDMzZTU3YTg0Yjc5MzY0OGZiZDdjYTBlYzdiZGM3NmMwN2IzNzYyYmM",
+    "sha": "33e57a84b793648fbd7ca0ec7bdc76c07b3762bc",
+    "url": "https://api.github.com/repos/mesilov/bitrix24-cli/git/tags/33e57a84b793648fbd7ca0ec7bdc76c07b3762bc",
+    "tagger": {
+      "name": "mesilov",
+      "email": "mesilov.maxim@gmail.com",
+      "date": "2026-10-14T09:54:18Z"
+    },
+    "object": {
+      "sha": "6931fd0440143878f6a19601bd87bbcfd51cbe70",
+      "type": "commit",
+      "url": "https://api.github.com/repos/mesilov/bitrix24-cli/git/commits/6931fd0440143878f6a19601bd87bbcfd51cbe70"
+    },
+    "tag": "0.2.0-rc-2",
+    "message": "Release candidate 0.2.0-rc-2 from accepted builds snapshot; no Release publication\n",
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null,
+      "verified_at": null
+    }
+  },
+  "artifacts": [
+    {
+      "id": 11885960685,
+      "name": "b24cli-release-assets",
+      "size_in_bytes": 80094095,
+      "expired": false,
+      "expires_at": "2026-11-13T10:17:17Z"
+    },
+    {
+      "id": 11885875758,
+      "name": "b24cli-linux-amd64",
+      "size_in_bytes": 130495593,
+      "expired": false,
+      "expires_at": "2026-10-21T10:16:36Z"
+    },
+    {
+      "id": 11885222730,
+      "name": "b24cli-windows-amd64",
+      "size_in_bytes": 132339169,
+      "expired": false,
+      "expires_at": "2026-10-21T10:15:56Z"
+    },
+    {
+      "id": 11885152155,
+      "name": "b24cli-macos-arm64",
+      "size_in_bytes": 135297471,
+      "expired": false,
+      "expires_at": "2026-10-21T10:11:24Z"
+    },
+    {
+      "id": 11885028548,
+      "name": "mesilov~bitrix24-cli~C3VU62.dockerbuild",
+      "size_in_bytes": 112738,
+      "expired": false,
+      "expires_at": "2027-01-12T09:54:23Z"
+    }
+  ],
+  "release_readback": [
+    {
+      "isDraft": false,
+      "isLatest": true,
+      "isPrerelease": false,
+      "publishedAt": "2026-10-12T07:22:59Z",
+      "tagName": "0.1.0"
+    }
+  ]
+}

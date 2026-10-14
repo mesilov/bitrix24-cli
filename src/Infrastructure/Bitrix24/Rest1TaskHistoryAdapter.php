@@ -18,7 +18,7 @@ final readonly class Rest1TaskHistoryAdapter implements TaskHistoryGateway
     {
         $result = $this->api->call('tasks.task.history.list', 1, ['taskId' => $taskId, 'start' => $offset, ...$query]);
         $rows = $result->result['list'] ?? null;
-        if (!is_array($rows)) {
+        if (!is_array($rows) || !array_is_list($rows) || array_any($rows, static fn (mixed $row): bool => !is_array($row))) {
             throw new Failure('api-error', 'The task history response has an unsupported shape.');
         }
 
@@ -27,7 +27,9 @@ final readonly class Rest1TaskHistoryAdapter implements TaskHistoryGateway
             'userId' => $row['user']['id'] ?? null, 'field' => $row['field'] ?? null,
             'from' => $row['value']['from'] ?? null, 'to' => $row['value']['to'] ?? null,
         ], $rows);
-        // Empty response proves exhaustion; a nonempty page without navigation does not.
-        return new Page($items, $result->next, $rows === [] || $result->next !== null || ($result->total !== null && $offset + count($rows) >= $result->total));
+        // REST1: absent next marks the terminal page; total is optional, never row-count guessing.
+        $returned = $offset + count($rows);
+        $consistent = $result->total === null || ($result->next === null ? $returned === $result->total : $returned < $result->total);
+        return new Page($items, $result->next, $consistent);
     }
 }

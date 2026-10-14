@@ -10,7 +10,7 @@ import unittest
 
 BUILD = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(BUILD))
-from source import git, release_commit, verify_checkout
+from source import git, rc_commit, release_commit, verify_checkout
 
 
 class SourceChecks(unittest.TestCase):
@@ -90,6 +90,34 @@ class SourceChecks(unittest.TestCase):
         self.assertEqual(release_commit(self.root, 'v0.2.0', self.tip), self.tip)
         with self.assertRaisesRegex(ValueError, 'differs from the selected'):
             release_commit(self.root, '0.1.0', self.tip)
+
+    def test_numbered_rc_tags_allow_selected_builds_history_without_main(self):
+        git(self.root, 'switch', '--quiet', '-c', 'builds')
+        (self.root / 'src/application.txt').write_text('selected dev snapshot\n')
+        selected = self.commit('candidate one')
+        git(self.root, 'tag', '0.2.0-rc-1', selected)
+        (self.root / 'src/application.txt').write_text('next selected snapshot\n')
+        next_candidate = self.commit('candidate two')
+        git(self.root, 'tag', '-a', '0.2.0-rc-2', next_candidate, '-m', 'candidate two')
+        git(self.root, 'update-ref', 'refs/remotes/origin/builds', next_candidate)
+        self.assertEqual(rc_commit(self.root, '0.2.0-rc-1', selected), selected)
+        self.assertEqual(rc_commit(self.root, '0.2.0-rc-2', next_candidate), next_candidate)
+        with self.assertRaisesRegex(ValueError, 'RC tags require development packaging'):
+            release_commit(self.root, '0.2.0-rc-1')
+        with self.assertRaisesRegex(ValueError, 'differs from the selected candidate'):
+            rc_commit(self.root, '0.2.0-rc-1', next_candidate)
+
+    def test_invalid_or_unselected_rc_tags_fail_before_packaging(self):
+        git(self.root, 'update-ref', 'refs/remotes/origin/builds', self.tip)
+        for tag in ['0.2.0', '0.2.0-rc-0', '0.2.0-rc-01', 'v0.2.0-rc-1', '0.2.0-rc-x']:
+            with self.subTest(tag=tag), self.assertRaisesRegex(ValueError, 'RC tag must use'):
+                rc_commit(self.root, tag)
+        git(self.root, 'switch', '--quiet', '-c', 'feature/unselected')
+        (self.root / 'src/application.txt').write_text('not promoted into builds\n')
+        unselected = self.commit('unselected')
+        git(self.root, 'tag', '0.2.0-rc-3', unselected)
+        with self.assertRaisesRegex(ValueError, 'reachable from origin/builds'):
+            rc_commit(self.root, '0.2.0-rc-3', unselected)
 
     def test_feature_tag_and_non_version_tag_are_rejected(self):
         git(self.root, 'switch', '--quiet', '-c', 'feature/test')

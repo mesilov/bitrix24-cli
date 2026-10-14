@@ -43,5 +43,9 @@
 ## Трассировка переноса
 
 - #4 остаётся в 0.1.0 с выполненной реализацией/внутренним CI; внешняя fork-часть — [#41](https://github.com/mesilov/bitrix24-cli/issues/41), [proposal](../openspec/changes/verify-external-fork-ci/proposal.md).
-- #10 остаётся в 0.1.0 с выполненным research/runtime/happy-path scope; непроверенные части — [#42](https://github.com/mesilov/bitrix24-cli/issues/42), [proposal](../openspec/changes/complete-task-portal-acceptance/proposal.md).
+- #10 остаётся в 0.1.0 с выполненным research/runtime/happy-path scope; непроверенные части — [#42](https://github.com/mesilov/bitrix24-cli/issues/42), [proposal](../openspec/changes/archive/2026-10-14-complete-task-portal-acceptance/proposal.md).
 - В новых changes все future tasks остаются unchecked. Завершённые add-ci-linters (10/10) и design-task-console-architecture (42/42) проверены и архивированы 12.10.2026; общий статус их архива не является доказательством перенесённых тестов.
+
+## Дополнительный срез #42 от 14.10.2026
+
+[Verification](../openspec/changes/archive/2026-10-14-complete-task-portal-acceptance/verification.md): передача второму пользователю подтверждена независимым readback; исходное RC evidence не переписано. Второй пользователь имеет admin=true, поэтому restricted-role приёмка остаётся открытой. File membership не подтверждён (REST3 fileIds=null). Time navigation с известными тремя записями вернула две при complete=true/exit 0; полнота не подтверждена и обнаружен дефект. History сохраняет partial/exit 3. Пользователь остановил дальнейшие live проверки и разрешил частичный merge в dev; issue #42 закрывается по прямому решению пользователя без полной приёмки.

@@ -1,0 +1,1800 @@
+{
+  "verifiedAt": "2026-10-14T06:30:51+00:00",
+  "apiVersions": [
+    "1.0",
+    "3.0"
+  ],
+  "sdkVersion": "3.7.0",
+  "operatorStatement": "No database restore, reinitialization or manual task ID counter change is known to the operator.",
+  "largeFixture": {
+    "taskIds": {
+      "A": 6308,
+      "B": 6310
+    },
+    "baselines": {
+      "A": {
+        "request": {
+          "taskId": 6308,
+          "order": {
+            "createdDate": "ASC"
+          }
+        },
+        "httpStatus": 200,
+        "rootKeys": [
+          "result",
+          "time"
+        ],
+        "resultKeys": [
+          "list"
+        ],
+        "rootNext": null,
+        "rootTotal": null,
+        "nestedNext": null,
+        "nestedTotal": null,
+        "dtoNext": null,
+        "dtoTotal": null,
+        "rawEqualsDto": true,
+        "ids": [
+          16380,
+          16500,
+          23590
+        ],
+        "events": [
+          {
+            "id": 16380,
+            "createdDate": "2026-02-23T07:49:52+03:00",
+            "field": "NEW",
+            "value": {
+              "from": null,
+              "to": null
+            },
+            "userId": 1
+          },
+          {
+            "id": 16500,
+            "createdDate": "2026-02-23T07:50:14+03:00",
+            "field": "DELETE",
+            "value": {
+              "from": null,
+              "to": null
+            },
+            "userId": 1
+          },
+          {
+            "id": 23590,
+            "createdDate": "2026-10-14T09:19:03+03:00",
+            "field": "NEW",
+            "value": {
+              "from": null,
+              "to": null
+            },
+            "userId": 1
+          }
+        ]
+      },
+      "B": {
+        "request": {
+          "taskId": 6310,
+          "order": {
+            "createdDate": "ASC"
+          }
+        },
+        "httpStatus": 200,
+        "rootKeys": [
+          "result",
+          "time"
+        ],
+        "resultKeys": [
+          "list"
+        ],
+        "rootNext": null,
+        "rootTotal": null,
+        "nestedNext": null,
+        "nestedTotal": null,
+        "dtoNext": null,
+        "dtoTotal": null,
+        "rawEqualsDto": true,
+        "ids": [
+          16382,
+          16502,
+          23592
+        ],
+        "events": [
+          {
+            "id": 16382,
+            "createdDate": "2026-02-23T07:49:52+03:00",
+            "field": "NEW",
+            "value": {
+              "from": null,
+              "to": null
+            },
+            "userId": 1
+          },
+          {
+            "id": 16502,
+            "createdDate": "2026-02-23T07:50:14+03:00",
+            "field": "DELETE",
+            "value": {
+              "from": null,
+              "to": null
+            },
+            "userId": 1
+          },
+          {
+            "id": 23592,
+            "createdDate": "2026-10-14T09:19:04+03:00",
+            "field": "NEW",
+            "value": {
+              "from": null,
+              "to": null
+            },
+            "userId": 1
+          }
+        ]
+      }
+    },
+    "isolationA": {
+      "request": {
+        "taskId": 6308,
+        "order": {
+          "createdDate": "ASC"
+        }
+      },
+      "httpStatus": 200,
+      "rootKeys": [
+        "result",
+        "time"
+      ],
+      "resultKeys": [
+        "list"
+      ],
+      "rootNext": null,
+      "rootTotal": null,
+      "nestedNext": null,
+      "nestedTotal": null,
+      "dtoNext": null,
+      "dtoTotal": null,
+      "rawEqualsDto": true,
+      "ids": [
+        16380,
+        16500,
+        23590,
+        23594
+      ],
+      "events": [
+        {
+          "id": 16380,
+          "createdDate": "2026-02-23T07:49:52+03:00",
+          "field": "NEW",
+          "value": {
+            "from": null,
+            "to": null
+          },
+          "userId": 1
+        },
+        {
+          "id": 16500,
+          "createdDate": "2026-02-23T07:50:14+03:00",
+          "field": "DELETE",
+          "value": {
+            "from": null,
+            "to": null
+          },
+          "userId": 1
+        },
+        {
+          "id": 23590,
+          "createdDate": "2026-10-14T09:19:03+03:00",
+          "field": "NEW",
+          "value": {
+            "from": null,
+            "to": null
+          },
+          "userId": 1
+        },
+        {
+          "id": 23594,
+          "createdDate": "2026-10-14T09:19:04+03:00",
+          "field": "STATUS",
+          "value": {
+            "from": "2",
+            "to": "3"
+          },
+          "userId": 1
+        }
+      ]
+    },
+    "isolationB": {
+      "request": {
+        "taskId": 6310,
+        "order": {
+          "createdDate": "ASC"
+        }
+      },
+      "httpStatus": 200,
+      "rootKeys": [
+        "result",
+        "time"
+      ],
+      "resultKeys": [
+        "list"
+      ],
+      "rootNext": null,
+      "rootTotal": null,
+      "nestedNext": null,
+      "nestedTotal": null,
+      "dtoNext": null,
+      "dtoTotal": null,
+      "rawEqualsDto": true,
+      "ids": [
+        16382,
+        16502,
+        23592
+      ],
+      "events": [
+        {
+          "id": 16382,
+          "createdDate": "2026-02-23T07:49:52+03:00",
+          "field": "NEW",
+          "value": {
+            "from": null,
+            "to": null
+          },
+          "userId": 1
+        },
+        {
+          "id": 16502,
+          "createdDate": "2026-02-23T07:50:14+03:00",
+          "field": "DELETE",
+          "value": {
+            "from": null,
+            "to": null
+          },
+          "userId": 1
+        },
+        {
+          "id": 23592,
+          "createdDate": "2026-10-14T09:19:04+03:00",
+          "field": "NEW",
+          "value": {
+            "from": null,
+            "to": null
+          },
+          "userId": 1
+        }
+      ]
+    },
+    "knownTitleUpdates": [
+      "b24cli-history-probe-A-change-1",
+      "b24cli-history-probe-A-change-2",
+      "b24cli-history-probe-A-change-3",
+      "b24cli-history-probe-A-change-4",
+      "b24cli-history-probe-A-change-5",
+      "b24cli-history-probe-A-change-6",
+      "b24cli-history-probe-A-change-7",
+      "b24cli-history-probe-A-change-8",
+      "b24cli-history-probe-A-change-9",
+      "b24cli-history-probe-A-change-10",
+      "b24cli-history-probe-A-change-11",
+      "b24cli-history-probe-A-change-12",
+      "b24cli-history-probe-A-change-13",
+      "b24cli-history-probe-A-change-14",
+      "b24cli-history-probe-A-change-15",
+      "b24cli-history-probe-A-change-16",
+      "b24cli-history-probe-A-change-17",
+      "b24cli-history-probe-A-change-18",
+      "b24cli-history-probe-A-change-19",
+      "b24cli-history-probe-A-change-20",
+      "b24cli-history-probe-A-change-21",
+      "b24cli-history-probe-A-change-22",
+      "b24cli-history-probe-A-change-23",
+      "b24cli-history-probe-A-change-24",
+      "b24cli-history-probe-A-change-25",
+      "b24cli-history-probe-A-change-26",
+      "b24cli-history-probe-A-change-27",
+      "b24cli-history-probe-A-change-28",
+      "b24cli-history-probe-A-change-29",
+      "b24cli-history-probe-A-change-30",
+      "b24cli-history-probe-A-change-31",
+      "b24cli-history-probe-A-change-32",
+      "b24cli-history-probe-A-change-33",
+      "b24cli-history-probe-A-change-34",
+      "b24cli-history-probe-A-change-35",
+      "b24cli-history-probe-A-change-36",
+      "b24cli-history-probe-A-change-37",
+      "b24cli-history-probe-A-change-38",
+      "b24cli-history-probe-A-change-39",
+      "b24cli-history-probe-A-change-40",
+      "b24cli-history-probe-A-change-41",
+      "b24cli-history-probe-A-change-42",
+      "b24cli-history-probe-A-change-43",
+      "b24cli-history-probe-A-change-44",
+      "b24cli-history-probe-A-change-45",
+      "b24cli-history-probe-A-change-46",
+      "b24cli-history-probe-A-change-47",
+      "b24cli-history-probe-A-change-48",
+      "b24cli-history-probe-A-change-49",
+      "b24cli-history-probe-A-change-50",
+      "b24cli-history-probe-A-change-51",
+      "b24cli-history-probe-A-change-52",
+      "b24cli-history-probe-A-change-53",
+      "b24cli-history-probe-A-change-54",
+      "b24cli-history-probe-A-change-55",
+      "b24cli-history-probe-A-change-56",
+      "b24cli-history-probe-A-change-57",
+      "b24cli-history-probe-A-change-58",
+      "b24cli-history-probe-A-change-59",
+      "b24cli-history-probe-A-change-60"
+    ],
+    "responses": [
+      {
+        "request": {
+          "taskId": 6308
+        },
+        "httpStatus": 200,
+        "rootKeys": [
+          "result",
+          "time"
+        ],
+        "resultKeys": [
+          "list"
+        ],
+        "rootNext": null,
+        "rootTotal": null,
+        "nestedNext": null,
+        "nestedTotal": null,
+        "dtoNext": null,
+        "dtoTotal": null,
+        "rawEqualsDto": true,
+        "ids": [
+          16380,
+          16500,
+          23590,
+          23594,
+          23596,
+          23598,
+          23600,
+          23602,
+          23604,
+          23606,
+          23608,
+          23610,
+          23612,
+          23614,
+          23616,
+          23618,
+          23620,
+          23622,
+          23624,
+          23626,
+          23628,
+          23630,
+          23632,
+          23634,
+          23636,
+          23638,
+          23640,
+          23642,
+          23644,
+          23646,
+          23648,
+          23650,
+          23652,
+          23654,
+          23656,
+          23658,
+          23660,
+          23662,
+          23664,
+          23666,
+          23668,
+          23670,
+          23672,
+          23674,
+          23676,
+          23678,
+          23680,
+          23682,
+          23684,
+          23686,
+          23688,
+          23690,
+          23692,
+          23694,
+          23696,
+          23698,
+          23700,
+          23702,
+          23704,
+          23706,
+          23708,
+          23710,
+          23712,
+          23714
+        ],
+        "events": [
+          {
+            "id": 16380,
+            "createdDate": "2026-02-23T07:49:52+03:00",
+            "field": "NEW",
+            "value": {
+              "from": null,
+              "to": null
+            },
+            "userId": 1
+          },
+          {
+            "id": 16500,
+            "createdDate": "2026-02-23T07:50:14+03:00",
+            "field": "DELETE",
+            "value": {
+              "from": null,
+              "to": null
+            },
+            "userId": 1
+          },
+          {
+            "id": 23590,
+            "createdDate": "2026-10-14T09:19:03+03:00",
+            "field": "NEW",
+            "value": {
+              "from": null,
+              "to": null
+            },
+            "userId": 1
+          },
+          {
+            "id": 23594,
+            "createdDate": "2026-10-14T09:19:04+03:00",
+            "field": "STATUS",
+            "value": {
+              "from": "2",
+              "to": "3"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23596,
+            "createdDate": "2026-10-14T09:19:05+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-d08b144edfbbd0b7",
+              "to": "b24cli-history-probe-A-change-1"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23598,
+            "createdDate": "2026-10-14T09:19:05+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-1",
+              "to": "b24cli-history-probe-A-change-2"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23600,
+            "createdDate": "2026-10-14T09:19:06+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-2",
+              "to": "b24cli-history-probe-A-change-3"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23602,
+            "createdDate": "2026-10-14T09:19:06+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-3",
+              "to": "b24cli-history-probe-A-change-4"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23604,
+            "createdDate": "2026-10-14T09:19:06+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-4",
+              "to": "b24cli-history-probe-A-change-5"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23606,
+            "createdDate": "2026-10-14T09:19:07+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-5",
+              "to": "b24cli-history-probe-A-change-6"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23608,
+            "createdDate": "2026-10-14T09:19:07+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-6",
+              "to": "b24cli-history-probe-A-change-7"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23610,
+            "createdDate": "2026-10-14T09:19:07+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-7",
+              "to": "b24cli-history-probe-A-change-8"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23612,
+            "createdDate": "2026-10-14T09:19:08+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-8",
+              "to": "b24cli-history-probe-A-change-9"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23614,
+            "createdDate": "2026-10-14T09:19:08+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-9",
+              "to": "b24cli-history-probe-A-change-10"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23616,
+            "createdDate": "2026-10-14T09:19:08+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-10",
+              "to": "b24cli-history-probe-A-change-11"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23618,
+            "createdDate": "2026-10-14T09:19:09+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-11",
+              "to": "b24cli-history-probe-A-change-12"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23620,
+            "createdDate": "2026-10-14T09:19:09+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-12",
+              "to": "b24cli-history-probe-A-change-13"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23622,
+            "createdDate": "2026-10-14T09:19:10+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-13",
+              "to": "b24cli-history-probe-A-change-14"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23624,
+            "createdDate": "2026-10-14T09:19:10+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-14",
+              "to": "b24cli-history-probe-A-change-15"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23626,
+            "createdDate": "2026-10-14T09:19:11+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-15",
+              "to": "b24cli-history-probe-A-change-16"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23628,
+            "createdDate": "2026-10-14T09:19:11+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-16",
+              "to": "b24cli-history-probe-A-change-17"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23630,
+            "createdDate": "2026-10-14T09:19:12+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-17",
+              "to": "b24cli-history-probe-A-change-18"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23632,
+            "createdDate": "2026-10-14T09:19:12+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-18",
+              "to": "b24cli-history-probe-A-change-19"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23634,
+            "createdDate": "2026-10-14T09:19:13+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-19",
+              "to": "b24cli-history-probe-A-change-20"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23636,
+            "createdDate": "2026-10-14T09:19:13+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-20",
+              "to": "b24cli-history-probe-A-change-21"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23638,
+            "createdDate": "2026-10-14T09:19:14+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-21",
+              "to": "b24cli-history-probe-A-change-22"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23640,
+            "createdDate": "2026-10-14T09:19:14+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-22",
+              "to": "b24cli-history-probe-A-change-23"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23642,
+            "createdDate": "2026-10-14T09:19:15+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-23",
+              "to": "b24cli-history-probe-A-change-24"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23644,
+            "createdDate": "2026-10-14T09:19:15+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-24",
+              "to": "b24cli-history-probe-A-change-25"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23646,
+            "createdDate": "2026-10-14T09:19:16+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-25",
+              "to": "b24cli-history-probe-A-change-26"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23648,
+            "createdDate": "2026-10-14T09:19:16+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-26",
+              "to": "b24cli-history-probe-A-change-27"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23650,
+            "createdDate": "2026-10-14T09:19:17+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-27",
+              "to": "b24cli-history-probe-A-change-28"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23652,
+            "createdDate": "2026-10-14T09:19:18+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-28",
+              "to": "b24cli-history-probe-A-change-29"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23654,
+            "createdDate": "2026-10-14T09:19:18+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-29",
+              "to": "b24cli-history-probe-A-change-30"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23656,
+            "createdDate": "2026-10-14T09:19:19+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-30",
+              "to": "b24cli-history-probe-A-change-31"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23658,
+            "createdDate": "2026-10-14T09:19:19+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-31",
+              "to": "b24cli-history-probe-A-change-32"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23660,
+            "createdDate": "2026-10-14T09:19:19+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-32",
+              "to": "b24cli-history-probe-A-change-33"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23662,
+            "createdDate": "2026-10-14T09:19:20+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-33",
+              "to": "b24cli-history-probe-A-change-34"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23664,
+            "createdDate": "2026-10-14T09:19:20+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-34",
+              "to": "b24cli-history-probe-A-change-35"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23666,
+            "createdDate": "2026-10-14T09:19:21+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-35",
+              "to": "b24cli-history-probe-A-change-36"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23668,
+            "createdDate": "2026-10-14T09:19:21+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-36",
+              "to": "b24cli-history-probe-A-change-37"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23670,
+            "createdDate": "2026-10-14T09:19:22+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-37",
+              "to": "b24cli-history-probe-A-change-38"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23672,
+            "createdDate": "2026-10-14T09:19:22+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-38",
+              "to": "b24cli-history-probe-A-change-39"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23674,
+            "createdDate": "2026-10-14T09:19:23+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-39",
+              "to": "b24cli-history-probe-A-change-40"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23676,
+            "createdDate": "2026-10-14T09:19:23+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-40",
+              "to": "b24cli-history-probe-A-change-41"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23678,
+            "createdDate": "2026-10-14T09:19:24+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-41",
+              "to": "b24cli-history-probe-A-change-42"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23680,
+            "createdDate": "2026-10-14T09:19:24+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-42",
+              "to": "b24cli-history-probe-A-change-43"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23682,
+            "createdDate": "2026-10-14T09:19:25+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-43",
+              "to": "b24cli-history-probe-A-change-44"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23684,
+            "createdDate": "2026-10-14T09:19:25+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-44",
+              "to": "b24cli-history-probe-A-change-45"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23686,
+            "createdDate": "2026-10-14T09:19:26+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-45",
+              "to": "b24cli-history-probe-A-change-46"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23688,
+            "createdDate": "2026-10-14T09:19:26+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-46",
+              "to": "b24cli-history-probe-A-change-47"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23690,
+            "createdDate": "2026-10-14T09:19:27+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-47",
+              "to": "b24cli-history-probe-A-change-48"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23692,
+            "createdDate": "2026-10-14T09:19:27+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-48",
+              "to": "b24cli-history-probe-A-change-49"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23694,
+            "createdDate": "2026-10-14T09:19:28+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-49",
+              "to": "b24cli-history-probe-A-change-50"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23696,
+            "createdDate": "2026-10-14T09:19:28+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-50",
+              "to": "b24cli-history-probe-A-change-51"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23698,
+            "createdDate": "2026-10-14T09:19:29+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-51",
+              "to": "b24cli-history-probe-A-change-52"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23700,
+            "createdDate": "2026-10-14T09:19:29+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-52",
+              "to": "b24cli-history-probe-A-change-53"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23702,
+            "createdDate": "2026-10-14T09:19:30+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-53",
+              "to": "b24cli-history-probe-A-change-54"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23704,
+            "createdDate": "2026-10-14T09:19:30+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-54",
+              "to": "b24cli-history-probe-A-change-55"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23706,
+            "createdDate": "2026-10-14T09:19:31+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-55",
+              "to": "b24cli-history-probe-A-change-56"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23708,
+            "createdDate": "2026-10-14T09:19:31+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-56",
+              "to": "b24cli-history-probe-A-change-57"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23710,
+            "createdDate": "2026-10-14T09:19:32+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-57",
+              "to": "b24cli-history-probe-A-change-58"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23712,
+            "createdDate": "2026-10-14T09:19:32+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-58",
+              "to": "b24cli-history-probe-A-change-59"
+            },
+            "userId": 1
+          },
+          {
+            "id": 23714,
+            "createdDate": "2026-10-14T09:19:33+03:00",
+            "field": "TITLE",
+            "value": {
+              "from": "b24cli-history-probe-A-change-59",
+              "to": "b24cli-history-probe-A-change-60"
+            },
+            "userId": 1
+          }
+        ],
+        "returned": 64
+      },
+      {
+        "request": {
+          "taskId": 6308,
+          "start": 0
+        },
+        "httpStatus": 200,
+        "rootKeys": [
+          "result",
+          "time"
+        ],
+        "resultKeys": [
+          "list"
+        ],
+        "rootNext": null,
+        "rootTotal": null,
+        "nestedNext": null,
+        "nestedTotal": null,
+        "dtoNext": null,
+        "dtoTotal": null,
+        "rawEqualsDto": true,
+        "ids": [
+          16380,
+          16500,
+          23590,
+          23594,
+          23596,
+          23598,
+          23600,
+          23602,
+          23604,
+          23606,
+          23608,
+          23610,
+          23612,
+          23614,
+          23616,
+          23618,
+          23620,
+          23622,
+          23624,
+          23626,
+          23628,
+          23630,
+          23632,
+          23634,
+          23636,
+          23638,
+          23640,
+          23642,
+          23644,
+          23646,
+          23648,
+          23650,
+          23652,
+          23654,
+          23656,
+          23658,
+          23660,
+          23662,
+          23664,
+          23666,
+          23668,
+          23670,
+          23672,
+          23674,
+          23676,
+          23678,
+          23680,
+          23682,
+          23684,
+          23686,
+          23688,
+          23690,
+          23692,
+          23694,
+          23696,
+          23698,
+          23700,
+          23702,
+          23704,
+          23706,
+          23708,
+          23710,
+          23712,
+          23714
+        ],
+        "returned": 64
+      },
+      {
+        "request": {
+          "taskId": 6308,
+          "start": 50
+        },
+        "httpStatus": 200,
+        "rootKeys": [
+          "result",
+          "time"
+        ],
+        "resultKeys": [
+          "list"
+        ],
+        "rootNext": null,
+        "rootTotal": null,
+        "nestedNext": null,
+        "nestedTotal": null,
+        "dtoNext": null,
+        "dtoTotal": null,
+        "rawEqualsDto": true,
+        "ids": [
+          16380,
+          16500,
+          23590,
+          23594,
+          23596,
+          23598,
+          23600,
+          23602,
+          23604,
+          23606,
+          23608,
+          23610,
+          23612,
+          23614,
+          23616,
+          23618,
+          23620,
+          23622,
+          23624,
+          23626,
+          23628,
+          23630,
+          23632,
+          23634,
+          23636,
+          23638,
+          23640,
+          23642,
+          23644,
+          23646,
+          23648,
+          23650,
+          23652,
+          23654,
+          23656,
+          23658,
+          23660,
+          23662,
+          23664,
+          23666,
+          23668,
+          23670,
+          23672,
+          23674,
+          23676,
+          23678,
+          23680,
+          23682,
+          23684,
+          23686,
+          23688,
+          23690,
+          23692,
+          23694,
+          23696,
+          23698,
+          23700,
+          23702,
+          23704,
+          23706,
+          23708,
+          23710,
+          23712,
+          23714
+        ],
+        "returned": 64
+      },
+      {
+        "request": {
+          "taskId": 6308,
+          "start": 10000
+        },
+        "httpStatus": 200,
+        "rootKeys": [
+          "result",
+          "time"
+        ],
+        "resultKeys": [
+          "list"
+        ],
+        "rootNext": null,
+        "rootTotal": null,
+        "nestedNext": null,
+        "nestedTotal": null,
+        "dtoNext": null,
+        "dtoTotal": null,
+        "rawEqualsDto": true,
+        "ids": [
+          16380,
+          16500,
+          23590,
+          23594,
+          23596,
+          23598,
+          23600,
+          23602,
+          23604,
+          23606,
+          23608,
+          23610,
+          23612,
+          23614,
+          23616,
+          23618,
+          23620,
+          23622,
+          23624,
+          23626,
+          23628,
+          23630,
+          23632,
+          23634,
+          23636,
+          23638,
+          23640,
+          23642,
+          23644,
+          23646,
+          23648,
+          23650,
+          23652,
+          23654,
+          23656,
+          23658,
+          23660,
+          23662,
+          23664,
+          23666,
+          23668,
+          23670,
+          23672,
+          23674,
+          23676,
+          23678,
+          23680,
+          23682,
+          23684,
+          23686,
+          23688,
+          23690,
+          23692,
+          23694,
+          23696,
+          23698,
+          23700,
+          23702,
+          23704,
+          23706,
+          23708,
+          23710,
+          23712,
+          23714
+        ],
+        "returned": 64
+      },
+      {
+        "request": {
+          "taskId": 6308,
+          "start": -1
+        },
+        "httpStatus": 200,
+        "rootKeys": [
+          "result",
+          "time"
+        ],
+        "resultKeys": [
+          "list"
+        ],
+        "rootNext": null,
+        "rootTotal": null,
+        "nestedNext": null,
+        "nestedTotal": null,
+        "dtoNext": null,
+        "dtoTotal": null,
+        "rawEqualsDto": true,
+        "ids": [
+          16380,
+          16500,
+          23590,
+          23594,
+          23596,
+          23598,
+          23600,
+          23602,
+          23604,
+          23606,
+          23608,
+          23610,
+          23612,
+          23614,
+          23616,
+          23618,
+          23620,
+          23622,
+          23624,
+          23626,
+          23628,
+          23630,
+          23632,
+          23634,
+          23636,
+          23638,
+          23640,
+          23642,
+          23644,
+          23646,
+          23648,
+          23650,
+          23652,
+          23654,
+          23656,
+          23658,
+          23660,
+          23662,
+          23664,
+          23666,
+          23668,
+          23670,
+          23672,
+          23674,
+          23676,
+          23678,
+          23680,
+          23682,
+          23684,
+          23686,
+          23688,
+          23690,
+          23692,
+          23694,
+          23696,
+          23698,
+          23700,
+          23702,
+          23704,
+          23706,
+          23708,
+          23710,
+          23712,
+          23714
+        ],
+        "returned": 64
+      },
+      {
+        "request": {
+          "taskId": 6308,
+          "filter": {
+            "FIELD": "STATUS"
+          }
+        },
+        "httpStatus": 200,
+        "rootKeys": [
+          "result",
+          "time"
+        ],
+        "resultKeys": [
+          "list"
+        ],
+        "rootNext": null,
+        "rootTotal": null,
+        "nestedNext": null,
+        "nestedTotal": null,
+        "dtoNext": null,
+        "dtoTotal": null,
+        "rawEqualsDto": true,
+        "ids": [
+          23594
+        ],
+        "returned": 1
+      },
+      {
+        "request": {
+          "taskId": 6308,
+          "filter": {
+            "FIELD": "REAL_STATUS"
+          }
+        },
+        "httpStatus": 200,
+        "rootKeys": [
+          "result",
+          "time"
+        ],
+        "resultKeys": [
+          "list"
+        ],
+        "rootNext": null,
+        "rootTotal": null,
+        "nestedNext": null,
+        "nestedTotal": null,
+        "dtoNext": null,
+        "dtoTotal": null,
+        "rawEqualsDto": true,
+        "ids": [],
+        "returned": 0
+      },
+      {
+        "request": {
+          "taskId": 6308,
+          "filter": {
+            "FIELD": "NEW"
+          }
+        },
+        "httpStatus": 200,
+        "rootKeys": [
+          "result",
+          "time"
+        ],
+        "resultKeys": [
+          "list"
+        ],
+        "rootNext": null,
+        "rootTotal": null,
+        "nestedNext": null,
+        "nestedTotal": null,
+        "dtoNext": null,
+        "dtoTotal": null,
+        "rawEqualsDto": true,
+        "ids": [
+          16380,
+          23590
+        ],
+        "returned": 2
+      },
+      {
+        "request": {
+          "taskId": 6308,
+          "order": {
+            "createdDate": "DESC"
+          }
+        },
+        "httpStatus": 200,
+        "rootKeys": [
+          "result",
+          "time"
+        ],
+        "resultKeys": [
+          "list"
+        ],
+        "rootNext": null,
+        "rootTotal": null,
+        "nestedNext": null,
+        "nestedTotal": null,
+        "dtoNext": null,
+        "dtoTotal": null,
+        "rawEqualsDto": true,
+        "ids": [
+          16380,
+          16500,
+          23590,
+          23594,
+          23596,
+          23598,
+          23600,
+          23602,
+          23604,
+          23606,
+          23608,
+          23610,
+          23612,
+          23614,
+          23616,
+          23618,
+          23620,
+          23622,
+          23624,
+          23626,
+          23628,
+          23630,
+          23632,
+          23634,
+          23636,
+          23638,
+          23640,
+          23642,
+          23644,
+          23646,
+          23648,
+          23650,
+          23652,
+          23654,
+          23656,
+          23658,
+          23660,
+          23662,
+          23664,
+          23666,
+          23668,
+          23670,
+          23672,
+          23674,
+          23676,
+          23678,
+          23680,
+          23682,
+          23684,
+          23686,
+          23688,
+          23690,
+          23692,
+          23694,
+          23696,
+          23698,
+          23700,
+          23702,
+          23704,
+          23706,
+          23708,
+          23710,
+          23712,
+          23714
+        ],
+        "returned": 64
+      }
+    ],
+    "candidateBeforeCreate": {
+      "request": {
+        "taskId": 5288,
+        "order": {
+          "createdDate": "ASC"
+        }
+      },
+      "sdkErrorChain": [
+        {
+          "class": "Bitrix24\\SDK\\Core\\Exceptions\\BaseException",
+          "code": 0
+        }
+      ],
+      "ids": [],
+      "events": []
+    },
+    "afterDelete": {
+      "6310": {
+        "request": {
+          "taskId": 6310,
+          "order": {
+            "createdDate": "ASC"
+          }
+        },
+        "sdkErrorChain": [
+          {
+            "class": "Bitrix24\\SDK\\Core\\Exceptions\\BaseException",
+            "code": 0
+          }
+        ],
+        "ids": [],
+        "events": []
+      },
+      "6308": {
+        "request": {
+          "taskId": 6308,
+          "order": {
+            "createdDate": "ASC"
+          }
+        },
+        "sdkErrorChain": [
+          {
+            "class": "Bitrix24\\SDK\\Core\\Exceptions\\BaseException",
+            "code": 0
+          }
+        ],
+        "ids": [],
+        "events": []
+      }
+    },
+    "cleanup": [
+      {
+        "id": 6310,
+        "deleted": true
+      },
+      {
+        "id": 6308,
+        "deleted": true
+      }
+    ]
+  },
+  "independentLegacyConfirmation": {
+    "taskId": 6324,
+    "creationReadback": [
+      {
+        "id": 6324,
+        "created": "2026-10-14T09:30:42+03:00",
+        "status": "in_progress"
+      }
+    ],
+    "finalCard": {
+      "id": 6324,
+      "status": "in_progress",
+      "statusChanged": "2026-10-14T09:30:44+03:00",
+      "changed": "2026-10-14T09:30:45+03:00"
+    },
+    "modern": {
+      "request": {
+        "taskId": 6324
+      },
+      "httpStatus": 200,
+      "rootKeys": [
+        "result",
+        "time"
+      ],
+      "resultKeys": [
+        "list"
+      ],
+      "rootNext": null,
+      "rootTotal": null,
+      "nestedNext": null,
+      "nestedTotal": null,
+      "dtoNext": null,
+      "dtoTotal": null,
+      "rawEqualsDto": true,
+      "ids": [
+        16396,
+        16516,
+        23756,
+        23760,
+        23762
+      ],
+      "events": [
+        {
+          "id": 16396,
+          "createdDate": "2026-02-23T07:49:54+03:00",
+          "field": "NEW",
+          "value": {
+            "from": null,
+            "to": null
+          },
+          "userId": 1
+        },
+        {
+          "id": 16516,
+          "createdDate": "2026-02-23T07:50:15+03:00",
+          "field": "DELETE",
+          "value": {
+            "from": null,
+            "to": null
+          },
+          "userId": 1
+        },
+        {
+          "id": 23756,
+          "createdDate": "2026-10-14T09:30:43+03:00",
+          "field": "NEW",
+          "value": {
+            "from": null,
+            "to": null
+          },
+          "userId": 1
+        },
+        {
+          "id": 23760,
+          "createdDate": "2026-10-14T09:30:44+03:00",
+          "field": "STATUS",
+          "value": {
+            "from": "2",
+            "to": "3"
+          },
+          "userId": 1
+        },
+        {
+          "id": 23762,
+          "createdDate": "2026-10-14T09:30:45+03:00",
+          "field": "TITLE",
+          "value": {
+            "from": "b24cli-history-probe-A-be369714257afcd8",
+            "to": "b24cli-history-probe-A-change-1"
+          },
+          "userId": 1
+        }
+      ]
+    },
+    "legacy": {
+      "rootKeys": [
+        "result",
+        "time"
+      ],
+      "next": null,
+      "total": null,
+      "events": [
+        {
+          "CREATED_DATE": "2026-02-23T07:49:54+03:00",
+          "USER_ID": 1,
+          "TASK_ID": 6324,
+          "FIELD": "NEW",
+          "FROM_VALUE": null,
+          "TO_VALUE": null
+        },
+        {
+          "CREATED_DATE": "2026-02-23T07:50:15+03:00",
+          "USER_ID": 1,
+          "TASK_ID": 6324,
+          "FIELD": "DELETE",
+          "FROM_VALUE": null,
+          "TO_VALUE": null
+        },
+        {
+          "CREATED_DATE": "2026-10-14T09:30:43+03:00",
+          "USER_ID": 1,
+          "TASK_ID": 6324,
+          "FIELD": "NEW",
+          "FROM_VALUE": null,
+          "TO_VALUE": null
+        },
+        {
+          "CREATED_DATE": "2026-10-14T09:30:44+03:00",
+          "USER_ID": 1,
+          "TASK_ID": 6324,
+          "FIELD": "STATUS",
+          "FROM_VALUE": "2",
+          "TO_VALUE": "3"
+        },
+        {
+          "CREATED_DATE": "2026-10-14T09:30:45+03:00",
+          "USER_ID": 1,
+          "TASK_ID": 6324,
+          "FIELD": "TITLE",
+          "FROM_VALUE": "b24cli-history-probe-A-be369714257afcd8",
+          "TO_VALUE": "b24cli-history-probe-A-change-1"
+        }
+      ]
+    },
+    "cleanup": [
+      {
+        "id": 6326,
+        "deleted": true
+      },
+      {
+        "id": 6324,
+        "deleted": true
+      }
+    ],
+    "diagnosticOnly": "task.logitem.list called positionally with SDK bx24_request_id removed only from this diagnostic request URL; production SDK and CLI unchanged."
+  },
+  "sourceCompletenessProven": false
+}

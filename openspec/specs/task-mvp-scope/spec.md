@@ -49,11 +49,19 @@ task:subtask:add
 - **WHEN** пользователь явно задаёт parentId через advanced writable fields обычной task:add
 - **THEN** отдельная task:subtask:add не регистрируется и не вызывается; task:add сохраняет явное поле, проверяет его допустимость и не выбирает parent неявно. Рабочее предположение касается удаления отдельной команды и уточняется при запросе полного запрета подзадач
 
+#### Scenario: Lifecycle admitted after the first MVP
+- **WHEN** формируется каталог 0.2.0 по task-lifecycle
+- **THEN** семь task:start/pause/defer/renew/complete/approve/disapprove предоставляются как развитие после MVP; остальные 17 исключений (четыре result-команды и task:my уже допущены отдельно) сохраняются, исторический scope 0.1.0 не расширяется
+
+#### Scenario: Personal view admitted separately after MVP
+- **WHEN** каталог 0.2.0 включает доставленную task:my по task-personal-view (#118)
+- **THEN** её read-only представление сохраняется наряду с семью lifecycle командами; исторический список исключений первого MVP не запрещает отдельно принятую команду 0.2.0
+
 ### Requirement: API admission and future lifecycle acceptance remain explicit
-Каталог SHALL отделять release scope от API support: 59 операций = 30 кандидатов MVP, 0 API-policy-pending и 29 после MVP. Через REST1 явно допущены 4 time, 8 checklist/root/item, 2 participants/history команды и выбранные companion reads участников task:show. Права SHALL проверяться для кандидатов; lifecycle SHALL оставаться после MVP независимо от возможности записи status. Наличие команды в каталоге не SHALL означать принятие иных API exceptions, доказанную семантику или runtime readiness.
+Каталог SHALL отделять release scope от API support: 59 операций = 30 кандидатов MVP, 0 API-policy-pending и 29 после MVP. Права SHALL проверяться для кандидатов; lifecycle SHALL оставаться после MVP независимо от возможности записи status. Наличие команды в каталоге не SHALL означать принятие иных API exceptions, доказанную семантику или runtime readiness.
 
 #### Scenario: Legacy admission is limited to selected commands
-- **WHEN** вызывается legacy маршрут вне согласованных команд/companion reads либо общий tasks.task.update используется для действий за пределами participants:set
+- **WHEN** вызывается legacy маршрут вне согласованных команд/companion reads/записи TAGS/custom schema and writes/семи lifecycle маршрутов 0.2.0 либо общий tasks.task.update используется для действий за пределами participants:set, записи TAGS и explicit custom writes в task:add/task:update
 - **THEN** допуск выбранных REST1 команд и чтений не разрешает такую операцию; policy отклоняет запрос и не выполняет скрытый fallback или исключённый lifecycle переход
 
 #### Scenario: Lifecycle commands after MVP
@@ -67,6 +75,43 @@ task:subtask:add
 #### Scenario: Explicit user enrichment of selected task participants
 - **WHEN** task:show получает select auditors/accomplices в default task-v3 режиме
 - **THEN** допустимы только REST3 карточка без этих relations, REST1 tasks.task.get для ID выбранных ролей и user.get для нужных полей выбранных пользователей; версии отражаются в meta, strict-rest3 отклоняет план до credentials/API, недоступные данные дают partial вместо пустого подтверждённого списка
+
+#### Scenario: Tag writes have an explicit narrow legacy admission
+- **WHEN** task:add/task:update в task-v3 policy получает явные теги
+- **THEN** CLI допускает REST1 tasks.task.update только с TAGS; status, REST3 userFields и произвольные legacy поля не допускаются, число task-команд не увеличивается
+
+#### Scenario: Strict policy rejects tag composition
+- **WHEN** команда с tag/clear-tags вызвана в strict-rest3
+- **THEN** весь план отклоняется до credentials и первого запроса с policy-denied/exit4; CLI не создаёт задачу без тегов и не переключает API policy
+
+#### Scenario: Scoped Disk upload admission
+- **WHEN** пользователь прикрепляет локальный файл через task:file:attach --file PATH --folder-id ID
+- **THEN** допускается только disk.folder.uploadFile REST1 с последующим attach REST3; каталог содержит 42 task-команды после добавления lifecycle и task:my, общий Disk API/произвольные методы не открываются, strict-rest3 запрещает mixed plan до credentials/API
+
+#### Scenario: Required result read is an internal lifecycle preflight
+- **WHEN** task:complete проверяет requireResult=true в 0.2.0
+- **THEN** допускается только внутреннее ограниченное REST3 tasks.task.result.list для выбранной задачи; lifecycle не создаёт результат неявно и не делает fallback, отдельные result-команды сохраняют capability task-results, raw task:update status остаётся запрещён
+
+### Requirement: Initial scoped REST1 task admission
+Через REST1 SHALL быть явно допущены 4 time, 8 checklist/root/item, 2 participants/history команды и выбранные companion reads участников task:show.
+
+#### Scenario: Original legacy task scope
+- **WHEN** оценивается первоначальный REST1 admission для task-команд
+- **THEN** он ограничен согласованными 4 time, 8 checklist/root/item, 2 participants/history командами и выбранными companion reads task:show.
+
+### Requirement: Milestone tag write admission
+Для milestone 0.2.0 дополнительно SHALL допускаться REST1 tasks.task.update только с TAGS в task:add/task:update.
+
+#### Scenario: Narrow legacy tag field admission
+- **WHEN** task:add/task:update в task-v3 получает явные теги
+- **THEN** допускается REST1 tasks.task.update только с TAGS; это не расширяет остальные API exceptions или lifecycle scope.
+
+### Requirement: Milestone local Disk upload admission
+В 0.2.0 дополнительно SHALL допускаться disk.folder.uploadFile REST1 только для явного локального режима task:file:attach.
+
+#### Scenario: Explicit local file upload admission
+- **WHEN** пользователь выбирает локальный режим task:file:attach --file PATH --folder-id ID
+- **THEN** допускается только согласованный disk.folder.uploadFile REST1; это не означает допуск общего Disk API.
 
 ### Requirement: Time entries are included through explicit legacy routes
 MVP SHALL включать task:time:add/list/update/delete через явно согласованные REST 1.0 task.elapseditem.add/getlist/update/delete. Этот допуск SHALL ограничиваться четырьмя маршрутами, отражать API version в meta и сохранять запрет non-v3 запросов в strict-rest3. Update/delete SHALL проверять связь TASK_ID/ENTRY_ID и права подключения. Task:time:show SHALL сохранять свой REST3 маршрут.
@@ -123,6 +168,20 @@ MVP SHALL включать task:participants:set через REST1 tasks.task.upd
 #### Scenario: Personal task selection through the base list
 - **WHEN** сотрудник вызывает `b24cli task:list --responsible 42` в пределах своего доступа
 - **THEN** используется оставшийся базовый список с явной фильтрацией и контролем scan completeness; исключённая task:my не запускается и не требуется для этого вызова
+
+### Requirement: Task results admitted after the first release
+Расширение 0.2.0 SHALL включать `task:result:add/list/update/delete` через REST3 по capability task-results. Исходные 30 команд и 29 исключений MVP 0.1.0 SHALL сохраняться как историческая граница первого релиза; допуск четырёх результатов SHALL не включать result:from-message, шаблоны, lifecycle или события приёмки.
+
+#### Scenario: Task result commands in the development catalog
+- **WHEN** формируется каталог после реализации #61
+- **THEN** доступны 34 task-команды, включая четыре result-команды, и ни одна из них не выполняет скрытый lifecycle переход или результат из сообщения
+
+### Requirement: Milestone custom field admission
+For 0.2.0 CLI SHALL admit REST1 tasks.task.getFields and custom-only tasks.task.update on explicit custom input; custom task creation SHALL admit one REST1 tasks.task.add with bounded native ordinary fields and custom values. This SHALL not admit arbitrary legacy fields or raw lifecycle writes.
+
+#### Scenario: Narrow custom routes
+- **WHEN** task:add/task:update receives explicit custom values
+- **THEN** only the declared custom routes are admitted; strict-rest3 rejects them before credentials/API
 
 ## Решение о приёмке RC 0.1.0 — 12.10.2026
 

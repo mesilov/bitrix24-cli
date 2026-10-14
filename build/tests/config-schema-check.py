@@ -6,7 +6,7 @@ from pathlib import Path
 import re
 import sys
 
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator, FormatChecker
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[2]
 def main() -> int:
     schema = json.loads((ROOT / "docs/config.schema.json").read_text(encoding="utf-8"))
     Draft202012Validator.check_schema(schema)
-    validator = Draft202012Validator(schema)
+    validator = Draft202012Validator(schema, format_checker=FormatChecker())
     corpus = json.loads(
         (ROOT / "tests/Fixtures/configuration/schema-cases.json").read_text(encoding="utf-8")
     )
@@ -37,10 +37,10 @@ def main() -> int:
             summary = "; ".join(error.message for error in errors[:3])
             failures.append(f"{name}: expected schemaValid={case['schemaValid']}; {summary}")
 
-    document = (ROOT / "docs/configuration.md").read_text(encoding="utf-8")
+    document = (ROOT / "docs/config.md").read_text(encoding="utf-8")
     examples = re.findall(r"```json\n(.*?)\n```", document, re.DOTALL)
     if not examples:
-        failures.append("configuration.md has no JSON examples")
+        failures.append("config.md has no JSON examples")
     for index, example in enumerate(examples, 1):
         errors = list(validator.iter_errors(json.loads(example)))
         if errors:

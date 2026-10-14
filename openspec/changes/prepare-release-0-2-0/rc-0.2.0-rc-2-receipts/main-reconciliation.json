@@ -1,0 +1,18 @@
+{
+  "main_sha": "fd86141169eed9cfe2a8b6b6c18a68310d209040",
+  "reconciliation_head_sha": "7a9a2c064c7dd8138a2c212ae29e5ae0b1d5dd3d",
+  "merge_commit": "0d47c23ea47bb5aef483d0ef61175742217bb7ad",
+  "merge_parents": [
+    "384682a52df99ec74a1e5129d25f060f6a2b5b09",
+    "fd86141169eed9cfe2a8b6b6c18a68310d209040"
+  ],
+  "compare": {
+    "status": "ahead",
+    "ahead_by": 260,
+    "behind_by": 0,
+    "merge_base_commit": "fd86141169eed9cfe2a8b6b6c18a68310d209040"
+  },
+  "merge_tree": "71c857aa75141d0fcdbb228f401d54bdf7f6447e",
+  "conflicts": [],
+  "pr144_merge_sha": "1534ebfbf4c7b849e26f04806ba05cea6486c944"
+}

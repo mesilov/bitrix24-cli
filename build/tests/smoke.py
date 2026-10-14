@@ -83,16 +83,30 @@ def main():
         check(version == "b24cli " + args.expected_version, "Version mismatch: " + version)
         for command in [["list", "--no-ansi"], ["--help", "--no-ansi"]]:
             output = invoke("b24cli", command)
-            expected = "b24cli" if command[0] == "list" else "Usage:"
+            expected = "b24cli" if command[0] == "list" else "Использование:"
             check(expected in output and "\x1b" not in output, "CLI/help contract failed")
         unknown = json.loads(invoke("b24cli", ["несуществующая-команда", "--json", "--no-ansi"], 2))
         check(unknown["error"]["code"] == "usage-error" and unknown["meta"]["apiCalls"] == [],
               "Unknown command did not preserve the usage contract")
         commands = [line.split()[0] for line in invoke("b24cli", ["list", "task", "--raw", "--no-ansi"]).splitlines()]
-        check(len(commands) == 30 and all(name.startswith("task:") for name in commands),
+        check(len(commands) == 43 and all(name.startswith("task:") for name in commands),
               "Task command registration differs: " + repr(commands))
+        check("task:my" in commands, "Personal task view missing from packaged CLI")
+        check("task:status:durations" in commands, "Status durations missing from packaged CLI")
+        durations_usage = json.loads(invoke("b24cli", ["task:status:durations", "--json", "--no-ansi"], 2))
+        check(durations_usage["error"]["code"] == "usage-error" and durations_usage["meta"]["apiCalls"] == [],
+              "Status durations must validate the task ID before credentials/API")
+        my_usage = json.loads(invoke("b24cli", ["task:my", "--json", "--no-ansi"], 2))
+        check(my_usage["error"]["code"] == "usage-error" and my_usage["meta"]["apiCalls"] == [],
+              "task:my must validate the required executor before credentials/API")
+        lifecycle = {"task:" + action for action in ["start", "pause", "defer", "renew", "complete", "approve", "disapprove"]}
+        check(lifecycle.issubset(commands), "Lifecycle commands missing from packaged CLI")
+        for name in sorted(lifecycle):
+            denied = json.loads(invoke("b24cli", [name, "123", "--api-policy", "strict-rest3", "--dry-run", "--json"], 4))
+            check(denied["error"]["code"] == "policy-denied" and denied["meta"]["apiCalls"] == [],
+                  "Lifecycle policy must reject before credentials/API: " + name)
         for name in commands:
-            check("Usage:" in invoke("b24cli", [name, "--help", "--no-ansi"]), "Task help failed: " + name)
+            check("Использование:" in invoke("b24cli", [name, "--help", "--no-ansi"]), "Task help failed: " + name)
         dry_run = json.loads(invoke("b24cli", ["task:add", "--title", "Привет, Битрикс24", "--creator", "1",
                                                "--responsible", "2", "--dry-run", "--json", "--no-ansi"]))
         check(dry_run["error"] is None and dry_run["meta"]["dryRun"] is True
@@ -101,6 +115,30 @@ def main():
         check(dry_run["data"]["plan"]["steps"] == [{"taskId": None, "step": 1, "method": "tasks.task.add",
               "apiVersion": "3.0", "effect": "write", "fields": {"title": "Привет, Битрикс24", "creatorId": 1,
               "responsibleId": 2, "allowsTimeTracking": False}}], "Task DI/UTF-8 arguments or plan changed")
+        local_file = clean / 'Локальный отчёт.bin'
+        local_file.write_bytes(b'BINARY-NOT-FOR-OUTPUT\0\xff')
+        upload_args = ['task:file:attach', '123', '--file', str(local_file), '--folder-id', '456', '--json']
+        upload_plan = json.loads(invoke('b24cli', upload_args + ['--dry-run']))
+        steps = upload_plan['data']['plan']['steps']
+        check(upload_plan['meta']['apiCalls'] == [] and upload_plan['error'] is None,
+              'Local upload dry-run attempted credentials/API')
+        check([step['method'] for step in steps] == ['disk.folder.uploadFile', 'tasks.task.file.attach']
+              and steps[0]['fields']['data']['NAME'] == local_file.name
+              and steps[0]['fields']['sizeBytes'] == local_file.stat().st_size,
+              'Local upload filesystem/Unicode/SDK DI preview differs')
+        check('BINARY-NOT-FOR-OUTPUT' not in json.dumps(upload_plan), 'Local preview leaked file bytes')
+        blocked = json.loads(invoke('b24cli', upload_args + ['--api-policy', 'strict-rest3', '--dry-run'], 4))
+        check(blocked['error']['code'] == 'policy-denied' and blocked['meta']['apiCalls'] == [],
+              'Strict policy allowed local Disk upload')
+        upload_config = clean / 'upload-runtime.json'
+        upload_config.write_text(json.dumps({'maxUploadBytes': local_file.stat().st_size - 1}))
+        limited = json.loads(invoke('b24cli', ['--config', str(upload_config), *upload_args, '--dry-run'], 2))
+        check(limited['error']['code'] == 'usage-error' and limited['meta']['apiCalls'] == [],
+              'Configured upload limit did not override default before credentials')
+        upload_config.write_text(json.dumps({'maxUploadBytes': 750000000}))
+        configured = json.loads(invoke('b24cli', ['--config', str(upload_config), *upload_args, '--dry-run']))
+        check(configured['data']['plan']['steps'][0]['fields']['maxUploadBytes'] == 750000000,
+              'Config above 500 MB default was capped or ignored')
         missing = json.loads(invoke("b24cli", ["task:show", "123", "--json", "--no-ansi"], 1))
         check(missing["error"]["code"] == "connection-unavailable" and missing["meta"]["apiCalls"] == [],
               "Missing connection did not stop before API calls")
@@ -160,7 +198,7 @@ def main():
         check(all(path.name in allowed_phars for path in clean.glob("*.phar")),
               "Temporary application PHAR was not removed")
         print(json.dumps({"status": "passed", "version": args.expected_version, "runtime": probe,
-                          "checks": ["version", "help", "list", "usage-exit", "30-task-commands", "task-dry-run",
+                          "checks": ["version", "help", "list", "usage-exit", "43-task-commands", "status-durations-local-validation", "task-my-local-validation", "task-dry-run", "local-upload-dry-run", "local-upload-strict-policy", "local-upload-config-limit",
                                      "missing-connection", *( ["task-SIGINT"] if os.name != 'nt' else [] ),
                                      "autoload", "extensions", "unicode",
                                      "trusted-https", "rejected-certificate", "clean-PATH", "temporary-phar-cleanup"]}, ensure_ascii=False))

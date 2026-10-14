@@ -22,13 +22,28 @@ $container->register(ApiTransport::class)->setSynthetic(true)->setPublic(true);
 $container->getDefinition(RuntimeState::class)->setPublic(true);
 $container->compile();
 $state = $container->get(RuntimeState::class);
-$api = new FakeApiTransport(static function () use ($state): ApiResponse {
+$local = ($argv[1] ?? '') === 'local';
+$path = sys_get_temp_dir() . '/b24cli-signal-' . bin2hex(random_bytes(5)) . '.bin';
+$api = new FakeApiTransport(static function (string $method) use ($state, $local): ApiResponse {
     $state->checkCancellation();
     fwrite(STDERR, "READY\n");
     usleep(5000000);
-    return new ApiResponse(['result' => true]);
+    return new ApiResponse($local ? ['ID' => '789', 'NAME' => 'signal.bin'] : ['result' => true]);
 });
 $container->set(ApiTransport::class, $api);
 $app = $container->get(B24Application::class);
 $app->setCommandLoader(new ContainerCommandLoader($container, array_map(static fn (array $command): string => $command['class'], CommandCatalog::COMMANDS)));
-exit($app->run(new ArgvInput(['b24cli', '--json', 'task:file:attach', '123', '--file-id', '50', '--file-id', '51', '--file-id', '52'])));
+if ($local) {
+    file_put_contents($path, 'Disposable signal fixture');
+}
+
+try {
+    $arguments = $local ? ['--file', $path, '--folder-id', '456'] : ['--file-id', '50', '--file-id', '51', '--file-id', '52'];
+    $status = $app->run(new ArgvInput(['b24cli', '--json', 'task:file:attach', '123', ...$arguments]));
+} finally {
+    if ($local) {
+        unlink($path);
+    }
+}
+
+exit($status);

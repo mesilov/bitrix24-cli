@@ -30,7 +30,7 @@ final class InputSourceReader
             $this->stdinUsed = true;
             $data = $maximum === null ? stream_get_contents($stream) : stream_get_contents($stream, $maximum + 1);
         } else {
-            $data = is_file($path) && is_readable($path) ? file_get_contents($path) : false;
+            $data = is_file($path) && is_readable($path) ? file_get_contents($path, false, null, 0, $maximum === null ? null : $maximum + 1) : false;
         }
 
         if ($maximum !== null && is_string($data) && strlen($data) > $maximum) {
@@ -57,5 +57,29 @@ final class InputSourceReader
         }
 
         return json_decode($value, true, 512, JSON_THROW_ON_ERROR);
+    }
+
+    public function uniqueObject(string $value): array
+    {
+        $fields = $this->object($value);
+        $decoded = json_decode($value, false, 512, JSON_THROW_ON_ERROR);
+        foreach ($decoded as $item) {
+            if (is_object($item) || (is_array($item) && array_any($item, static fn ($element): bool => is_object($element)))) {
+                throw Failure::usage('Custom values cannot contain JSON objects.');
+            }
+        }
+
+        preg_match_all('/"(?:[^"\\\\]|\\\\.)*"\s*:/s', $value, $matches);
+        $seen = [];
+        foreach ($matches[0] as $token) {
+            $key = json_decode(rtrim(substr($token, 0, -1)), true, 512, JSON_THROW_ON_ERROR);
+            if (isset($seen[$key])) {
+                throw Failure::usage('Duplicate JSON custom field key.');
+            }
+
+            $seen[$key] = true;
+        }
+
+        return $fields;
     }
 }

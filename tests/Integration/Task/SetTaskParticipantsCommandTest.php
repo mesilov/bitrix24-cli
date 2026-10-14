@@ -33,4 +33,15 @@ final class SetTaskParticipantsCommandTest extends LiveTaskCommandTestCase
         $this->invoke(['task:participants:set', $id, '--clear-auditors']);
         self::assertSame(['auditors' => [], 'accomplices' => [$this->userId]], $this->participants->ids($id, ['auditors', 'accomplices']));
     }
+    #[Group('portal-acceptance')]
+    public function testSecondUserWithoutTaskRoleCannotAccessOwnedFixture(): void
+    {
+        [$second] = $this->secondUser();
+        $id = $this->createTask();
+
+        $before = $this->participants->ids($id, ['auditors', 'accomplices']);
+        $this->assertSecondUserDenied(['task:participants:set', $id, '--auditor', $second]);
+        self::assertSame($before, $this->participants->ids($id, ['auditors', 'accomplices']));
+    }
+
 }

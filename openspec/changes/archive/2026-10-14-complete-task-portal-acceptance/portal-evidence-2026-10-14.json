@@ -1,0 +1,1596 @@
+{
+  "date": "2026-10-14",
+  "sourceBase": "0f6c006",
+  "issue": 42,
+  "boundary": "Limited portal evidence; user stopped further checks and authorized dev merge. Failed and skipped records are not acceptance proof.",
+  "runs": [
+    {
+      "file": "portal-probe.xml",
+      "name": "/var/www/html/phpunit.xml.dist",
+      "tests": "4",
+      "assertions": "29",
+      "errors": "0",
+      "failures": "3",
+      "skipped": "0",
+      "time": "10.522715"
+    },
+    {
+      "file": "portal-independent.xml",
+      "name": "/var/www/html/phpunit.xml.dist",
+      "tests": "10",
+      "assertions": "87",
+      "errors": "1",
+      "failures": "1",
+      "skipped": "2",
+      "time": "28.949978"
+    }
+  ],
+  "records": [
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AddTaskTimeEntryCommandTest",
+      "test": "testSecondUserWithoutTaskRoleCannotAccessOwnedFixture",
+      "command": "task:time:add",
+      "happyPath": false,
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        6334
+      ],
+      "ownedDiskFileIds": [],
+      "ownedDiskFolderIds": [],
+      "commands": [
+        {
+          "command": "task:time:add",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "task.elapseditem.add",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": true,
+          "outcomeUnknown": null,
+          "actingUserId": 16,
+          "target": [
+            6334,
+            60
+          ],
+          "expectedExitStatuses": [
+            1,
+            4
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": [],
+        "diskFolderIds": []
+      },
+      "acceptance": [
+        {
+          "case": "second-user-identity",
+          "actingUserId": 16,
+          "scopes": [
+            "ai_admin",
+            "aiassistant",
+            "appform",
+            "baas",
+            "biconnector",
+            "biconnectormobile",
+            "bizproc",
+            "bizprocdesigner",
+            "booking",
+            "calendar",
+            "calendarmobile",
+            "call",
+            "cashbox",
+            "catalog",
+            "catalogmobile",
+            "configuration.import",
+            "contact_center",
+            "crm",
+            "delivery",
+            "department",
+            "disk",
+            "documentgenerator",
+            "entity",
+            "forum",
+            "humanresources",
+            "humanresources.hcmlink",
+            "iblock",
+            "im",
+            "im.import",
+            "imbot",
+            "imconnector",
+            "imopenlines",
+            "intranet",
+            "landing",
+            "landing_cloud",
+            "lists",
+            "log",
+            "mail",
+            "mailsender",
+            "mailservice",
+            "main",
+            "messageservice",
+            "mobile",
+            "note",
+            "notifications",
+            "pay_system",
+            "placement",
+            "pull",
+            "pull_channel",
+            "rating",
+            "rest",
+            "rpa",
+            "sale",
+            "salescenter",
+            "sign.b2e",
+            "smile",
+            "socialnetwork",
+            "sonet_group",
+            "task",
+            "tasks",
+            "tasks_extended",
+            "tasksmobile",
+            "telephony",
+            "timeman",
+            "timemanmobile",
+            "user",
+            "user_basic",
+            "user_brief",
+            "user.userfield",
+            "userconsent",
+            "userfieldconfig",
+            "vibecodeconnector",
+            "vote"
+          ],
+          "apiVersions": [
+            "1.0"
+          ],
+          "expected": "different-user",
+          "observed": "different-user"
+        }
+      ],
+      "passed": false
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AssignTaskCommandTest",
+      "test": "testAssignmentIsReadBackByTheSecondResponsibleUser",
+      "command": "task:assign",
+      "happyPath": false,
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        6336
+      ],
+      "ownedDiskFileIds": [],
+      "ownedDiskFolderIds": [],
+      "commands": [
+        {
+          "command": "task:assign",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ],
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": true,
+          "outcomeUnknown": null,
+          "actingUserId": 1,
+          "target": [
+            6336,
+            16
+          ],
+          "expectedExitStatuses": [
+            0
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": [],
+        "diskFolderIds": []
+      },
+      "acceptance": [
+        {
+          "case": "second-user-identity",
+          "actingUserId": 16,
+          "scopes": [
+            "ai_admin",
+            "aiassistant",
+            "appform",
+            "baas",
+            "biconnector",
+            "biconnectormobile",
+            "bizproc",
+            "bizprocdesigner",
+            "booking",
+            "calendar",
+            "calendarmobile",
+            "call",
+            "cashbox",
+            "catalog",
+            "catalogmobile",
+            "configuration.import",
+            "contact_center",
+            "crm",
+            "delivery",
+            "department",
+            "disk",
+            "documentgenerator",
+            "entity",
+            "forum",
+            "humanresources",
+            "humanresources.hcmlink",
+            "iblock",
+            "im",
+            "im.import",
+            "imbot",
+            "imconnector",
+            "imopenlines",
+            "intranet",
+            "landing",
+            "landing_cloud",
+            "lists",
+            "log",
+            "mail",
+            "mailsender",
+            "mailservice",
+            "main",
+            "messageservice",
+            "mobile",
+            "note",
+            "notifications",
+            "pay_system",
+            "placement",
+            "pull",
+            "pull_channel",
+            "rating",
+            "rest",
+            "rpa",
+            "sale",
+            "salescenter",
+            "sign.b2e",
+            "smile",
+            "socialnetwork",
+            "sonet_group",
+            "task",
+            "tasks",
+            "tasks_extended",
+            "tasksmobile",
+            "telephony",
+            "timeman",
+            "timemanmobile",
+            "user",
+            "user_basic",
+            "user_brief",
+            "user.userfield",
+            "userconsent",
+            "userfieldconfig",
+            "vibecodeconnector",
+            "vote"
+          ],
+          "apiVersions": [
+            "1.0"
+          ],
+          "expected": "different-user",
+          "observed": "different-user"
+        },
+        {
+          "case": "second-user-assignment",
+          "taskId": 6336,
+          "ownerId": 1,
+          "actingUserId": 16,
+          "expected": 16,
+          "observed": 16,
+          "readbackApiVersion": "3.0"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskChecklistsCommandTest",
+      "test": "testSecondUserWithoutTaskRoleCannotAccessOwnedFixture",
+      "command": "task:checklist:list",
+      "happyPath": false,
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        6338
+      ],
+      "ownedDiskFileIds": [],
+      "ownedDiskFolderIds": [],
+      "commands": [
+        {
+          "command": "task:checklist:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": null,
+          "outcomeUnknown": null,
+          "actingUserId": 16,
+          "target": [
+            6338
+          ],
+          "expectedExitStatuses": [
+            1,
+            4
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": [],
+        "diskFolderIds": []
+      },
+      "acceptance": [
+        {
+          "case": "second-user-identity",
+          "actingUserId": 16,
+          "scopes": [
+            "ai_admin",
+            "aiassistant",
+            "appform",
+            "baas",
+            "biconnector",
+            "biconnectormobile",
+            "bizproc",
+            "bizprocdesigner",
+            "booking",
+            "calendar",
+            "calendarmobile",
+            "call",
+            "cashbox",
+            "catalog",
+            "catalogmobile",
+            "configuration.import",
+            "contact_center",
+            "crm",
+            "delivery",
+            "department",
+            "disk",
+            "documentgenerator",
+            "entity",
+            "forum",
+            "humanresources",
+            "humanresources.hcmlink",
+            "iblock",
+            "im",
+            "im.import",
+            "imbot",
+            "imconnector",
+            "imopenlines",
+            "intranet",
+            "landing",
+            "landing_cloud",
+            "lists",
+            "log",
+            "mail",
+            "mailsender",
+            "mailservice",
+            "main",
+            "messageservice",
+            "mobile",
+            "note",
+            "notifications",
+            "pay_system",
+            "placement",
+            "pull",
+            "pull_channel",
+            "rating",
+            "rest",
+            "rpa",
+            "sale",
+            "salescenter",
+            "sign.b2e",
+            "smile",
+            "socialnetwork",
+            "sonet_group",
+            "task",
+            "tasks",
+            "tasks_extended",
+            "tasksmobile",
+            "telephony",
+            "timeman",
+            "timemanmobile",
+            "user",
+            "user_basic",
+            "user_brief",
+            "user.userfield",
+            "userconsent",
+            "userfieldconfig",
+            "vibecodeconnector",
+            "vote"
+          ],
+          "apiVersions": [
+            "1.0"
+          ],
+          "expected": "different-user",
+          "observed": "different-user"
+        }
+      ],
+      "passed": false
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ShowTaskCommandTest",
+      "test": "testSecondUserWithoutTaskRoleCannotAccessOwnedFixture",
+      "command": "task:show",
+      "happyPath": false,
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        6340
+      ],
+      "ownedDiskFileIds": [],
+      "ownedDiskFolderIds": [],
+      "commands": [
+        {
+          "command": "task:show",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ],
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": "pending",
+          "confirmed": null,
+          "outcomeUnknown": null,
+          "actingUserId": 16,
+          "target": [
+            6340
+          ],
+          "expectedExitStatuses": [
+            1,
+            4
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": [],
+        "diskFolderIds": []
+      },
+      "acceptance": [
+        {
+          "case": "second-user-identity",
+          "actingUserId": 16,
+          "scopes": [
+            "ai_admin",
+            "aiassistant",
+            "appform",
+            "baas",
+            "biconnector",
+            "biconnectormobile",
+            "bizproc",
+            "bizprocdesigner",
+            "booking",
+            "calendar",
+            "calendarmobile",
+            "call",
+            "cashbox",
+            "catalog",
+            "catalogmobile",
+            "configuration.import",
+            "contact_center",
+            "crm",
+            "delivery",
+            "department",
+            "disk",
+            "documentgenerator",
+            "entity",
+            "forum",
+            "humanresources",
+            "humanresources.hcmlink",
+            "iblock",
+            "im",
+            "im.import",
+            "imbot",
+            "imconnector",
+            "imopenlines",
+            "intranet",
+            "landing",
+            "landing_cloud",
+            "lists",
+            "log",
+            "mail",
+            "mailsender",
+            "mailservice",
+            "main",
+            "messageservice",
+            "mobile",
+            "note",
+            "notifications",
+            "pay_system",
+            "placement",
+            "pull",
+            "pull_channel",
+            "rating",
+            "rest",
+            "rpa",
+            "sale",
+            "salescenter",
+            "sign.b2e",
+            "smile",
+            "socialnetwork",
+            "sonet_group",
+            "task",
+            "tasks",
+            "tasks_extended",
+            "tasksmobile",
+            "telephony",
+            "timeman",
+            "timemanmobile",
+            "user",
+            "user_basic",
+            "user_brief",
+            "user.userfield",
+            "userconsent",
+            "userfieldconfig",
+            "vibecodeconnector",
+            "vote"
+          ],
+          "apiVersions": [
+            "1.0"
+          ],
+          "expected": "different-user",
+          "observed": "different-user"
+        }
+      ],
+      "passed": false
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AssignTaskCommandTest",
+      "test": "testAssignmentIsReadBackByTheSecondResponsibleUser",
+      "command": "task:assign",
+      "happyPath": false,
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        6344
+      ],
+      "ownedDiskFileIds": [],
+      "ownedDiskFolderIds": [],
+      "commands": [
+        {
+          "command": "task:assign",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ],
+          "complete": null,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": true,
+          "outcomeUnknown": null,
+          "actingUserId": 1,
+          "target": [
+            6344,
+            16
+          ],
+          "expectedExitStatuses": [
+            0
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": [],
+        "diskFolderIds": []
+      },
+      "acceptance": [
+        {
+          "case": "second-user-identity",
+          "setting": "BITRIX24_SECOND_USER_WEBHOOK",
+          "actingUserId": 16,
+          "scopes": [
+            "ai_admin",
+            "aiassistant",
+            "appform",
+            "baas",
+            "biconnector",
+            "biconnectormobile",
+            "bizproc",
+            "bizprocdesigner",
+            "booking",
+            "calendar",
+            "calendarmobile",
+            "call",
+            "cashbox",
+            "catalog",
+            "catalogmobile",
+            "configuration.import",
+            "contact_center",
+            "crm",
+            "delivery",
+            "department",
+            "disk",
+            "documentgenerator",
+            "entity",
+            "forum",
+            "humanresources",
+            "humanresources.hcmlink",
+            "iblock",
+            "im",
+            "im.import",
+            "imbot",
+            "imconnector",
+            "imopenlines",
+            "intranet",
+            "landing",
+            "landing_cloud",
+            "lists",
+            "log",
+            "mail",
+            "mailsender",
+            "mailservice",
+            "main",
+            "messageservice",
+            "mobile",
+            "note",
+            "notifications",
+            "pay_system",
+            "placement",
+            "pull",
+            "pull_channel",
+            "rating",
+            "rest",
+            "rpa",
+            "sale",
+            "salescenter",
+            "sign.b2e",
+            "smile",
+            "socialnetwork",
+            "sonet_group",
+            "task",
+            "tasks",
+            "tasks_extended",
+            "tasksmobile",
+            "telephony",
+            "timeman",
+            "timemanmobile",
+            "user",
+            "user_basic",
+            "user_brief",
+            "user.userfield",
+            "userconsent",
+            "userfieldconfig",
+            "vibecodeconnector",
+            "vote"
+          ],
+          "apiVersions": [
+            "1.0"
+          ],
+          "expected": "different-user",
+          "observed": "different-user"
+        },
+        {
+          "case": "second-user-assignment",
+          "taskId": 6344,
+          "ownerId": 1,
+          "actingUserId": 16,
+          "expected": 16,
+          "observed": 16,
+          "readbackApiVersion": "3.0"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\AttachTaskFilesCommandTest",
+      "test": "testAttachmentMembershipIsReadIndependentlyFromTaskRelation",
+      "command": "task:file:attach",
+      "happyPath": false,
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        6346
+      ],
+      "ownedDiskFileIds": [
+        1700
+      ],
+      "ownedDiskFolderIds": [],
+      "commands": [
+        {
+          "command": "task:file:attach",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.file.attach",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": null,
+          "outcomeUnknown": null,
+          "actingUserId": 1,
+          "target": [
+            6346,
+            1700
+          ],
+          "expectedExitStatuses": [
+            0
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": [],
+        "diskFolderIds": []
+      },
+      "acceptance": [],
+      "passed": false,
+      "finding": {
+        "fileIds": null,
+        "membershipVerified": false
+      }
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\FindTaskCommandTest",
+      "test": "testBoundedScanCannotClaimCompleteFixtureSearch",
+      "command": "task:find",
+      "happyPath": false,
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        6348,
+        6350
+      ],
+      "ownedDiskFileIds": [],
+      "ownedDiskFolderIds": [],
+      "commands": [
+        {
+          "command": "task:find",
+          "status": 3,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ],
+          "complete": false,
+          "reason": "scan-budget-exhausted",
+          "errorCode": "partial-result",
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": null,
+          "outcomeUnknown": null,
+          "actingUserId": 1,
+          "target": [
+            1
+          ],
+          "expectedExitStatuses": [
+            3
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": [],
+        "diskFolderIds": []
+      },
+      "acceptance": [],
+      "passed": true
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskCommandTest",
+      "test": "testBoundedScanCannotClaimCompleteFixtureSearch",
+      "command": "task:list",
+      "happyPath": false,
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        6352,
+        6354
+      ],
+      "ownedDiskFileIds": [],
+      "ownedDiskFolderIds": [],
+      "commands": [
+        {
+          "command": "task:list",
+          "status": 3,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ],
+          "complete": false,
+          "reason": "scan-budget-exhausted",
+          "errorCode": "partial-result",
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": null,
+          "outcomeUnknown": null,
+          "actingUserId": 1,
+          "target": [
+            6352,
+            6354,
+            1
+          ],
+          "expectedExitStatuses": [
+            3
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": [],
+        "diskFolderIds": []
+      },
+      "acceptance": [],
+      "passed": true
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskFieldsCommandTest",
+      "test": "testSecondUserReadsSameTitleSchema",
+      "command": "task:fields:list",
+      "happyPath": false,
+      "actingUserId": 1,
+      "ownedTaskIds": [],
+      "ownedDiskFileIds": [],
+      "ownedDiskFolderIds": [],
+      "commands": [
+        {
+          "command": "task:fields:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.field.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": null,
+          "outcomeUnknown": null,
+          "actingUserId": 1,
+          "target": [],
+          "expectedExitStatuses": [
+            0
+          ]
+        },
+        {
+          "command": "task:fields:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.field.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": null,
+          "outcomeUnknown": null,
+          "actingUserId": 16,
+          "target": [],
+          "expectedExitStatuses": [
+            0
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": [],
+        "diskFolderIds": []
+      },
+      "acceptance": [
+        {
+          "case": "second-user-identity",
+          "setting": "BITRIX24_SECOND_USER_WEBHOOK",
+          "actingUserId": 16,
+          "scopes": [
+            "ai_admin",
+            "aiassistant",
+            "appform",
+            "baas",
+            "biconnector",
+            "biconnectormobile",
+            "bizproc",
+            "bizprocdesigner",
+            "booking",
+            "calendar",
+            "calendarmobile",
+            "call",
+            "cashbox",
+            "catalog",
+            "catalogmobile",
+            "configuration.import",
+            "contact_center",
+            "crm",
+            "delivery",
+            "department",
+            "disk",
+            "documentgenerator",
+            "entity",
+            "forum",
+            "humanresources",
+            "humanresources.hcmlink",
+            "iblock",
+            "im",
+            "im.import",
+            "imbot",
+            "imconnector",
+            "imopenlines",
+            "intranet",
+            "landing",
+            "landing_cloud",
+            "lists",
+            "log",
+            "mail",
+            "mailsender",
+            "mailservice",
+            "main",
+            "messageservice",
+            "mobile",
+            "note",
+            "notifications",
+            "pay_system",
+            "placement",
+            "pull",
+            "pull_channel",
+            "rating",
+            "rest",
+            "rpa",
+            "sale",
+            "salescenter",
+            "sign.b2e",
+            "smile",
+            "socialnetwork",
+            "sonet_group",
+            "task",
+            "tasks",
+            "tasks_extended",
+            "tasksmobile",
+            "telephony",
+            "timeman",
+            "timemanmobile",
+            "user",
+            "user_basic",
+            "user_brief",
+            "user.userfield",
+            "userconsent",
+            "userfieldconfig",
+            "vibecodeconnector",
+            "vote"
+          ],
+          "apiVersions": [
+            "1.0"
+          ],
+          "expected": "different-user",
+          "observed": "different-user"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskHistoryCommandTest",
+      "test": "testKnownHistoryChainKeepsUnverifiedNavigationPartial",
+      "command": "task:history:list",
+      "happyPath": false,
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        6356
+      ],
+      "ownedDiskFileIds": [],
+      "ownedDiskFolderIds": [],
+      "commands": [
+        {
+          "command": "task:history:list",
+          "status": 3,
+          "apiCalls": [
+            {
+              "method": "tasks.task.history.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": false,
+          "reason": "history-navigation-unverified",
+          "errorCode": "partial-result",
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": null,
+          "outcomeUnknown": null,
+          "actingUserId": 1,
+          "target": [
+            6356
+          ],
+          "expectedExitStatuses": [
+            3
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": [],
+        "diskFolderIds": []
+      },
+      "acceptance": [
+        {
+          "case": "known-history-chain",
+          "taskId": 6356,
+          "apiVersion": "1.0",
+          "expected": 2,
+          "observed": 2,
+          "complete": false,
+          "reason": "history-navigation-unverified"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskTimeEntriesCommandTest",
+      "test": "testSecondUserWithoutTaskRoleCannotAccessOwnedFixture",
+      "command": "task:time:list",
+      "happyPath": false,
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        6358
+      ],
+      "ownedDiskFileIds": [],
+      "ownedDiskFolderIds": [],
+      "commands": [],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": [],
+        "diskFolderIds": []
+      },
+      "acceptance": [
+        {
+          "case": "second-user-identity",
+          "setting": "BITRIX24_SECOND_USER_WEBHOOK",
+          "actingUserId": 16,
+          "scopes": [
+            "ai_admin",
+            "aiassistant",
+            "appform",
+            "baas",
+            "biconnector",
+            "biconnectormobile",
+            "bizproc",
+            "bizprocdesigner",
+            "booking",
+            "calendar",
+            "calendarmobile",
+            "call",
+            "cashbox",
+            "catalog",
+            "catalogmobile",
+            "configuration.import",
+            "contact_center",
+            "crm",
+            "delivery",
+            "department",
+            "disk",
+            "documentgenerator",
+            "entity",
+            "forum",
+            "humanresources",
+            "humanresources.hcmlink",
+            "iblock",
+            "im",
+            "im.import",
+            "imbot",
+            "imconnector",
+            "imopenlines",
+            "intranet",
+            "landing",
+            "landing_cloud",
+            "lists",
+            "log",
+            "mail",
+            "mailsender",
+            "mailservice",
+            "main",
+            "messageservice",
+            "mobile",
+            "note",
+            "notifications",
+            "pay_system",
+            "placement",
+            "pull",
+            "pull_channel",
+            "rating",
+            "rest",
+            "rpa",
+            "sale",
+            "salescenter",
+            "sign.b2e",
+            "smile",
+            "socialnetwork",
+            "sonet_group",
+            "task",
+            "tasks",
+            "tasks_extended",
+            "tasksmobile",
+            "telephony",
+            "timeman",
+            "timemanmobile",
+            "user",
+            "user_basic",
+            "user_brief",
+            "user.userfield",
+            "userconsent",
+            "userfieldconfig",
+            "vibecodeconnector",
+            "vote"
+          ],
+          "apiVersions": [
+            "1.0"
+          ],
+          "expected": "different-user",
+          "observed": "different-user"
+        },
+        {
+          "case": "outsider-access-preflight",
+          "taskId": 6358,
+          "ownerId": 1,
+          "actingUserId": 16,
+          "apiVersion": "3.0",
+          "expected": "non-admin-outsider",
+          "observed": {
+            "read": true,
+            "watch": true,
+            "mute": true,
+            "createResult": true,
+            "edit": true,
+            "remove": true,
+            "complete": true,
+            "approve": false,
+            "disapprove": false,
+            "start": true,
+            "take": false,
+            "delegate": true,
+            "defer": true,
+            "renew": false,
+            "deadline": true,
+            "datePlan": true,
+            "changeDirector": false,
+            "changeResponsible": true,
+            "changeAccomplices": true,
+            "pause": false,
+            "timeTracking": false,
+            "mark": true,
+            "changeStatus": true,
+            "reminder": true,
+            "addAuditors": true,
+            "elapsedTime": true,
+            "favorite": true,
+            "checklistAdd": true,
+            "checklistEdit": true,
+            "checklistSave": true,
+            "checklistToggle": true,
+            "automate": true,
+            "resultEdit": false,
+            "completeResult": true,
+            "removeResult": false,
+            "resultRead": false,
+            "admin": true,
+            "createSubtask": true,
+            "copy": true,
+            "saveAsTemplate": true,
+            "attachFile": true,
+            "detachFile": true,
+            "detachParent": true,
+            "createGanttDependence": true,
+            "sort": false
+          }
+        }
+      ],
+      "passed": false
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ListTaskTimeEntriesCommandTest",
+      "test": "testKnownTimeEntriesAcrossDocumentedNavigation",
+      "command": "task:time:list",
+      "happyPath": false,
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        6360
+      ],
+      "ownedDiskFileIds": [],
+      "ownedDiskFolderIds": [],
+      "commands": [
+        {
+          "command": "task:time:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "task.elapseditem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": null,
+          "outcomeUnknown": null,
+          "actingUserId": 1,
+          "target": [
+            6360
+          ],
+          "expectedExitStatuses": [
+            0,
+            3
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": [],
+        "diskFolderIds": []
+      },
+      "acceptance": [],
+      "passed": false,
+      "finding": {
+        "expectedEntryCount": 3,
+        "observedEntryCount": 2,
+        "exitStatus": 0,
+        "complete": true,
+        "navigationVerified": false
+      }
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ShowTaskCommandTest",
+      "test": "testSecondUserWithoutTaskRoleCannotAccessOwnedFixture",
+      "command": "task:show",
+      "happyPath": false,
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        6362
+      ],
+      "ownedDiskFileIds": [],
+      "ownedDiskFolderIds": [],
+      "commands": [],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": [],
+        "diskFolderIds": []
+      },
+      "acceptance": [
+        {
+          "case": "second-user-identity",
+          "setting": "BITRIX24_SECOND_USER_WEBHOOK",
+          "actingUserId": 16,
+          "scopes": [
+            "ai_admin",
+            "aiassistant",
+            "appform",
+            "baas",
+            "biconnector",
+            "biconnectormobile",
+            "bizproc",
+            "bizprocdesigner",
+            "booking",
+            "calendar",
+            "calendarmobile",
+            "call",
+            "cashbox",
+            "catalog",
+            "catalogmobile",
+            "configuration.import",
+            "contact_center",
+            "crm",
+            "delivery",
+            "department",
+            "disk",
+            "documentgenerator",
+            "entity",
+            "forum",
+            "humanresources",
+            "humanresources.hcmlink",
+            "iblock",
+            "im",
+            "im.import",
+            "imbot",
+            "imconnector",
+            "imopenlines",
+            "intranet",
+            "landing",
+            "landing_cloud",
+            "lists",
+            "log",
+            "mail",
+            "mailsender",
+            "mailservice",
+            "main",
+            "messageservice",
+            "mobile",
+            "note",
+            "notifications",
+            "pay_system",
+            "placement",
+            "pull",
+            "pull_channel",
+            "rating",
+            "rest",
+            "rpa",
+            "sale",
+            "salescenter",
+            "sign.b2e",
+            "smile",
+            "socialnetwork",
+            "sonet_group",
+            "task",
+            "tasks",
+            "tasks_extended",
+            "tasksmobile",
+            "telephony",
+            "timeman",
+            "timemanmobile",
+            "user",
+            "user_basic",
+            "user_brief",
+            "user.userfield",
+            "userconsent",
+            "userfieldconfig",
+            "vibecodeconnector",
+            "vote"
+          ],
+          "apiVersions": [
+            "1.0"
+          ],
+          "expected": "different-user",
+          "observed": "different-user"
+        },
+        {
+          "case": "outsider-access-preflight",
+          "taskId": 6362,
+          "ownerId": 1,
+          "actingUserId": 16,
+          "apiVersion": "3.0",
+          "expected": "non-admin-outsider",
+          "observed": {
+            "read": true,
+            "watch": true,
+            "mute": true,
+            "createResult": true,
+            "edit": true,
+            "remove": true,
+            "complete": true,
+            "approve": false,
+            "disapprove": false,
+            "start": true,
+            "take": false,
+            "delegate": true,
+            "defer": true,
+            "renew": false,
+            "deadline": true,
+            "datePlan": true,
+            "changeDirector": false,
+            "changeResponsible": true,
+            "changeAccomplices": true,
+            "pause": false,
+            "timeTracking": false,
+            "mark": true,
+            "changeStatus": true,
+            "reminder": true,
+            "addAuditors": true,
+            "elapsedTime": true,
+            "favorite": true,
+            "checklistAdd": true,
+            "checklistEdit": true,
+            "checklistSave": true,
+            "checklistToggle": true,
+            "automate": true,
+            "resultEdit": false,
+            "completeResult": true,
+            "removeResult": false,
+            "resultRead": false,
+            "admin": true,
+            "createSubtask": true,
+            "copy": true,
+            "saveAsTemplate": true,
+            "attachFile": true,
+            "detachFile": true,
+            "detachParent": true,
+            "createGanttDependence": true,
+            "sort": false
+          }
+        }
+      ],
+      "passed": false
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\ShowTaskCommandTest",
+      "test": "testNativePopulatedAuditorsAndSelectedCompanionReadsRemainSeparate",
+      "command": "task:show",
+      "happyPath": false,
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        6364
+      ],
+      "ownedDiskFileIds": [],
+      "ownedDiskFolderIds": [],
+      "commands": [
+        {
+          "command": "task:show",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": null,
+          "outcomeUnknown": null,
+          "actingUserId": 1,
+          "target": [
+            6364
+          ],
+          "expectedExitStatuses": [
+            0
+          ]
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": [],
+        "diskFolderIds": []
+      },
+      "acceptance": [
+        {
+          "case": "second-user-identity",
+          "setting": "BITRIX24_SECOND_USER_WEBHOOK",
+          "actingUserId": 16,
+          "scopes": [
+            "ai_admin",
+            "aiassistant",
+            "appform",
+            "baas",
+            "biconnector",
+            "biconnectormobile",
+            "bizproc",
+            "bizprocdesigner",
+            "booking",
+            "calendar",
+            "calendarmobile",
+            "call",
+            "cashbox",
+            "catalog",
+            "catalogmobile",
+            "configuration.import",
+            "contact_center",
+            "crm",
+            "delivery",
+            "department",
+            "disk",
+            "documentgenerator",
+            "entity",
+            "forum",
+            "humanresources",
+            "humanresources.hcmlink",
+            "iblock",
+            "im",
+            "im.import",
+            "imbot",
+            "imconnector",
+            "imopenlines",
+            "intranet",
+            "landing",
+            "landing_cloud",
+            "lists",
+            "log",
+            "mail",
+            "mailsender",
+            "mailservice",
+            "main",
+            "messageservice",
+            "mobile",
+            "note",
+            "notifications",
+            "pay_system",
+            "placement",
+            "pull",
+            "pull_channel",
+            "rating",
+            "rest",
+            "rpa",
+            "sale",
+            "salescenter",
+            "sign.b2e",
+            "smile",
+            "socialnetwork",
+            "sonet_group",
+            "task",
+            "tasks",
+            "tasks_extended",
+            "tasksmobile",
+            "telephony",
+            "timeman",
+            "timemanmobile",
+            "user",
+            "user_basic",
+            "user_brief",
+            "user.userfield",
+            "userconsent",
+            "userfieldconfig",
+            "vibecodeconnector",
+            "vote"
+          ],
+          "apiVersions": [
+            "1.0"
+          ],
+          "expected": "different-user",
+          "observed": "different-user"
+        },
+        {
+          "case": "native-populated-auditors",
+          "taskId": 6364,
+          "apiVersion": "3.0",
+          "expected": "observe-native-contract",
+          "observed": "INTERNAL_SERVER_ERROR"
+        },
+        {
+          "case": "preselected-companion-read",
+          "taskId": 6364,
+          "expected": [
+            16
+          ],
+          "observed": [
+            16
+          ]
+        }
+      ],
+      "passed": true
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+sh ./scripts/compose.sh run --rm -T php-cli vendor/bin/phpunit --testsuite unit-tests --filter HelpAndAboutTest
+ Container bitrix24-cli-47176927b465f0ddaab87fda891e8be985a33e623870879c7fd9de657ff3fb2c-php-cli-run-d5a745d94e46 Creating 
+ Container bitrix24-cli-47176927b465f0ddaab87fda891e8be985a33e623870879c7fd9de657ff3fb2c-php-cli-run-d5a745d94e46 Created 
+PHPUnit 12.5.38 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.4.26
+Configuration: /var/www/html/phpunit.xml.dist
+
+.....                                                               5 / 5 (100%)
+
+Time: 00:00.192, Memory: 34.00 MB
+
+OK (5 tests, 588 assertions)

@@ -1,0 +1,156 @@
+{
+  "taskId": 6324,
+  "creationReadback": [
+    {
+      "id": 6324,
+      "created": "2026-10-14T09:30:42+03:00",
+      "status": "in_progress"
+    }
+  ],
+  "finalCard": {
+    "id": 6324,
+    "status": "in_progress",
+    "statusChanged": "2026-10-14T09:30:44+03:00",
+    "changed": "2026-10-14T09:30:45+03:00"
+  },
+  "modern": {
+    "request": {
+      "taskId": 6324
+    },
+    "httpStatus": 200,
+    "rootKeys": [
+      "result",
+      "time"
+    ],
+    "resultKeys": [
+      "list"
+    ],
+    "rootNext": null,
+    "rootTotal": null,
+    "nestedNext": null,
+    "nestedTotal": null,
+    "dtoNext": null,
+    "dtoTotal": null,
+    "rawEqualsDto": true,
+    "ids": [
+      16396,
+      16516,
+      23756,
+      23760,
+      23762
+    ],
+    "events": [
+      {
+        "id": 16396,
+        "createdDate": "2026-02-23T07:49:54+03:00",
+        "field": "NEW",
+        "value": {
+          "from": null,
+          "to": null
+        },
+        "userId": 1
+      },
+      {
+        "id": 16516,
+        "createdDate": "2026-02-23T07:50:15+03:00",
+        "field": "DELETE",
+        "value": {
+          "from": null,
+          "to": null
+        },
+        "userId": 1
+      },
+      {
+        "id": 23756,
+        "createdDate": "2026-10-14T09:30:43+03:00",
+        "field": "NEW",
+        "value": {
+          "from": null,
+          "to": null
+        },
+        "userId": 1
+      },
+      {
+        "id": 23760,
+        "createdDate": "2026-10-14T09:30:44+03:00",
+        "field": "STATUS",
+        "value": {
+          "from": "2",
+          "to": "3"
+        },
+        "userId": 1
+      },
+      {
+        "id": 23762,
+        "createdDate": "2026-10-14T09:30:45+03:00",
+        "field": "TITLE",
+        "value": {
+          "from": "b24cli-history-probe-A-be369714257afcd8",
+          "to": "b24cli-history-probe-A-change-1"
+        },
+        "userId": 1
+      }
+    ]
+  },
+  "legacy": {
+    "rootKeys": [
+      "result",
+      "time"
+    ],
+    "next": null,
+    "total": null,
+    "events": [
+      {
+        "CREATED_DATE": "2026-02-23T07:49:54+03:00",
+        "USER_ID": 1,
+        "TASK_ID": 6324,
+        "FIELD": "NEW",
+        "FROM_VALUE": null,
+        "TO_VALUE": null
+      },
+      {
+        "CREATED_DATE": "2026-02-23T07:50:15+03:00",
+        "USER_ID": 1,
+        "TASK_ID": 6324,
+        "FIELD": "DELETE",
+        "FROM_VALUE": null,
+        "TO_VALUE": null
+      },
+      {
+        "CREATED_DATE": "2026-10-14T09:30:43+03:00",
+        "USER_ID": 1,
+        "TASK_ID": 6324,
+        "FIELD": "NEW",
+        "FROM_VALUE": null,
+        "TO_VALUE": null
+      },
+      {
+        "CREATED_DATE": "2026-10-14T09:30:44+03:00",
+        "USER_ID": 1,
+        "TASK_ID": 6324,
+        "FIELD": "STATUS",
+        "FROM_VALUE": "2",
+        "TO_VALUE": "3"
+      },
+      {
+        "CREATED_DATE": "2026-10-14T09:30:45+03:00",
+        "USER_ID": 1,
+        "TASK_ID": 6324,
+        "FIELD": "TITLE",
+        "FROM_VALUE": "b24cli-history-probe-A-be369714257afcd8",
+        "TO_VALUE": "b24cli-history-probe-A-change-1"
+      }
+    ]
+  },
+  "cleanup": [
+    {
+      "id": 6326,
+      "deleted": true
+    },
+    {
+      "id": 6324,
+      "deleted": true
+    }
+  ],
+  "diagnosticOnly": "task.logitem.list called positionally with SDK bx24_request_id removed only from this diagnostic request URL; production SDK and CLI unchanged."
+}

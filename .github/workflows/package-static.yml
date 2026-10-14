@@ -1,10 +1,9 @@
 name: Package standalone binaries
 
 on:
-  pull_request:
-    branches: [dev, main]
   push:
-    branches: [dev]
+    branches: [builds]
+    tags: ['*.*.*-rc-*']
   workflow_dispatch:
 
 permissions:
@@ -15,7 +14,35 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  source:
+    name: Validate development or RC source
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      version: ${{ steps.identity.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Validate exact candidate identity
+        id: identity
+        env:
+          SOURCE_REF: ${{ github.ref }}
+          SOURCE_TAG: ${{ github.ref_name }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          if [[ "$SOURCE_REF" == refs/tags/*-rc-* ]]; then
+            python3 build/source.py --rc-tag "$SOURCE_TAG" --source-sha "$SOURCE_SHA"
+            echo "version=$SOURCE_TAG" >> "$GITHUB_OUTPUT"
+          else
+            python3 build/source.py --source-sha "$SOURCE_SHA"
+          fi
+
   packages:
+    needs: source
     uses: ./.github/workflows/package-platforms.yml
     with:
-      source_sha: ${{ github.event.pull_request.head.sha || github.sha }}
+      source_sha: ${{ github.sha }}
+      release_version: ${{ needs.source.outputs.version }}

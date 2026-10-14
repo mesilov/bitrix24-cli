@@ -31,10 +31,13 @@ final class AddTaskCommand extends Command
         $this->addOption('deadline', null, InputOption::VALUE_REQUIRED, 'ISO8601 с часовым поясом.');
         $this->addOption('description', null, InputOption::VALUE_REQUIRED, 'Описание; пустая строка очищает его.');
         $this->addOption('description-file', null, InputOption::VALUE_REQUIRED, 'Описание из PATH или - (stdin).');
-        $this->addOption('fields', null, InputOption::VALUE_REQUIRED, 'Отдельный advanced JSON object writable полей.');
-        $this->addOption('fields-file', null, InputOption::VALUE_REQUIRED, 'Advanced JSON из PATH или -.');
+        $this->addOption('tag', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Полный набор тегов (TAGS, REST 1.0); повторяйте для нескольких названий.');
+        $this->addOption('user-fields', null, InputOption::VALUE_REQUIRED, 'JSON-объект custom UF_* значений; REST 1.0, недоступен в strict-rest3.');
+        $this->addOption('user-fields-file', null, InputOption::VALUE_REQUIRED, 'Custom UF_* JSON из PATH или - (stdin).');
+        $this->addOption('fields', null, InputOption::VALUE_REQUIRED, 'Отдельный JSON-объект доступных для записи полей.');
+        $this->addOption('fields-file', null, InputOption::VALUE_REQUIRED, 'Расширенный JSON из PATH или -.');
         $this->addOption('dry-run', null, InputOption::VALUE_NONE, 'Показать план без записи; проверочные чтения обозначены.');
-        $this->setHelp('JSON: data/meta/error envelope; plain TSV columns: taskId, resourceId, action, changedFields. REST 3.0.  --fields/--fields-file — отдельный режим с проверкой editable метаданных. title обязателен; creatorId/responsibleId могут быть взяты из выбранного default.task. Явные поля выше profile defaults; allowsTimeTracking по умолчанию false. Пример: b24cli task:add --title "Подготовить договор" --creator 1 --responsible 2 --group-id 42 --description "Версия для клиента"');
+        $this->setHelp('--user-fields/--user-fields-file задаёт точные UF_* коды и значения. Custom task:add — один REST1 add; advanced JSON в этом режиме использует TITLE/CREATED_BY/RESPONSIBLE_ID/GROUP_ID/DESCRIPTION/DEADLINE/ALLOW_TIME_TRACKING (Y/N). Custom task:update — REST1 для UF_*, обычные поля REST3; составное обновление может дать частичный результат. Пропущенные поля сохраняются, пустая строка/список явно очищает; обязательность проверяет портал. Dry-run custom режима читает схему, без записи. ' . 'JSON: структура data/meta/error; столбцы TSV при --plain: taskId, resourceId, action, changedFields. Обычные поля — REST 3.0; --tag — отдельная запись REST 1.0, недоступная в strict-rest3. Теги задаются полным набором; без опции сохраняются. Частичный результат содержит TASK_ID: проверьте task:show с tags.id/tags.name и повторите только task:update с тегами.  --fields/--fields-file — отдельный режим с локальной проверкой документированных имён и типов. title обязателен; creatorId/responsibleId могут быть взяты из выбранного default.task. Явные поля выше значений профиля по умолчанию; allowsTimeTracking по умолчанию false. Пример: b24cli task:add --title "Подготовить договор" --creator 1 --responsible 2 --group-id 42 --description "Версия для клиента" --tag "#плановая" --tag "Этап 1"');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

@@ -22,4 +22,15 @@ final class SendTaskChatMessageCommandTest extends LiveTaskCommandTestCase
         self::assertCount(1, $own);
         self::assertSame($this->userId, $own[0]['authorId']);
     }
+    #[Group('portal-acceptance')]
+    public function testSecondUserWithoutTaskRoleCannotAccessOwnedFixture(): void
+    {
+        [$second] = $this->secondUser();
+        $id = $this->createTask();
+
+
+        $this->assertSecondUserDenied(['task:chat:send', $id, '--text', 'denied']);
+
+    }
+
 }
