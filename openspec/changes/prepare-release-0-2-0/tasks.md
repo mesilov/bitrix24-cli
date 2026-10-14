@@ -25,7 +25,7 @@
 
 - [x] 4.1 Доставить служебные PR и согласовать финальный dev scope с README/скилл чатами; зафиксировать точный выбранный SHA и remaining scope.
 - [x] 4.2 Усилить offline artifact проверку about/purpose/links, публичного каталога и документированных примеров; проверить source help/docs/reference и синтаксис примеров без портала.
-- [ ] 4.3 Дождаться terminal source CI, выбрать dev snapshot, перенести в builds и дождаться зелёной intermediate native matrix.
+- [x] 4.3 Дождаться terminal source CI, выбрать dev snapshot, перенести в builds и дождаться зелёной intermediate native matrix.
 - [ ] 4.4 Создать отсутствующий immutable tag 0.2.0-rc-2 на принятом builds SHA; дождаться зелёной RC matrix/archive и проверить tag/source identity.
 - [ ] 4.5 Проверить готовые RC2 архивы на трёх native OS вне checkout: checksum/version/about/help/catalog/offline/errors; скачать receipts и явно сохранить границы установки/portal.
 - [ ] 4.6 Завершить синхронизацию скилла #6 через PR; передать exact RC2 version/source/catalog и проверить delivery readback.
