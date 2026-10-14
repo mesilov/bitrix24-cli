@@ -24,4 +24,13 @@ final class ListTaskFieldsCommandTest extends LiveTaskCommandTestCase
         self::assertCount(1, $result['data']['items']);
         self::assertSame('title', $result['data']['items'][0]['name']);
     }
+    #[Group('portal-acceptance')]
+    public function testSecondUserReadsSameTitleSchema(): void
+    {
+        $owner = $this->invoke(['task:fields:list', '--name', 'title']);
+        $second = $this->invokeAsSecond(['task:fields:list', '--name', 'title']);
+        self::assertSame($owner['data'], $second['data']);
+        self::assertSame(['3.0'], $second['meta']['apiVersions']);
+    }
+
 }

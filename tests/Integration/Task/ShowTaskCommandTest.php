@@ -58,4 +58,36 @@ final class ShowTaskCommandTest extends LiveTaskCommandTestCase
         self::assertSame([], $result['data']['task']['accomplices']);
         self::assertSame(['tasks.task.get', 'tasks.task.get'], array_column($result['meta']['apiCalls'], 'method'));
     }
+    #[Group('portal-acceptance')]
+    public function testSecondUserWithoutTaskRoleCannotAccessOwnedFixture(): void
+    {
+        [$second] = $this->secondUser();
+        $id = $this->createTask();
+
+
+        $this->assertSecondUserDenied(['task:show', $id]);
+
+    }
+
+    #[Group('portal-acceptance')]
+    public function testNativePopulatedAuditorsAndSelectedCompanionReadsRemainSeparate(): void
+    {
+        [$second] = $this->secondUser();
+        $id = $this->createTask();
+        $this->participants->set($id, null, [$second]);
+        try {
+            $native = $this->api->call('tasks.task.get', 3, ['id' => $id, 'select' => ['id', 'auditors.id', 'auditors.name']]);
+            $this->acceptanceRecords[] = ['case' => 'native-populated-auditors', 'taskId' => $id, 'apiVersion' => '3.0', 'expected' => 'observe-native-contract', 'observed' => 'returned', 'auditorCount' => count($native->result['item']['auditors'] ?? [])];
+        } catch (\Bitrix24\CLI\Application\Failure $failure) {
+            self::assertSame('INTERNAL_SERVER_ERROR', $failure->details['apiErrorCode'] ?? null);
+            $this->acceptanceRecords[] = ['case' => 'native-populated-auditors', 'taskId' => $id, 'apiVersion' => '3.0', 'expected' => 'observe-native-contract', 'observed' => $failure->details['apiErrorCode']];
+        }
+
+        $result = $this->invoke(['task:show', $id, '--select', 'title', '--select', 'auditors.id']);
+        self::assertSame([['id' => $second]], $result['data']['task']['auditors']);
+        self::assertSame(['tasks.task.get', 'tasks.task.get'], array_column($result['meta']['apiCalls'], 'method'));
+        self::assertSame(['3.0', '1.0'], array_column($result['meta']['apiCalls'], 'apiVersion'));
+        $this->acceptanceRecords[] = ['case' => 'preselected-companion-read', 'taskId' => $id, 'expected' => [$second], 'observed' => array_column($result['data']['task']['auditors'], 'id')];
+    }
+
 }

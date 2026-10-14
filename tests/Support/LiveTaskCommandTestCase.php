@@ -25,6 +25,9 @@ use Symfony\Component\Dotenv\Dotenv;
 /** Disposable SDK fixtures isolate each CLI command's integration cases. */
 abstract class LiveTaskCommandTestCase extends LiveCommandTestCase
 {
+    use SecondUserFixtures;
+
+    protected array $acceptanceRecords = [];
     protected Rest3TaskAdapter $tasks;
     protected TaskChatAdapter $chat;
     protected Rest1TimeEntryAdapter $entries;
@@ -76,7 +79,14 @@ abstract class LiveTaskCommandTestCase extends LiveCommandTestCase
 
         if (isset($this->userId)) {
             $evidence = ['class' => static::class, 'test' => $this->nameWithDataSet(), 'command' => $this->commandName(), 'happyPath' => $this->isHappyPath(), 'incomplete' => $this->status()->isIncomplete(), 'actingUserId' => $this->userId, 'ownedTaskIds' => $this->ownedTaskIds, 'ownedDiskFileIds' => $this->createdDiskFiles, 'ownedDiskFolderIds' => $this->createdDiskFolders, 'commands' => $this->observedCommands, 'cleanupFailures' => ['taskIds' => $failed, 'diskFileIds' => $failedFiles, 'diskFolderIds' => $failedFolders]];
-            self::assertNotFalse(file_put_contents($this->root() . '/var/cache/portal-evidence.jsonl', json_encode($evidence, JSON_THROW_ON_ERROR) . "\n", FILE_APPEND | LOCK_EX));
+            $evidence['acceptance'] = $this->acceptanceRecords;
+            $evidence['passed'] = !$this->status()->isFailure() && !$this->status()->isError() && !$this->status()->isSkipped() && !$this->status()->isIncomplete();
+            $directory = $this->root() . '/var/cache';
+            if (!is_dir($directory)) {
+                mkdir($directory, 0700, true);
+            }
+
+            self::assertNotFalse(file_put_contents($directory . '/portal-evidence.jsonl', json_encode($evidence, JSON_THROW_ON_ERROR) . "\n", FILE_APPEND | LOCK_EX));
         }
 
         if ($failed !== [] || $failedFiles !== [] || $failedFolders !== []) {

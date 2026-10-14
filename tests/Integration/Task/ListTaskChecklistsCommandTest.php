@@ -23,4 +23,15 @@ final class ListTaskChecklistsCommandTest extends LiveTaskCommandTestCase
         self::assertSame('Root', $byId[$root]['title']);
         self::assertSame('Other root', $byId[$other]['title']);
     }
+    #[Group('portal-acceptance')]
+    public function testSecondUserWithoutTaskRoleCannotAccessOwnedFixture(): void
+    {
+        [$second] = $this->secondUser();
+        $id = $this->createTask();
+
+        $before = $this->checklistNodes($id);
+        $this->assertSecondUserDenied(['task:checklist:list', $id]);
+        self::assertSame($before, $this->checklistNodes($id));
+    }
+
 }
