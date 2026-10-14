@@ -50,7 +50,9 @@ No critical findings, warnings or suggestions remain from this review.
 
 This verifies documentation, parser syntax and existing offline contracts. No new REST contracts were introduced or changed; examples retain their existing API/JSON field names. Native installation on Linux/macOS/Windows, first-launch OS policies and live portal commands were not executed during this documentation task. Final release/native acceptance remains in #109. Remote CI is reported separately in the PR; local checks do not establish its result.
 
-The change remains active while PR #135 is reviewed. After confirmed merge and issue closure, archive and worktree cleanup follow the repository's maintainer workflow.
+The completed change is archived at `openspec/changes/archive/2026-10-14-streamline-readme-and-guides/` after PR #135 merged into dev and issue #134 closed. There are no delta specs to synchronize. PR #139 delivers the archive to dev; worktree cleanup is the remaining repository-maintainer follow-up after that delivery.
+
+Archive review [P2](https://github.com/mesilov/bitrix24-cli/pull/139#discussion_r4269029491) identified an obsolete active-change paragraph in this report. It has been replaced with the confirmed archived lifecycle state; the implementation delivery receipt above remains authoritative.
 
 ## Review correction receipt (2026-10-14)
 
