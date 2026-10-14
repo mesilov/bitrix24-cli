@@ -40,7 +40,8 @@ curl -fsSL https://raw.githubusercontent.com/mesilov/bitrix24-cli/main/install.s
 b24cli --version
 ```
 
-### Windows amd64 (PowerShell)
+<details>
+<summary>Windows amd64 (PowerShell)</summary>
 
 Вставьте блок в PowerShell: он скачает пакет из одного релиза, проверит его
 и добавит b24cli в пользовательский PATH.
@@ -72,6 +73,8 @@ if (($b24cliPath -split ';') -notcontains $b24cliDir) {
 if (($env:Path -split ';') -notcontains $b24cliDir) { $env:Path = "$b24cliDir;$env:Path" }
 b24cli --version
 ```
+
+</details>
 
 Обновление, ручная установка, PATH, предварительный просмотр скрипта и диагностика
 первого запуска — в [руководстве по установке](docs/install.md).

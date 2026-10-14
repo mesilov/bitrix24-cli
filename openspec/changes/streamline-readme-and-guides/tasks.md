@@ -9,7 +9,7 @@
 ## 2. Reshape README
 
 - [x] 2.1 Add the proposed b24cli heading/agent positioning, preserve CI badges and download links, remove the historical release/acceptance and standalone checksum/dev-CI paragraphs; verify heading order and compare badge and asset URLs before/after.
-- [x] 2.2 Provide separate Linux amd64, macOS arm64 and Windows amd64 happy paths ending in `b24cli --version`, linked to install.md; verify shell syntax and existing installer/manual verification behavior without inventing unsupported installer targets.
+- [x] 2.2 Provide separate Linux amd64, macOS arm64 and Windows amd64 happy paths ending in `b24cli --version`, linked to install.md, with Windows under a platform spoiler; verify shell syntax, rendered spoiler and existing installer/manual verification behavior without inventing unsupported installer targets.
 - [x] 2.3 Replace connection details with a common instruction and three Linux/macOS/Windows `<details>` blocks, linking connection.md; review GitHub rendering and confirm no literal credential appears in shell history examples.
 - [x] 2.4 Add the short «Конфиг» section with purpose and platform locations, linked to config.md; verify Linux/macOS XDG/HOME rules, Windows APPDATA and directory overrides against current implementation.
 - [x] 2.5 Replace long CLI scenarios with a compact catalog and thematic doc links, relocate useful task/user details, remove the requested group-ID tutorial and development sentence; verify each removed topic has a suitable destination and run `make cli-reference-check` against the actual public catalog.

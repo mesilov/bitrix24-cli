@@ -22,7 +22,9 @@ Use the proposed heading in proposal.md, badges, then «Скачать», «Ус
 
 Linux amd64 and macOS arm64 have separate short blocks using the existing shell installer and current-shell env activation. Windows amd64 has a minimal PowerShell download/verified extraction/PATH path using the existing archive process. All paths end in `b24cli --version`. Do not invent a PowerShell installer. Installer checksum enforcement remains automatic; any manual quick start retains checksum verification before extraction. Remove the requested standalone checksum paragraph, dev build block, historical release links, group-ID tutorial and development sentence from README.
 
-Alternative considered: keep lengthy installation in platform spoilers. Rejected for installation because the user requested all details in `docs/install.md`; platform spoilers are requested for connections.
+The user's final layout refinement places the Windows installation block in a collapsed `<details>` element with summary `Windows amd64 (PowerShell)`. Linux/macOS installation remains expanded. This adds one installation spoiler alongside the three connection spoilers.
+
+Keep detailed installation explanations in `docs/install.md`; the Windows spoiler contains only its existing quick-start path.
 
 ### 2. Give three guides clear ownership
 

@@ -9,6 +9,7 @@ README mixes a quick start with almost a thousand lines of installation, configu
 - Use the proposed positioning: **b24cli — command line client for Bitrix24: автоматизируйте работу с задачами из терминала и AI-агентов**. Preserve the CI badges.
 - Keep the download table for Linux amd64, macOS arm64 and Windows amd64. Remove the introductory 0.1.0/acceptance links and the standalone SHA256SUMS and dev-build paragraphs from README.
 - Retain three short platform installation paths ending in `b24cli --version`; move detailed installation, checksum, PATH, updates, CI artifacts and troubleshooting to `docs/install.md`.
+- Keep Linux/macOS installation expanded and place the Windows amd64 PowerShell path inside a GitHub spoiler, as requested in the final layout review.
 - Give a common connection workflow and platform details in GitHub spoilers; move advanced connection selection and examples to `docs/connection.md`.
 - Refresh the compact CLI overview against the registered public catalog and `docs/cli-command-map.md`; move lengthy scenarios into appropriate docs and link them from the overview.
 - Add a short «Конфиг» section explaining purpose and OS locations, with details in `docs/config.md`. Reconcile the existing `docs/configuration.md` and its incoming links.

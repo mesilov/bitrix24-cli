@@ -14,7 +14,7 @@ No critical findings, warnings or suggestions remain from this review.
 
 ## Implementation evidence
 
-- README reduced from 993 to 177 lines. The requested five sections appear in order; the four original badges and three original latest-release download URLs are preserved. Historical release/acceptance links, standalone checksum/dev-CI prose, the group-ID tutorial and development sentence are absent.
+- README reduced from 993 to 180 lines, including the requested Windows-installation spoiler. The requested five sections appear in order; the four original badges and three original latest-release download URLs are preserved. Historical release/acceptance links, standalone checksum/dev-CI prose, the group-ID tutorial and development sentence are absent.
 - Separate Linux/Bash, macOS/zsh and Windows/PowerShell installation paths end in `b24cli --version`. Linux/macOS use the existing installer; Windows downloads both files from one release asset list, verifies the archive before extraction and sets user/current-session PATH. No installer or runtime behavior changed.
 - Three connection spoilers use hidden webhook input, explicit profile selection and an existing read-only `users:current` portal check. `docs/connection.md` distinguishes local metadata commands from actual portal access.
 - `docs/install.md`, `docs/connection.md` and `docs/config.md` contain detailed instructions. `docs/task-usage.md` and `docs/users.md` retain the long task/staff material. The initial extraction retained all 43 README examples (doctor examples already exist in its dedicated guide); after the dev synchronization, one obsolete dev-dispatch example is replaced with the builds-dispatch example.
@@ -57,3 +57,7 @@ The change remains active while PR #135 is reviewed. After confirmed merge and i
 During the review fix CI, dev advanced to `35ee28e` (#136) and introduced a move/edit conflict in README's status-duration section. The resolved README remains the same 177-line entry page. The current upstream duration section is preserved byte-for-byte (apart from its heading level) in `docs/task-usage.md`, including weekday exclusions, seconds/hours/days and updated live-evidence wording. Other upstream files and changelog entries are retained by the normal merge; they are outside this PR's own diff against dev.
 
 After resolution, `make cli-reference-check` matches 56 commands; `make unit TEST_ARGS='--filter "StatusDuration\|Weekday\|HelpAndAboutTest"'` passed 27 tests / 1000 assertions. Relative links (302), README structure, examples, shell syntax and OpenSpec strict validation passed again. The review thread remains resolved; final-head CI is reported in the PR separately.
+
+## Final layout refinement
+
+The user requested the Windows amd64 PowerShell installation block to be collapsed. README now has 180 lines and four spoilers: one Windows installation spoiler plus the existing three platform connection spoilers. All command code blocks are byte-identical to the reviewed README; only the wrapping markup changed. GitHub GFM rendering confirms the Windows PowerShell code is inside the correct details element. The 302 relative links, five sections, four badges, three download URLs and 56-command catalog remain valid.
