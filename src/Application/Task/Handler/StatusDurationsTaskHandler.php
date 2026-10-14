@@ -17,7 +17,7 @@ final readonly class StatusDurationsTaskHandler
 
     public function routes(): array
     {
-        return [new Route('tasks.task.history.list', 1, 'read'), new Route('tasks.task.get', 3, 'read')];
+        return [new Route('tasks.task.history.list', 1, 'read'), new Route('tasks.task.get', 3, 'read'), new Route('tasks.task.list', 3, 'read')];
     }
 
     public function prepare(StatusDurationsTaskRequest $request): PreparedOperation
@@ -25,8 +25,10 @@ final readonly class StatusDurationsTaskHandler
         return new PreparedOperation([], function () use ($request): OperationResult {
             $select = ['status', 'statusChanged', 'changed'];
             $before = $this->tasks->get($request->taskId, $select);
+            $creationBefore = $this->creation($request->taskId);
             $history = $this->scanner->scan($request->taskId, ['order' => ['createdDate' => 'ASC']], true);
             $reasons = $history->meta['reasons'];
+            $creationAfter = $this->creation($request->taskId);
             try {
                 $after = $this->tasks->get($request->taskId, $select);
             } catch (Failure $failure) {
@@ -38,8 +40,23 @@ final readonly class StatusDurationsTaskHandler
                 $reasons[] = 'snapshot-read-error';
             }
 
-            $result = $this->calculator->calculate($request->taskId, $history->data['evidence'], $history->meta['complete'], $reasons, $before, $after, $request->asOf);
-            return new OperationResult($result->profile, $result->data, [...$result->meta, 'collectedAt' => $this->clock->now()->format('Y-m-d\TH:i:s.uP'), 'snapshots' => ['before' => $before, 'after' => $after], 'snapshotAtomic' => false], $result->exitStatus);
+            $creation = ['before' => $creationBefore, 'after' => $creationAfter];
+            $result = $this->calculator->calculate($request->taskId, $history->data['evidence'], $history->meta['complete'], $reasons, $before, $after, $request->asOf, $creation);
+            return new OperationResult($result->profile, $result->data, [...$result->meta, 'collectedAt' => $this->clock->now()->format('Y-m-d\TH:i:s.uP'), 'snapshots' => ['before' => $before, 'after' => $after], 'creationEvidence' => $creation, 'snapshotAtomic' => false], $result->exitStatus);
         });
+    }
+
+    private function creation(int $taskId): array
+    {
+        try {
+            $page = $this->tasks->page([['id', '=', $taskId]], ['id', 'created'], ['id' => 'ASC'], 0, 2);
+            return count($page->items) === 1 && $page->next === null ? $page->items[0] : [];
+        } catch (Failure $failure) {
+            if ($failure->exitStatus === 130) {
+                throw $failure;
+            }
+
+            return [];
+        }
     }
 }

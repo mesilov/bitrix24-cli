@@ -94,3 +94,13 @@ Code 4 mapping is now confirmed and included as supposedly_completed. Numeric re
 User-requested test `testFiveSecondReviewCycleShowsStatusDurationResult` passes: **1 test / 52 assertions**, fixture 6332 deleted, all seven measured pauses >=5 seconds. Six transitions have independent REST3 readbacks and new STATUS IDs; actual command JSON is preserved in five-second-status-durations-result.json and full receipt in five-second-review-cycle-fixture.json. Observed intervals are 6/5/6/6/5/6.110346 seconds; initial pending is unknown. Complete=false/exit3/null totals remains explicit.
 
 Task 3.6 is complete; **10/11 tasks**. Exact acceptance 3.3 remains open. Shared review-cycle helper was parameterized; runtime PHP did not change. License/CS Fixer/PHPStan/Rector and OpenSpec strict/diff checks pass. Current dev 0f6c006 was integrated in 03876c6; its changes only archive binary-distribution docs/specs. No additional production unit-suite repetition is needed for this test-only follow-up. CI is checked separately after publishing the final SHA.
+
+## Current lifetime and controlled exact arithmetic
+
+Tasks 3.7/3.8/3.9 completed; **13/14 tasks**, with 3.3 still open. Handler/catalog declare REST3 list and verify exact id/created before/after history. Calculator excludes valid earlier rows while retaining evidence, uses actual created instead of delayed NEW and accepts documented/live positive STATUS subset 2/3/4/5. Old public history:list/navigation behavior is preserved.
+
+Fresh live fixture 6366: **1 test / 83 assertions**, pass, owned cleanup successful. Ordinary CLI now has only history-navigation-unverified; old NEW/DELETE no longer create lifetime errors. Independently verified controlled action journal gives complete=true with totals pending=12, in_progress=11, supposedly_completed=12, completed=6.236554, deferred/declined=0; total=41.236554 exactly created→asOf. This is coverage=controlled-fixture-actions, not exact ordinary CLI source acceptance. No fake API total/navigation or runtime transport override was used.
+
+Full unit suite **817 tests / 12859 assertions**, pass; targeted **18 tests / 188 assertions**. Cases cover creation identity/race, earlier-lifetime rows, delayed NEW, offset equivalence, current/equal-boundary DELETE, malformed dates and negative meta statuses. See current-lifetime-check.md and separate controlled/CLI JSON artifacts. Earlier partial receipts remain historical evidence and are not overwritten.
+
+Final gates: license/CS Fixer/PHPStan/Rector pass, CLI reference matches 56 public commands, OpenSpec all-strict 26 passed/0 failed, diff check clean. Unrelated define-task-jtbd archive INFO advisories remain separate.

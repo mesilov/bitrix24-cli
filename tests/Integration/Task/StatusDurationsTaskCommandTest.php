@@ -104,6 +104,7 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
         self::assertNotSame($initial['creator']['id'], $initial['responsible']['id']);
         $receipt = ['taskId' => $id, 'apiVersions' => ['1.0', '3.0'], 'initial' => $initial, 'delaySeconds' => $delayMicroseconds / 1000000];
         try {
+            $receipt['creationBefore'] = $this->creationReadback($id);
             $baseline = $this->captureHistory($id);
             $receipt['baseline'] = $baseline;
             $seen = array_column($baseline['events'], null, 'id');
@@ -120,6 +121,7 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
                 usleep($delayMicroseconds);
                 $delayElapsedSeconds = (hrtime(true) - $started) / 1000000000;
                 self::assertGreaterThanOrEqual($delayMicroseconds / 1000000, $delayElapsedSeconds);
+                $beforeAction = $this->card($id, ['status', 'statusChanged', 'changed']);
                 if (in_array($action, [LifecycleAction::Disapprove, LifecycleAction::Approve], true)) {
                     $this->transition($id, $action);
                 } else {
@@ -129,7 +131,7 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
                 $card = $this->card($id, ['status', 'statusChanged', 'changed']);
                 $history = $this->captureHistory($id);
                 $new = array_values(array_filter($history['events'], static fn (array $row): bool => !isset($seen[$row['id']])));
-                $snapshots[] = ['action' => $action->value, 'delayElapsedSeconds' => $delayElapsedSeconds, 'expectedStatus' => $expected, 'card' => $card, 'history' => $history, 'newEvents' => $new];
+                $snapshots[] = ['action' => $action->value, 'delayElapsedSeconds' => $delayElapsedSeconds, 'beforeCard' => $beforeAction, 'expectedStatus' => $expected, 'card' => $card, 'history' => $history, 'newEvents' => $new];
                 $receipt['steps'] = $snapshots;
                 self::assertSame($expected, $card['status']);
                 $statusEvents = array_values(array_filter($new, static fn (array $row): bool => in_array($row['field'], ['STATUS', 'REAL_STATUS'], true)));
@@ -151,6 +153,11 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
 
             $result = $this->invoke(['task:status:durations', $id], [0, 3]);
             $receipt['commandResult'] = $result;
+            $receipt['creationAfter'] = $this->creationReadback($id);
+            if ($waitInCompleted) {
+                $receipt['controlledResult'] = $this->controlledArithmetic($receipt);
+            }
+
             self::assertNotContains('write', array_column($result['meta']['apiCalls'], 'effect'));
             if (!$result['meta']['complete']) {
                 self::assertSame([null], array_values(array_unique($result['data']['totals'])));
@@ -163,6 +170,52 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
             $receipt['cleanupEvidence'] = 'portal-evidence.jsonl records owned task deletion in tearDown';
             file_put_contents($this->root() . '/var/cache/' . $receiptName, json_encode($receipt, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
         }
+    }
+
+    private function creationReadback(int $id): array
+    {
+        $rows = $this->tasks->page([['id', '=', $id]], ['id', 'created'], ['id' => 'ASC'], 0, 2)->items;
+        self::assertCount(1, $rows);
+        self::assertSame($id, $rows[0]['id']);
+        self::assertNotNull(CalendarInstant::parse($rows[0]['created']));
+        return $rows[0];
+    }
+
+    private function controlledArithmetic(array $receipt): array
+    {
+        self::assertSame($receipt['creationBefore'], $receipt['creationAfter']);
+        $created = new \DateTimeImmutable($receipt['creationBefore']['created']);
+        $known = array_values(array_filter($receipt['baseline']['events'], static fn (array $row): bool => new \DateTimeImmutable($row['createdDate']) >= $created));
+        self::assertCount(1, $known, 'The controlled current lifetime starts with one known NEW.');
+        self::assertSame('NEW', $known[0]['field']);
+        $previousTime = $created;
+        $previousStatus = $receipt['initial']['status'];
+        $expected = array_fill_keys(array_column(\Bitrix24\CLI\Application\Task\TaskStatus::cases(), 'value'), 0);
+        foreach ($receipt['steps'] as $step) {
+            self::assertSame($previousStatus, $step['beforeCard']['status']);
+            self::assertCount(1, $step['newEvents'], 'Unexpected fixture activity cannot justify controlled completeness.');
+            self::assertSame($step['card']['statusChanged'], $step['newEvents'][0]['createdDate']);
+            $time = new \DateTimeImmutable($step['card']['statusChanged']);
+            $expected[$previousStatus] += CalendarInstant::elapsed($previousTime, $time);
+            $previousStatus = $step['card']['status'];
+            $previousTime = $time;
+            $known[] = $step['newEvents'][0];
+        }
+
+        $current = array_values(array_filter($receipt['steps'][array_key_last($receipt['steps'])]['history']['events'], static fn (array $row): bool => new \DateTimeImmutable($row['createdDate']) >= $created));
+        self::assertSame(array_column($known, 'id'), array_column($current, 'id'), 'The final known fixture ID set must match every captured action.');
+        $asOf = new \DateTimeImmutable($receipt['commandResult']['data']['asOf']);
+        $expected[$previousStatus] += CalendarInstant::elapsed($previousTime, $asOf);
+        $events = array_map(static fn (array $row): array => [
+            'id' => $row['id'], 'createdDate' => $row['createdDate'], 'field' => $row['field'], 'userId' => $row['userId'], 'from' => $row['value']['from'], 'to' => $row['value']['to'],
+        ], $receipt['steps'][array_key_last($receipt['steps'])]['history']['events']);
+        $snapshots = $receipt['commandResult']['meta']['snapshots'];
+        // Coverage comes from the isolated action journal above, not invented API pagination.
+        $result = (new \Bitrix24\CLI\Application\Task\StatusDurationCalculator())->calculate($receipt['taskId'], $events, true, [], $snapshots['before'], $snapshots['after'], $asOf, ['before' => $receipt['creationBefore'], 'after' => $receipt['creationAfter']]);
+        self::assertSame(0, $result->exitStatus, json_encode($result->meta));
+        self::assertSame($expected, $result->data['totals']);
+        self::assertEqualsWithDelta(CalendarInstant::elapsed($created, $asOf), array_sum($result->data['totals']), 0.000001);
+        return ['data' => $result->data, 'meta' => [...$result->meta, 'coverage' => 'controlled-fixture-actions', 'knownCurrentEventIds' => array_column($known, 'id')], 'exitStatus' => $result->exitStatus];
     }
 
     private function captureHistory(int $id): array
@@ -183,16 +236,19 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
     {
         $id = $this->reopenedFixture();
         $history = $this->evidence($id);
-        $creation = array_values(array_filter($history->data['items'], static fn (array $row): bool => $row['field'] === 'NEW'));
-        $events = array_values(array_filter($history->data['items'], static fn (array $row): bool => $row['field'] === 'REAL_STATUS'));
-        if (!$history->meta['complete'] || count($creation) !== 1 || count($events) !== 7) {
-            self::markTestIncomplete('Exact portal arithmetic is unproven: requires verified navigation, one NEW and seven canonical REAL_STATUS transitions. Partial-result acceptance is a separate test.');
+        $creation = $this->creationReadback($id);
+        $created = new \DateTimeImmutable($creation['created']);
+        $current = array_values(array_filter($history->data['items'], static fn (array $row): bool => new \DateTimeImmutable($row['createdDate']) >= $created));
+        $real = array_values(array_filter($current, static fn (array $row): bool => $row['field'] === 'REAL_STATUS'));
+        $events = $real === [] ? array_values(array_filter($current, static fn (array $row): bool => $row['field'] === 'STATUS')) : $real;
+        if (!$history->meta['complete'] || count($events) !== 7) {
+            self::markTestIncomplete('Exact CLI arithmetic is unproven: requires verified source completeness and seven supported current-lifetime transitions. Controlled-action arithmetic is separate evidence.');
         }
 
         $asOf = new \DateTimeImmutable();
         $result = $this->invoke(['task:status:durations', $id, '--as-of', $asOf->format(DATE_ATOM)]);
         $cutoff = new \DateTimeImmutable($result['data']['asOf']);
-        $previous = new \DateTimeImmutable($creation[0]['createdDate']);
+        $previous = $created;
         $totals = ['pending' => 0, 'in_progress' => 0, 'completed' => 0];
         $mapping = ['2' => 'pending', '3' => 'in_progress', '5' => 'completed'];
         $status = 'pending';

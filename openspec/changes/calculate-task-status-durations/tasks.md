@@ -22,6 +22,10 @@
 
 - [x] 3.6 Добавить отдельный live review-cycle test с паузой 5 секунд перед каждым переходом и перед asOf в completed. Проверка: monotonic delay не меньше 5 секунд; REST3 readback/новые STATUS события после каждого действия; сохранён фактический JSON task:status:durations, наблюдаемые промежутки не объявлены exact totals; fixture удалена.
 
+- [x] 3.7 Читать REST3 list(id filter, id/created) до/после истории, проверить совпадающий ID/неизменный created и отделять строго более ранние события в excludedHistoryEvidence. Начальная граница — created, а не поздний NEW. Проверка: старые NEW/DELETE/STATUS исключены только при доказанной границе, ошибки/изменения created/равенство/плохие даты остаются partial, новые read routes объявлены, history:list не изменён.
+- [x] 3.8 Допустить только подтверждённый положительный STATUS subset 2/3/4/5 как lifecycle transitions; REAL_STATUS сохраняет приоритет и дедупликацию. Проверка: мета/неизвестные значения и неподтверждённые aliases остаются partial; официальный numeric subset + live readbacks трассированы.
+- [x] 3.9 В controlled five-second fixture сохранить created и проверить полный известный набор event IDs, initial/readbacks/cleanup; получить точные суммы чистым production calculator с явно bounded controlled-actions coverage. Проверка: суммы совпадают с независимым расчётом и created→asOf, обычный CLI без source completeness остаётся partial. Это не замена exact CLI acceptance 3.3.
+
 ## 4. Cross-contract verification
 
 - [x] 4.1 Выполнить целевые unit/integration и обязательные repository checks, openspec strict validate и openspec-verify-change. Проверка: итоговый receipt разделяет offline arithmetic, CLI contract, portal completeness и CI; каждое невыполненное acceptance условие оставлено открытым.

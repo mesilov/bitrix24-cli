@@ -10,10 +10,25 @@ use Bitrix24\CLI\Application\OperationResult;
 /** Calendar occupancy over [enteredAt, leftAt). Elapsed observations are not lower bounds. */
 final class StatusDurationCalculator
 {
-    public function calculate(int $taskId, array $events, bool $historyComplete, array $reasons, array $before, array $after, \DateTimeImmutable $asOf): OperationResult
+    public function calculate(int $taskId, array $events, bool $historyComplete, array $reasons, array $before, array $after, \DateTimeImmutable $asOf, ?array $creationEvidence = null): OperationResult
     {
         if (!$historyComplete && $reasons === []) {
             $reasons[] = 'history-incomplete';
+        }
+
+        $scopeCreated = null;
+        $createdText = null;
+        if ($creationEvidence !== null) {
+            $creationBefore = $creationEvidence['before'] ?? [];
+            $creationAfter = $creationEvidence['after'] ?? [];
+            $dateBefore = CalendarInstant::parse($creationBefore['created'] ?? null);
+            $dateAfter = CalendarInstant::parse($creationAfter['created'] ?? null);
+            if (($creationBefore['id'] ?? null) === $taskId && ($creationAfter['id'] ?? null) === $taskId && $dateBefore instanceof \DateTimeImmutable && $dateAfter instanceof \DateTimeImmutable && $dateBefore == $dateAfter) {
+                $scopeCreated = $dateBefore;
+                $createdText = $creationBefore['created'];
+            } else {
+                $reasons[] = 'current-task-creation-unverified';
+            }
         }
 
         $unique = [];
@@ -36,13 +51,19 @@ final class StatusDurationCalculator
         $real = [];
         $status = [];
         $observed = [];
+        $excluded = [];
         foreach ($unique as $event) {
+            $date = CalendarInstant::parse($event['createdDate'] ?? null);
+            if ($scopeCreated instanceof \DateTimeImmutable && $date instanceof \DateTimeImmutable && $date < $scopeCreated) {
+                $excluded[] = [...$event, 'exclusionReason' => 'before-current-task-created'];
+                continue;
+            }
+
             $field = $event['field'] ?? null;
             if (!in_array($field, ['NEW', 'DELETE', 'REAL_STATUS', 'STATUS'], true)) {
                 continue;
             }
 
-            $date = CalendarInstant::parse($event['createdDate'] ?? null);
             if (!$date instanceof \DateTimeImmutable) {
                 $reasons[] = 'invalid-history-date';
             }
@@ -75,7 +96,7 @@ final class StatusDurationCalculator
             }
         }
 
-        // STATUS-only values are observations: the live receipt does not prove REAL_STATUS equivalence.
+        // Only the positive subset independently confirmed by REST3 readbacks is supported.
         foreach ($status as $alias) {
             $matched = false;
             foreach ($real as &$canonical) {
@@ -87,7 +108,8 @@ final class StatusDurationCalculator
             }
 
             unset($canonical);
-            if (!$matched) {
+            $confirmedNumeric = in_array((string) ($alias['from'] ?? ''), ['2', '3', '4', '5'], true) && in_array((string) ($alias['to'] ?? ''), ['2', '3', '4', '5'], true);
+            if (!$matched && ($real !== [] || !$confirmedNumeric)) {
                 $reasons[] = 'status-equivalence-unverified';
             }
         }
@@ -117,12 +139,17 @@ final class StatusDurationCalculator
             }
         }
 
-        $created = count($creation) === 1 ? $creation[0]['date'] : null;
+        $created = $scopeCreated ?? (count($creation) === 1 ? $creation[0]['date'] : null);
+        if ($scopeCreated instanceof \DateTimeImmutable && count($creation) > 1) {
+            $reasons[] = 'ambiguous-creation-boundary';
+        }
+
+        $createdText ??= count($creation) === 1 ? $creation[0]['event']['createdDate'] : null;
         if (!$created instanceof \DateTimeImmutable) {
             $reasons[] = count($creation) > 1 ? 'ambiguous-creation-boundary' : 'missing-creation-boundary';
         }
 
-        if ($historyComplete && $created instanceof \DateTimeImmutable && $asOf < $created) {
+        if (($historyComplete || $scopeCreated instanceof \DateTimeImmutable) && $created instanceof \DateTimeImmutable && $asOf < $created) {
             throw Failure::usage('--as-of precedes the proven creation of the task.');
         }
 
@@ -150,8 +177,8 @@ final class StatusDurationCalculator
         $complete = $historyComplete && $reasons === [];
         $intervals = [];
         $entered = $created instanceof \DateTimeImmutable && $initial !== null && $complete ? $created : null;
-        $entryText = $entered instanceof \DateTimeImmutable ? $creation[0]['event']['createdDate'] : null;
-        $entryIds = $entered instanceof \DateTimeImmutable ? [$creation[0]['event']['id']] : [];
+        $entryText = $entered instanceof \DateTimeImmutable ? $createdText : null;
+        $entryIds = $entered instanceof \DateTimeImmutable && count($creation) === 1 ? [$creation[0]['event']['id']] : [];
         $occupancy = $initial;
         foreach ($ordered as $transition) {
             if ($transition['date'] > $asOf) {
@@ -181,6 +208,8 @@ final class StatusDurationCalculator
             'taskId' => $taskId, 'asOf' => $asOf->format('Y-m-d\TH:i:s.uP'), 'intervals' => $intervals, 'totals' => $totals, 'observedTransitions' => $observed,
             'unknownBoundaries' => $complete ? [] : $reasons,
             'historyEvidence' => array_values(array_filter($events, static fn (array $event): bool => in_array($event['field'] ?? null, ['NEW', 'DELETE', 'REAL_STATUS', 'STATUS'], true))),
+            'excludedHistoryEvidence' => $excluded,
+            'creationBoundary' => ['created' => $createdText, 'source' => $scopeCreated instanceof \DateTimeImmutable ? 'tasks.task.list' : 'tasks.task.history.list', 'apiVersion' => $scopeCreated instanceof \DateTimeImmutable ? '3.0' : '1.0', 'verified' => $scopeCreated instanceof \DateTimeImmutable || ($historyComplete && $created instanceof \DateTimeImmutable)],
         ], ['complete' => $complete, 'historyComplete' => $historyComplete, 'reasons' => $reasons, 'reason' => $reasons === [] ? null : implode(', ', $reasons), 'semantics' => 'calendar-seconds'], $complete ? 0 : 3);
     }
 

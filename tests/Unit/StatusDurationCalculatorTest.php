@@ -204,9 +204,63 @@ final class StatusDurationCalculatorTest extends TestCase
         self::assertSame(120, array_sum($result->data['totals']));
         $statusOnly = array_map(static fn (array $row): array => [...$row, 'field' => $row['field'] === 'REAL_STATUS' ? 'STATUS' : $row['field']], $rows);
         $partial = $this->calculate($statusOnly, before: ['statusChanged' => $this->time(60)], after: ['statusChanged' => $this->time(60)]);
-        self::assertSame(3, $partial->exitStatus);
+        self::assertSame(0, $partial->exitStatus);
         self::assertNotContains('unknown-history-status', $partial->meta['reasons']);
+        self::assertSame($result->data['totals'], $partial->data['totals']);
+    }
+
+    public function testStableRest3CreationExcludesEarlierLivesAndUsesCreatedBeforeNewLog(): void
+    {
+        $rows = $this->events();
+        $rows[0]['createdDate'] = $this->time(1); // NEW was recorded one second after actual creation.
+        array_unshift(
+            $rows,
+            ['id' => 100, 'field' => 'NEW', 'createdDate' => '2026-02-23T00:00:00Z'],
+            ['id' => 101, 'field' => 'REAL_STATUS', 'createdDate' => '2026-02-23T00:01:00Z', 'from' => 'pending', 'to' => 'declined'],
+            ['id' => 102, 'field' => 'DELETE', 'createdDate' => '2026-02-23T00:02:00Z'],
+        );
+        $snapshot = ['status' => 'completed', 'statusChanged' => $this->time(100), 'changed' => $this->time(100)];
+        $creation = ['before' => ['id' => 1, 'created' => $this->time(0)], 'after' => ['id' => 1, 'created' => '2026-10-01T03:00:00+03:00']];
+        $result = (new StatusDurationCalculator())->calculate(1, $rows, true, [], $snapshot, $snapshot, new \DateTimeImmutable($this->time(120)), $creation);
+        self::assertSame(0, $result->exitStatus);
+        self::assertSame($this->calculate()->data['totals'], $result->data['totals']);
+        self::assertSame($this->time(0), $result->data['intervals'][0]['enteredAt']);
+        self::assertSame([100, 101, 102], array_column($result->data['excludedHistoryEvidence'], 'id'));
+        self::assertCount(11, $result->data['historyEvidence']);
+        self::assertCount(7, $result->data['observedTransitions']);
+        self::assertSame('tasks.task.list', $result->data['creationBoundary']['source']);
+        $partial = (new StatusDurationCalculator())->calculate(1, $rows, false, ['history-navigation-unverified'], $snapshot, $snapshot, new \DateTimeImmutable($this->time(120)), $creation);
+        self::assertSame(['history-navigation-unverified'], $partial->meta['reasons']);
         self::assertSame([null], array_values(array_unique($partial->data['totals'])));
+    }
+
+    public function testCreationIdentityRaceAndUnclassifiableEventsKeepTotalsPartial(): void
+    {
+        $snapshot = ['status' => 'completed', 'statusChanged' => $this->time(100), 'changed' => $this->time(100)];
+        $before = ['id' => 1, 'created' => $this->time(0)];
+        foreach ([[], ['id' => 2, 'created' => $this->time(0)], ['id' => 1, 'created' => $this->time(1)], ['id' => 1, 'created' => '2026-10-01T00:00:00']] as $after) {
+            $result = (new StatusDurationCalculator())->calculate(1, $this->events(), true, [], $snapshot, $snapshot, new \DateTimeImmutable($this->time(120)), ['before' => $before, 'after' => $after]);
+            self::assertContains('current-task-creation-unverified', $result->meta['reasons']);
+            self::assertSame([], $result->data['excludedHistoryEvidence']);
+            self::assertSame([null], array_values(array_unique($result->data['totals'])));
+        }
+
+        foreach ([$this->time(0), 'invalid-date'] as $date) {
+            $rows = [...$this->events(), ['id' => 90, 'field' => 'DELETE', 'createdDate' => $date]];
+            $result = (new StatusDurationCalculator())->calculate(1, $rows, true, [], $snapshot, $snapshot, new \DateTimeImmutable($this->time(120)), ['before' => $before, 'after' => $before]);
+            self::assertSame(3, $result->exitStatus);
+            self::assertSame([], $result->data['excludedHistoryEvidence']);
+        }
+    }
+
+    public function testNegativeMetaStatusIsNeverAcceptedAsLifecycle(): void
+    {
+        $rows = $this->events();
+        $rows[1] = [...$rows[1], 'field' => 'STATUS', 'from' => '2', 'to' => '-1'];
+        $result = $this->calculate($rows);
+        self::assertSame(3, $result->exitStatus);
+        self::assertContains('unknown-history-status', $result->meta['reasons']);
+        self::assertSame([null], array_values(array_unique($result->data['totals'])));
     }
 
     public function testMissingInitialStatusAndAsOfBeforeProvenCreation(): void

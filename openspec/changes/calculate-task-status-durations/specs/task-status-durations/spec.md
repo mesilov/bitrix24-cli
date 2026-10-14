@@ -20,6 +20,10 @@ CLI SHALL предоставлять `task:status:durations TASK_ID [--as-of ISO
 - **WHEN** история содержит REAL_STATUS, STATUS, STAGE_ID либо неизвестное значение
 - **THEN** дублирующий STATUS не создаёт второго перехода, стадии исключены, неподтверждённое соответствие не превращается в точный статус/длительность
 
+#### Scenario: Confirmed positive STATUS subset
+- **WHEN** STATUS contains numeric lifecycle values 2/3/4/5 confirmed by official status documentation and independent live readbacks
+- **THEN** the supported transitions are accepted without requiring a duplicate REAL_STATUS row; negative meta codes and unverified aliases remain partial, and history completeness remains independent
+
 ### Requirement: Chronological and consistent history
 CLI SHALL нормализовать даты к абсолютному времени с сохранением исходных offsets, дедуплицировать одинаковые события по ID и проверять цепочку from/to. Равные timestamps SHALL иметь порядок, доказанный контрактом или единственной согласованной цепочкой; ID сам по себе не доказывает хронологию. Конфликтующий ID, плохая дата и разрыв SHALL делать расчёт partial.
 
@@ -40,6 +44,10 @@ CLI SHALL сохранять отдельный интервал каждого 
 #### Scenario: History starts after task creation
 - **WHEN** NEW/дата создания или начальный статус не доказаны
 - **THEN** период перед первым доказанным входом имеет неизвестную границу, итог за жизнь задачи не объявляется полным
+
+#### Scenario: Stable current creation separates earlier lifetimes
+- **WHEN** two REST3 list reads confirm the same task id and created instant
+- **THEN** only strictly earlier valid-dated events are excluded from current-lifetime arithmetic, excluded evidence is retained, and the initial boundary uses created even when NEW is logged later; identity errors or changing creation evidence remain partial
 
 ### Requirement: Single reproducible as-of boundary
 CLI SHALL зафиксировать default asOf до сетевых чтений. Расчёт SHALL использовать полуоткрытые интервалы [enteredAt,leftAt), обрезанные asOf, и секунды абсолютного времени. События после asOf SHALL служить проверке цепочки, не начисляя время. asOf ранее доказанного создания SHALL отклоняться как usage-error после чтения данных.
@@ -94,3 +102,7 @@ JSON SHALL содержать asOf, интервалы enteredAt/leftAt/status/s
 #### Scenario: Server history contains earlier lifetimes for a numeric task ID
 - **WHEN** a new owned fixture has NEW/DELETE before its independently read creation date
 - **THEN** investigation compares raw HTTP, SDK and adapter evidence, checks task isolation and more than fifty known fixture changes, and retains a sanitized reproduction; completeness of known fixture changes does not prove completeness for arbitrary task history, and ambiguous lifetimes keep exact totals null
+
+#### Scenario: Controlled fixture has an independent complete action journal
+- **WHEN** the live fixture's known current event ID set, initial state, per-action readbacks, stable created and final state are independently verified
+- **THEN** the pure production calculator can return exact totals for that explicitly controlled coverage and preserve a separate ordinary CLI result; this does not infer arbitrary history completeness or fabricate API pagination

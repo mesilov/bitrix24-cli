@@ -12,10 +12,20 @@ use PHPUnit\Framework\TestCase;
 
 final class StatusDurationsTaskCommandTest extends TestCase
 {
-    private function api(bool $navigation = true, bool $race = false, bool $snapshotError = false): FakeApiTransport
+    private function api(bool $navigation = true, bool $race = false, bool $snapshotError = false, bool $creationRace = false, bool $creationError = false): FakeApiTransport
     {
         $reads = 0;
-        return new FakeApiTransport(static function (string $method) use (&$reads, $navigation, $race, $snapshotError): ApiResponse {
+        $creationReads = 0;
+        return new FakeApiTransport(static function (string $method) use (&$reads, &$creationReads, $navigation, $race, $snapshotError, $creationRace, $creationError): ApiResponse {
+            if ($method === 'tasks.task.list') {
+                $creationReads++;
+                if ($creationError) {
+                    throw new Failure('permission-denied', 'No creation readback.');
+                }
+
+                return new ApiResponse(['items' => [['id' => 123, 'created' => $creationRace && $creationReads === 2 ? '2026-10-01T00:00:01Z' : '2026-10-01T00:00:00Z']]]);
+            }
+
             if ($method === 'tasks.task.get') {
                 $reads++;
                 if ($snapshotError && $reads === 2) {
@@ -52,9 +62,10 @@ final class StatusDurationsTaskCommandTest extends TestCase
         self::assertSame(10, $json['data']['totals']['pending']);
         self::assertSame(110, $json['data']['totals']['in_progress']);
         self::assertSame('2026-10-01T00:02:00.000000+00:00', $json['data']['asOf']);
-        self::assertSame(['tasks.task.get', 'tasks.task.history.list', 'tasks.task.get'], array_column($api->calls, 'method'));
+        self::assertSame(['tasks.task.get', 'tasks.task.list', 'tasks.task.history.list', 'tasks.task.list', 'tasks.task.get'], array_column($api->calls, 'method'));
         self::assertSame(['id' => 123, 'select' => ['id', 'status', 'statusChanged', 'changed']], $api->calls[0]['parameters']);
-        self::assertSame(['taskId' => 123, 'start' => 0, 'order' => ['createdDate' => 'ASC']], $api->calls[1]['parameters']);
+        self::assertEquals(['filter' => [['id', '=', 123]], 'select' => ['id', 'created'], 'order' => (object) ['id' => 'ASC'], 'pagination' => ['offset' => 0, 'limit' => 2]], $api->calls[1]['parameters']);
+        self::assertSame(['taskId' => 123, 'start' => 0, 'order' => ['createdDate' => 'ASC']], $api->calls[2]['parameters']);
         self::assertSame(['read'], array_unique(array_column($api->calls, 'effect')));
         self::assertFalse($json['meta']['snapshotAtomic']);
         $api = $this->api();
@@ -77,7 +88,7 @@ final class StatusDurationsTaskCommandTest extends TestCase
 
     public function testPartialRaceReadbackErrorAndFormatsExposeUnknownWithoutZero(): void
     {
-        foreach ([$this->api(false), $this->api(race: true), $this->api(snapshotError: true)] as $api) {
+        foreach ([$this->api(false), $this->api(race: true), $this->api(snapshotError: true), $this->api(creationRace: true), $this->api(creationError: true)] as $api) {
             $run = $this->invoke($api, ['--json', 'task:status:durations', '123']);
             self::assertSame(3, $run->status, $run->stdout);
             self::assertSame('partial-result', $run->json()['error']['code']);

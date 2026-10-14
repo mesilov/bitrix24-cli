@@ -22,7 +22,7 @@
 
 ## Impact
 
-Новая команда/handler/request и чистый калькулятор в Application; существующие `HistoryScanner`, `TaskHistoryGateway`, REST1 adapter, runtime catalog/container, ResultPresenter и human renderer. REST1 history + заранее объявленное REST3 чтение карточки для подтверждения состояния. Новых зависимостей и мутаций нет; strict-rest3 запрещает весь смешанный план. `task:history:list` не меняет публичный контракт.
+Новая команда/handler/request и чистый калькулятор в Application; существующие `HistoryScanner`, `TaskHistoryGateway`, REST1 adapter, runtime catalog/container, ResultPresenter и human renderer. REST1 history + заранее объявленные REST3 get для состояния и list с точным id/created для границы текущей жизни. Новых зависимостей и мутаций нет; strict-rest3 запрещает весь смешанный план. `task:history:list` не меняет публичный контракт.
 
 Вне объёма: рабочие календари, SLA, трудозатраты, массовый проектный отчёт, автоматическая отправка, реализация task:report/brief.
 
@@ -43,3 +43,5 @@ Runtime implemented in draft PR #123, synchronized with dev `2b24edd1a808150fb38
 Follow-up investigation: synced dev 464bdb9; raw HTTP and legacy TASK_ID establish server-origin old NEW/DELETE, while >50 controlled changes test fixture completeness without claiming a global contract. See history-investigation-check.md, retained fixture and prepared vendor reproduction. 9/10 tasks complete; exact task 3.3 remains open. DB restore/counter changes are denied by the operator; no server cause is assumed.
 
 Five-second follow-up: a separate live test holds each review-cycle state for at least five seconds and records the actual command output. See five-second-review-cycle-check.md; 10/11 tasks complete, exact acceptance still open.
+
+Current-lifetime follow-up: REST3 id/created before/after now separates earlier history without discarding evidence, and confirmed numeric STATUS 2/3/4/5 is accepted. Fresh controlled fixture arithmetic has non-null totals (current-lifetime-check.md); ordinary CLI still has a separate navigation gate. 13/14 tasks complete; exact ordinary CLI acceptance 3.3 remains open.

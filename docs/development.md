@@ -341,12 +341,14 @@ REST1 маршруты не добавляются и strict-rest3 остаёт�
 `seconds` и `totals` равны `null`; `elapsedBetweenEventsSeconds` содержит только
 разницу меток. Календарь рабочих дней и учёт трудозатрат не применяются.
 Две REST3 карточки `status/statusChanged/changed` проверяют гонки, но не являются
-атомарным snapshot. STATUS-only не доказывает REAL_STATUS эквивалентность.
+атомарным snapshot. Положительные числовые STATUS 2/3/4/5 подтверждены
+официальным numeric subset и независимым REST3 readback; мета-коды и строковые
+aliases без подтверждения REAL_STATUS остаются partial.
 
 Проверки: `make unit TEST_ARGS="--filter StatusDuration"` и
 `make integration TEST_ARGS="--group command:task:status:durations"`.
-Интеграционный happy-path требует навигацию, один NEW и канонические REAL_STATUS
-с двумя повторными открытиями. Невозможность доказать эти условия отмечается
+Интеграционный happy-path требует доказанную source completeness, стабильный
+created и поддержанные статусные переходы с двумя повторными открытиями. Невозможность доказать эти условия отмечается
 как **incomplete**, без успешного exact CLI вызова; это не точная приёмка.
 Отдельный live-тест проверяет null totals, исходную navigation reason и exit 3.
 SDK fixtures удаляются даже при incomplete. Обезличенные live-ограничения
@@ -385,3 +387,18 @@ Live-сценарий `testRejectedReviewThenSuccessfulCompletionRetainsIncremen
 готовые вопросы поставщику — OpenSpec `history-investigation-check.md` и
 `bitrix24-history-support-reproducer.md`. Production не удаляет старые записи,
 не выбирает последний NEW эвристически и сохраняет null exact totals.
+
+Длительности относятся к текущему экземпляру задачи: handler заранее объявляет
+REST3 tasks.task.list, фильтр точного id и select id/created, два чтения вокруг
+истории. При совпадающем ID/created калькулятор исключает только строго более
+ранние события и сохраняет их в excludedHistoryEvidence. Невалидные даты,
+изменение created, ошибки identity или текущий DELETE остаются partial.
+creationBoundary показывает источник и доказанную дату, независимо от полноты
+распределения; NEW может быть записан позднее этой границы.
+
+Controlled five-second test отдельно сверяет known current event IDs,
+начальный статус, readbacks до/после каждого своего действия и created,
+затем вызывает тот же production calculator с coverage=controlled-fixture-actions.
+В receipt раздельно сохраняются commandResult (обычный CLI/source gate) и
+controlledResult (точные суммы для собственной fixture). API pagination не
+подделывается; доказательства из теста не передаются обычной CLI-команде.
