@@ -38,9 +38,13 @@
 - [x] 5.1 Проверить exact-head CI/review MR #143 и подтвердить merge в main с SHA/tag ancestry.
 - [x] 5.2 Дождаться production native/archive/publication jobs; проверить stable Release, assets, metadata/tag identity и exact-source CI.
 - [x] 5.3 Повторить downloaded-artifact acceptance на трёх native OS и проверить public/latest URLs, Unix installation и source/version.
-- [x] 5.4 Сохранить final notes/CHANGELOG/receipts, завершить и архивировать release change, обновить/закрыть #109 и доставить архив в dev через PR, очистить собственные worktree.
+- [x] 5.4 Подготовить final notes/CHANGELOG/receipts, проверить release change и сформировать архив с актуальной OpenSpec-трассировкой.
 
 ## Workflow follow-up
 
 - Promotion в main, создание тега и публикация Release выполняются после согласования конкретного release scope.
 - После разрешённой публикации проверить assets и latest-ссылки, закрыть issue по receipts и архивировать change.
+
+## Post-delivery maintainer readbacks
+
+Merge архивного PR в dev, обновление/закрытие #109 и удаление собственных worktree выполняются после Git delivery. Эти административные readbacks отслеживаются отдельно в #109; они не объявлены выполненными этим archive snapshot и не являются самоподтверждающей задачей артефакта.

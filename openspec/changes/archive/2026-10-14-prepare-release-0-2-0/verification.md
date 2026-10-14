@@ -2,7 +2,7 @@
 
 ## Completeness
 
-24/24 tracked tasks complete. Source, RC1/RC2 and final stable gates have separate receipts. Stable source/tag6bba00c, production38551708207 6/6 success; final native38554068826 3/3 success; public installer38554073724 2/2 success; version/latest probes8/8 HTTP200; stable Release0.2.0 is published/latest with all asset digests matching native SHA256SUMS. Closure/archive delivery is through the evidence PR to dev; published source tag/assets remain unchanged.
+24/24 artifact preparation and release acceptance tasks complete. Source, RC1/RC2 and final stable gates have separate receipts. Stable source/tag6bba00c, production38551708207 6/6 success; final native38554068826 3/3 success; public installer38554073724 2/2 success; version/latest probes8/8 HTTP200; stable Release0.2.0 is published/latest with all asset digests matching native SHA256SUMS. Archive delivery is still pending PR #146 merge at this snapshot; issue closure and cleanup are separate live maintainer checkpoints tracked in #109. Published source tag/assets remain unchanged.
 
 ## Correctness
 
@@ -14,4 +14,4 @@ Release followed immutable builds/RC selection, explicit main/stable/publication
 
 ## Assessment
 
-Verification complete, ready to archive. Prior failures/RC stages preserved. Worktree cleanup follows Git delivery; primary dirty checkout is preserved.
+Verification complete, ready to archive. Prior failures/RC stages preserved. Post-delivery issue/cleanup checkpoints are not claimed complete by this snapshot; their readbacks belong in #109. Primary dirty checkout is preserved.

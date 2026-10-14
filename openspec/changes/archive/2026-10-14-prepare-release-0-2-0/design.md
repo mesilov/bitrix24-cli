@@ -32,3 +32,7 @@
 - [Поверхность CLI меняется после #100] → пересверить список команд и документацию на финальном SHA.
 - [Проверен только один runtime] → выполнить матрицу поддерживаемых платформ и показать оставшиеся ограничения.
 - [Build/merge ошибочно принят за release] → подтвердить публикацию и latest-ссылки отдельно после разрешённого выпуска.
+
+## Archive delivery boundary
+
+Task5.4 covers the completed archive/evidence artifact preparation. The archive cannot self-prove its own subsequent PR merge, issue closure or checkout removal; retain those live administrative checkpoints in #109 and execute/read back them after delivery. This separates evidence timing without removing any authorized completion work.
