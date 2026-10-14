@@ -2,10 +2,10 @@
 
 ## 1. Scope и документация
 
-- [ ] 1.1 Проверить milestone 0.2.0, issues/PR и согласованный scope; сохранить перечень готовых и оставшихся задач в release report.
-- [ ] 1.2 Перепроверить и при необходимости актуализировать результаты #100 на финальных исходниках: root help, командный help с примерами, about, карту CLI и README/JTBD ссылки; сохранить source SHA и результаты сверки.
-- [ ] 1.3 Передать итоговые каталог и version/source SHA в issue скилла #6; проверить ссылки и согласованность материалов скилла с финальным CLI.
-- [ ] 1.4 Актуализировать CHANGELOG/release notes, ограничения и OpenSpec-трассировку; проверить рабочие ссылки и соответствие реальному scope.
+- [x] 1.1 Проверить milestone 0.2.0, issues/PR и согласованный scope; сохранить перечень готовых и оставшихся задач в release report.
+- [x] 1.2 Перепроверить и при необходимости актуализировать результаты #100 на финальных исходниках: root help, командный help с примерами, about, карту CLI и README/JTBD ссылки; сохранить source SHA и результаты сверки.
+- [x] 1.3 Передать итоговые каталог и version/source SHA в issue скилла #6; проверить ссылки и согласованность материалов скилла с финальным CLI.
+- [x] 1.4 Актуализировать CHANGELOG/release notes, ограничения и OpenSpec-трассировку; проверить рабочие ссылки и соответствие реальному scope.
 
 ## 2. Сборка и приёмка 0.2.0
 
@@ -26,9 +26,9 @@
 - [x] 4.1 Доставить служебные PR и согласовать финальный dev scope с README/скилл чатами; зафиксировать точный выбранный SHA и remaining scope.
 - [x] 4.2 Усилить offline artifact проверку about/purpose/links, публичного каталога и документированных примеров; проверить source help/docs/reference и синтаксис примеров без портала.
 - [x] 4.3 Дождаться terminal source CI, выбрать dev snapshot, перенести в builds и дождаться зелёной intermediate native matrix.
-- [ ] 4.4 Создать отсутствующий immutable tag 0.2.0-rc-2 на принятом builds SHA; дождаться зелёной RC matrix/archive и проверить tag/source identity.
-- [ ] 4.5 Проверить готовые RC2 архивы на трёх native OS вне checkout: checksum/version/about/help/catalog/offline/errors; скачать receipts и явно сохранить границы установки/portal.
-- [ ] 4.6 Завершить синхронизацию скилла #6 через PR; передать exact RC2 version/source/catalog и проверить delivery readback.
+- [x] 4.4 Создать отсутствующий immutable tag 0.2.0-rc-2 на принятом builds SHA; дождаться зелёной RC matrix/archive и проверить tag/source identity.
+- [x] 4.5 Проверить готовые RC2 архивы на трёх native OS вне checkout: checksum/version/about/help/catalog/offline/errors; скачать receipts и явно сохранить границы установки/portal.
+- [x] 4.6 Завершить синхронизацию скилла #6 через PR; передать exact RC2 version/source/catalog и проверить delivery readback.
 - [ ] 4.7 Сохранить RC2 report, release notes, CHANGELOG, issue trace и native/CI receipts в dev через PR; проверить отсутствие RC Release/latest unchanged, оставить stable tasks pending.
 
 - [ ] 4.8 Открыть MR dev → main по запросу пользователя, разрешить конфликты истории main через PR в dev, дождаться CI и проверить mergeability/точный head без merge/publish.
