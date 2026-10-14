@@ -14,6 +14,8 @@
 
 - По продолжению пользователя «дожимай» подготовить RC-2 из согласованной актуальной dev: служебные PR, новые README/#136, синхронизация скилла #6, полная offline help/about/docs проверка, native binaries и отчёт без Release.
 
+- По явному разрешению пользователя от 2026-10-14 merge MR #143 в main, stable tag 0.2.0 на exact merged SHA, production matrix, verified publication и проверка public/latest/native installation. Сохранить финальные receipts, закрыть #109 и архивировать завершённый change после проверок.
+
 ## Capabilities
 
 ### New Capabilities

@@ -25,6 +25,8 @@
 
 10. MR dev → main по отдельному запросу пользователя: main fd86141 содержит независимую доставку установщика #28; release MR #143 имеет документационные конфликты. Согласовать историю обычным merge main в отдельную bugfix-ветку от dev, сохранить реализации/receipt обеих веток, проверить идентичность runtime/build inputs frozen RC2 и доставить разрешение через PR в dev. Не выполнять merge в main, stable tag или публикацию.
 
+11. Пользователь явно разрешил финальный выпуск 0.2.0. MR #143 merged в main at 6bba00c0599913a9f5cb0751bdf0d5dd7d7c489b; код/build inputs совпадают с принятым RC2. Production tag immutable, финальные бинарники собираются заново с stable identity. Existing release workflow проверяет native smoke и archive set, публикует verified assets; заранее подготовленный draft сохраняет consolidated notes. Дополнительно проверить скачанные stable artifacts через постоянный manual verifier на трёх ОС, public/latest redirects и Unix installation в isolated HOME. Затем завершить release tasks и archive skip_specs change через PR в dev; published tag/binaries не менять.
+
 ## Risks / Trade-offs
 
 - [Поверхность CLI меняется после #100] → пересверить список команд и документацию на финальном SHA.

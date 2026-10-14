@@ -33,6 +33,13 @@
 
 - [x] 4.8 Открыть MR dev → main по запросу пользователя, разрешить конфликты истории main через PR в dev, дождаться CI и проверить mergeability/точный head без merge/publish.
 
+## 5. Разрешённая публикация 0.2.0
+
+- [x] 5.1 Проверить exact-head CI/review MR #143 и подтвердить merge в main с SHA/tag ancestry.
+- [ ] 5.2 Дождаться production native/archive/publication jobs; проверить stable Release, assets, metadata/tag identity и exact-source CI.
+- [ ] 5.3 Повторить downloaded-artifact acceptance на трёх native OS и проверить public/latest URLs, Unix installation и source/version.
+- [ ] 5.4 Сохранить final notes/CHANGELOG/receipts, завершить и архивировать release change, обновить/закрыть #109 и доставить архив в dev через PR, очистить собственные worktree.
+
 ## Workflow follow-up
 
 - Promotion в main, создание тега и публикация Release выполняются после согласования конкретного release scope.
