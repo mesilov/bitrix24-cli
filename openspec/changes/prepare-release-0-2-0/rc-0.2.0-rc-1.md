@@ -32,3 +32,7 @@ No live portal operations, browser-download quarantine/Gatekeeper installation, 
 ## Publication
 
 Live Release readback on 2026-10-14 lists only published `0.1.0`, still latest. No RC Release was created. No promotion to main or stable tag/publication was performed. Issue #109 remains open and stable-release tasks remain unchecked.
+
+## Current milestone readback
+
+After the RC source was frozen, #134 and #136 were closed and their implementation merged into dev. At report delivery all 28 other milestone issues are closed; only #109 remains open. README archive PR #139 is still open. The current dev snapshot therefore requires a new RC to cover the newer README and weekday/unit changes; RC-1 stays immutable. Skill issue #6 is open and still refers to an older 46-command source catalog; update it against the final 56-command candidate.

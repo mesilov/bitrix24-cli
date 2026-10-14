@@ -19,7 +19,7 @@
 - [x] 3.1 Дождаться зелёных CI/builds, merge #132 в dev с head guard, выбрать проверенный SHA из builds и создать 0.2.0-rc-1 без перемещения тега; проверить PR/tag/ancestry readbacks.
 - [x] 3.2 Дождаться RC native matrix и archive job, скачать immutable artifact set и сохранить run/source/tag/checksum receipts; проверить отсутствие RC Release и неизменный latest.
 - [x] 3.3 Реализовать helper готовых artifacts и проверить RC бинарники на трёх native runners без пересборки: identity/56 commands/help/about/offline JSON/errors, сохранить terminal results.
-- [ ] 3.4 Сохранить RC report, ограничения, OpenSpec-трассировку и CHANGELOG в PR dev, отдельно от stable-release acceptance; проверить отчёт/links/diff.
+- [x] 3.4 Сохранить RC report, ограничения, OpenSpec-трассировку и CHANGELOG в PR dev, отдельно от stable-release acceptance; проверить отчёт/links/diff.
 
 ## Workflow follow-up
 
