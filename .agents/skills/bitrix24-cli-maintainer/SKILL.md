@@ -1,6 +1,6 @@
 ---
 name: bitrix24-cli-maintainer
-description: Сопровождение bitrix24-cli — OpenSpec, GitHub issues и milestones, ветки main/dev, feature/bugfix, отдельные worktree и MR в dev. Используй при планировании и реализации изменений, разборе issues и проверке готовности изменений этого репозитория.
+description: Сопровождение bitrix24-cli — OpenSpec, GitHub issues и milestones, ветки main/dev/builds, feature/bugfix, отдельные worktree, MR в dev и ручная приёмка промежуточных/RC бинарников. Используй при планировании и реализации изменений, разборе issues и проверке готовности изменений этого репозитория.
 ---
 
 # Мейнтейнер bitrix24-cli
@@ -64,9 +64,27 @@ description: Сопровождение bitrix24-cli — OpenSpec, GitHub issues
 
 - `main` — protected branch, где собираются релизы. Не выполняй прямые push в `main` и не обходи защиту ветки.
 - `dev` — ветка, где накапливаются предрелизные изменения.
+- `builds` — постоянная ветка выбранных снимков `dev` для ручной проверки промежуточных бинарников и RC перед релизом. Она не является веткой разработки или автоматическим зеркалом `dev`; пользуйся двумя режимами ниже.
 - Для остальных работ используй ветки `feature/issueID-issue-title` или `bugfix/issueID-issue-title`: `issueID` — номер GitHub issue без `#`, `issue-title` — краткое название issue в kebab-case. Например, `feature/42-add-contact-export` или `bugfix/57-fix-auth-timeout`.
 - Каждую feature- и bugfix-задачу выполняй в отдельном Git worktree, созданном от актуальной `dev`.
 - Результат задачи отправляй на ревью через GitHub pull request (MR) из ветки задачи обратно в `dev`.
+
+### Ручные промежуточные и RC сборки через builds
+
+Используй `builds` вручную по запросу пользователя в двух случаях:
+
+- **Промежуточная проверка:** нужно проверить работу standalone-бинарника по выбранному промежуточному снимку `dev`. Перенеси этот снимок в `builds` обычным merge или fast-forward; push запустит три native платформы. Версия — `dev-<полный SHA коммита builds>`, artifacts доступны в соответствующем Actions run без GitHub Release. Повтор того же снимка возможен через `gh workflow run package-static.yml --ref builds`.
+- **RC перед релизом:** выбран кандидат из `dev`, который нужно прогнать и протестировать, включая бинарники. После выбора и успешной сборки снимка `builds` создай явно согласованный тег `MAJOR.MINOR.PATCH-rc-N`, начиная с `0.2.0-rc-1`, затем `0.2.0-rc-2` и т.д. Тег указывает на точный выбранный builds SHA, а не на плавающий tip `dev`; push RC-тега запускает отдельную сборку с версией, равной тегу. Проверяй именно эти RC artifacts. RC workflow не публикует Release и не меняет latest.
+
+Для обоих режимов:
+
+- До promotion проверь актуальные remote refs, чистоту отдельного checkout и scope выбранного `dev` snapshot. Не запускай promotion по каждому dev push, расписанию или без запроса на сборку. Не вливай `builds` обратно в `dev`/`main`; исправления делай через обычный issue/change/feature или bugfix → `dev`, затем выбирай новый снимок.
+- Сохраняй историю `builds`; не используй force push/reset. Использованный RC-тег не перемещай и не перезаписывай: после исправлений выпускай следующий номер. Перед созданием проверь отсутствие тега локально и в remote.
+- Перед считыванием результатов проверь terminal status всех platform и archive jobs. В отчёте сохраняй выбранный dev SHA, фактический builds/tag SHA, run URL/ID, version/build metadata, SHA256SUMS и границы native/manual/portal проверок. Архивы, checksums и metadata должны происходить из одного run.
+- Проверяй скачанные бинарники вне checkout: версию, `--about`, общий и командный help, установку и согласованные сценарии; native smoke не заменяет ручную/portal приёмку. Диагностика хранится 7 дней, итоговые archives — 30 дней; скачай нужные evidence до истечения срока.
+- Создание RC-тега, проверка кандидата, promotion в `main`, stable tag и публикация Release — отдельные действия. Запрос на intermediate/RC проверку не разрешает автоматически выпуск stable. Не переименовывай dev/RC binaries в stable: финальная версия получает свою сборку и приёмку.
+
+Команды обновления `builds`, скачивания по run ID и проверки checksum/metadata: [build/README.md → Промежуточные снимки из dev](../../../build/README.md#промежуточные-снимки-из-dev). Детали RC: [build/README.md → Ручной RC перед релизом](../../../build/README.md#ручной-rc-перед-релизом).
 
 ### Порядок работы над feature или bugfix
 

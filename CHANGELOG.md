@@ -27,6 +27,10 @@
   проверку и упаковку Linux amd64/macOS arm64/Windows amd64 без тега и Release.
   Версия содержит полный source SHA; диагностика хранится 7 дней, итоговые архивы
   с SHA256SUMS — 30 дней ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
+- Правила мейнтейнера для ручных промежуточных и RC проверок через `builds`;
+  теги `MAJOR.MINOR.PATCH-rc-N` собирают бинарники с точной RC-версией без Release,
+  проверяют принадлежность снимка истории `builds` и исключены из production
+  публикации ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
 
 - Дополнительные portal acceptance cases и sanitized evidence: передача задачи второму пользователю, bounded scans, схема и history/auditors; зафиксированы admin-only ограничение роли, недоказанное file membership и дефект time navigation. Проверки остановлены пользователем; issue закрывается по решению пользователя без полной приёмки ([#42](https://github.com/mesilov/bitrix24-cli/issues/42)).
 

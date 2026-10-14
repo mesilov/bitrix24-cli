@@ -26,3 +26,18 @@
 ## Delivery and native evidence
 
 Ожидаются PR в dev, bootstrap builds SHA, push-triggered run и terminal job/artifact receipts. Issue #109 остаётся открытым, release не публикуется; change не архивируется до review/merge в dev.
+
+## Bootstrap delivery
+
+- Fresh dev перед PR: `357cb7a`, получена fast-forward после первоначального планирования. От `5eb733f` изменились только OpenSpec документы; application/build/workflows/tests/lock не изменились.
+- PR https://github.com/mesilov/bitrix24-cli/pull/132 — open, target dev; #109 milestone 0.2.0 и labels enhancement/documentation проверены, обратная ссылка add-builds-branch-packaging добавлена в body issue.
+- Remote builds создана на `30fa7053a2b031b4c80ac2aa3b503027a2a3e4b9`; source CI 13 checks SUCCESS на этом SHA.
+- Ранние feature-push PHPStan/Rector attempts упали до линтеров с HTTP 500 Docker Hub на manifest php:8.4-cli-alpine3.23. Logs: runs 38532027440/38532027437. Повтор обоих failed jobs успешен; сохранён исходный факт сбоя.
+- Push-triggered native run: https://github.com/mesilov/bitrix24-cli/actions/runs/38532046240 , event=push, branch=builds, source SHA=`30fa7053a2b031b4c80ac2aa3b503027a2a3e4b9`. Terminal outcome ожидается; не выдавать source CI за native proof.
+
+## RC and maintainer-skill follow-up
+
+- По дополнительному запросу пользователя скилл описывает два ручных режима builds, numbered RC identity, evidence и запрет перетегирования. quick_validate.py: Skill is valid; 13 ссылок проверены, отсутствующих локальных файлов нет.
+- source-check теперь 14/14 tests: light/annotated RC tags в builds history, exact SHA mismatch, invalid/zero/leading-zero counters и unselected snapshot rejection. Production source guard отдельно отклоняет RC.
+- actionlint всех workflows и strict OpenSpec проходят; 5 локальных tag-route cases показывают RC только в development, stable только в production, invalid RC в development validation gate. Prepare job перед matrix, contents:read, publish отсутствует.
+- RC версия передаётся существующим builders через release_version, который поддерживает prerelease string; RC retention 7/30. Live RC tag/build не создавался: нет выбранного финального кандидата и #121 остаётся в scope.

@@ -2,21 +2,23 @@
 
 ## Context
 
-См. proposal.md. `package-static.yml` содержит только workflow_dispatch и вызывает `package-platforms.yml` с github.sha. Общая matrix уже принимает release_version, но development caller его не передаёт. Release workflow требует тег в истории main и публикует автоматически; этот change его не меняет.
+См. proposal.md. Исходный `package-static.yml` содержит только workflow_dispatch и вызывает `package-platforms.yml` с github.sha. Общая matrix принимает release_version. Production workflow требует тег в истории main и публикует автоматически; change отделяет от него numbered RC tags.
 
 ## Goals / Non-Goals
 
 **Goals:** стабильная ветка для осознанно выбранных dev snapshots, три платформы и полный архив для приёмки до релиза.
 
-**Non-Goals:** автоматическая упаковка каждого dev push, dev-теги, новая публичная версия, изменение API/application, release publication или увеличение платных лимитов.
+**Non-Goals:** автоматическая упаковка каждого dev push, автоматическое создание tags/promotion, новая публичная версия, изменение API/application, release publication или увеличение платных лимитов.
 
 ## Decisions
 
-1. Добавить push.branches=[builds] в существующий caller. Сохранить workflow_dispatch и concurrency по workflow/ref с cancel-in-progress=true. Переиспользовать builders без отдельного дублирующего workflow; теговый вариант отклонён в пользу явного выбора пользователя.
+1. Добавить push.branches=[builds] и numbered RC tag trigger в существующий caller. Сохранить workflow_dispatch и concurrency по workflow/ref с cancel-in-progress=true. Переиспользовать builders без дублирующей matrix; branch promotion и RC tagging остаются ручным выбором мейнтейнера.
 2. Development identity остаётся dev-<полный SHA>, включая merge commit в builds. Артефакты фиксируют именно builds HEAD, а не изменяющийся dev tip. Итоговый 0.2.0 SHA выбирается отдельно после #121. Не переименовывать уже собранные бинарники в 0.2.0.
-3. В upload-artifact шагах общей matrix использовать github.ref==refs/heads/builds для retention 7 дней у диагностики и 30 дней у b24cli-release-assets; для остальных ref сохранить существующий default, не задавая override. Будущую публикацию этих intermediate bytes не добавлять.
+3. В upload-artifact шагах общей matrix использовать builds/RC ref для retention 7 дней у диагностики и 30 дней у b24cli-release-assets; для остальных ref сохранить default через retention-days=0. Будущую публикацию этих intermediate bytes не добавлять.
 4. Bootstrap: создать builds из актуального dev с этим CI change, без force; реализацию отправить PR в dev по правилам репозитория. Дальше обновлять builds из dev fast-forward или обычным merge, сохраняя историю; не вливать builds обратно в dev/main. В dev change остаётся активным до review/delivery; #109 остаётся открытым как release issue.
 5. YAML/events/permissions/retention проверяются локально; живой push builds подтверждает trigger и matrix. Native evidence ограничено конкретным run SHA. Workflow не имеет contents:write или publish job.
+6. Для RC добавить tag trigger `*.*.*-rc-*` в development caller и negative filter для этих tags в production release workflow. Лёгкий prepare job проверяет RC через `build/source.py --rc-tag`: строгий формат с N>0, exact SHA и ancestry origin/builds; затем передаёт точное имя тега как release_version общим builders. Некорректные RC не доходят до platform jobs. Обычный builds/manual non-RC маршрут оставляет release_version пустым. RC retention равен builds; новые RC snapshots могут иметь cold tag cache.
+7. Скилл мейнтейнера разделяет ручной intermediate режим и pre-release RC режим, фиксирует источник dev→builds, evidence/run/checksum и запрет перетегирования. Сначала проверяется выбранный snapshot, затем явно создаётся RC tag, после чего проверяются заново именно RC binaries. Создание 0.2.0-rc-1 сейчас не запрошено: финальный scope ждёт #121.
 
 ## Limits and official sources
 
