@@ -21,7 +21,7 @@ final class StatusDurationCalculatorTest extends TestCase
         self::assertSame(3, $result->exitStatus);
         self::assertContains('ambiguous-creation-boundary', $result->meta['reasons']);
         self::assertContains('deleted-task-history', $result->meta['reasons']);
-        self::assertSame([null], array_values(array_unique($result->data['totals'])));
+        self::assertSame([null], array_values(array_unique(array_column($result->data['totals'], 'seconds'))));
         self::assertCount(4, $result->data['historyEvidence']);
         self::assertCount(1, $result->data['observedTransitions']);
         self::assertSame('in_progress', $result->data['observedTransitions'][0]['toStatus']);
@@ -53,9 +53,9 @@ final class StatusDurationCalculatorTest extends TestCase
     {
         $result = $this->calculate();
         self::assertSame(0, $result->exitStatus);
-        self::assertSame(['pending' => 30, 'in_progress' => 50, 'supposedly_completed' => 0, 'completed' => 40, 'deferred' => 0, 'declined' => 0], $result->data['totals']);
+        self::assertSame(['pending' => 30, 'in_progress' => 50, 'supposedly_completed' => 0, 'completed' => 40, 'deferred' => 0, 'declined' => 0], array_map(static fn (array $duration): ?int => $duration['seconds'], $result->data['totals']));
         self::assertCount(8, $result->data['intervals']);
-        self::assertSame(120, array_sum($result->data['totals']));
+        self::assertSame(120, array_sum(array_column($result->data['totals'], 'seconds')));
         self::assertNotEmpty($result->data['historyEvidence']);
         self::assertSame([1, 2], $result->data['intervals'][0]['evidenceIds']);
     }
@@ -64,11 +64,11 @@ final class StatusDurationCalculatorTest extends TestCase
     {
         $result = $this->calculate(cutoff: 35);
         self::assertSame(0, $result->exitStatus);
-        self::assertSame(5, $result->data['totals']['completed']);
-        self::assertSame(35, array_sum($result->data['totals']));
+        self::assertSame(5, $result->data['totals']['completed']['seconds']);
+        self::assertSame(35, array_sum(array_column($result->data['totals'], 'seconds')));
         self::assertCount(7, $result->data['observedTransitions']);
-        self::assertSame(0, $this->calculate(cutoff: 0)->data['totals']['pending']);
-        self::assertSame(5, $this->calculate(cutoff: 5)->data['totals']['pending']);
+        self::assertSame(0, $this->calculate(cutoff: 0)->data['totals']['pending']['seconds']);
+        self::assertSame(5, $this->calculate(cutoff: 5)->data['totals']['pending']['seconds']);
     }
 
     public function testOffsetsAndDstAreAbsoluteInstants(): void
@@ -115,7 +115,7 @@ final class StatusDurationCalculatorTest extends TestCase
             self::assertSame(3, $result->exitStatus);
             self::assertFalse($result->meta['complete']);
             self::assertContains($reason, $result->meta['reasons']);
-            self::assertSame([null], array_values(array_unique($result->data['totals'])));
+            self::assertSame([null], array_values(array_unique(array_column($result->data['totals'], 'seconds'))));
             self::assertNull($result->data['intervals'][1]['seconds']);
             self::assertSame(20, $result->data['intervals'][1]['elapsedBetweenEventsSeconds']);
             self::assertFalse($result->data['intervals'][1]['verified']);
@@ -169,7 +169,7 @@ final class StatusDurationCalculatorTest extends TestCase
             $result = $this->calculate($change($this->events()));
             self::assertSame(3, $result->exitStatus, json_encode($result->meta));
             self::assertNotEmpty($result->meta['reasons']);
-            self::assertSame([null], array_values(array_unique($result->data['totals'])));
+            self::assertSame([null], array_values(array_unique(array_column($result->data['totals'], 'seconds'))));
         }
 
         foreach ([['status' => 'pending'], ['changed' => $this->time(101)], ['statusChanged' => null], ['changed' => null]] as $after) {
@@ -185,7 +185,7 @@ final class StatusDurationCalculatorTest extends TestCase
         $result = $this->calculate($events);
         self::assertSame(0, $result->exitStatus);
         self::assertSame([1, 2, 99], $result->data['intervals'][0]['evidenceIds']);
-        self::assertSame(120, array_sum($result->data['totals']));
+        self::assertSame(120, array_sum(array_column($result->data['totals'], 'seconds')));
         $events = array_map(static fn (array $row): array => [...$row, 'field' => $row['field'] === 'REAL_STATUS' ? 'STATUS' : $row['field']], $this->events());
         self::assertContains('status-equivalence-unverified', $this->calculate($events)->meta['reasons']);
     }
@@ -199,9 +199,9 @@ final class StatusDurationCalculatorTest extends TestCase
 
         $result = $this->calculate($rows, before: ['statusChanged' => $this->time(60)], after: ['statusChanged' => $this->time(60)]);
         self::assertSame(0, $result->exitStatus);
-        self::assertSame(20, $result->data['totals']['supposedly_completed']);
-        self::assertSame(60, $result->data['totals']['completed']);
-        self::assertSame(120, array_sum($result->data['totals']));
+        self::assertSame(20, $result->data['totals']['supposedly_completed']['seconds']);
+        self::assertSame(60, $result->data['totals']['completed']['seconds']);
+        self::assertSame(120, array_sum(array_column($result->data['totals'], 'seconds')));
         $statusOnly = array_map(static fn (array $row): array => [...$row, 'field' => $row['field'] === 'REAL_STATUS' ? 'STATUS' : $row['field']], $rows);
         $partial = $this->calculate($statusOnly, before: ['statusChanged' => $this->time(60)], after: ['statusChanged' => $this->time(60)]);
         self::assertSame(0, $partial->exitStatus);
@@ -231,7 +231,7 @@ final class StatusDurationCalculatorTest extends TestCase
         self::assertSame('tasks.task.list', $result->data['creationBoundary']['source']);
         $partial = (new StatusDurationCalculator())->calculate(1, $rows, false, ['history-navigation-unverified'], $snapshot, $snapshot, new \DateTimeImmutable($this->time(120)), $creation);
         self::assertSame(['history-navigation-unverified'], $partial->meta['reasons']);
-        self::assertSame([null], array_values(array_unique($partial->data['totals'])));
+        self::assertSame([null], array_values(array_unique(array_column($partial->data['totals'], 'seconds'))));
     }
 
     public function testCreationIdentityRaceAndUnclassifiableEventsKeepTotalsPartial(): void
@@ -242,7 +242,7 @@ final class StatusDurationCalculatorTest extends TestCase
             $result = (new StatusDurationCalculator())->calculate(1, $this->events(), true, [], $snapshot, $snapshot, new \DateTimeImmutable($this->time(120)), ['before' => $before, 'after' => $after]);
             self::assertContains('current-task-creation-unverified', $result->meta['reasons']);
             self::assertSame([], $result->data['excludedHistoryEvidence']);
-            self::assertSame([null], array_values(array_unique($result->data['totals'])));
+            self::assertSame([null], array_values(array_unique(array_column($result->data['totals'], 'seconds'))));
         }
 
         foreach ([$this->time(0), 'invalid-date'] as $date) {
@@ -260,7 +260,7 @@ final class StatusDurationCalculatorTest extends TestCase
         $result = $this->calculate($rows);
         self::assertSame(3, $result->exitStatus);
         self::assertContains('unknown-history-status', $result->meta['reasons']);
-        self::assertSame([null], array_values(array_unique($result->data['totals'])));
+        self::assertSame([null], array_values(array_unique(array_column($result->data['totals'], 'seconds'))));
     }
 
     public function testMissingInitialStatusAndAsOfBeforeProvenCreation(): void
@@ -268,5 +268,32 @@ final class StatusDurationCalculatorTest extends TestCase
         self::assertContains('initial-status-unverified', $this->calculate([$this->events()[0]])->meta['reasons']);
         $this->expectException(Failure::class);
         $this->calculate(cutoff: -1);
+    }
+
+    public function testWeekendExclusionAndExactAggregationPreserveServerDates(): void
+    {
+        $created = '2026-10-16T23:59:58.200000+03:00';
+        $last = '2026-10-19T00:00:00+03:00';
+        $rows = [
+            ['id' => 1, 'field' => 'NEW', 'createdDate' => $created],
+            ['id' => 2, 'field' => 'REAL_STATUS', 'createdDate' => '2026-10-16T23:59:59+03:00', 'from' => 'pending', 'to' => 'in_progress'],
+            ['id' => 3, 'field' => 'REAL_STATUS', 'createdDate' => '2026-10-17T00:00:00+03:00', 'from' => 'in_progress', 'to' => 'completed'],
+            ['id' => 4, 'field' => 'REAL_STATUS', 'createdDate' => $last, 'from' => 'completed', 'to' => 'pending'],
+        ];
+        $snapshot = ['status' => 'pending', 'statusChanged' => $last, 'changed' => $last];
+        $asOf = new \DateTimeImmutable('2026-10-18T21:00:00.500000Z');
+        $result = (new StatusDurationCalculator())->calculate(1, $rows, true, [], $snapshot, $snapshot, $asOf);
+        self::assertSame(0, $result->exitStatus);
+        self::assertSame(['seconds' => 1, 'hours' => 0.0, 'days' => 0.0], $result->data['totals']['pending']);
+        self::assertSame(2, $result->data['intervals'][0]['seconds'] + $result->data['intervals'][3]['seconds']);
+        self::assertSame(0, $result->data['totals']['completed']['seconds']);
+        self::assertSame(172800, $result->data['intervals'][2]['elapsedBetweenEventsSeconds']);
+        self::assertSame($created, $result->data['intervals'][0]['enteredAt']);
+        self::assertSame('2026-10-18T21:00:00.500000+00:00', $result->data['intervals'][3]['leftAt']);
+        self::assertSame('+03:00', $result->meta['calendar']['utcOffset']);
+        $partial = (new StatusDurationCalculator())->calculate(1, $rows, false, ['page-error'], $snapshot, $snapshot, $asOf);
+        foreach ($partial->data['totals'] as $duration) {
+            self::assertSame(['seconds' => null, 'hours' => null, 'days' => null], $duration);
+        }
     }
 }

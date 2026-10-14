@@ -22,7 +22,7 @@
 ## 4. Review corrections
 
 - [x] 4.1 Add a substantive `Unreleased` CHANGELOG entry describing the delivered README and guides with a link to #134; verify it appears in the actual diff against current origin/dev.
-- [x] 4.2 Align extracted CI download instructions with the builds/RC workflow integrated from dev; verify workflow refs, version and retention against current workflow/build guide and recheck documentation links and OpenSpec.
+- [x] 4.2 Align extracted instructions with current dev: builds/RC workflow, version and retention, plus weekday-duration documentation; verify the moved duration section matches upstream and recheck affected tests, documentation links and OpenSpec.
 
 ## Workflow follow-up
 

@@ -51,3 +51,9 @@ The change remains active while PR #135 is reviewed. After confirmed merge and i
 - Integrated dev `5330662` by a regular merge without conflicts. Its builds/RC workflow changed extracted CI instructions: `docs/install.md` now uses `--ref builds`, documents RC tag versions, 30-day archive / 7-day diagnostics retention and links to the canonical build guide. No workflow or runtime behavior is changed by the review fix.
 - Rechecked 302 relative links/anchors across 13 Markdown documents, unchanged README heading order/badges/download URLs/three spoilers, all 56 commands, 24 shell blocks and schema's 146 fixtures / 3 examples. `make cli-reference-check`, OpenSpec strict validation and complete diff whitespace checks passed.
 - README remains the same 177-line file. The prior local tests and remote checks above describe the original implementation; fresh CI for the review commit is reported separately in the PR.
+
+## Concurrent dev integration receipt
+
+During the review fix CI, dev advanced to `35ee28e` (#136) and introduced a move/edit conflict in README's status-duration section. The resolved README remains the same 177-line entry page. The current upstream duration section is preserved byte-for-byte (apart from its heading level) in `docs/task-usage.md`, including weekday exclusions, seconds/hours/days and updated live-evidence wording. Other upstream files and changelog entries are retained by the normal merge; they are outside this PR's own diff against dev.
+
+After resolution, `make cli-reference-check` matches 56 commands; `make unit TEST_ARGS='--filter "StatusDuration\|Weekday\|HelpAndAboutTest"'` passed 27 tests / 1000 assertions. Relative links (302), README structure, examples, shell syntax and OpenSpec strict validation passed again. The review thread remains resolved; final-head CI is reported in the PR separately.

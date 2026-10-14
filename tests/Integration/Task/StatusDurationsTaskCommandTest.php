@@ -55,7 +55,7 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
             self::assertSame(array_column($all, 'id'), array_column($adapter->items, 'id'), 'Adapter must preserve server history IDs.');
             $receipt['commandResult'] = $this->invoke(['task:status:durations', $a], [0, 3]);
             if (!$receipt['commandResult']['meta']['complete']) {
-                self::assertSame([null], array_values(array_unique($receipt['commandResult']['data']['totals'])));
+                self::assertSame([null], array_values(array_unique(array_column($receipt['commandResult']['data']['totals'], 'seconds'))));
             }
 
             self::assertNotContains('write', array_column($receipt['commandResult']['meta']['apiCalls'], 'effect'));
@@ -177,7 +177,7 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
             if ($waitInCompleted) {
                 $receipt['controlledResult'] = $this->controlledArithmetic($receipt);
                 self::assertTrue($result['meta']['complete'], json_encode($result['meta']));
-                self::assertSame($receipt['controlledResult']['data']['totals'], $result['data']['totals']);
+                self::assertEquals($receipt['controlledResult']['data']['totals'], $result['data']['totals']);
             }
 
             if ($cycles > 1) {
@@ -187,7 +187,7 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
 
             self::assertNotContains('write', array_column($result['meta']['apiCalls'], 'effect'));
             if (!$result['meta']['complete']) {
-                self::assertSame([null], array_values(array_unique($result['data']['totals'])));
+                self::assertSame([null], array_values(array_unique(array_column($result['data']['totals'], 'seconds'))));
                 self::assertNotContains('unknown-history-status', $result['meta']['reasons']);
             }
 
@@ -208,6 +208,29 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
         return $rows[0];
     }
 
+    // Independent day-by-day oracle; production uses an arithmetic full-week shortcut.
+    private function weekdaySeconds(\DateTimeImmutable $from, \DateTimeImmutable $to, \DateTimeImmutable $created): int|float
+    {
+        $cursor = $from->setTimezone($created->getTimezone());
+        $seconds = 0;
+        while ($cursor < $to) {
+            $boundary = $cursor->modify('tomorrow')->setTime(0, 0);
+            $left = min($boundary, $to);
+            if ((int) $cursor->format('N') < 6) {
+                $seconds += CalendarInstant::elapsed($cursor, $left);
+            }
+
+            $cursor = $left;
+        }
+
+        return $seconds;
+    }
+
+    private function durationUnits(int|float $seconds): array
+    {
+        return ['seconds' => (int) round($seconds), 'hours' => round($seconds / 3600, 2), 'days' => round($seconds / 86400, 2)];
+    }
+
     private function controlledArithmetic(array $receipt): array
     {
         self::assertSame($receipt['creationBefore'], $receipt['creationAfter']);
@@ -223,7 +246,7 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
             self::assertCount(1, $step['newEvents'], 'Unexpected fixture activity cannot justify controlled completeness.');
             self::assertSame($step['card']['statusChanged'], $step['newEvents'][0]['createdDate']);
             $time = new \DateTimeImmutable($step['card']['statusChanged']);
-            $expected[$previousStatus] += CalendarInstant::elapsed($previousTime, $time);
+            $expected[$previousStatus] += $this->weekdaySeconds($previousTime, $time, $created);
             $previousStatus = $step['card']['status'];
             $previousTime = $time;
             $known[] = $step['newEvents'][0];
@@ -232,7 +255,7 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
         $current = array_values(array_filter($receipt['steps'][array_key_last($receipt['steps'])]['history']['events'], static fn (array $row): bool => new \DateTimeImmutable($row['createdDate']) >= $created));
         self::assertSame(array_column($known, 'id'), array_column($current, 'id'), 'The final known fixture ID set must match every captured action.');
         $asOf = new \DateTimeImmutable($receipt['commandResult']['data']['asOf']);
-        $expected[$previousStatus] += CalendarInstant::elapsed($previousTime, $asOf);
+        $expected[$previousStatus] += $this->weekdaySeconds($previousTime, $asOf, $created);
         $events = array_map(static fn (array $row): array => [
             'id' => $row['id'], 'createdDate' => $row['createdDate'], 'field' => $row['field'], 'userId' => $row['userId'], 'from' => $row['value']['from'], 'to' => $row['value']['to'],
         ], $receipt['steps'][array_key_last($receipt['steps'])]['history']['events']);
@@ -240,8 +263,8 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
         // Coverage comes from the isolated action journal above, not invented API pagination.
         $result = (new \Bitrix24\CLI\Application\Task\StatusDurationCalculator())->calculate($receipt['taskId'], $events, true, [], $snapshots['before'], $snapshots['after'], $asOf, ['before' => $receipt['creationBefore'], 'after' => $receipt['creationAfter']]);
         self::assertSame(0, $result->exitStatus, json_encode($result->meta));
-        self::assertSame($expected, $result->data['totals']);
-        self::assertEqualsWithDelta(CalendarInstant::elapsed($created, $asOf), array_sum($result->data['totals']), 0.000001);
+        self::assertEquals(array_map($this->durationUnits(...), $expected), $result->data['totals']);
+        self::assertEqualsWithDelta($this->weekdaySeconds($created, $asOf, $created), array_sum($expected), 0.000001);
         return ['data' => $result->data, 'meta' => [...$result->meta, 'coverage' => 'controlled-fixture-actions', 'knownCurrentEventIds' => array_column($known, 'id')], 'exitStatus' => $result->exitStatus];
     }
 
@@ -288,14 +311,14 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
             self::assertSame($receipt['steps'][$index]['card']['statusChanged'], $event['createdDate']);
             self::assertSame($status, $mapping[(string) $event['from']] ?? $event['from']);
             $time = new \DateTimeImmutable($event['createdDate']);
-            $totals[$status] += CalendarInstant::elapsed($previous, $time);
+            $totals[$status] += $this->weekdaySeconds($previous, $time, $created);
             $status = $mapping[(string) $event['to']] ?? $event['to'];
             $previous = $time;
         }
 
-        $totals[$status] += CalendarInstant::elapsed($previous, $cutoff);
+        $totals[$status] += $this->weekdaySeconds($previous, $cutoff, $created);
         foreach ($totals as $status => $seconds) {
-            self::assertSame($seconds, $result['data']['totals'][$status]);
+            self::assertEquals($this->durationUnits($seconds), $result['data']['totals'][$status]);
         }
 
         self::assertCount(8, $result['data']['intervals']);
@@ -327,7 +350,7 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
         self::assertFalse($result['meta']['complete']);
         self::assertContains('concurrent-task-change', $result['meta']['reasons']);
         self::assertSame('partial-result', $result['error']['code']);
-        self::assertSame([null], array_values(array_unique($result['data']['totals'])));
+        self::assertSame([null], array_values(array_unique(array_column($result['data']['totals'], 'seconds'))));
         self::assertGreaterThanOrEqual(7, count($result['data']['observedTransitions']));
         self::assertNotContains('write', array_column($result['meta']['apiCalls'], 'effect'));
         self::assertSame('completed', $this->card($id, ['status'])['status']);
@@ -340,7 +363,8 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
         $creation = $this->creationReadback($id);
         $result = $this->invoke(['task:status:durations', $id]);
         self::assertSame('pending', $this->card($id, ['status'])['status']);
-        self::assertSame(CalendarInstant::elapsed(new \DateTimeImmutable($creation['created']), new \DateTimeImmutable($result['data']['asOf'])), $result['data']['totals']['pending']);
+        $created = new \DateTimeImmutable($creation['created']);
+        self::assertEquals($this->durationUnits($this->weekdaySeconds($created, new \DateTimeImmutable($result['data']['asOf']), $created)), $result['data']['totals']['pending']);
         self::assertSame([], $result['data']['observedTransitions']);
         self::assertCount(1, $result['data']['intervals']);
     }

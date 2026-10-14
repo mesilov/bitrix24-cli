@@ -65,3 +65,5 @@ Extract the guides first, update their relative links, replace README blocks wit
 ## Review follow-up
 
 Review of PR #135 identified a missing issue-linked changelog entry. Add the delivered README/guide result under `Unreleased` and verify the actual PR diff contains #134. Integration of dev at `5330662` also changes development packaging instructions: use the builds workflow, its selected source SHA and 30-day archive retention; refer maintainers to the existing builds/RC guide rather than retaining the obsolete dev dispatch example. README itself remains unchanged by these corrections.
+
+A second dev update at `35ee28e` changes the moved status-duration section. Keep the compact README and preserve that upstream section exactly under `docs/task-usage.md`: exclude weekends by the created offset and describe seconds/hours/days. This resolves the move/edit conflict without dropping either documentation change.
