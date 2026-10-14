@@ -32,6 +32,22 @@
   проверяют принадлежность снимка истории `builds` и исключены из production
   публикации ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
 
+- OpenSpec расчёта времени в статусах синхронизирован в актуальные спецификации: 43 task-команды, подтверждённый REST1 exhaustion и границы точных totals. Завершённый change #121 архивирован с live receipts 55 переходов и независимой сверкой сумм ([#121](https://github.com/mesilov/bitrix24-cli/issues/121)).
+
+- `task:status:durations`: календарные интервалы повторных открытий, единая
+  граница `asOf`, evidence и строгий partial-result с `null` вместо точных
+  сумм при недоказанной полноте. Offline-арифметика, ordinary CLI exact totals и live race partial проверены;
+  terminal REST1 next exhaustion исправлена, total не обязателен. Добавлен live-сценарий возврата с контроля
+  и повторного принятия; history-код 4 распознаётся как supposedly_completed.
+  Добавлены HTTP/SDK/adapter проверка изоляции и 60 контрольных изменений,
+  regression fixture для старых NEW/DELETE с тем же TASK_ID и воспроизводимый
+  отчёт о недоказанной полноте серверной истории. Отдельный live-сценарий
+  с паузами 5 секунд сохраняет реальные переходы, задержки и JSON отчёта.
+  Граница текущей жизни проверяется по двум REST3 list.created; более ранняя
+  история сохранена отдельно. Подтверждённый STATUS subset 2/3/4/5 допускается,
+  controlled fixture проверяет точные суммы по собственному журналу действий
+  ([#121](https://github.com/mesilov/bitrix24-cli/issues/121)).
+
 - Дополнительные portal acceptance cases и sanitized evidence: передача задачи второму пользователю, bounded scans, схема и history/auditors; зафиксированы admin-only ограничение роли, недоказанное file membership и дефект time navigation. Проверки остановлены пользователем; issue закрывается по решению пользователя без полной приёмки ([#42](https://github.com/mesilov/bitrix24-cli/issues/42)).
 
 - Пользовательские поля задач через --user-fields/--user-fields-file: один REST1 add с обязательными custom значениями, sparse update и явные результаты составных операций ([#58](https://github.com/mesilov/bitrix24-cli/issues/58)).

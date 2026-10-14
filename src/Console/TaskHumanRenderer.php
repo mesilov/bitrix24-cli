@@ -15,6 +15,18 @@ final class TaskHumanRenderer
 {
     private const STATUSES = ['pending' => 'Ждёт выполнения', 'in_progress' => 'В работе', 'supposedly_completed' => 'Ожидает контроля', 'completed' => 'Завершена', 'deferred' => 'Отложена', 'declined' => 'Отклонена'];
 
+    public function statusDurations(OperationResult $result, OutputInterface $output): void
+    {
+        $this->write($output, 'Календарное время задачи #' . $result->data['taskId'] . ' до ' . $result->data['asOf']);
+        $table = (new Table($output))->setHeaders(['Статус', 'Вход', 'Выход', 'Секунды']);
+        $table->setRows(array_map(fn (array $row): array => array_map(OutputFormatter::escape(...), [$this->status($row['status'] ?? 'неизвестно'), $row['enteredAt'] ?? 'неизвестно', $row['leftAt'] ?? 'неизвестно', (string) ($row['seconds'] ?? 'неизвестно')]), $result->data['intervals']))->render();
+        foreach ($result->data['totals'] as $status => $seconds) {
+            $this->write($output, $this->status($status) . ': ' . ($seconds ?? 'неизвестно'));
+        }
+
+        $this->write($output, 'Календарные секунды включают выходные и время в завершённом статусе.');
+    }
+
     public function card(array $task, OutputInterface $output): void
     {
         $this->write($output, (isset($task['id']) ? $task['id'] . ' · ' : '') . ($task['title'] ?? 'Задача'));
