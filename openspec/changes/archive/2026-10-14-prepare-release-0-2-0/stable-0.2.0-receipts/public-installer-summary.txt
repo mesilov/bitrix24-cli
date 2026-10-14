@@ -1,0 +1,12 @@
+Installer linux-amd64	POSIX syntax and offline fixtures	2026-10-14T11:05:19.3786592Z Ran 7 tests in 0.689s
+Installer linux-amd64	Native published archive through controlled release transport	2026-10-14T11:05:26.6594689Z Ran 7 tests in 6.060s
+Installer linux-amd64	Native published archive through controlled release transport	2026-10-14T11:05:26.6596218Z Native installer archive verified: linux-amd64 0.2.0 adc60f9d00a256c644d7bc3ca632edeeba70019bd3beb8035b3ae0052b18eb40
+Installer linux-amd64	Anonymous installation (published script on main)	2026-10-14T11:05:28.2737914Z Installed b24cli 0.2.0 at /home/runner/work/_temp/b24cli public installer home/.local/bin/b24cli
+Installer linux-amd64	Anonymous installation (published script on main)	2026-10-14T11:05:30.5781718Z Installed b24cli 0.2.0 at /home/runner/work/_temp/b24cli public installer home/.local/bin/b24cli
+Installer linux-amd64	Anonymous installation (published script on main)	2026-10-14T11:05:30.8881990Z b24cli 0.2.0
+Installer macos-arm64	POSIX syntax and offline fixtures	2026-10-14T11:05:16.7759840Z Ran 7 tests in 2.995s
+Installer macos-arm64	Native published archive through controlled release transport	2026-10-14T11:05:25.0267380Z Native installer archive verified: macos-arm64 0.2.0 7a1be396ead0d7c40bfcfde37b1e2ec0bb800a18ef08b991ba5ee8a7f8ea7380
+Installer macos-arm64	Native published archive through controlled release transport	2026-10-14T11:05:25.0272850Z Ran 7 tests in 7.134s
+Installer macos-arm64	Anonymous installation (published script on main)	2026-10-14T11:05:27.9012400Z Installed b24cli 0.2.0 at /Users/runner/work/_temp/b24cli public installer home/.local/bin/b24cli
+Installer macos-arm64	Anonymous installation (published script on main)	2026-10-14T11:05:30.4435110Z Installed b24cli 0.2.0 at /Users/runner/work/_temp/b24cli public installer home/.local/bin/b24cli
+Installer macos-arm64	Anonymous installation (published script on main)	2026-10-14T11:05:30.6404400Z b24cli 0.2.0

@@ -48,10 +48,10 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/installer-assets"
           # Pinned public version identity, no credentials or CI artifact fallback.
-          base=https://github.com/mesilov/bitrix24-cli/releases/download/0.2.0
+          base=https://github.com/mesilov/bitrix24-cli/releases/download/0.1.0
           curl -q -fsSL --proto '=https' --proto-redir '=https' "$base/b24cli-$TARGET.tar.gz" -o "$RUNNER_TEMP/installer-assets/b24cli-$TARGET.tar.gz"
           curl -q -fsSL --proto '=https' --proto-redir '=https' "$base/SHA256SUMS" -o "$RUNNER_TEMP/installer-assets/SHA256SUMS"
-          python3 build/tests/shell-installer-check.py --assets "$RUNNER_TEMP/installer-assets" --version 0.2.0
+          python3 build/tests/shell-installer-check.py --assets "$RUNNER_TEMP/installer-assets" --version 0.1.0
       - name: Anonymous installation (published script on main)
         run: |
           test_home="$RUNNER_TEMP/b24cli public installer home"
@@ -63,6 +63,6 @@ jobs:
             cmp install.sh "$installer"
             echo "Verified anonymous public installer URL against $GITHUB_SHA"
           fi
-          HOME="$test_home" sh "$installer" --version 0.2.0 --no-modify-path
+          HOME="$test_home" sh "$installer" --version 0.1.0 --no-modify-path
           HOME="$test_home" sh "$installer" --no-modify-path
           HOME="$test_home" /bin/sh -c '. "$HOME/.local/share/b24cli/env"; cd /; b24cli --version --no-ansi'

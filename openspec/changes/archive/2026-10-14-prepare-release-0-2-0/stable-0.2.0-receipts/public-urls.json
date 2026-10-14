@@ -1,0 +1,58 @@
+[
+  {
+    "kind": "version",
+    "file": "b24cli-linux-amd64.tar.gz",
+    "requested_url": "https://github.com/mesilov/bitrix24-cli/releases/download/0.2.0/b24cli-linux-amd64.tar.gz",
+    "http_status": 200,
+    "final_host": "release-assets.githubusercontent.com"
+  },
+  {
+    "kind": "latest",
+    "file": "b24cli-linux-amd64.tar.gz",
+    "requested_url": "https://github.com/mesilov/bitrix24-cli/releases/latest/download/b24cli-linux-amd64.tar.gz",
+    "http_status": 200,
+    "final_host": "release-assets.githubusercontent.com"
+  },
+  {
+    "kind": "version",
+    "file": "b24cli-macos-arm64.tar.gz",
+    "requested_url": "https://github.com/mesilov/bitrix24-cli/releases/download/0.2.0/b24cli-macos-arm64.tar.gz",
+    "http_status": 200,
+    "final_host": "release-assets.githubusercontent.com"
+  },
+  {
+    "kind": "latest",
+    "file": "b24cli-macos-arm64.tar.gz",
+    "requested_url": "https://github.com/mesilov/bitrix24-cli/releases/latest/download/b24cli-macos-arm64.tar.gz",
+    "http_status": 200,
+    "final_host": "release-assets.githubusercontent.com"
+  },
+  {
+    "kind": "version",
+    "file": "b24cli-windows-amd64.zip",
+    "requested_url": "https://github.com/mesilov/bitrix24-cli/releases/download/0.2.0/b24cli-windows-amd64.zip",
+    "http_status": 200,
+    "final_host": "release-assets.githubusercontent.com"
+  },
+  {
+    "kind": "latest",
+    "file": "b24cli-windows-amd64.zip",
+    "requested_url": "https://github.com/mesilov/bitrix24-cli/releases/latest/download/b24cli-windows-amd64.zip",
+    "http_status": 200,
+    "final_host": "release-assets.githubusercontent.com"
+  },
+  {
+    "kind": "version",
+    "file": "SHA256SUMS",
+    "requested_url": "https://github.com/mesilov/bitrix24-cli/releases/download/0.2.0/SHA256SUMS",
+    "http_status": 200,
+    "final_host": "release-assets.githubusercontent.com"
+  },
+  {
+    "kind": "latest",
+    "file": "SHA256SUMS",
+    "requested_url": "https://github.com/mesilov/bitrix24-cli/releases/latest/download/SHA256SUMS",
+    "http_status": 200,
+    "final_host": "release-assets.githubusercontent.com"
+  }
+]
