@@ -1,5 +1,12 @@
 # Verification: streamline-readme-and-guides
 
+## Delivery receipt (2026-10-14)
+
+- Implementation PR [#135](https://github.com/mesilov/bitrix24-cli/pull/135) merged into `dev` at `44a366d4808f5061dda388737fdaef3fd730b1d5` (2026-10-14 09:23:11 UTC).
+- Exact reviewed delivery source `62d0d9ac7a30f5d6002e17d5eac71d99f1b8bdf6`: all 13 CI checks completed successfully, all review threads resolved, no change requests. The substantive issue-linked CHANGELOG diff was checked immediately before merge.
+- GitHub readback confirmed `state=MERGED`, base `dev`, merge SHA present in fetched `origin/dev`; issue #134 is closed. All 13 OpenSpec tasks are complete, artifacts complete and delta specs intentionally absent (`skip_specs: true`).
+- Archive delivery is tracked by a separate PR from `bugfix/134-archive-readme-guides`; no runtime/API changes or new release/native/portal claims are introduced by the archive.
+
 Verified on 2026-10-14 against issue [#134](https://github.com/mesilov/bitrix24-cli/issues/134), proposal, design and the implementation in [PR #135](https://github.com/mesilov/bitrix24-cli/pull/135) targeting `dev`.
 
 ## Scorecard
@@ -43,7 +50,9 @@ No critical findings, warnings or suggestions remain from this review.
 
 This verifies documentation, parser syntax and existing offline contracts. No new REST contracts were introduced or changed; examples retain their existing API/JSON field names. Native installation on Linux/macOS/Windows, first-launch OS policies and live portal commands were not executed during this documentation task. Final release/native acceptance remains in #109. Remote CI is reported separately in the PR; local checks do not establish its result.
 
-The change remains active while PR #135 is reviewed. After confirmed merge and issue closure, archive and worktree cleanup follow the repository's maintainer workflow.
+The completed change is archived at `openspec/changes/archive/2026-10-14-streamline-readme-and-guides/` after PR #135 merged into dev and issue #134 closed. There are no delta specs to synchronize. PR #139 delivers the archive to dev; worktree cleanup is the remaining repository-maintainer follow-up after that delivery.
+
+Archive review [P2](https://github.com/mesilov/bitrix24-cli/pull/139#discussion_r4269029491) identified an obsolete active-change paragraph in this report. It has been replaced with the confirmed archived lifecycle state; the implementation delivery receipt above remains authoritative.
 
 ## Review correction receipt (2026-10-14)
 
@@ -69,3 +78,9 @@ The user requested separate logical-group tables in README with columns Кома
 The Markdown CLI map and generator now output four columns (command, purpose, effect, example), with no integration-test column or obsolete explanation of that column. JSON reference metadata retains its contract. The existing HelpAndAboutTest example matcher now also accepts the example cell at the end of a row. CHANGELOG covers both requested layout changes and links #134.
 
 Validation: GitHub GFM rendering parsed into 13 three-column README command tables and one four-column CLI-map table; each contains all 56 commands exactly once. `make cli-reference-check`, `make unit TEST_ARGS='--filter HelpAndAboutTest'` (5 tests / 588 assertions), PHP-CS-Fixer (0 of 342 files need changes), OpenSpec strict validation and whitespace checks passed. All 246 remaining relative links/anchors are valid; the reduction from 302 reflects removal of the map's 56 test links.
+
+## Final column-order refinement after implementation merge
+
+The user requested the purpose and example columns to swap places. The 13 README command tables now use Команда / Назначение / Пример, preserving all 56 commands, descriptions and examples. This small post-merge formatting refinement is delivered with archive PR #139; the original 13 completed tasks and implementation delivery receipt describe PR #135. The CLI map keeps its existing four-column order.
+
+During the final dev integration, the incoming Windows RC receipt retains its upstream CRLF bytes. The generic staged whitespace check reports those existing line endings; the receipt was not rewritten. The staged comparison against MERGE_HEAD (current dev), and the final PR diff against origin/dev, check this MR's changes without modifying upstream raw evidence.
