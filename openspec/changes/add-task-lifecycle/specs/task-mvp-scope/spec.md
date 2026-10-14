@@ -57,7 +57,7 @@ task:subtask:add
 Каталог SHALL отделять release scope от API support: 59 операций = 30 кандидатов MVP, 0 API-policy-pending и 29 после MVP. Права SHALL проверяться для кандидатов; lifecycle SHALL оставаться после MVP независимо от возможности записи status. Наличие команды в каталоге не SHALL означать принятие иных API exceptions, доказанную семантику или runtime readiness.
 
 #### Scenario: Legacy admission is limited to selected commands
-- **WHEN** вызывается legacy маршрут вне согласованных команд/companion reads/записи TAGS/семи lifecycle маршрутов 0.2.0 либо общий tasks.task.update используется для действий за пределами participants:set и записи TAGS в task:add/task:update
+- **WHEN** вызывается legacy маршрут вне согласованных команд/companion reads/записи TAGS/custom schema and writes/семи lifecycle маршрутов 0.2.0 либо общий tasks.task.update используется для действий за пределами participants:set, записи TAGS и explicit custom writes в task:add/task:update
 - **THEN** допуск выбранных REST1 команд и чтений не разрешает такую операцию; policy отклоняет запрос и не выполняет скрытый fallback или исключённый lifecycle переход
 
 #### Scenario: Lifecycle commands after MVP
@@ -74,7 +74,7 @@ task:subtask:add
 
 #### Scenario: Tag writes have an explicit narrow legacy admission
 - **WHEN** task:add/task:update в task-v3 policy получает явные теги
-- **THEN** CLI допускает REST1 tasks.task.update только с TAGS; status, userFields и произвольные legacy поля не допускаются, число task-команд не увеличивается
+- **THEN** CLI допускает REST1 tasks.task.update только с TAGS; status, REST3 userFields и произвольные legacy поля не допускаются, число task-команд не увеличивается
 
 #### Scenario: Strict policy rejects tag composition
 - **WHEN** команда с tag/clear-tags вызвана в strict-rest3

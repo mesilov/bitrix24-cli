@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-14",
+  "capabilities": [
+    {
+      "capability": "task-console-runtime",
+      "added": [],
+      "modified": [
+        "Explicit patch and bounded advanced input",
+        "Planned task tag routes",
+        "Creation and observer assignment have explicit outcomes"
+      ],
+      "deltaRequirementsMatch": true,
+      "existingUnrelatedContentPreserved": true,
+      "purposePreservedOrCopied": true,
+      "canonicalStructure": true,
+      "sha256": "826a2f477fd85e455494a3ac1953ad2302c8c7866b09e56191d5a737993b10aa"
+    },
+    {
+      "capability": "task-mvp-scope",
+      "added": [
+        "Milestone custom field admission"
+      ],
+      "modified": [
+        "API admission and future lifecycle acceptance remain explicit"
+      ],
+      "deltaRequirementsMatch": true,
+      "existingUnrelatedContentPreserved": true,
+      "purposePreservedOrCopied": true,
+      "canonicalStructure": true,
+      "sha256": "5e778c2807cbb47136e0e2741fba328167a8c95aad080d5a95a61d958149c8c5"
+    },
+    {
+      "capability": "task-user-fields",
+      "added": [
+        "Explicit custom value input",
+        "Bounded custom schema preflight",
+        "Single request custom task creation",
+        "Declared updates and strict policy",
+        "Recoverable composed outcomes"
+      ],
+      "modified": [],
+      "deltaRequirementsMatch": true,
+      "existingUnrelatedContentPreserved": true,
+      "purposePreservedOrCopied": true,
+      "canonicalStructure": true,
+      "sha256": "470bdf4d4a11f957b682834f2c225d1dcbfb6ae55c797c66780f78bc519f18fe"
+    }
+  ]
+}
