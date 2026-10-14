@@ -2,276 +2,62 @@
 
 ## [Unreleased]
 
-### Исправлено
+### Изменено
 
-- Согласована история `dev` и `main` перед MR релиза 0.2.0: сохранены опубликованный
-  установщик и новые руководства, устранены документационные конфликты и дубликат
-  уже архивированного OpenSpec установщика ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
+- Финальные receipts выпуска 0.2.0 и завершённый OpenSpec релиза архивированы после production/native/public-install проверки ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
 
-- README стал краткой входной страницей с установкой для Linux/macOS/Windows,
-  подключениями в платформенных спойлерах, таблицами 56 CLI-команд по логическим
-  группам со столбцами «Команда / Назначение / Пример» и описанием конфига.
-  Подробные инструкции вынесены в `docs/install.md`, `docs/connection.md` и
-  `docs/config.md`, сценарии задач и сотрудников — в отдельные руководства;
-  карта CLI опубликована без столбца интеграционных тестов,
-  ссылки и проверки примеров актуализированы
-  ([#134](https://github.com/mesilov/bitrix24-cli/issues/134)).
+## [0.2.0] — 2026-10-14
 
-- Advanced-поля задач проверяются локально по документированным контрактам add/update; editable=false не блокирует допустимые поля создания, ordinary advanced dry-run работает без API ([#58](https://github.com/mesilov/bitrix24-cli/issues/58)).
-
-- Выборка проекта при groupId=null в REST3 list: принадлежность проверяется через
-  заранее объявленное REST3 чтение group.id карточки; непроверенные данные дают partial
-  ([#60](https://github.com/mesilov/bitrix24-cli/issues/60)).
-
-- Устранены пять strict-предупреждений OpenSpec о длине требований: составные
-  нормы в четырёх спецификациях разделены с сохранением всех прежних сценариев
-  и ограничений CLI/API; strict-валидация проходит без предупреждений
-  ([#114](https://github.com/mesilov/bitrix24-cli/issues/114)).
-
-- `task:list` и `task:find` обходят свежие задачи первыми (`id DESC`), сохраняя
-  порядок в выводе. Поиск поддерживает `--order`; неполный обход показывает
-  фактическую сортировку и число просмотренных задач, а при исчерпании бюджета
-  предлагает увеличить `--max-scan` и предупреждает о неполной проверке дублей
-  ([#64](https://github.com/mesilov/bitrix24-cli/issues/64)).
+В CLI теперь 56 публичных команд: 43 для задач, 4 для сотрудников, 5 для подключений, `doctor:problem-trajectory` и 3 общие команды.
 
 ### Добавлено
 
-- Принят RC 0.2.0-rc-2 на Linux/macOS/Windows: подтверждены exact version/source,
-  archive/binary checksums, 56 команд и примеров, 112 command-help и 125 CLI запусков
-  на каждой ОС; скилл обновлён, подготовлен MR dev → main без Release
-  ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
-
-- RC-проверка сверяет полные сведения about, каталоги README/карты/JSON и синтаксис
-  всех 56 документированных примеров с определениями скачанного бинарника;
-  готовится обновлённый кандидат 0.2.0-rc-2 ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
-
-- OpenSpec упрощения README и руководств архивирован после merge: сохранены
-  13 выполненных задач, результаты проверки таблиц/примеров и подтверждение
-  успешного CI. В таблицах README установлен итоговый порядок
-  «Команда / Назначение / Пример»; актуальные спецификации не меняются
-  ([#134](https://github.com/mesilov/bitrix24-cli/issues/134)).
-
-- Подготовлена проверка уже собранных RC-пакетов на native Linux/macOS/Windows:
-  checksums и source/version metadata, help/about всех 56 публичных команд,
-  offline JSON/errors и запуск вне checkout без credentials; результаты RC
-  сохраняются отдельно от stable приёмки ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
-- Синхронизированы правила builds/RC в `binary-distribution`; завершённый CI change
-  архивирован после зелёной matrix и merge PR #132 в dev
-  ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
-
-- Завершённый OpenSpec #136 архивирован, актуальная спецификация длительностей
-  синхронизирована с seconds/hours/days, округлением и исключением выходных по
-  серверному offset; сохранены live/replay доказательства и nullable-контракт
-  ([#136](https://github.com/mesilov/bitrix24-cli/issues/136)).
-
-- `task:status:durations` исключает субботу и воскресенье по серверному offset created;
-  totals каждого статуса теперь объект seconds/hours/days: целые секунды и часы/дни
-  до двух знаков, независимое округление, сутки по 24 часа, без precision. Интервалы,
-  human/plain, тесты и replay длинной истории обновлены; неизвестные единицы остаются
-  null ([#136](https://github.com/mesilov/bitrix24-cli/issues/136)).
-
-- Ветка `builds` для выбранных промежуточных снимков `dev`: push запускает
-  проверку и упаковку Linux amd64/macOS arm64/Windows amd64 без тега и Release.
-  Версия содержит полный source SHA; диагностика хранится 7 дней, итоговые архивы
-  с SHA256SUMS — 30 дней ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
-- Правила мейнтейнера для ручных промежуточных и RC проверок через `builds`;
-  теги `MAJOR.MINOR.PATCH-rc-N` собирают бинарники с точной RC-версией без Release,
-  проверяют принадлежность снимка истории `builds` и исключены из production
-  публикации ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
-- Native smoke приведён к актуальному снимку `dev`: проверяет все 43 команды
-  задач, наличие `task:status:durations` и раннюю проверку её task ID без API
-  ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
-
-- OpenSpec расчёта времени в статусах синхронизирован в актуальные спецификации: 43 task-команды, подтверждённый REST1 exhaustion и границы точных totals. Завершённый change #121 архивирован с live receipts 55 переходов и независимой сверкой сумм ([#121](https://github.com/mesilov/bitrix24-cli/issues/121)).
-
-- `task:status:durations`: календарные интервалы повторных открытий, единая
-  граница `asOf`, evidence и строгий partial-result с `null` вместо точных
-  сумм при недоказанной полноте. Offline-арифметика, ordinary CLI exact totals и live race partial проверены;
-  terminal REST1 next exhaustion исправлена, total не обязателен. Добавлен live-сценарий возврата с контроля
-  и повторного принятия; history-код 4 распознаётся как supposedly_completed.
-  Добавлены HTTP/SDK/adapter проверка изоляции и 60 контрольных изменений,
-  regression fixture для старых NEW/DELETE с тем же TASK_ID и воспроизводимый
-  отчёт о недоказанной полноте серверной истории. Отдельный live-сценарий
-  с паузами 5 секунд сохраняет реальные переходы, задержки и JSON отчёта.
-  Граница текущей жизни проверяется по двум REST3 list.created; более ранняя
-  история сохранена отдельно. Подтверждённый STATUS subset 2/3/4/5 допускается,
-  controlled fixture проверяет точные суммы по собственному журналу действий
-  ([#121](https://github.com/mesilov/bitrix24-cli/issues/121)).
-
-- Дополнительные portal acceptance cases и sanitized evidence: передача задачи второму пользователю, bounded scans, схема и history/auditors; зафиксированы admin-only ограничение роли, недоказанное file membership и дефект time navigation. Проверки остановлены пользователем; issue закрывается по решению пользователя без полной приёмки ([#42](https://github.com/mesilov/bitrix24-cli/issues/42)).
-
-- Пользовательские поля задач через --user-fields/--user-fields-file: один REST1 add с обязательными custom значениями, sparse update и явные результаты составных операций ([#58](https://github.com/mesilov/bitrix24-cli/issues/58)).
-- `task:my --user ID`: задачи явного исполнителя с `--open`, строгим
-  `--due-before` и конечным `--max-scan` через существующий list scanner.
-  Общие форматы вывода, REST 3.0/strict-rest3, честный partial при неизвестных
-  данных или исчерпании бюджета; отдельные unit/live тесты и документация EMP-01
-  ([#118](https://github.com/mesilov/bitrix24-cli/issues/118)).
-
-- Семь команд жизненного цикла задачи: start/pause/defer/renew/complete/approve/disapprove,
-  проверка прав действия и обязательного native result, фактический REST3 статус,
-  dry-run и сохранение confirmed/partial/outcomeUnknown. Строгая проверка шести
-  логических статусов в фильтрах задач ([#60](https://github.com/mesilov/bitrix24-cli/issues/60)).
-
-- Вся CLI-справка переведена на русский: общие и командные заголовки, аргументы,
-  опции, значения по умолчанию, примеры и ограничения; встроенные `completion`,
-  `help` и `list` собраны в едином первом блоке «Общие». Обновлены README и карта CLI,
-  сохранены имена команд/флагов, схемы JSON/XML и shell-скрипты автодополнения
-  ([#113](https://github.com/mesilov/bitrix24-cli/issues/113)).
-
-- `doctor:problem-trajectory`: защищённые локальные карточки, root telemetry
-  (сбор true/лимит 100), публичные status/list/configure и snapshot analysis,
-  даты weekly предложения/обработки, recovery journal и явный offline feedback
-  mock с идемпотентными тестовыми receipts. Реальный endpoint не включён
-  ([#96](https://github.com/mesilov/bitrix24-cli/issues/96)).
-
-- Общая справка `--help`/`-h` с назначением b24cli, полным списком публичных команд
-  и примерами задач; `--about` с версией, автором, лицензией и ссылками на приложение
-  и скилл. Обновлены командные примеры, README/JTBD и проверяемая карта CLI-вызовов
-  ([#100](https://github.com/mesilov/bitrix24-cli/issues/100)).
-- План сборки релиза 0.2.0 с повторной проверкой и актуализацией справки/about,
-  документации и скилла на финальных артефактах
-  ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
-
-- [JTBD задач по ролям](docs/task-jtbd.md): все 22 существующих сценариев в списках с ID,
-  общими таблицами «Статус / Команда / Тест» для текущих и планируемых команд,
-  статусами ✅ Готово / 🕓 План и навигацией по описаниям ролей,
-  текущими и планируемыми CLI-командами, ссылками на файлы интеграционных тестов
-  и границами покрытия ([#80](https://github.com/mesilov/bitrix24-cli/issues/80)).
-
-- Карточки и списки задач с читаемыми статусами, адаптацией к ширине терминала
-  и явными итогами полного/частичного обхода; практические примеры в help и
-  безопасная диагностика ошибок ввода. `task:find` сочетает заголовок с ID,
-  ответственным, статусом, сроком и JSON-фильтром через AND; контракты JSON/TSV
-  сохранены ([#12](https://github.com/mesilov/bitrix24-cli/issues/12)).
-
-- Календарные `--deadline-window`, `--overdue` и `--timezone` в `task:list`/`task:find`:
-  серверные диапазоны дедлайна через REST 1.0, AND с проектом/ролью/названием,
-  нормализованные lifecycle статусы и явный отказ strict-rest3 до запросов
-  ([#95](https://github.com/mesilov/bitrix24-cli/issues/95)).
-
-- POSIX installer для macOS arm64/Linux amd64: публичный Release, SHA-256,
-  проверка версии перед заменой, notices, zsh/bash PATH, custom install directory
-  и `--no-modify-path` ([#28](https://github.com/mesilov/bitrix24-cli/issues/28)).
-
-- Фильтр `--role responsible|accomplice|creator|auditor` в `task:list` и
-  `task:find`: свои задачи владельца подключения, сочетание с другими критериями
-  через AND и явный маршрут REST 1.0 для соисполнителя и наблюдателя
-  ([#68](https://github.com/mesilov/bitrix24-cli/issues/68)).
-- Теги задач: повторяемый `--tag` в `task:add`/`task:update` и `--clear-tags`
-  в `task:update`. Явный набор заменяет теги; отсутствие опции сохраняет их
-  ([#71](https://github.com/mesilov/bitrix24-cli/issues/71)).
-- Явные составные dry-run планы REST 3.0 и записи `TAGS` через REST 1.0,
-  ранний отказ strict-rest3 и частичный результат с ID задачи для восстановления
-  без повторного создания ([#71](https://github.com/mesilov/bitrix24-cli/issues/71)).
-- `task:file:attach --file PATH --folder-id ID` загружает один локальный файл до 500 MB
-  на Диск и прикрепляет к задаче; поддерживает имя через `--name`, безопасный dry-run
-  и сохранение Disk ID для восстановления после частичной привязки. Runtime `maxUploadBytes`
-  перекрывает default в обе стороны; большие файлы передаются потоково. Локальный ввод
-  использует Symfony Filesystem/Path и Base64-кодировщик b24phpsdk
-  ([#62](https://github.com/mesilov/bitrix24-cli/issues/62)).
-- Namespace `users`: текущий пользователь подключения, поиск сотрудников по ФИО/email,
-  коллеги текущего отдела и руководитель по оргструктуре либо из профиля.
-  Добавлены профильные `observerId`, `managerId` и флаг `autoAddObserver`:
-  при включении наблюдатель добавляется после создания задачи с сохранением
-  существующих участников и подтверждённого ID при частичном выполнении
-  ([#63](https://github.com/mesilov/bitrix24-cli/issues/63)).
+- **Жизненный цикл задачи:** `task:start`, `task:pause`, `task:defer`, `task:renew`, `task:complete`, `task:approve`, `task:disapprove`. Проверяются права действия и подтверждённый результат; частичное выполнение и неизвестный результат записи отражаются явно. [#60](https://github.com/mesilov/bitrix24-cli/issues/60)
+- **Результаты задач:** `task:result:add`, `task:result:list`, `task:result:update`, `task:result:delete`. [#61](https://github.com/mesilov/bitrix24-cli/issues/61)
+- **Мои задачи:** `task:my --user ID` с фильтром `--open`, границей `--due-before` и ограничением обхода `--max-scan`. ID исполнителя задаётся явно. [#118](https://github.com/mesilov/bitrix24-cli/issues/118)
+- **Время задачи в статусах:** `task:status:durations` учитывает повторные открытия и границу `--as-of`. Суббота и воскресенье исключаются по серверному offset `created`; результаты каждого статуса представлены в `seconds`, `hours` и `days`. Часы и дни округляются независимо до двух знаков, день равен 24 часам. При недоказанной полноте возвращаются `complete=false`, неизвестные суммы `null` и exit code 3. Это календарное время, а не трудозатраты. [#121](https://github.com/mesilov/bitrix24-cli/issues/121), [#136](https://github.com/mesilov/bitrix24-cli/issues/136)
+- **Сотрудники:** `users:current`, `users:find`, `users:colleagues`, `users:manager`. В профилях поддержаны `observerId`, `managerId`, `autoAddObserver`; наблюдатель может добавляться после создания задачи с сохранением подтверждённого ID при частичном выполнении. [#63](https://github.com/mesilov/bitrix24-cli/issues/63)
+- **Фильтрация по роли:** `--role responsible|accomplice|creator|auditor` в `task:list` и `task:find`. Роль относится к пользователю подключения и сочетается с остальными критериями через AND. [#68](https://github.com/mesilov/bitrix24-cli/issues/68)
+- **Календарные фильтры сроков:** `--deadline-window`, `--overdue`, `--timezone` в `task:list` и `task:find`; совместимы с фильтрами проекта, роли и названия. [#95](https://github.com/mesilov/bitrix24-cli/issues/95)
+- **Теги:** повторяемый `--tag` в `task:add`/`task:update` и `--clear-tags` в `task:update`. Явный набор заменяет теги; отсутствие опции сохраняет их. [#71](https://github.com/mesilov/bitrix24-cli/issues/71)
+- **Пользовательские поля:** `--user-fields`/`--user-fields-file` для создания и изменения задач; обязательные custom-поля отправляются при создании одним REST 1.0 вызовом. [#58](https://github.com/mesilov/bitrix24-cli/issues/58)
+- **Локальные вложения:** `task:file:attach --file PATH --folder-id ID` загружает файл на Диск и прикрепляет к задаче. Поддержаны `--name`, потоковая передача, лимит по умолчанию 500 MB и сохранение Disk ID для восстановления после частичной привязки. [#62](https://github.com/mesilov/bitrix24-cli/issues/62)
+- **Диагностика нехватки CLI:** `doctor:problem-trajectory` хранит обезличенные локальные карточки, показывает состояние и выполняет анализ снимков. Реальный endpoint отправки не включён. [#96](https://github.com/mesilov/bitrix24-cli/issues/96)
+- **Общая справка и сведения о приложении:** `--help`/`-h` показывают назначение, полный каталог, глобальные опции и примеры задач; `--about` — версию, автора, лицензию и ссылки. Оба режима работают без подключения. [#100](https://github.com/mesilov/bitrix24-cli/issues/100)
+- **Установка macOS/Linux:** POSIX installer проверяет SHA-256 и версию до замены бинарника, поддерживает свой каталог установки и `--no-modify-path`. [#28](https://github.com/mesilov/bitrix24-cli/issues/28)
+- **Промежуточные сборки и RC:** ручной выбор снимков `dev` через ветку `builds`, теги `MAJOR.MINOR.PATCH-rc-N`, три native платформы и архивы с `SHA256SUMS`. RC не публикует Release и не меняет latest. [#109](https://github.com/mesilov/bitrix24-cli/issues/109)
 
 ### Изменено
 
-- Основная спецификация сборок синхронизирована с manual-only development
-  workflow; проверенное изменение архивировано в OpenSpec
-  ([#77](https://github.com/mesilov/bitrix24-cli/issues/77)).
-- Зафиксирована итоговая проверка завершённого исследования цифровой подписи:
-  покрытие критериев, доставка отчёта и границы доказательств
-  ([#25](https://github.com/mesilov/bitrix24-cli/issues/25)).
+- **Вся CLI-справка на русском:** заголовки, аргументы, опции, значения по умолчанию, примеры и ограничения. `completion`, `help`, `list` объединены в первый блок «Общие». Имена команд, флагов и API/JSON-полей сохранены. [#113](https://github.com/mesilov/bitrix24-cli/issues/113)
+- **Читаемый вывод задач:** статусы, адаптация к ширине терминала, явные результаты полного и частичного обхода. Поиск совмещает название, ID, ответственного, статус, срок и JSON-фильтр через AND; JSON/TSV-контракты сохранены. [#12](https://github.com/mesilov/bitrix24-cli/issues/12)
+- **README и руководства:** короткая входная страница, установка по платформам, подключение и конфигурация, 13 таблиц «Команда / Назначение / Пример». Детали вынесены в руководства установки, подключений, конфигурации, задач и сотрудников. Карта CLI актуализирована для 56 команд. [#134](https://github.com/mesilov/bitrix24-cli/issues/134)
+- **Документация сценариев:** сохранены 22 JTBD с ролями, командами, статусами реализации, ссылками на тесты и границами покрытия; их актуализация обязательна при изменении связанных команд. [#80](https://github.com/mesilov/bitrix24-cli/issues/80), [#105](https://github.com/mesilov/bitrix24-cli/issues/105)
+- **Сопровождение:** OpenSpec-трассировка и архивы завершённых изменений, обязательная запись CHANGELOG для PR по issue, ручные сборки и отдельная приёмка скачанных бинарников. [#65](https://github.com/mesilov/bitrix24-cli/issues/65), [#77](https://github.com/mesilov/bitrix24-cli/issues/77), [#78](https://github.com/mesilov/bitrix24-cli/issues/78), [#109](https://github.com/mesilov/bitrix24-cli/issues/109)
 
-- Завершена трассировка #58: OpenSpec custom-полей и advanced validation синхронизирован с каноническими спецификациями и архивирован вместе с SDK/portal evidence; lifecycle-план сохраняет допуск custom routes ([#58](https://github.com/mesilov/bitrix24-cli/issues/58)).
+### Исправлено
 
-- После merge [PR #122](https://github.com/mesilov/bitrix24-cli/pull/122) в `dev`
-  и закрытия [#118](https://github.com/mesilov/bitrix24-cli/issues/118) требования
-  `task:my` и регистрация 42 task-команд синхронизированы с main specs;
-  проверенный change архивирован в `2026-10-14-add-task-my-command` вместе
-  с unit/live evidence и receipts очистки fixtures. Активные lifecycle deltas
-  согласованы с 42 командами, чтобы последующее архивирование сохранило task:my;
-  smoke-контракт упакованного CLI также ожидает 42 команды и проверяет --user.
+- `task:list`/`task:find` обходят свежие задачи первыми (`id DESC`). В поиске доступен `--order`; неполный результат сообщает сортировку, объём обхода и необходимость увеличить `--max-scan`. [#64](https://github.com/mesilov/bitrix24-cli/issues/64)
+- `connection:add` отклоняет существующий alias до ввода webhook и сообщает, что параметры не применены. Для изменения профиля документировано повторное создание. [#59](https://github.com/mesilov/bitrix24-cli/issues/59)
+- Advanced-поля add/update проверяются по допустимости записи; `editable=false` не блокирует разрешённые поля создания. Обычный advanced dry-run работает без API. [#58](https://github.com/mesilov/bitrix24-cli/issues/58)
+- Если `groupId=null` в REST 3.0 list, принадлежность проекту проверяется чтением карточки по заранее выбранному маршруту. Непроверенные данные дают partial result. [#60](https://github.com/mesilov/bitrix24-cli/issues/60)
+- Обход истории `tasks.task.history.list` завершён при отсутствии `next`; `total` не обязателен. Уточнены границы текущей жизни задачи, повторные открытия и сохранение более ранней истории. [#121](https://github.com/mesilov/bitrix24-cli/issues/121)
+- Устранены пять предупреждений strict-валидации OpenSpec без изменения CLI/API-контрактов. [#114](https://github.com/mesilov/bitrix24-cli/issues/114)
 
-- После merge [MR #117](https://github.com/mesilov/bitrix24-cli/pull/117)
-  в `dev` и закрытия [#114](https://github.com/mesilov/bitrix24-cli/issues/114)
-  завершённый OpenSpec change `normalize-openspec-requirement-statements`
-  перенесён в архив `2026-10-14-normalize-openspec-requirement-statements`;
-  все 16 синхронизированных delta-блоков и strict-валидация main specs сохранены.
+### Ограничения выпуска
 
-- После merge [PR #116](https://github.com/mesilov/bitrix24-cli/pull/116) в `dev`
-  и закрытия [#113](https://github.com/mesilov/bitrix24-cli/issues/113) требования
-  русской CLI-справки и единого блока «Общие» синхронизированы в `cli-experience`;
-  завершённый change `localize-cli-help-and-group-common-commands` перенесён
-  в архив от 14.10.2026.
+- Полная portal-матрица прав, независимая проверка принадлежности вложений и полнота навигации учёта времени не подтверждены во всех случаях. #42 закрыто по решению пользователя после остановки проверок; это не означает полной приёмки. [#42](https://github.com/mesilov/bitrix24-cli/issues/42)
+- По умолчанию CLI разрешает объявленные маршруты REST 3.0, REST 1.0 и IM. Только явно выбранный `--api-policy strict-rest3` запрещает non-v3 команды: `policy-denied`, exit code 4, без API-запросов.
+- Архивы предназначены для Linux amd64, macOS arm64 и Windows amd64. macOS Developer ID/notarization и Windows Authenticode не заявляются. [#25](https://github.com/mesilov/bitrix24-cli/issues/25)
+- Проверки RC, окончательной версии `0.2.0` и публикации Release фиксируются отдельно. Агентский скилл обновлён на все 56 команд: [PR #9](https://github.com/mesilov/bitrix24-cli-skill/pull/9) merged, [#6](https://github.com/mesilov/bitrix24-cli-skill/issues/6) закрыто.
 
-- OpenSpec MVP проблемных сценариев синхронизирован с актуальными
-  `agent-trajectory-feedback` и `connection-configuration`; завершённый change
-  перенесён в архив `2026-10-14-analyze-agent-trajectories` с evidence доставки CLI
-  и скилла ([#96](https://github.com/mesilov/bitrix24-cli/issues/96)).
+### Предрелизная проверка
 
-- После merge [PR #110](https://github.com/mesilov/bitrix24-cli/pull/110) в `dev`
-  и закрытия [#100](https://github.com/mesilov/bitrix24-cli/issues/100) синхронизированы
-  требования общей справки и `--about` в `cli-experience`; завершённый change
-  `verify-cli-help-and-docs-0-2-0` перенесён в архив от 14.10.2026.
+Кандидат `0.2.0-rc-2` (source `6931fd0440143878f6a19601bd87bbcfd51cbe70`) прошёл [сборку трёх платформ](https://github.com/mesilov/bitrix24-cli/actions/runs/38545765746) и [проверку скачанных бинарников](https://github.com/mesilov/bitrix24-cli/actions/runs/38548634484): 56 команд, 112 command-help вызовов, 125 CLI запусков и сверка 56 примеров на каждой ОС. Source CI: 825 тестов / 13 125 assertions. Это приёмка кандидата; опубликованная стабильная 0.2.0 получает собственные артефакты и проверку.
 
-- Архивирован завершённый OpenSpec change `require-jtbd-documentation-sync` после
-  доставки правила сопровождения JTBD и ссылки в шапке README через PR #106 в `dev`;
-  сохранены CI/merge receipts ([#105](https://github.com/mesilov/bitrix24-cli/issues/105)).
+### Финальный выпуск
 
-- Закреплено обновление `docs/task-jtbd.md` в том же MR при реализации новых JTBD
-  и изменении связанных команд: ID, роли, статусы, ссылки на файлы тестов и границы
-  покрытия проверяются перед MR/merge. JTBD добавлены в верхнюю навигацию README
-  ([#105](https://github.com/mesilov/bitrix24-cli/issues/105)).
-
-- Архивирован завершённый OpenSpec change `document-role-jtbd-traceability` после merge
-  документации 22 JTBD в `dev` и закрытия [#80](https://github.com/mesilov/bitrix24-cli/issues/80);
-  сохранены результаты проверок и подтверждённая доставка PR #82.
-
-- Синхронизированы требования читаемого вывода, диагностики и комбинированного
-  поиска с сохранением актуальных фильтров дедлайнов; архивирован завершённый
-  OpenSpec change `improve-task-cli-dx` после merge реализации в `dev`
-  ([#12](https://github.com/mesilov/bitrix24-cli/issues/12)).
-
-- Синхронизированы спецификации календарных фильтров дедлайна и архивирован
-  завершённый OpenSpec change `add-task-deadline-windows` после merge CLI/skill
-  и закрытия issue ([#95](https://github.com/mesilov/bitrix24-cli/issues/95)).
-
-- Подтверждена публичная Unix установка `0.1.0` с installer из `main`;
-  синхронизированы восемь требований binary-distribution и архивирован завершённый
-  OpenSpec change с native CI/public delivery evidence
-  ([#28](https://github.com/mesilov/bitrix24-cli/issues/28)).
-
-- Синхронизированы спецификации загрузки локальных файлов (default 500 MB и приоритет
-  runtime `maxUploadBytes`) и архивирован завершённый OpenSpec change
-  `upload-local-task-files` с подтверждённой доставкой реализации в `dev`
-  ([#62](https://github.com/mesilov/bitrix24-cli/issues/62)).
-
-- Синхронизированы спецификации пользователей, рабочих ролей и автодобавки
-  наблюдателя; `add-users-namespace` архивирован с сохранёнными результатами
-  local/native/live проверок и ограничением проверки руководителя по оргструктуре
-  ([#63](https://github.com/mesilov/bitrix24-cli/issues/63)).
-
-- Синхронизированы спецификации фильтрации задач по своей роли и API policy;
-  архивирован завершённый OpenSpec change `add-task-role-filters` с результатами
-  проверок и delivery evidence после merge реализации в `dev`
-  ([#68](https://github.com/mesilov/bitrix24-cli/issues/68)).
-- Синхронизированы спецификации тегов задач и архивирован проверенный change
-  `add-task-tags` после merge реализации в `dev`
-  ([#71](https://github.com/mesilov/bitrix24-cli/issues/71)).
-- `connection:add` отклоняет существующий alias до ввода webhook и явно сообщает,
-  что параметры не применены; help и документация описывают полное повторное
-  создание профиля. Завершённый OpenSpec change архивирован, требования
-  синхронизированы с основной спецификацией
-  ([#59](https://github.com/mesilov/bitrix24-cli/issues/59)).
-- В скилле мейнтейнера требуется содержательная запись в changelog со ссылкой на issue
-  для любого MR в `dev` по issue; проверка обязательна перед открытием MR и merge
-  ([#78](https://github.com/mesilov/bitrix24-cli/issues/78)).
-- Архивирован завершённый OpenSpec change `require-issue-changelog-before-dev-merge`;
-  сохранены результаты проверки и архивная трассировка
-  ([#78](https://github.com/mesilov/bitrix24-cli/issues/78)).
+[Release 0.2.0](https://github.com/mesilov/bitrix24-cli/releases/tag/0.2.0) опубликован 14 октября 2026 и назначен latest. Source SHA: `6bba00c0599913a9f5cb0751bdf0d5dd7d7c489b`. [Production CI](https://github.com/mesilov/bitrix24-cli/actions/runs/38551708207): 6/6 jobs success. [Финальные бинарники](https://github.com/mesilov/bitrix24-cli/actions/runs/38554068826): 3/3 native платформы, 56 команд, 112 help-вызовов и 125 CLI запусков каждая. [Публичная установка Linux/macOS](https://github.com/mesilov/bitrix24-cli/actions/runs/38554073724) и все version/latest ссылки проверены.
 
 ## [0.1.0] — 2026-10-12
 
@@ -325,3 +111,5 @@
 
 [Unreleased]: https://github.com/mesilov/bitrix24-cli/commits/dev
 [0.1.0]: https://github.com/mesilov/bitrix24-cli/milestone/1
+
+[0.2.0]: https://github.com/mesilov/bitrix24-cli/releases/tag/0.2.0
