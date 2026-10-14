@@ -24,4 +24,15 @@ final class AddTaskTimeEntryCommandTest extends LiveTaskCommandTestCase
         self::assertSame('fixture', $row['text']);
         self::assertSame($this->userId, $row['userId']);
     }
+    #[Group('portal-acceptance')]
+    public function testSecondUserWithoutTaskRoleCannotAccessOwnedFixture(): void
+    {
+        [$second] = $this->secondUser();
+        $id = $this->createTask();
+
+        $before = $this->timeEntries($id);
+        $this->assertSecondUserDenied(['task:time:add', $id, '--seconds', 60]);
+        self::assertSame($before, $this->timeEntries($id));
+    }
+
 }

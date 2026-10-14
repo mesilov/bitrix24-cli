@@ -45,4 +45,15 @@ final class AddTaskChecklistItemCommandTest extends LiveTaskCommandTestCase
         self::assertSame('resource-binding-unverified', $result['error']['code']);
         self::assertNotContains('Wrong parent', array_column($this->checklistNodes($id), 'title'));
     }
+    #[Group('portal-acceptance')]
+    public function testSecondUserWithoutTaskRoleCannotAccessOwnedFixture(): void
+    {
+        [$second] = $this->secondUser();
+        $id = $this->createTask();
+        $root = $this->checklists->add($id, 0, 'Root');
+        $before = $this->checklistNodes($id);
+        $this->assertSecondUserDenied(['task:checklist:item:add', $id, '--checklist', $root, '--title', 'Denied item']);
+        self::assertSame($before, $this->checklistNodes($id));
+    }
+
 }

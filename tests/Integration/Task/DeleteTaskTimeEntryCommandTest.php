@@ -18,4 +18,15 @@ final class DeleteTaskTimeEntryCommandTest extends LiveTaskCommandTestCase
         $this->invoke(['task:time:delete', $id, '--entry', $entry, '--force']);
         self::assertArrayNotHasKey($entry, $this->timeEntries($id));
     }
+    #[Group('portal-acceptance')]
+    public function testSecondUserWithoutTaskRoleCannotAccessOwnedFixture(): void
+    {
+        [$second] = $this->secondUser();
+        $id = $this->createTask();
+        $entry = $this->entries->add($id, 60, 'owned');
+        $before = $this->timeEntries($id);
+        $this->assertSecondUserDenied(['task:time:delete', $id, '--entry', $entry, '--force']);
+        self::assertSame($before, $this->timeEntries($id));
+    }
+
 }

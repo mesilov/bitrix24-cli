@@ -33,4 +33,8 @@ Live integration tests, согласованные portal fixtures и verificati
 
 ## RC 0.1.0
 
-Перенесённые проверки не блокируют RC 0.1.0. Недоказанные denied-role matrix, history/elapsedTime completeness, file membership и передача задачи второму пользователю остаются явно ограниченными. [Полный список границ RC](../../../docs/rc-0.1.0.md).
+Перенесённые проверки не блокируют RC 0.1.0. Недоказанные denied-role matrix, history/elapsedTime completeness, file membership и передача задачи второму пользователю остаются явно ограниченными. [Полный список границ RC](../../../../docs/rc-0.1.0.md).
+
+## Final user decision 2026-10-14
+
+User stopped further checks, authorized merge into dev, and explicitly requested closing #42. Deliver and archive the partial tests/evidence with the ten original compound tasks cancelled and unchecked. This closure does not assert complete role/completeness acceptance, file membership, or a fix for time navigation. Runtime behavior and API route scope remain unchanged.

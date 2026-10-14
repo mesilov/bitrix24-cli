@@ -30,4 +30,15 @@ final class UpdateTaskTimeEntryCommandTest extends LiveTaskCommandTestCase
         self::assertSame('resource-binding-unverified', $result['error']['code']);
         self::assertSame(60, $this->timeEntries($id)[$entry]['seconds']);
     }
+    #[Group('portal-acceptance')]
+    public function testSecondUserWithoutTaskRoleCannotAccessOwnedFixture(): void
+    {
+        [$second] = $this->secondUser();
+        $id = $this->createTask();
+        $entry = $this->entries->add($id, 60, 'owned');
+        $before = $this->timeEntries($id);
+        $this->assertSecondUserDenied(['task:time:update', $id, '--entry', $entry, '--seconds', 120]);
+        self::assertSame($before, $this->timeEntries($id));
+    }
+
 }
