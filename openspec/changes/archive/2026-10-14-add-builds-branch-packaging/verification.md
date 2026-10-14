@@ -57,3 +57,13 @@
 Скачивание macOS artifact первого run после TLS timeout завершилось успешно. Проверка на машине пользователя вне checkout, с whitelist environment без credentials и clean PATH: exact version/source SHA, about/version agreement, --help/-h, обе формы list help и обе формы help всех 55 публичных команд (110 command-help invocations) — pass. `codesign --verify --strict` — exit 0. Raw receipt: [macos-bootstrap-help-receipt.json](macos-bootstrap-help-receipt.json). Browser quarantine/first-download Gatekeeper acceptance этим CLI download не подтверждается.
 
 Source CI PR head `0d192a075b037aaa4006014ff5bf2e4dec99af02`: 13 checks SUCCESS. Вторая matrix на `9c268e5` имеет успешные preparation/macOS/Windows; Linux/archive terminal outcome ещё ожидается и не засчитывается по первому run. RC gate covered локальными fixtures, живой RC tag не создан. Нет critical implementation issues в выполненных checks; unperformed acceptance границы указаны выше, archive ждёт review/merge в dev.
+
+## Delivery and archive completion
+
+PR #132 merged into dev 14.10.2026, merge SHA `5330662f4398e2d2a329d92070c0fa040833a4b3`, guarded head `320de99b8d8de9da50da268e94398f1fb299cf2b`, 13 CI checks SUCCESS. Native run 38534772781 on `9c268e5bbb6b3c3cea85cfbb3726cbd8b5efbb99` completed/success, 5/5 jobs. RC source validation on the same SHA passed in run 38537920077; native RC terminal outcome is recorded separately in prepare-release-0-2-0.
+
+Four binary-distribution requirements synchronized, all existing unrelated requirements/Purpose preserved; strict canonical spec validation initially flagged the modified publication requirement length; equivalent tag reachability wording was shortened without dropping conditions, then strict validation was repeated. Change 9/9 implementation tasks complete; archive belongs to the current RC acceptance follow-up PR. Issue #109 remains open for stable release; archival delivery in dev is separate from RC artifact proof.
+
+## RC terminal verification
+
+RC 0.2.0-rc-1 package run 38537920077 passed all five jobs; native downloaded-artifact acceptance 38541117982 passed all three platforms. Full receipts and publication boundaries are recorded in `openspec/changes/prepare-release-0-2-0/rc-0.2.0-rc-1.md`. Archive/spec sync is delivered through the follow-up PR; #109 remains open for stable-release work.
