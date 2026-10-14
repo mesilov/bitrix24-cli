@@ -23,6 +23,8 @@
 
 ### Добавлено
 
+- Дополнительные portal acceptance cases и sanitized evidence: передача задачи второму пользователю, bounded scans, схема и history/auditors; зафиксированы admin-only ограничение роли, недоказанное file membership и дефект time navigation. Проверки остановлены пользователем; issue закрывается по решению пользователя без полной приёмки ([#42](https://github.com/mesilov/bitrix24-cli/issues/42)).
+
 - Пользовательские поля задач через --user-fields/--user-fields-file: один REST1 add с обязательными custom значениями, sparse update и явные результаты составных операций ([#58](https://github.com/mesilov/bitrix24-cli/issues/58)).
 - `task:my --user ID`: задачи явного исполнителя с `--open`, строгим
   `--due-before` и конечным `--max-scan` через существующий list scanner.

@@ -109,4 +109,18 @@ final class ListTaskCommandTest extends LiveTaskLifecycleTestCase
         self::assertSame('explicit-task-ids', $result['meta']['scope']);
         self::assertTrue($result['meta']['complete']);
     }
+    #[Group('portal-acceptance')]
+    public function testBoundedScanCannotClaimCompleteFixtureSearch(): void
+    {
+        $needle = $this->fixtureTitle();
+        $first = $this->createTask($needle . '-first');
+        $second = $this->createTask($needle . '-second');
+        $result = $this->invoke(['task:list', '--id', $first, '--id', $second, '--max-scan', 1], [3]);
+        self::assertFalse($result['meta']['complete']);
+        self::assertSame('scan-budget-exhausted', $result['meta']['reason']);
+        self::assertSame(1, $result['meta']['scanned']);
+        self::assertSame([$second], array_column($result['data']['items'], 'id'));
+        self::assertSame(['3.0'], $result['meta']['apiVersions']);
+    }
+
 }

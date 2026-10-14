@@ -26,9 +26,11 @@
 
 ## Перенесённая проверка — 0.2.0
 
-По решению пользователя от 12.10.2026 непроверенный остаток следующих исходных задач исключён из tracked scope RC 0.1.0 и перенесён в [#42](https://github.com/mesilov/bitrix24-cli/issues/42), [complete-task-portal-acceptance/tasks.md](../complete-task-portal-acceptance/tasks.md). Ни одна перенесённая проверка не отмечается выполненной; уже подтверждённые cases сохраняются.
+По решению пользователя от 12.10.2026 непроверенный остаток следующих исходных задач исключён из tracked scope RC 0.1.0 и перенесён в [#42](https://github.com/mesilov/bitrix24-cli/issues/42), [complete-task-portal-acceptance/tasks.md](../archive/2026-10-14-complete-task-portal-acceptance/tasks.md). Ни одна перенесённая проверка не отмечается выполненной; уже подтверждённые cases сохраняются.
 
 - Исходная 2.3 Для допуска оставшихся кандидатов MVP проверить bounded v3 list scans/title search, права task/chat, четыре согласованные time routes с правами/принадлежностью записи, восемь checklist/root/item команд с проверкой дерева, PARENT_ID и прав, а также согласованные participants/history маршруты с правами, явными наборами ролей и полнотой истории. Сохранить evidence; lifecycle/result/blockers/change workflows после MVP не возвращаются сюда неявно, в том числе через raw status update. Наличие кандидата не заменяет runtime acceptance.
 
 - Дополнительные границы того же evidence: independent file membership и reassignment второму пользователю также проверяются в #42. Native auditors limitation фиксируется отдельно.
 - Для define-task-jtbd задачи 2.1/2.2 остаются открытым проектированием после MVP; перенос дополнительных portal checks не подтверждает полное продуктовое JTBD покрытие и не возвращает исключённые функции в RC.
+
+Решение 14.10.2026: #42 закрывается и change архивируется с частичными evidence по прямому указанию пользователя; непроверенные части отменены для этой задачи, не отмечены успешно выполненными. Задачи 2.1/2.2 этого change остаются открытыми.

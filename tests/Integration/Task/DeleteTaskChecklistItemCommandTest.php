@@ -23,4 +23,16 @@ final class DeleteTaskChecklistItemCommandTest extends LiveTaskCommandTestCase
         self::assertArrayNotHasKey($nested, $nodes);
         self::assertSame('Root', $nodes[$root]['title']);
     }
+    #[Group('portal-acceptance')]
+    public function testSecondUserWithoutTaskRoleCannotAccessOwnedFixture(): void
+    {
+        [$second] = $this->secondUser();
+        $id = $this->createTask();
+        $root = $this->checklists->add($id, 0, 'Root');
+        $item = $this->checklists->add($id, $root, 'Item');
+        $before = $this->checklistNodes($id);
+        $this->assertSecondUserDenied(['task:checklist:item:delete', $id, '--item', $item, '--force']);
+        self::assertSame($before, $this->checklistNodes($id));
+    }
+
 }

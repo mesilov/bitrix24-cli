@@ -43,4 +43,18 @@ final class FindTaskCommandTest extends LiveTaskCommandTestCase
         self::assertSame(2, $result['meta']['returned']);
         self::assertFalse($result['meta']['limitApplied']);
     }
+    #[Group('portal-acceptance')]
+    public function testBoundedScanCannotClaimCompleteFixtureSearch(): void
+    {
+        $needle = $this->fixtureTitle();
+        $this->createTask($needle . '-first');
+        $second = $this->createTask($needle . '-second');
+        $result = $this->invoke(['task:find', '--title', $needle, '--max-scan', 1], [3]);
+        self::assertFalse($result['meta']['complete']);
+        self::assertSame('scan-budget-exhausted', $result['meta']['reason']);
+        self::assertSame(1, $result['meta']['scanned']);
+        self::assertSame([$second], array_column($result['data']['items'], 'id'));
+        self::assertSame(['3.0'], $result['meta']['apiVersions']);
+    }
+
 }

@@ -150,4 +150,20 @@ final class AttachTaskFilesCommandTest extends LiveTaskCommandTestCase
             $filesystem->remove($directory);
         }
     }
+    #[Group('portal-acceptance')]
+    public function testAttachmentMembershipIsReadIndependentlyFromTaskRelation(): void
+    {
+        $id = $this->createTask();
+        $file = $this->diskFile();
+        $this->invoke(['task:file:attach', $id, '--file-id', $file]);
+        $raw = $this->api->call('tasks.task.get', 3, ['id' => $id, 'select' => ['id', 'fileIds']])->result['item'];
+        $this->acceptanceRecords[] = ['case' => 'independent-file-membership', 'taskId' => $id, 'apiVersion' => '3.0', 'expected' => $file, 'observed' => $raw['fileIds'] ?? null, 'verified' => is_array($raw['fileIds'] ?? null) && in_array($file, array_map(intval(...), $raw['fileIds']), true)];
+        if (!is_array($raw['fileIds'] ?? null)) {
+            self::markTestSkipped('Independent membership is unverified: REST3 fileIds is null or missing after attachment ACK.');
+        }
+
+        self::assertContains($file, array_map(intval(...), $raw['fileIds']));
+        $this->acceptanceRecords[] = ['case' => 'independent-file-membership', 'taskId' => $id, 'apiVersion' => '3.0', 'expected' => $file, 'observed' => array_map(intval(...), $raw['fileIds'])];
+    }
+
 }

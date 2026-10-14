@@ -84,6 +84,10 @@ abstract class LiveCommandTestCase extends TestCase
         $json = $run->json();
         $this->observedCommands[] = ['command' => $argv[0], 'status' => $run->status, 'apiCalls' => $json['meta']['apiCalls'] ?? [], 'complete' => $json['meta']['complete'] ?? null, 'reason' => $json['meta']['reason'] ?? null, 'errorCode' => $json['error']['code'] ?? null, 'apiErrorCode' => $json['error']['details']['apiErrorCode'] ?? null, ...(isset($json['meta']['roleFilter']) ? ['roleFilter' => $json['meta']['roleFilter']] : []), 'taskStatus' => $json['data']['task']['status'] ?? null, 'confirmed' => $json['data']['operation']['confirmed'] ?? null, 'outcomeUnknown' => $json['meta']['outcomeUnknown'] ?? null];
         $this->afterInvoke($argv, $json);
+        $index = array_key_last($this->observedCommands);
+        $this->observedCommands[$index]['actingUserId'] = $this->userId;
+        $this->observedCommands[$index]['target'] = array_values(array_filter(array_slice($argv, 1), static fn ($value): bool => is_int($value)));
+        $this->observedCommands[$index]['expectedExitStatuses'] = $statuses;
 
         self::assertContains($run->status, $statuses, $run->stdout . $run->stderr);
         if ($run->status === 0) {

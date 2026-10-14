@@ -27,3 +27,7 @@ Milestone: **0.2.0**, issue [#42](https://github.com/mesilov/bitrix24-cli/issues
 ## Workflow follow-up
 
 - Архивировать после фактической verification, обновить архивный путь в #42; runtime-дефекты оформлять отдельными issues/changes.
+
+## Closure decision 2026-10-14
+
+The user explicitly instructed: stop further checks, merge the partial result into dev, and close issue #42. All ten original compound acceptance tasks remain unchecked: partial assertions do not complete a compound task. They are cancelled for this issue by user decision, not verified or completed. Archive with this warning and preserve the original scope and source IDs. The saved evidence contains confirmed reassignment, bounded scans, schema, history boundary and native/companion auditors observations. Non-admin denied-role proof, full time/checklist/participants acceptance and independent file membership are not claimed. No more portal runs are authorized for this delivery.
