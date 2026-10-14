@@ -20,6 +20,9 @@
 6. Для одноразового запуска acceptance из feature-ветки использовать branch-only wrapper существующего package-static workflow (workflow_dispatch уже зарегистрирован в default main). Wrapper содержит только download/verify jobs и read-only contents/actions; после dispatch восстановить оригинальный package-static перед PR в dev. Helper/receipts сохраняются в PR; RC source/tag не меняется.
 7. Scope заморожен RC SHA: #121 включён, #134/#136 позже закрыты и merged в dev, но не входят в этот RC; синхронизация скилла #6 остаётся открыта. Stable-release задачи остаются открыты до отдельной приёмки/разрешённого выпуска.
 
+8. RC2: сначала дождаться доставки служебных PR и согласовать изменения README/скилла в уже работающих чатах; не вмешиваться в их dirty worktrees. Выбрать чистый dev SHA после успешного CI, перенести его в builds, дождаться успешной intermediate matrix, затем создать новый immutable 0.2.0-rc-2. Не перемещать RC1 и не публиковать Release.
+9. Дополнить downloaded-artifact helper полной about metadata/purpose, проверкой списка команд против README/карты, полной командной JSON definition и синтаксиса документированных примеров. Все проверки выполняются без credentials/API; native package smoke и offline helper дают отдельные receipts. Сохранить готовые archive checksums, exact source/version и remaining stable/portal/install limitations.
+
 ## Risks / Trade-offs
 
 - [Поверхность CLI меняется после #100] → пересверить список команд и документацию на финальном SHA.

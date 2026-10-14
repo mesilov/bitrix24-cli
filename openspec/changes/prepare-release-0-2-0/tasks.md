@@ -21,6 +21,16 @@
 - [x] 3.3 Реализовать helper готовых artifacts и проверить RC бинарники на трёх native runners без пересборки: identity/56 commands/help/about/offline JSON/errors, сохранить terminal results.
 - [x] 3.4 Сохранить RC report, ограничения, OpenSpec-трассировку и CHANGELOG в PR dev, отдельно от stable-release acceptance; проверить отчёт/links/diff.
 
+## 4. RC 0.2.0-rc-2 и подготовка финального выпуска
+
+- [x] 4.1 Доставить служебные PR и согласовать финальный dev scope с README/скилл чатами; зафиксировать точный выбранный SHA и remaining scope.
+- [x] 4.2 Усилить offline artifact проверку about/purpose/links, публичного каталога и документированных примеров; проверить source help/docs/reference и синтаксис примеров без портала.
+- [x] 4.3 Дождаться terminal source CI, выбрать dev snapshot, перенести в builds и дождаться зелёной intermediate native matrix.
+- [ ] 4.4 Создать отсутствующий immutable tag 0.2.0-rc-2 на принятом builds SHA; дождаться зелёной RC matrix/archive и проверить tag/source identity.
+- [ ] 4.5 Проверить готовые RC2 архивы на трёх native OS вне checkout: checksum/version/about/help/catalog/offline/errors; скачать receipts и явно сохранить границы установки/portal.
+- [ ] 4.6 Завершить синхронизацию скилла #6 через PR; передать exact RC2 version/source/catalog и проверить delivery readback.
+- [ ] 4.7 Сохранить RC2 report, release notes, CHANGELOG, issue trace и native/CI receipts в dev через PR; проверить отсутствие RC Release/latest unchanged, оставить stable tasks pending.
+
 ## Workflow follow-up
 
 - Promotion в main, создание тега и публикация Release выполняются после согласования конкретного release scope.

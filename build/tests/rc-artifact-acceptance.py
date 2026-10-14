@@ -6,6 +6,8 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -84,18 +86,67 @@ def main():
 
         version = invoke('--version').strip()
         check(version == 'b24cli ' + args.expected_version, 'CLI version mismatch: ' + version)
-        check(args.expected_version in invoke('--about'), 'About version differs from --version')
+        about = invoke('--about', '--env-file', str(clean / 'missing.env'))
+        for text in ['CLI для работы с задачами, сотрудниками и подключениями Битрикс24.',
+                     'Версия: ' + args.expected_version, 'Maksim Mesilov',
+                     'bitrix24-cli-license', 'BSD-3-Clause',
+                     'https://github.com/mesilov/bitrix24-cli',
+                     'https://github.com/mesilov/bitrix24-cli-skill']:
+            check(text in about, 'About omits ' + text)
         help_text = invoke('--help')
         check(help_text == invoke('-h'), 'Root help forms differ')
         check(invoke('list', '--help') == invoke('help', 'list'), 'List help forms differ')
         commands = [line.split()[0] for line in invoke('list', '--raw').splitlines() if line.strip()]
         check(len(commands) == args.expected_commands and len(commands) == len(set(commands)), 'Catalog count differs')
         check('task:status:durations' in commands and 'task:my' in commands, 'RC commands missing')
+        catalog = json.loads(invoke('list', '--format=json'))
+        definitions = {c['name']: c for c in catalog['commands'] if not c['hidden']}
+        check(set(definitions) == set(commands), 'JSON and raw command catalogs differ')
+        repository = checker.parents[2]
+        command_map = (repository / 'docs/cli-command-map.md').read_text(encoding='utf-8')
+        readme = (repository / 'README.md').read_text(encoding='utf-8')
+        pattern = r'^\| (?:\[)?`([^`]+)`'
+        for name, document in [('README', readme), ('command map', command_map)]:
+            names = re.findall(pattern, document, re.MULTILINE)
+            check(sorted(names) == sorted(commands), name + ' command catalog differs')
+        examples = re.findall(r'\| `(b24cli [^`]+)` \|', command_map)
+        check(len(examples) == len(commands), 'Command map example count differs')
+        for example in examples:
+            tokens = shlex.split(example.replace('\\|', '|'))
+            definition = definitions[tokens[1]]['definition']
+            arguments = []
+            index = 2
+            while index < len(tokens):
+                token = tokens[index]
+                if token.startswith('--'):
+                    option, separator, value = token[2:].partition('=')
+                    check(option in definition['options'], 'Unknown documented option: ' + example)
+                    details = definition['options'][option]
+                    if details['is_value_required'] and not separator:
+                        index += 1
+                        check(index < len(tokens) and not tokens[index].startswith('--'),
+                              'Missing documented option value: ' + example)
+                    check(details['accept_value'] or not separator, 'Unexpected option value: ' + example)
+                else:
+                    check(not token.startswith('-'), 'Unsupported documented short option: ' + example)
+                    arguments.append(token)
+                index += 1
+            argument_definition = definition['arguments']
+            positional = list(argument_definition.values()) if isinstance(argument_definition, dict) else argument_definition
+            required = sum(a['is_required'] for a in positional)
+            check(len(arguments) >= required, 'Missing documented argument: ' + example)
+            check(any(a['is_array'] for a in positional) or len(arguments) <= len(positional),
+                  'Extra documented argument: ' + example)
         for command in commands:
             check(command in help_text, 'Root help omits ' + command)
-            check(invoke(command, '--help') == invoke('help', command), 'Help forms differ: ' + command)
+            direct_help = invoke(command, '--help')
+            check(direct_help == invoke('help', command), 'Help forms differ: ' + command)
+            if ':' in command:
+                check('Примеры:' in direct_help, 'Command omits examples: ' + command)
         checks.extend(['version-about-agreement', 'both-root-help-forms', 'both-list-help-forms',
-                       'complete-command-catalog', 'both-help-forms-for-every-public-command'])
+                       'complete-command-catalog', 'both-help-forms-for-every-public-command',
+                       'about-purpose-author-license-links-with-missing-env',
+                       'readme-map-json-raw-catalog-agreement', 'documented-example-syntax'])
         dry = json.loads(invoke('task:add', '--title', 'Проверка RC без записи', '--creator', '1',
                                 '--responsible', '2', '--dry-run', '--json'))
         check(dry['error'] is None and dry['meta']['dryRun'] and dry['meta']['apiCalls'] == [], 'Offline dry-run differs')
@@ -114,6 +165,8 @@ def main():
                    'all_archive_checksums': checksums, 'public_commands': len(commands),
                    'command_help_invocations': len(commands) * 2, 'total_cli_invocations': invocations,
                    'commands': commands, 'checks': checks, 'build_metadata': metadata}
+        receipt['documented_examples'] = len(examples)
+        receipt['command_map_sha256'] = hashlib.sha256(command_map.encode('utf-8')).hexdigest()
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     print(json.dumps({k: v for k, v in receipt.items() if k not in {'commands', 'build_metadata'}}, ensure_ascii=False))
