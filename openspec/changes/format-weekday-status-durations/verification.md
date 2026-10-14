@@ -21,3 +21,5 @@ No critical findings, warnings or skipped checks within the declared format/cale
 ## Publication
 
 PR [#137](https://github.com/mesilov/bitrix24-cli/pull/137) targets dev; issue #136 is enhancement, milestone 0.2.0, with reverse OpenSpec trace. Fresh dev 5330662 integrated at 9e6eda8; only build/packaging/docs/workflow files changed, not runtime/test PHP. Post-merge OpenSpec all-strict: 27 passed/0 failed. CI is checked against the final published head; merge/release are not part of this request.
+
+Pre-merge JTBD reconciliation: PM-02/AM-03 document weekday units, rounding, nullable boundaries and the replay/live distinction. Removed stale open #121 acceptance text; retained all 22 scenario IDs and command/test links. Runtime unchanged.
