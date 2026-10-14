@@ -25,7 +25,7 @@
 
 ## Impact
 
-`.github/workflows/package-static.yml`, `.github/workflows/package-platforms.yml`, `.github/workflows/release.yml` (исключение RC), `build/source.py` и его тесты, `build/README.md`, скилл мейнтейнера, CHANGELOG и OpenSpec. Application/REST контракты не меняются; Bitrix24 MCP-проверки не применимы к этому CI change. Финальная 0.2.0 по решению пользователя ожидает завершения #121; промежуточные сборки не считаются её релизной приёмкой. Bootstrap ветки допускает текущий `dev` плюс этот CI change; дальнейшие снимки переносятся из `dev` без force push.
+`.github/workflows/package-static.yml`, `.github/workflows/package-platforms.yml`, `.github/workflows/release.yml` (исключение RC), `build/source.py` и его тесты, актуализация native smoke под 43 task-команды, `build/README.md`, скилл мейнтейнера, CHANGELOG и OpenSpec. Application/REST контракты не меняются; Bitrix24 MCP-проверки не применимы к этому CI change. Финальная 0.2.0 включает #121 по решению пользователя; промежуточные сборки не считаются её релизной приёмкой. Bootstrap ветки допускает текущий `dev` плюс этот CI change; дальнейшие снимки переносятся из `dev` без force push.
 
 ## GitHub issues
 

@@ -31,6 +31,9 @@
   теги `MAJOR.MINOR.PATCH-rc-N` собирают бинарники с точной RC-версией без Release,
   проверяют принадлежность снимка истории `builds` и исключены из production
   публикации ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
+- Native smoke приведён к актуальному снимку `dev`: проверяет все 43 команды
+  задач, наличие `task:status:durations` и раннюю проверку её task ID без API
+  ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
 
 - OpenSpec расчёта времени в статусах синхронизирован в актуальные спецификации: 43 task-команды, подтверждённый REST1 exhaustion и границы точных totals. Завершённый change #121 архивирован с live receipts 55 переходов и независимой сверкой сумм ([#121](https://github.com/mesilov/bitrix24-cli/issues/121)).
 

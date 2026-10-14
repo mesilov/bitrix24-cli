@@ -75,7 +75,7 @@ python3 build/tests/smoke.py dist/macos-arm64 --expected-version "dev-$(git rev-
 
 На Windows используйте `python` и `dist/windows-amd64`. Linux harness выполняется
 в чистом Python container с mounts только artifacts и smoke.py. Проверяются
-exact version, help/list, регистрацию и help всех 30 команд задач, Unicode
+exact version, help/list, регистрацию и help всех 43 команд задач, Unicode
 `task:add --dry-run`, JSON usage/connection errors и exit codes, SDK autoload, production
 extensions, BCMath/ICU, trusted HTTPS и отказ на чужой CA. Smoke копирует artifacts
 в temp directory, убирает build tools из PATH и использует whitelist environment
