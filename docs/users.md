@@ -21,4 +21,3 @@ b24cli --profile work users:manager --source config --json
 Команды используют REST1 и права `user`/`department` выбранного подключения. JSON сохраняет API имена `ID`, `NAME`, `SECOND_NAME`, `LAST_NAME`, `EMAIL`, `UF_DEPARTMENT`; plain TSV выводит эти шесть колонок без заголовка. Доступность email и оргструктуры зависит от user scope.
 
 В профиле можно задать `default.users.observerId`, `managerId` и boolean `autoAddObserver`. Только при `autoAddObserver=true` создание задачи автоматически добавляет наблюдателя, сохраняя уже назначенных. При ошибке после создания CLI сохраняет ID задачи и сообщает partial. Настройка: `connection:add work --observer-id 5 --manager-id 9 --auto-add-observer true`; поля и ограничения описаны в [конфигурации](config.md).
-

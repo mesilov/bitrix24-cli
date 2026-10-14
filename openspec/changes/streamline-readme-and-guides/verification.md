@@ -37,7 +37,7 @@ No critical findings, warnings or suggestions remain from this review.
 | GitHub GFM renderer and browser DOM inspection | Five section headings, three tables and three initially collapsed connection spoilers rendered; each spoiler contains its platform commands. |
 | GitHub source/asset readback | `main/install.sh` exists; latest release `0.1.0` exposes all three named platform archives plus SHA256SUMS. No new release claim. |
 | `openspec validate streamline-readme-and-guides --strict` | Valid with intentional `skip_specs: true`. |
-| `git diff --check` | Passed. |
+| `git diff --check` and staged check | Initial staged review found surplus blank EOF lines in three extracted guides; trimmed. Complete diff against dev then passed. |
 
 ## Evidence boundaries and delivery
 

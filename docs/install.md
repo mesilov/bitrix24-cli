@@ -307,4 +307,3 @@ b24cli help task:show
 </details>
 
 После установки [подключите портал](connection.md).
-

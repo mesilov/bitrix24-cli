@@ -121,4 +121,3 @@ Docker работает от UID/GID пользователя; config mount по
 Headless task-команды не спрашивают webhook и не сохраняют CI credentials.
 Help/version/list/completion и offline dry-run не читают credential files и не пишут конфиг;
 Обычные advanced fields проверяются локально по документированному REST3 контракту; dry-run не требует metadata API.
-
