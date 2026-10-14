@@ -110,6 +110,8 @@
 
 ### Изменено
 
+- Завершена трассировка #58: OpenSpec custom-полей и advanced validation синхронизирован с каноническими спецификациями и архивирован вместе с SDK/portal evidence; lifecycle-план сохраняет допуск custom routes ([#58](https://github.com/mesilov/bitrix24-cli/issues/58)).
+
 - После merge [PR #122](https://github.com/mesilov/bitrix24-cli/pull/122) в `dev`
   и закрытия [#118](https://github.com/mesilov/bitrix24-cli/issues/118) требования
   `task:my` и регистрация 42 task-команд синхронизированы с main specs;

@@ -111,6 +111,14 @@ Runtime SHALL различать пропущенное поле, явное п�
 - **WHEN** --fields, --where или --params пытаются задать неподдержанные ключи, другую цель, смену status либо произвольный маршрут
 - **THEN** ввод отклоняется до mutating request; допуск REST1 для участников не превращается в общий legacy update
 
+#### Scenario: Documented write contract instead of editable gate
+- **WHEN** an ordinary documented add/update patch has correct types but portal editable is false/null/absent
+- **THEN** CLI validates exact names and operation-specific local rules without a metadata gate; remote rights/validation failures retain their classifications
+
+#### Scenario: Offline ordinary advanced preview
+- **WHEN** ordinary --fields is used in dry-run
+- **THEN** CLI checks the local REST3 contract without credentials/API reads; custom creation uses its explicit native REST1 contract
+
 ### Requirement: Participant relation select projections
 Runtime SHALL раскрывать корневые participant selects в id/name. task:list SHALL использовать REST3 projections. task:show SHALL обогащать выбранные auditors/accomplices через заранее объявленные REST1 role IDs и user.get, сохраняя остальные поля карточки из REST3. IDs SHALL относиться к выбранной TASK_ID; lookup SHALL быть ограниченным и сохранять порядок ролей.
 
@@ -302,10 +310,10 @@ CLI SHALL принимать повторяемую опцию `--tag NAME` в t
 - **THEN** CLI возвращает usage-error/exit2 без чтения credentials и сетевого запроса
 
 ### Requirement: Planned task tag routes
-CLI SHALL передавать обычные поля в REST3, а теги — отдельным заранее объявленным REST1 update с полем TAGS. Dry-run SHALL показывать версии, порядок, поля и зависимость ID новой задачи, не выполняя записи. Strict-rest3 SHALL отклонять весь план с тегами до credentials/API; отказ REST3 не SHALL запускать fallback.
+Без custom creation CLI SHALL передавать обычные поля в REST3; custom creation SHALL использовать REST1 по task-user-fields, а теги — отдельным заранее объявленным REST1 update с полем TAGS. Dry-run SHALL показывать версии, порядок, поля и зависимость ID новой задачи, не выполняя записи. Strict-rest3 SHALL отклонять весь план с тегами до credentials/API; отказ REST3 не SHALL запускать fallback.
 
 #### Scenario: Create preview with a dependent tag write
-- **WHEN** task:add с тегами выполняется с dry-run/json
+- **WHEN** task:add с тегами и без custom input выполняется с dry-run/json
 - **THEN** план содержит REST3 tasks.task.add с обычными полями, затем REST1 tasks.task.update с `TAGS` и ссылкой на ID результата первого шага; оба шага не выполнены
 
 #### Scenario: Mixed update and strict policy
@@ -315,7 +323,7 @@ CLI SHALL передавать обычные поля в REST3, а теги —
 
 #### Scenario: Advanced tags remain read-only
 - **WHEN** пользователь передаёт tags или TAGS через fields/fields-file
-- **THEN** CLI отклоняет advanced-запись этих полей и предлагает явную опцию tag; общий editable gate не отключается
+- **THEN** CLI отклоняет advanced-запись этих полей и предлагает явную опцию tag; ordinary advanced validation uses the documented local REST3 contract rather than portal editable
 
 ### Requirement: Account for partial task tag mutations
 CLI SHALL учитывать подтверждённые, неуспешные и неизвестные шаги записи тегов. После подтверждённого первого шага и отказа второго SHALL возвращаться partial/exit3 с TASK_ID и выполненными изменениями; Ctrl-C SHALL сохранять exit130. Потеря ответа SHALL выставлять outcomeUnknown без повторной записи или автоматического удаления задачи.
@@ -384,7 +392,7 @@ CLI SHALL сохранять подтверждённый ID созданной 
 #### Scenario: Offline creation plan
 - **WHEN** basic task:add --dry-run использует профиль с включённой автодобавкой
 - **THEN** вывод показывает создание, чтение существующих наблюдателей и возможное назначение через AUDITORS с ссылкой на будущий ID, без secrets/API calls
-- **AND** политика проверяет полный потенциальный план и advanced-field preflight сохраняет собственный существующий контракт
+- **AND** политика проверяет полный потенциальный план и ordinary advanced fields are checked locally; custom input has its explicitly declared schema read
 
 #### Scenario: Tags and observer share one creation
 - **WHEN** task:add receives --tag and an enabled default observer

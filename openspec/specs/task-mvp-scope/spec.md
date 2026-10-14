@@ -53,7 +53,7 @@ task:subtask:add
 Каталог SHALL отделять release scope от API support: 59 операций = 30 кандидатов MVP, 0 API-policy-pending и 29 после MVP. Права SHALL проверяться для кандидатов; lifecycle SHALL оставаться после MVP независимо от возможности записи status. Наличие команды в каталоге не SHALL означать принятие иных API exceptions, доказанную семантику или runtime readiness.
 
 #### Scenario: Legacy admission is limited to selected commands
-- **WHEN** вызывается legacy маршрут вне согласованных команд/companion reads/записи TAGS либо общий tasks.task.update используется для действий за пределами participants:set и записи TAGS в task:add/task:update
+- **WHEN** вызывается legacy маршрут вне согласованных команд/companion reads/записи TAGS/custom schema and writes либо общий tasks.task.update используется для действий за пределами participants:set, записи TAGS и explicit custom writes в task:add/task:update
 - **THEN** допуск выбранных REST1 команд и чтений не разрешает такую операцию; policy отклоняет запрос и не выполняет скрытый fallback или исключённый lifecycle переход
 
 #### Scenario: Lifecycle commands after MVP
@@ -70,7 +70,7 @@ task:subtask:add
 
 #### Scenario: Tag writes have an explicit narrow legacy admission
 - **WHEN** task:add/task:update в task-v3 policy получает явные теги
-- **THEN** CLI допускает REST1 tasks.task.update только с TAGS; status, userFields и произвольные legacy поля не допускаются, число task-команд не увеличивается
+- **THEN** CLI допускает REST1 tasks.task.update только с TAGS; status, REST3 userFields и произвольные legacy поля не допускаются, число task-команд не увеличивается
 
 #### Scenario: Strict policy rejects tag composition
 - **WHEN** команда с tag/clear-tags вызвана в strict-rest3
@@ -163,6 +163,13 @@ MVP SHALL включать task:participants:set через REST1 tasks.task.upd
 #### Scenario: Task result commands in the development catalog
 - **WHEN** формируется каталог после реализации #61
 - **THEN** доступны 34 task-команды, включая четыре result-команды, и ни одна из них не выполняет скрытый lifecycle переход или результат из сообщения
+
+### Requirement: Milestone custom field admission
+For 0.2.0 CLI SHALL admit REST1 tasks.task.getFields and custom-only tasks.task.update on explicit custom input; custom task creation SHALL admit one REST1 tasks.task.add with bounded native ordinary fields and custom values. This SHALL not admit arbitrary legacy fields or raw lifecycle writes.
+
+#### Scenario: Narrow custom routes
+- **WHEN** task:add/task:update receives explicit custom values
+- **THEN** only the declared custom routes are admitted; strict-rest3 rejects them before credentials/API
 
 ## Решение о приёмке RC 0.1.0 — 12.10.2026
 

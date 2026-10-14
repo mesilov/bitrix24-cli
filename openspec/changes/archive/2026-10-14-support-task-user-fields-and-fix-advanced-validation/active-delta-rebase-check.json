@@ -1,0 +1,13 @@
+{
+  "date": "2026-10-14",
+  "mode": "temporary-copy-forward-sync",
+  "activeChange": "add-task-lifecycle",
+  "strictMainSpecsPassed": 18,
+  "exitCode": 0,
+  "taskCommandsPreserved": 42,
+  "personalViewPreserved": true,
+  "customFieldAdmissionPreserved": true,
+  "customFieldSpecificationUnchanged": true,
+  "ordinaryAdvancedValidationPreserved": true,
+  "validationOutput": "✓ spec/agent-trajectory-feedback\n✓ spec/binary-distribution\n✓ spec/ci-quality-checks\n✓ spec/cli-experience\n✓ spec/connection-configuration\n✓ spec/docker-cli-environment\n✓ spec/task-console-runtime\n✓ spec/task-deadline-windows\n✓ spec/task-file-upload\n✓ spec/task-mvp-scope\n✓ spec/task-personal-view\n✓ spec/task-results\n✓ spec/task-role-filtering\n✓ spec/task-user-fields\n✓ spec/task-workflows\n✓ spec/user-directory\n✓ spec/user-workflows\n✓ spec/worktree-development\nTotals: 18 passed, 0 failed (18 items)\n- Validating...\n"
+}
