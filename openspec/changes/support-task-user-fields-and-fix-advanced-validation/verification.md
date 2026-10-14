@@ -47,3 +47,7 @@ Owned task IDs **6296, 6298, 6300, 6302** were all deleted with no cleanup failu
 Requested scope is a reviewed implementation PR to dev, not merge or release. The active change is retained until merged completion; then archive/sync/issue-path update/worktree cleanup follow maintainer instructions. CI state must be read from the published head, not inferred from local or portal checks.
 
 PR: https://github.com/mesilov/bitrix24-cli/pull/127. Initial head d5c0a48c7e1e1a5d2289360317821d51da7e4ef8; terminal CI must be verified against the final published head. The PR is not merged and no release is published.
+
+## Review follow-up — 2026-10-14
+
+The automated review of PR #127 identified missing JTBD documentation. `docs/task-jtbd.md` now records the new public options in PM-01/AM-01/AM-04, command/test links, source SHA and bounded live evidence. Existing 22 scenario IDs and business coverage limits are preserved. Documentation paths were checked locally; no runtime code changed in this follow-up.
