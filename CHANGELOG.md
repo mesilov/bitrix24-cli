@@ -110,6 +110,13 @@
 
 ### Изменено
 
+- Основная спецификация сборок синхронизирована с manual-only development
+  workflow; проверенное изменение архивировано в OpenSpec
+  ([#77](https://github.com/mesilov/bitrix24-cli/issues/77)).
+- Зафиксирована итоговая проверка завершённого исследования цифровой подписи:
+  покрытие критериев, доставка отчёта и границы доказательств
+  ([#25](https://github.com/mesilov/bitrix24-cli/issues/25)).
+
 - Завершена трассировка #58: OpenSpec custom-полей и advanced validation синхронизирован с каноническими спецификациями и архивирован вместе с SDK/portal evidence; lifecycle-план сохраняет допуск custom routes ([#58](https://github.com/mesilov/bitrix24-cli/issues/58)).
 
 - После merge [PR #122](https://github.com/mesilov/bitrix24-cli/pull/122) в `dev`

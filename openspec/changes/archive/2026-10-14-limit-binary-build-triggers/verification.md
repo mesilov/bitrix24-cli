@@ -39,3 +39,19 @@ No critical issues, warnings or suggestions found in the configuration, complete
 Native packaging, a new release and portal calls were not executed for this trigger-only change. Manual/release scenario evidence comes from the parsed callers, unchanged platform/publication gates and existing source/publication tests; it does not claim new binary acceptance. Remote source CI will be inspected after the review PR is opened.
 
 The change is ready for review. Archive/spec sync and worktree cleanup follow confirmed merge to `dev` and issue closure under the maintainer workflow.
+
+
+## Completion verification — 2026-10-14
+
+Fresh development source: `4221b746ee2a42ea4ebbfd08e2f48d26f73c6142`. Original implementation head: `265d4836be55de85c885f5b57360730b3cf4a57a`.
+
+- PR [#79](https://github.com/mesilov/bitrix24-cli/pull/79) is merged into `dev`, merge commit `19808ad7e491ffc8148a41e4501b1303e9cc8139`; ancestry in fresh `origin/dev` confirmed. Issue #77 was closed as completed on 2026-10-14.
+- GitHub terminal evidence for the original implementation head: 13/13 check runs successful, 11/11 workflow runs successful (6 pull_request, 5 push). No `Package standalone binaries` runs exist for that head. These are source CI receipts, not native binary acceptance.
+- Re-parsed all 10 current workflows, accounting for YAML 1.1 parsers representing `on` as a boolean key. Manual caller has only workflow_dispatch, read-only permissions and a selected source SHA; platform builder has only workflow_call; release caller has only version-tag push, main-history validation and package/archive gates before publication. All five source test/linter workflows retain push and pull_request.
+- Manual and release callers are unchanged since implementation head. Shared builder changes since that head add shell-installer checks on Linux/macOS; existing gates remain. This archive delivery changes no workflow or runtime file.
+- Re-ran source-check (12 tests) and publish-check (7 tests): all passed, using local fixtures without compilation or release publication. Strict OpenSpec validation before sync: 26/26 items passed.
+- Live rules: `dev` has no applicable rules; `main` has only deletion/non-fast-forward protection. Neither requires packaging checks.
+- Compared the delta with the main `binary-distribution` requirement, synchronized its complete block and four scenarios, preserving all other requirements and Purpose. Post-sync strict spec validation: 18/18 passed; an exact block comparison confirms no pending delta.
+- No critical issues, warnings or suggestions in the applicable configuration/spec/design checks. Native builds, release publication and portal/API checks are outside this trigger-only change.
+
+Archive path: `openspec/changes/archive/2026-10-14-limit-binary-build-triggers/`. Follow-up delivery must merge the archive and synced main spec through a PR to dev before removing the task worktree.

@@ -62,12 +62,28 @@ Release binaries SHALL report a version matching their source version tag. Devel
 - **AND** ignored build/cache output does not block a clean source build
 
 ### Requirement: CI artifact verification
-Packaging CI SHALL run on pull requests targeting dev or main, pushes to dev and manual dispatch, build all supported platform packages, smoke-test them independently of the checkout, and upload verified artifacts. Pull-request runs MUST NOT publish releases.
+Development packaging CI SHALL run only on manual dispatch, build all supported platform packages from the selected revision, smoke-test them independently of the checkout, and upload verified artifacts without publishing releases. It MUST NOT run automatically on pull requests targeting dev or main or branch pushes. Source tests and linters SHALL continue on pull requests and pushes to dev. Release-tag packaging SHALL retain its full verification and publication gate.
+
+#### Scenario: Manually package a development revision
+- **WHEN** a maintainer manually dispatches packaging for a selected branch or ref
+- **THEN** each platform job builds and tests its package from that revision and uploads a successfully verified artifact
+- **AND** a missing artifact or failed smoke test fails its job without release publication
+- **AND** development binaries identify the full selected source commit SHA
 
 #### Scenario: Package a pull request
 - **WHEN** a pull request targets dev or main
-- **THEN** each platform job builds and tests its package and uploads a successfully verified artifact
-- **AND** a missing artifact or failed smoke test fails its job without release publication
+- **THEN** development packaging is not automatically started
+- **AND** source tests and linters continue to run on the pull request
+
+#### Scenario: Skip automatic branch packaging
+- **WHEN** a branch receives a push
+- **THEN** development packaging is not automatically started
+- **AND** source tests and linters continue to run on pushes to dev
+
+#### Scenario: Preserve release-tag packaging
+- **WHEN** a production version tag is pushed
+- **THEN** all supported platform packages are built and verified through the existing release gate
+- **AND** publication requires main-history validation, successful smoke tests, complete archives and matching checksums
 
 ### Requirement: Release assets and publication gate
 Production CI SHALL build only a specific version tag whose commit is reachable from main. A version-tag workflow SHALL publish `b24cli-linux-amd64.tar.gz`, `b24cli-macos-arm64.tar.gz`, `b24cli-windows-amd64.zip` and `SHA256SUMS` only after all platform builds and smoke tests succeed. Checksums MUST cover the exact final archives. Publication retries MUST resume an existing draft, upload the complete verified asset set before publication and leave already public releases unchanged.
