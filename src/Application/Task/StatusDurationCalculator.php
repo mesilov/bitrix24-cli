@@ -7,7 +7,7 @@ namespace Bitrix24\CLI\Application\Task;
 use Bitrix24\CLI\Application\Failure;
 use Bitrix24\CLI\Application\OperationResult;
 
-/** Calendar occupancy over [enteredAt, leftAt). Elapsed observations are not lower bounds. */
+/** Weekday occupancy over [enteredAt, leftAt). Elapsed observations are not lower bounds. */
 final class StatusDurationCalculator
 {
     public function calculate(int $taskId, array $events, bool $historyComplete, array $reasons, array $before, array $after, \DateTimeImmutable $asOf, ?array $creationEvidence = null): OperationResult
@@ -176,6 +176,7 @@ final class StatusDurationCalculator
 
         $reasons = array_values(array_unique($reasons));
         $complete = $historyComplete && $reasons === [];
+        $serverOffset = $created?->getTimezone();
         $intervals = [];
         $entered = $created instanceof \DateTimeImmutable && $initial !== null && $complete ? $created : null;
         $entryText = $entered instanceof \DateTimeImmutable ? $createdText : null;
@@ -190,14 +191,14 @@ final class StatusDurationCalculator
                 continue;
             }
 
-            $intervals[] = $this->interval($occupancy, $entered, $transition['date'], $entryText, $transition['createdDate'], $complete, [...$entryIds, ...$transition['evidenceIds']]);
+            $intervals[] = $this->interval($occupancy, $entered, $transition['date'], $entryText, $transition['createdDate'], $complete, [...$entryIds, ...$transition['evidenceIds']], $serverOffset);
             $occupancy = $transition['toStatus'];
             $entered = $transition['date'];
             $entryText = $transition['createdDate'];
             $entryIds = $transition['evidenceIds'];
         }
 
-        $intervals[] = $this->interval($occupancy, $entered, $asOf, $entryText, $asOf->format('Y-m-d\TH:i:s.uP'), $complete, $entryIds);
+        $intervals[] = $this->interval($occupancy, $entered, $asOf, $entryText, $asOf->format('Y-m-d\TH:i:s.uP'), $complete, $entryIds, $serverOffset);
         $totals = array_fill_keys(array_column(TaskStatus::cases(), 'value'), $complete ? 0 : null);
         if ($complete) {
             foreach ($intervals as $interval) {
@@ -205,13 +206,16 @@ final class StatusDurationCalculator
             }
         }
 
+        $totals = array_map(WeekdayDuration::units(...), $totals);
+        $intervals = array_map(static fn (array $interval): array => [...$interval, ...WeekdayDuration::units($interval['seconds'])], $intervals);
+
         return new OperationResult('task-status-durations', [
             'taskId' => $taskId, 'asOf' => $asOf->format('Y-m-d\TH:i:s.uP'), 'intervals' => $intervals, 'totals' => $totals, 'observedTransitions' => $observed,
             'unknownBoundaries' => $complete ? [] : $reasons,
             'historyEvidence' => array_values(array_filter($events, static fn (array $event): bool => in_array($event['field'] ?? null, ['NEW', 'DELETE', 'REAL_STATUS', 'STATUS'], true))),
             'excludedHistoryEvidence' => $excluded,
             'creationBoundary' => ['created' => $createdText, 'source' => $scopeCreated instanceof \DateTimeImmutable ? 'tasks.task.list' : 'tasks.task.history.list', 'apiVersion' => $scopeCreated instanceof \DateTimeImmutable ? '3.0' : '1.0', 'verified' => $scopeCreated instanceof \DateTimeImmutable || ($historyComplete && $created instanceof \DateTimeImmutable)],
-        ], ['complete' => $complete, 'historyComplete' => $historyComplete, 'reasons' => $reasons, 'reason' => $reasons === [] ? null : implode(', ', $reasons), 'semantics' => 'calendar-seconds'], $complete ? 0 : 3);
+        ], ['complete' => $complete, 'historyComplete' => $historyComplete, 'reasons' => $reasons, 'reason' => $reasons === [] ? null : implode(', ', $reasons), 'semantics' => 'weekdays-only', 'calendar' => ['timezoneSource' => 'server', 'utcOffset' => $created?->format('P'), 'excludedWeekdays' => ['saturday', 'sunday'], 'hoursPerDay' => 24]], $complete ? 0 : 3);
     }
 
     private function status(mixed $value): ?string
@@ -251,9 +255,10 @@ final class StatusDurationCalculator
         }
     }
 
-    private function interval(?string $status, ?\DateTimeImmutable $entered, \DateTimeImmutable $left, ?string $entryText, string $leftText, bool $verified, array $ids): array
+    private function interval(?string $status, ?\DateTimeImmutable $entered, \DateTimeImmutable $left, ?string $entryText, string $leftText, bool $verified, array $ids, ?\DateTimeZone $serverOffset): array
     {
         $elapsed = !$entered instanceof \DateTimeImmutable || $entered > $left ? null : CalendarInstant::elapsed($entered, $left);
-        return ['status' => $status, 'enteredAt' => $entryText, 'leftAt' => $leftText, 'seconds' => $verified ? $elapsed : null, 'elapsedBetweenEventsSeconds' => $elapsed, 'verified' => $verified, 'evidenceIds' => array_values(array_unique($ids))];
+        $seconds = $verified && $entered instanceof \DateTimeImmutable && $serverOffset instanceof \DateTimeZone ? WeekdayDuration::seconds($entered, $left, $serverOffset) : null;
+        return ['status' => $status, 'enteredAt' => $entryText, 'leftAt' => $leftText, 'seconds' => $seconds, 'elapsedBetweenEventsSeconds' => $elapsed, 'verified' => $verified, 'evidenceIds' => array_values(array_unique($ids))];
     }
 }

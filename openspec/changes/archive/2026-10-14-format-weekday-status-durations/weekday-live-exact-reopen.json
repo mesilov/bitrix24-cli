@@ -1,0 +1,602 @@
+{
+    "taskId": 6382,
+    "steps": [
+        {
+            "action": "start",
+            "card": {
+                "id": 6382,
+                "status": "in_progress",
+                "statusChanged": "2026-10-14T11:44:56+03:00",
+                "changed": "2026-10-14T11:44:56+03:00"
+            }
+        },
+        {
+            "action": "complete",
+            "card": {
+                "id": 6382,
+                "status": "completed",
+                "statusChanged": "2026-10-14T11:44:57+03:00",
+                "changed": "2026-10-14T11:44:57+03:00"
+            }
+        },
+        {
+            "action": "renew",
+            "card": {
+                "id": 6382,
+                "status": "pending",
+                "statusChanged": "2026-10-14T11:44:59+03:00",
+                "changed": "2026-10-14T11:44:59+03:00"
+            }
+        },
+        {
+            "action": "start",
+            "card": {
+                "id": 6382,
+                "status": "in_progress",
+                "statusChanged": "2026-10-14T11:45:00+03:00",
+                "changed": "2026-10-14T11:45:00+03:00"
+            }
+        },
+        {
+            "action": "complete",
+            "card": {
+                "id": 6382,
+                "status": "completed",
+                "statusChanged": "2026-10-14T11:45:02+03:00",
+                "changed": "2026-10-14T11:45:02+03:00"
+            }
+        },
+        {
+            "action": "renew",
+            "card": {
+                "id": 6382,
+                "status": "pending",
+                "statusChanged": "2026-10-14T11:45:04+03:00",
+                "changed": "2026-10-14T11:45:04+03:00"
+            }
+        },
+        {
+            "action": "complete",
+            "card": {
+                "id": 6382,
+                "status": "completed",
+                "statusChanged": "2026-10-14T11:45:05+03:00",
+                "changed": "2026-10-14T11:45:05+03:00"
+            }
+        }
+    ],
+    "commandResult": {
+        "data": {
+            "taskId": 6382,
+            "asOf": "2026-10-14T08:45:06.000000+00:00",
+            "intervals": [
+                {
+                    "status": "pending",
+                    "enteredAt": "2026-10-14T11:44:54+03:00",
+                    "leftAt": "2026-10-14T11:44:56+03:00",
+                    "seconds": 2,
+                    "elapsedBetweenEventsSeconds": 2,
+                    "verified": true,
+                    "evidenceIds": [
+                        24316,
+                        24318
+                    ],
+                    "hours": 0,
+                    "days": 0
+                },
+                {
+                    "status": "in_progress",
+                    "enteredAt": "2026-10-14T11:44:56+03:00",
+                    "leftAt": "2026-10-14T11:44:57+03:00",
+                    "seconds": 1,
+                    "elapsedBetweenEventsSeconds": 1,
+                    "verified": true,
+                    "evidenceIds": [
+                        24318,
+                        24320
+                    ],
+                    "hours": 0,
+                    "days": 0
+                },
+                {
+                    "status": "completed",
+                    "enteredAt": "2026-10-14T11:44:57+03:00",
+                    "leftAt": "2026-10-14T11:44:59+03:00",
+                    "seconds": 2,
+                    "elapsedBetweenEventsSeconds": 2,
+                    "verified": true,
+                    "evidenceIds": [
+                        24320,
+                        24322
+                    ],
+                    "hours": 0,
+                    "days": 0
+                },
+                {
+                    "status": "pending",
+                    "enteredAt": "2026-10-14T11:44:59+03:00",
+                    "leftAt": "2026-10-14T11:45:00+03:00",
+                    "seconds": 1,
+                    "elapsedBetweenEventsSeconds": 1,
+                    "verified": true,
+                    "evidenceIds": [
+                        24322,
+                        24324
+                    ],
+                    "hours": 0,
+                    "days": 0
+                },
+                {
+                    "status": "in_progress",
+                    "enteredAt": "2026-10-14T11:45:00+03:00",
+                    "leftAt": "2026-10-14T11:45:02+03:00",
+                    "seconds": 2,
+                    "elapsedBetweenEventsSeconds": 2,
+                    "verified": true,
+                    "evidenceIds": [
+                        24324,
+                        24326
+                    ],
+                    "hours": 0,
+                    "days": 0
+                },
+                {
+                    "status": "completed",
+                    "enteredAt": "2026-10-14T11:45:02+03:00",
+                    "leftAt": "2026-10-14T11:45:04+03:00",
+                    "seconds": 2,
+                    "elapsedBetweenEventsSeconds": 2,
+                    "verified": true,
+                    "evidenceIds": [
+                        24326,
+                        24328
+                    ],
+                    "hours": 0,
+                    "days": 0
+                },
+                {
+                    "status": "pending",
+                    "enteredAt": "2026-10-14T11:45:04+03:00",
+                    "leftAt": "2026-10-14T11:45:05+03:00",
+                    "seconds": 1,
+                    "elapsedBetweenEventsSeconds": 1,
+                    "verified": true,
+                    "evidenceIds": [
+                        24328,
+                        24330
+                    ],
+                    "hours": 0,
+                    "days": 0
+                },
+                {
+                    "status": "completed",
+                    "enteredAt": "2026-10-14T11:45:05+03:00",
+                    "leftAt": "2026-10-14T08:45:06.000000+00:00",
+                    "seconds": 1,
+                    "elapsedBetweenEventsSeconds": 1,
+                    "verified": true,
+                    "evidenceIds": [
+                        24330
+                    ],
+                    "hours": 0,
+                    "days": 0
+                }
+            ],
+            "totals": {
+                "pending": {
+                    "seconds": 4,
+                    "hours": 0,
+                    "days": 0
+                },
+                "in_progress": {
+                    "seconds": 3,
+                    "hours": 0,
+                    "days": 0
+                },
+                "supposedly_completed": {
+                    "seconds": 0,
+                    "hours": 0,
+                    "days": 0
+                },
+                "completed": {
+                    "seconds": 5,
+                    "hours": 0,
+                    "days": 0
+                },
+                "deferred": {
+                    "seconds": 0,
+                    "hours": 0,
+                    "days": 0
+                },
+                "declined": {
+                    "seconds": 0,
+                    "hours": 0,
+                    "days": 0
+                }
+            },
+            "observedTransitions": [
+                {
+                    "id": 24318,
+                    "createdDate": "2026-10-14T11:44:56+03:00",
+                    "userId": 1,
+                    "field": "STATUS",
+                    "from": "2",
+                    "to": "3",
+                    "source": "tasks.task.history.list",
+                    "apiVersion": "1.0",
+                    "fromStatus": "pending",
+                    "toStatus": "in_progress",
+                    "evidenceIds": [
+                        24318
+                    ]
+                },
+                {
+                    "id": 24320,
+                    "createdDate": "2026-10-14T11:44:57+03:00",
+                    "userId": 1,
+                    "field": "STATUS",
+                    "from": "3",
+                    "to": "5",
+                    "source": "tasks.task.history.list",
+                    "apiVersion": "1.0",
+                    "fromStatus": "in_progress",
+                    "toStatus": "completed",
+                    "evidenceIds": [
+                        24320
+                    ]
+                },
+                {
+                    "id": 24322,
+                    "createdDate": "2026-10-14T11:44:59+03:00",
+                    "userId": 1,
+                    "field": "STATUS",
+                    "from": "5",
+                    "to": "2",
+                    "source": "tasks.task.history.list",
+                    "apiVersion": "1.0",
+                    "fromStatus": "completed",
+                    "toStatus": "pending",
+                    "evidenceIds": [
+                        24322
+                    ]
+                },
+                {
+                    "id": 24324,
+                    "createdDate": "2026-10-14T11:45:00+03:00",
+                    "userId": 1,
+                    "field": "STATUS",
+                    "from": "2",
+                    "to": "3",
+                    "source": "tasks.task.history.list",
+                    "apiVersion": "1.0",
+                    "fromStatus": "pending",
+                    "toStatus": "in_progress",
+                    "evidenceIds": [
+                        24324
+                    ]
+                },
+                {
+                    "id": 24326,
+                    "createdDate": "2026-10-14T11:45:02+03:00",
+                    "userId": 1,
+                    "field": "STATUS",
+                    "from": "3",
+                    "to": "5",
+                    "source": "tasks.task.history.list",
+                    "apiVersion": "1.0",
+                    "fromStatus": "in_progress",
+                    "toStatus": "completed",
+                    "evidenceIds": [
+                        24326
+                    ]
+                },
+                {
+                    "id": 24328,
+                    "createdDate": "2026-10-14T11:45:04+03:00",
+                    "userId": 1,
+                    "field": "STATUS",
+                    "from": "5",
+                    "to": "2",
+                    "source": "tasks.task.history.list",
+                    "apiVersion": "1.0",
+                    "fromStatus": "completed",
+                    "toStatus": "pending",
+                    "evidenceIds": [
+                        24328
+                    ]
+                },
+                {
+                    "id": 24330,
+                    "createdDate": "2026-10-14T11:45:05+03:00",
+                    "userId": 1,
+                    "field": "STATUS",
+                    "from": "2",
+                    "to": "5",
+                    "source": "tasks.task.history.list",
+                    "apiVersion": "1.0",
+                    "fromStatus": "pending",
+                    "toStatus": "completed",
+                    "evidenceIds": [
+                        24330
+                    ]
+                }
+            ],
+            "unknownBoundaries": [],
+            "historyEvidence": [
+                {
+                    "id": 16574,
+                    "createdDate": "2026-02-23T07:50:21+03:00",
+                    "userId": 1,
+                    "field": "NEW",
+                    "from": null,
+                    "to": null
+                },
+                {
+                    "id": 16692,
+                    "createdDate": "2026-02-23T07:50:29+03:00",
+                    "userId": 1,
+                    "field": "DELETE",
+                    "from": null,
+                    "to": null
+                },
+                {
+                    "id": 24316,
+                    "createdDate": "2026-10-14T11:44:54+03:00",
+                    "userId": 1,
+                    "field": "NEW",
+                    "from": null,
+                    "to": null
+                },
+                {
+                    "id": 24318,
+                    "createdDate": "2026-10-14T11:44:56+03:00",
+                    "userId": 1,
+                    "field": "STATUS",
+                    "from": "2",
+                    "to": "3"
+                },
+                {
+                    "id": 24320,
+                    "createdDate": "2026-10-14T11:44:57+03:00",
+                    "userId": 1,
+                    "field": "STATUS",
+                    "from": "3",
+                    "to": "5"
+                },
+                {
+                    "id": 24322,
+                    "createdDate": "2026-10-14T11:44:59+03:00",
+                    "userId": 1,
+                    "field": "STATUS",
+                    "from": "5",
+                    "to": "2"
+                },
+                {
+                    "id": 24324,
+                    "createdDate": "2026-10-14T11:45:00+03:00",
+                    "userId": 1,
+                    "field": "STATUS",
+                    "from": "2",
+                    "to": "3"
+                },
+                {
+                    "id": 24326,
+                    "createdDate": "2026-10-14T11:45:02+03:00",
+                    "userId": 1,
+                    "field": "STATUS",
+                    "from": "3",
+                    "to": "5"
+                },
+                {
+                    "id": 24328,
+                    "createdDate": "2026-10-14T11:45:04+03:00",
+                    "userId": 1,
+                    "field": "STATUS",
+                    "from": "5",
+                    "to": "2"
+                },
+                {
+                    "id": 24330,
+                    "createdDate": "2026-10-14T11:45:05+03:00",
+                    "userId": 1,
+                    "field": "STATUS",
+                    "from": "2",
+                    "to": "5"
+                }
+            ],
+            "excludedHistoryEvidence": [
+                {
+                    "id": 16574,
+                    "createdDate": "2026-02-23T07:50:21+03:00",
+                    "userId": 1,
+                    "field": "NEW",
+                    "from": null,
+                    "to": null,
+                    "exclusionReason": "before-current-task-created"
+                },
+                {
+                    "id": 16692,
+                    "createdDate": "2026-02-23T07:50:29+03:00",
+                    "userId": 1,
+                    "field": "DELETE",
+                    "from": null,
+                    "to": null,
+                    "exclusionReason": "before-current-task-created"
+                }
+            ],
+            "creationBoundary": {
+                "created": "2026-10-14T11:44:54+03:00",
+                "source": "tasks.task.list",
+                "apiVersion": "3.0",
+                "verified": true
+            }
+        },
+        "meta": {
+            "schemaVersion": 1,
+            "command": "task:status:durations",
+            "apiCalls": [
+                {
+                    "method": "tasks.task.get",
+                    "apiVersion": "3.0",
+                    "effect": "read"
+                },
+                {
+                    "method": "tasks.task.list",
+                    "apiVersion": "3.0",
+                    "effect": "read"
+                },
+                {
+                    "method": "tasks.task.history.list",
+                    "apiVersion": "1.0",
+                    "effect": "read"
+                },
+                {
+                    "method": "tasks.task.list",
+                    "apiVersion": "3.0",
+                    "effect": "read"
+                },
+                {
+                    "method": "tasks.task.get",
+                    "apiVersion": "3.0",
+                    "effect": "read"
+                }
+            ],
+            "apiVersions": [
+                "3.0",
+                "1.0"
+            ],
+            "complete": true,
+            "historyComplete": true,
+            "reasons": [],
+            "reason": null,
+            "semantics": "weekdays-only",
+            "calendar": {
+                "timezoneSource": "server",
+                "utcOffset": "+03:00",
+                "excludedWeekdays": [
+                    "saturday",
+                    "sunday"
+                ],
+                "hoursPerDay": 24
+            },
+            "collectedAt": "2026-10-14T08:45:07.448171+00:00",
+            "snapshots": {
+                "before": {
+                    "id": 6382,
+                    "status": "completed",
+                    "statusChanged": "2026-10-14T11:45:05+03:00",
+                    "changed": "2026-10-14T11:45:05+03:00"
+                },
+                "after": {
+                    "id": 6382,
+                    "status": "completed",
+                    "statusChanged": "2026-10-14T11:45:05+03:00",
+                    "changed": "2026-10-14T11:45:05+03:00"
+                }
+            },
+            "creationEvidence": {
+                "before": {
+                    "id": 6382,
+                    "created": "2026-10-14T11:44:54+03:00"
+                },
+                "after": {
+                    "id": 6382,
+                    "created": "2026-10-14T11:44:54+03:00"
+                }
+            },
+            "snapshotAtomic": false,
+            "connection": {
+                "source": "environment-file",
+                "path": "\/run\/b24cli.env"
+            },
+            "fieldSources": []
+        },
+        "error": null
+    },
+    "history": [
+        {
+            "id": 16574,
+            "createdDate": "2026-02-23T07:50:21+03:00",
+            "userId": 1,
+            "field": "NEW",
+            "from": null,
+            "to": null
+        },
+        {
+            "id": 16692,
+            "createdDate": "2026-02-23T07:50:29+03:00",
+            "userId": 1,
+            "field": "DELETE",
+            "from": null,
+            "to": null
+        },
+        {
+            "id": 24316,
+            "createdDate": "2026-10-14T11:44:54+03:00",
+            "userId": 1,
+            "field": "NEW",
+            "from": null,
+            "to": null
+        },
+        {
+            "id": 24318,
+            "createdDate": "2026-10-14T11:44:56+03:00",
+            "userId": 1,
+            "field": "STATUS",
+            "from": "2",
+            "to": "3"
+        },
+        {
+            "id": 24320,
+            "createdDate": "2026-10-14T11:44:57+03:00",
+            "userId": 1,
+            "field": "STATUS",
+            "from": "3",
+            "to": "5"
+        },
+        {
+            "id": 24322,
+            "createdDate": "2026-10-14T11:44:59+03:00",
+            "userId": 1,
+            "field": "STATUS",
+            "from": "5",
+            "to": "2"
+        },
+        {
+            "id": 24324,
+            "createdDate": "2026-10-14T11:45:00+03:00",
+            "userId": 1,
+            "field": "STATUS",
+            "from": "2",
+            "to": "3"
+        },
+        {
+            "id": 24326,
+            "createdDate": "2026-10-14T11:45:02+03:00",
+            "userId": 1,
+            "field": "STATUS",
+            "from": "3",
+            "to": "5"
+        },
+        {
+            "id": 24328,
+            "createdDate": "2026-10-14T11:45:04+03:00",
+            "userId": 1,
+            "field": "STATUS",
+            "from": "5",
+            "to": "2"
+        },
+        {
+            "id": 24330,
+            "createdDate": "2026-10-14T11:45:05+03:00",
+            "userId": 1,
+            "field": "STATUS",
+            "from": "2",
+            "to": "5"
+        }
+    ],
+    "creation": {
+        "id": 6382,
+        "created": "2026-10-14T11:44:54+03:00"
+    }
+}

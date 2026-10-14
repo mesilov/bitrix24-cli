@@ -243,7 +243,7 @@ lock. Диагностика: CI logs и `runtime/package-*/static-php-cli-*/log
 
 Основной Unix путь — корневой [install.sh](../install.sh); интерфейс, prerequisites,
 public Release source и предварительный просмотр приведены в
-[README → Установка](../README.md#установка). Публичный URL
+[руководстве по установке](../docs/install.md). Публичный URL
 `https://raw.githubusercontent.com/mesilov/bitrix24-cli/main/install.sh`.
 Проверка опубликованного скрипта в main выполняется отдельно от fixture acceptance.
 Установщик сохраняет все packaged licenses, включая runtime/compression notices,
@@ -269,18 +269,18 @@ Local, native CI, public script URL и signing evidence фиксируются �
 
 
 Подробные команды скачивания, checksum, распаковки, первого запуска и пользовательского
-PATH находятся в [README → Установка](../README.md#установка). Там же описаны предупреждения
+PATH находятся в [руководстве по установке](../docs/install.md). Там же описаны предупреждения
 macOS/Windows, ограничения текущей предварительной сборки, сохранение notices и обновление.
 Для CI скачивайте `b24cli-release-assets` одного run и распакуйте внешний ZIP;
 для Release используйте platform archive и `SHA256SUMS` из одного Release.
 
 ### Linux amd64
 
-Откройте в README блок **Linux amd64 — установка и PATH (Bash)**.
+Откройте в руководстве по установке блок **Linux amd64 — установка и PATH (Bash)**.
 
 ### macOS arm64 (zsh)
 
-Откройте в README блок **macOS arm64 — установка, первый запуск и PATH (zsh)**.
+Откройте в руководстве по установке блок **macOS arm64 — установка, первый запуск и PATH (zsh)**.
 `./b24cli` запускает файл из текущего каталога; `b24cli` требует установки в PATH.
 В этом блоке описаны ad-hoc подпись готового executable, её strict-проверка
 и штатное разрешение конкретного файла. Диагностику отказа запуска собираем
@@ -288,7 +288,7 @@ macOS/Windows, ограничения текущей предварительн�
 
 ### Windows amd64 (PowerShell)
 
-Откройте в README блок **Windows amd64 — установка и PATH (PowerShell)**.
+Откройте в руководстве по установке блок **Windows amd64 — установка и PATH (PowerShell)**.
 
 Пользователю не нужны PHP/Composer/Docker. Linux использует static musl; clean
 runtime проверяется на Debian 12, build job — Ubuntu 24.04. Minimum validated

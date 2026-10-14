@@ -4,6 +4,15 @@
 
 ### Исправлено
 
+- README стал краткой входной страницей с установкой для Linux/macOS/Windows,
+  подключениями в платформенных спойлерах, таблицами 56 CLI-команд по логическим
+  группам со столбцами «Команда / Пример / Назначение» и описанием конфига.
+  Подробные инструкции вынесены в `docs/install.md`, `docs/connection.md` и
+  `docs/config.md`, сценарии задач и сотрудников — в отдельные руководства;
+  карта CLI опубликована без столбца интеграционных тестов,
+  ссылки и проверки примеров актуализированы
+  ([#134](https://github.com/mesilov/bitrix24-cli/issues/134)).
+
 - Advanced-поля задач проверяются локально по документированным контрактам add/update; editable=false не блокирует допустимые поля создания, ordinary advanced dry-run работает без API ([#58](https://github.com/mesilov/bitrix24-cli/issues/58)).
 
 - Выборка проекта при groupId=null в REST3 list: принадлежность проверяется через
@@ -30,6 +39,17 @@
 - Синхронизированы правила builds/RC в `binary-distribution`; завершённый CI change
   архивирован после зелёной matrix и merge PR #132 в dev
   ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
+
+- Завершённый OpenSpec #136 архивирован, актуальная спецификация длительностей
+  синхронизирована с seconds/hours/days, округлением и исключением выходных по
+  серверному offset; сохранены live/replay доказательства и nullable-контракт
+  ([#136](https://github.com/mesilov/bitrix24-cli/issues/136)).
+
+- `task:status:durations` исключает субботу и воскресенье по серверному offset created;
+  totals каждого статуса теперь объект seconds/hours/days: целые секунды и часы/дни
+  до двух знаков, независимое округление, сутки по 24 часа, без precision. Интервалы,
+  human/plain, тесты и replay длинной истории обновлены; неизвестные единицы остаются
+  null ([#136](https://github.com/mesilov/bitrix24-cli/issues/136)).
 
 - Ветка `builds` для выбранных промежуточных снимков `dev`: push запускает
   проверку и упаковку Linux amd64/macOS arm64/Windows amd64 без тега и Release.

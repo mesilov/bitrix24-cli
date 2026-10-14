@@ -18,13 +18,13 @@ final class TaskHumanRenderer
     public function statusDurations(OperationResult $result, OutputInterface $output): void
     {
         $this->write($output, 'Календарное время задачи #' . $result->data['taskId'] . ' до ' . $result->data['asOf']);
-        $table = (new Table($output))->setHeaders(['Статус', 'Вход', 'Выход', 'Секунды']);
-        $table->setRows(array_map(fn (array $row): array => array_map(OutputFormatter::escape(...), [$this->status($row['status'] ?? 'неизвестно'), $row['enteredAt'] ?? 'неизвестно', $row['leftAt'] ?? 'неизвестно', (string) ($row['seconds'] ?? 'неизвестно')]), $result->data['intervals']))->render();
-        foreach ($result->data['totals'] as $status => $seconds) {
-            $this->write($output, $this->status($status) . ': ' . ($seconds ?? 'неизвестно'));
+        $table = (new Table($output))->setHeaders(['Статус', 'Вход', 'Выход', 'Секунды', 'Часы', 'Дни']);
+        $table->setRows(array_map(fn (array $row): array => array_map(OutputFormatter::escape(...), [$this->status($row['status'] ?? 'неизвестно'), $row['enteredAt'] ?? 'неизвестно', $row['leftAt'] ?? 'неизвестно', (string) ($row['seconds'] ?? 'неизвестно'), (string) ($row['hours'] ?? 'неизвестно'), (string) ($row['days'] ?? 'неизвестно')]), $result->data['intervals']))->render();
+        foreach ($result->data['totals'] as $status => $duration) {
+            $this->write($output, $this->status($status) . ': ' . ($duration['seconds'] === null ? 'неизвестно' : sprintf('%d с / %.2f ч / %.2f д', $duration['seconds'], $duration['hours'], $duration['days'])));
         }
 
-        $this->write($output, 'Календарные секунды включают выходные и время в завершённом статусе.');
+        $this->write($output, 'Суббота и воскресенье исключены по серверному offset; остальные часы учитываются полностью. День = 24 часа, время в завершённом статусе включено.');
     }
 
     public function card(array $task, OutputInterface $output): void
