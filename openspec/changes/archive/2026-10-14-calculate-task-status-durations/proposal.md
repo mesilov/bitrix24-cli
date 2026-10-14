@@ -1,5 +1,7 @@
 # Proposal
 
+Archived on 14.10.2026 after all 16 tasks and ordinary CLI exact live acceptance passed. PR [#123](https://github.com/mesilov/bitrix24-cli/pull/123) merged into dev as `da8c14865e06d9d8b09728e042dbf8d69516b249`; issue #121 is closed. Historical follow-ups below preserve the evidence progression; final verification supersedes their former blockers.
+
 ## Why
 
 `task:history:list` показывает переходы, но не рассчитывает календарное время в статусах. Для PM-02 и AM-03 нужны интервалы и суммы с учётом повторного открытия; неполная история не должна превращаться в ложный точный отчёт.

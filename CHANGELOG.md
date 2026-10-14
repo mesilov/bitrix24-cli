@@ -23,6 +23,8 @@
 
 ### Добавлено
 
+- OpenSpec расчёта времени в статусах синхронизирован в актуальные спецификации: 43 task-команды, подтверждённый REST1 exhaustion и границы точных totals. Завершённый change #121 архивирован с live receipts 55 переходов и независимой сверкой сумм ([#121](https://github.com/mesilov/bitrix24-cli/issues/121)).
+
 - `task:status:durations`: календарные интервалы повторных открытий, единая
   граница `asOf`, evidence и строгий partial-result с `null` вместо точных
   сумм при недоказанной полноте. Offline-арифметика, ordinary CLI exact totals и live race partial проверены;
