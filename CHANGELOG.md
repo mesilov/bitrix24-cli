@@ -23,6 +23,11 @@
 
 ### Добавлено
 
+- Ветка `builds` для выбранных промежуточных снимков `dev`: push запускает
+  проверку и упаковку Linux amd64/macOS arm64/Windows amd64 без тега и Release.
+  Версия содержит полный source SHA; диагностика хранится 7 дней, итоговые архивы
+  с SHA256SUMS — 30 дней ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
+
 - Дополнительные portal acceptance cases и sanitized evidence: передача задачи второму пользователю, bounded scans, схема и history/auditors; зафиксированы admin-only ограничение роли, недоказанное file membership и дефект time navigation. Проверки остановлены пользователем; issue закрывается по решению пользователя без полной приёмки ([#42](https://github.com/mesilov/bitrix24-cli/issues/42)).
 
 - Пользовательские поля задач через --user-fields/--user-fields-file: один REST1 add с обязательными custom значениями, sparse update и явные результаты составных операций ([#58](https://github.com/mesilov/bitrix24-cli/issues/58)).

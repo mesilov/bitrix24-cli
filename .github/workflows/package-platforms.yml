@@ -80,6 +80,7 @@ jobs:
           name: b24cli-linux-amd64
           path: dist/linux-amd64/
           if-no-files-found: error
+          retention-days: ${{ github.ref == 'refs/heads/builds' && 7 || 0 }}
 
   macos:
     name: macOS arm64 package
@@ -161,6 +162,7 @@ jobs:
           name: b24cli-macos-arm64
           path: dist/macos-arm64/
           if-no-files-found: error
+          retention-days: ${{ github.ref == 'refs/heads/builds' && 7 || 0 }}
 
   windows:
     name: Windows amd64 package
@@ -231,6 +233,7 @@ jobs:
           name: b24cli-windows-amd64
           path: dist/windows-amd64/
           if-no-files-found: error
+          retention-days: ${{ github.ref == 'refs/heads/builds' && 7 || 0 }}
 
   assets:
     name: Verify release archive set
@@ -254,3 +257,4 @@ jobs:
           name: b24cli-release-assets
           path: dist/assets/
           if-no-files-found: error
+          retention-days: ${{ github.ref == 'refs/heads/builds' && 30 || 0 }}

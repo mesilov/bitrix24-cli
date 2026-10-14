@@ -1,6 +1,8 @@
 name: Package standalone binaries
 
 on:
+  push:
+    branches: [builds]
   workflow_dispatch:
 
 permissions:
