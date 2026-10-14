@@ -32,6 +32,8 @@ def verify_checkout(root, source_sha=None):
 
 
 def release_commit(root, tag, source_sha=None):
+    if '-rc-' in tag:
+        raise ValueError('RC tags require development packaging, not production publication')
     if not re.fullmatch(r'v?\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?', tag):
         raise ValueError('Production CI requires a version tag, e.g. 0.1.0 or v0.1.0')
     sha = validate_sha(git(root, 'rev-parse', '--verify', 'refs/tags/' + tag + '^{commit}'))
@@ -44,13 +46,33 @@ def release_commit(root, tag, source_sha=None):
     return sha
 
 
+def rc_commit(root, tag, source_sha=None):
+    if not re.fullmatch(r'\d+\.\d+\.\d+-rc-[1-9]\d*', tag):
+        raise ValueError('RC tag must use MAJOR.MINOR.PATCH-rc-N with N greater than zero')
+    sha = validate_sha(git(root, 'rev-parse', '--verify', 'refs/tags/' + tag + '^{commit}'))
+    if source_sha is not None and validate_sha(source_sha) != sha:
+        raise ValueError('RC source SHA differs from the selected candidate tag')
+    result = subprocess.run(['git', '-C', str(root), 'merge-base', '--is-ancestor', sha, 'origin/builds'])
+    if result.returncode == 1:
+        raise ValueError('RC tag must point to a commit reachable from origin/builds')
+    result.check_returncode()
+    return sha
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--source-sha')
-    parser.add_argument('--release-tag')
+    tags = parser.add_mutually_exclusive_group()
+    tags.add_argument('--release-tag')
+    tags.add_argument('--rc-tag')
     args = parser.parse_args()
     root = Path(__file__).resolve().parent.parent
-    sha = release_commit(root, args.release_tag, args.source_sha) if args.release_tag else verify_checkout(root, args.source_sha)
+    if args.rc_tag:
+        sha = rc_commit(root, args.rc_tag, args.source_sha)
+    elif args.release_tag:
+        sha = release_commit(root, args.release_tag, args.source_sha)
+    else:
+        sha = verify_checkout(root, args.source_sha)
     print(sha)
 
 
