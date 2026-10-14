@@ -15,6 +15,8 @@ OpenSpec task 3.5 completed; **9/10 tasks**, with 3.3 still critical/open. Fresh
 - Requirement coverage adds the earlier-lifetime investigation scenario. Completeness and correctness remain **not fully verified** for exact live totals; no archive readiness is claimed. Existing status mapping/observed-cycle evidence is preserved separately from lifetime evidence.
 - Vendor questions and attachment references are prepared in bitrix24-history-support-reproducer.md; no external support message sent. CI for the published follow-up SHA is verified separately.
 
+Immediately before publication, fresh dev 4221b74 (archive/spec sync for #58) was merged as 29ad874. Only docs/spec/archive files changed; no production/test PHP changed, so the passing runtime suite did not require repetition. The #121 command inventory delta preserves the new canonical 42-command baseline. Full OpenSpec strict validation after this merge: **27 passed, 0 failed**; unrelated archive-advisory INFO messages remain in define-task-jtbd.
+
 See history-investigation-check.md and history-investigation-fixture.json for raw structure, exact IDs/dates, official source ambiguity and the diagnostic-only legacy SDK request-ID obstruction.
 
 ## Completeness, correctness, coherence
