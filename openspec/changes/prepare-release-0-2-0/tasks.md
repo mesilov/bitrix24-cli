@@ -31,6 +31,8 @@
 - [ ] 4.6 Завершить синхронизацию скилла #6 через PR; передать exact RC2 version/source/catalog и проверить delivery readback.
 - [ ] 4.7 Сохранить RC2 report, release notes, CHANGELOG, issue trace и native/CI receipts в dev через PR; проверить отсутствие RC Release/latest unchanged, оставить stable tasks pending.
 
+- [ ] 4.8 Открыть MR dev → main по запросу пользователя, разрешить конфликты истории main через PR в dev, дождаться CI и проверить mergeability/точный head без merge/publish.
+
 ## Workflow follow-up
 
 - Promotion в main, создание тега и публикация Release выполняются после согласования конкретного release scope.

@@ -23,6 +23,8 @@
 8. RC2: сначала дождаться доставки служебных PR и согласовать изменения README/скилла в уже работающих чатах; не вмешиваться в их dirty worktrees. Выбрать чистый dev SHA после успешного CI, перенести его в builds, дождаться успешной intermediate matrix, затем создать новый immutable 0.2.0-rc-2. Не перемещать RC1 и не публиковать Release.
 9. Дополнить downloaded-artifact helper полной about metadata/purpose, проверкой списка команд против README/карты, полной командной JSON definition и синтаксиса документированных примеров. Все проверки выполняются без credentials/API; native package smoke и offline helper дают отдельные receipts. Сохранить готовые archive checksums, exact source/version и remaining stable/portal/install limitations.
 
+10. MR dev → main по отдельному запросу пользователя: main fd86141 содержит независимую доставку установщика #28; release MR #143 имеет документационные конфликты. Согласовать историю обычным merge main в отдельную bugfix-ветку от dev, сохранить реализации/receipt обеих веток, проверить идентичность runtime/build inputs frozen RC2 и доставить разрешение через PR в dev. Не выполнять merge в main, stable tag или публикацию.
+
 ## Risks / Trade-offs
 
 - [Поверхность CLI меняется после #100] → пересверить список команд и документацию на финальном SHA.
