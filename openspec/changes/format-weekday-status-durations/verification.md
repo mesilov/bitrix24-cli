@@ -12,7 +12,7 @@
 
 | Dimension | Evidence |
 | --- | --- |
-| Completeness | All three requirements implemented; 6/6 tracked tasks complete after PR delivery |
+| Completeness | All four requirements implemented; 6/6 tracked tasks complete after PR delivery |
 | Correctness | Traceable units: JSON/human/plain/null/rounding tests; calendar: weekends/offsets/boundaries/full weeks and independent live arithmetic; source fields and timestamps preserved |
 | Coherence | Pure helper, shared runtime/presenter; no additional API route or mutation, user timezone or holiday calendar |
 

@@ -2,6 +2,17 @@
 
 ## MODIFIED Requirements
 
+### Requirement: Incomplete history never yields exact totals
+Неполная история, ошибка страницы, исчерпание бюджета, недоказанная navigation или противоречие SHALL приводить к complete=false, reasons и exit3. Наблюдаемые переходы SHALL сохраняться, но все единицы каждого totals.<status> SHALL быть null. Согласованные соседние события не SHALL доказывать отсутствие пропущенных циклов; промежутки не SHALL называться гарантированной нижней границей времени в статусе.
+
+#### Scenario: A hidden reopen cycle fits between observed events
+- **WHEN** источник неполон, хотя from/to соседних полученных переходов согласованы
+- **THEN** рассчитанное распределение времени имеет verified=false, точные суммы null; потенциальный пропущенный цикл не игнорируется
+
+#### Scenario: API fails after a first page
+- **WHEN** часть событий получена, затем API возвращает ошибку или отсутствует подтверждённая навигация
+- **THEN** события и исходная причина сохранены, complete=false/exit3; исходная ошибка до любых данных сохраняет существующий error contract
+
 ### Requirement: Traceable intervals and status totals
 JSON SHALL сохранять asOf, даты/offset, status/verified/evidenceIds и elapsedBetweenEventsSeconds. Интервалы и totals.<status> SHALL содержать seconds (целое), hours/days (до двух знаков), независимо округлённые из точной длительности; дни равны 24 часам. Для неподтверждённого времени все три единицы SHALL быть null. precision SHALL отсутствовать. Human/plain SHALL показывать единицы и неизвестность.
 
