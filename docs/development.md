@@ -338,8 +338,12 @@ REST1 маршруты не добавляются и strict-rest3 остаёт�
 
 `StatusDurationCalculator` строит полуоткрытые интервалы в абсолютном времени;
 `from == to` не создаёт новый вход. При любой недоказанной границе/распределении
-`seconds` и `totals` равны `null`; `elapsedBetweenEventsSeconds` содержит только
-разницу меток. Календарь рабочих дней и учёт трудозатрат не применяются.
+все три единицы `seconds/hours/days` в интервалах и totals.<status> равны `null`;
+`elapsedBetweenEventsSeconds` содержит исходную разницу меток.
+`WeekdayDuration` исключает только субботу и воскресенье в серверном offset created;
+полные недели считает арифметически. День = 24 часа, график/праздники/трудозатраты
+не применяются. Округление независимое после точного суммирования: seconds целые,
+hours/days до двух знаков; precision отсутствует. Исходные даты не переписываются.
 Две REST3 карточки `status/statusChanged/changed` проверяют гонки, но не являются
 атомарным snapshot. Положительные числовые STATUS 2/3/4/5 подтверждены
 официальным numeric subset и независимым REST3 readback; мета-коды и строковые
@@ -350,9 +354,15 @@ aliases без подтверждения REAL_STATUS остаются partial.
 Интеграционный happy-path требует доказанную source completeness, стабильный
 created и поддержанные статусные переходы с двумя повторными открытиями. Невозможность доказать эти условия отмечается
 как **incomplete**, без успешного exact CLI вызова; это не точная приёмка.
-Отдельный live-тест проверяет null totals, исходную navigation reason и exit 3.
+Отдельный live-тест проверяет null-единицы, concurrent-task-change и exit 3.
 SDK fixtures удаляются даже при incomplete. Обезличенные live-ограничения
-сохранены в OpenSpec `calculate-task-status-durations/live-contract-check.md`.
+сохранены в архиве OpenSpec `2026-10-14-calculate-task-status-durations`;
+финальная exact acceptance заменяет прежний navigation blocker.
+
+`WeekdayStatusDurationsReplayTest` пропускает сохранённые ответы задачи 6372 через
+обычную команду с fake transport: 55 переходов, 56 интервалов, неизменные даты и
+evidence, исключённые старые NEW/DELETE. Это replay удалённой fixture, а не новое
+обращение к порталу. Результат: `var/cache/weekday-long-cli-result.json`.
 
 Live-сценарий `testRejectedReviewThenSuccessfulCompletionRetainsIncrementalHistory`
 моделирует start/complete/disapprove/start/complete/approve с контролем,

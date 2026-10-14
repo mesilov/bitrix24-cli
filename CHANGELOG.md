@@ -23,6 +23,12 @@
 
 ### Добавлено
 
+- `task:status:durations` исключает субботу и воскресенье по серверному offset created;
+  totals каждого статуса теперь объект seconds/hours/days: целые секунды и часы/дни
+  до двух знаков, независимое округление, сутки по 24 часа, без precision. Интервалы,
+  human/plain, тесты и replay длинной истории обновлены; неизвестные единицы остаются
+  null ([#136](https://github.com/mesilov/bitrix24-cli/issues/136)).
+
 - OpenSpec расчёта времени в статусах синхронизирован в актуальные спецификации: 43 task-команды, подтверждённый REST1 exhaustion и границы точных totals. Завершённый change #121 архивирован с live receipts 55 переходов и независимой сверкой сумм ([#121](https://github.com/mesilov/bitrix24-cli/issues/121)).
 
 - `task:status:durations`: календарные интервалы повторных открытий, единая
