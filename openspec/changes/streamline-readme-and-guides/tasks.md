@@ -12,7 +12,7 @@
 - [x] 2.2 Provide separate Linux amd64, macOS arm64 and Windows amd64 happy paths ending in `b24cli --version`, linked to install.md, with Windows under a platform spoiler; verify shell syntax, rendered spoiler and existing installer/manual verification behavior without inventing unsupported installer targets.
 - [x] 2.3 Replace connection details with a common instruction and three Linux/macOS/Windows `<details>` blocks, linking connection.md; review GitHub rendering and confirm no literal credential appears in shell history examples.
 - [x] 2.4 Add the short «Конфиг» section with purpose and platform locations, linked to config.md; verify Linux/macOS XDG/HOME rules, Windows APPDATA and directory overrides against current implementation.
-- [x] 2.5 Replace long CLI scenarios with a compact catalog and thematic doc links, relocate useful task/user details, remove the requested group-ID tutorial and development sentence; verify each removed topic has a suitable destination and run `make cli-reference-check` against the actual public catalog.
+- [x] 2.5 Replace long CLI scenarios with separate logical-group tables (Команда / Пример / Назначение) and thematic doc links, relocate useful task/user details, remove the requested group-ID tutorial and development sentence; verify all public commands appear once with catalog examples/descriptions, validate rendered three-column tables and run `make cli-reference-check`.
 
 ## 3. Integrated review and traceability
 
@@ -23,6 +23,7 @@
 
 - [x] 4.1 Add a substantive `Unreleased` CHANGELOG entry describing the delivered README and guides with a link to #134; verify it appears in the actual diff against current origin/dev.
 - [x] 4.2 Align extracted instructions with current dev: builds/RC workflow, version and retention, plus weekday-duration documentation; verify the moved duration section matches upstream and recheck affected tests, documentation links and OpenSpec.
+- [x] 4.3 Remove the integration-test column from the Markdown CLI map and its generator; regenerate the map and verify four-column rendering, unchanged command coverage and existing help/reference checks.
 
 ## Workflow follow-up
 

@@ -151,7 +151,7 @@ final class HelpAndAboutTest extends TestCase
             self::assertStringContainsString(TaskUsage::examples($application->get($name))[0], $map, $name);
         }
 
-        preg_match_all('/\| `(b24cli [^`]+)` \| /', $map, $examples);
+        preg_match_all('/\| `(b24cli [^`]+)` \|/', $map, $examples);
         self::assertCount(count($names), $examples[1]);
         foreach ($examples[1] as $example) {
             $tokens = explode(' ', $example, 3);

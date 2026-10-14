@@ -46,6 +46,10 @@ Explain the common flow once: save a named profile with hidden input, select it,
 
 Use the actual registered CLI commands and generated map as the source, grouped compactly by purpose. Include connection, users, doctor and task families as present; provide `list`, `help COMMAND` and the full map link. Lengthy task examples (including group filtering) go to `docs/task-jtbd.md` or another suitable thematic guide, with links from the compact overview. Do not lose current custom-field, lifecycle, deadlines, results, files and output-format details when shrinking README.
 
+As requested in the layout review, use a subsection and separate table for each of the 13 logical groups. Columns are «Команда», «Пример», «Назначение». Each public command occupies exactly one row; its first help example and description come from the existing CLI reference catalog. Keep the existing dry-run examples for task mutations and the complete-map link.
+
+The Markdown CLI map no longer includes an integration-test column. Update the Markdown generator and regenerated output together; its remaining columns are command, purpose, effect and example. JSON reference metadata retains its existing contract.
+
 Run `make cli-reference-check` during implementation and refresh the map only if it differs from the actual catalog. The docs count is baseline evidence, not a hard-coded target for 0.2.0. Keep descriptions grounded in implemented commands and preserve exact command/flag/JSON names.
 
 ### 5. Validate the documentation at its actual evidence level

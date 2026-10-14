@@ -6,7 +6,7 @@ Verified on 2026-10-14 against issue [#134](https://github.com/mesilov/bitrix24-
 
 | Dimension | Result |
 | --- | --- |
-| Completeness | 12/12 tracked tasks complete; all requested sections and guide destinations present. |
+| Completeness | 13/13 tracked tasks complete; all requested sections and guide destinations present. |
 | Correctness | Documentation matches the current CLI catalog, configuration resolver and schema. Spec coverage, requirement mapping and delta scenario coverage: not applicable (`skip_specs: true`, documentation-only change). |
 | Coherence | All five design decisions followed. Existing Markdown conventions and generated command-map workflow retained; PHP/Python changes only redirect documentation references. |
 
@@ -14,7 +14,7 @@ No critical findings, warnings or suggestions remain from this review.
 
 ## Implementation evidence
 
-- README reduced from 993 to 180 lines, including the requested Windows-installation spoiler. The requested five sections appear in order; the four original badges and three original latest-release download URLs are preserved. Historical release/acceptance links, standalone checksum/dev-CI prose, the group-ID tutorial and development sentence are absent.
+- README reduced from 993 to 288 lines, including the Windows-installation spoiler and 13 logical command-group tables. The requested five sections appear in order; the four original badges and three original latest-release download URLs are preserved. Historical release/acceptance links, standalone checksum/dev-CI prose, the group-ID tutorial and development sentence are absent.
 - Separate Linux/Bash, macOS/zsh and Windows/PowerShell installation paths end in `b24cli --version`. Linux/macOS use the existing installer; Windows downloads both files from one release asset list, verifies the archive before extraction and sets user/current-session PATH. No installer or runtime behavior changed.
 - Three connection spoilers use hidden webhook input, explicit profile selection and an existing read-only `users:current` portal check. `docs/connection.md` distinguishes local metadata commands from actual portal access.
 - `docs/install.md`, `docs/connection.md` and `docs/config.md` contain detailed instructions. `docs/task-usage.md` and `docs/users.md` retain the long task/staff material. The initial extraction retained all 43 README examples (doctor examples already exist in its dedicated guide); after the dev synchronization, one obsolete dev-dispatch example is replaced with the builds-dispatch example.
@@ -61,3 +61,11 @@ After resolution, `make cli-reference-check` matches 56 commands; `make unit TES
 ## Final layout refinement
 
 The user requested the Windows amd64 PowerShell installation block to be collapsed. README now has 180 lines and four spoilers: one Windows installation spoiler plus the existing three platform connection spoilers. All command code blocks are byte-identical to the reviewed README; only the wrapping markup changed. GitHub GFM rendering confirms the Windows PowerShell code is inside the correct details element. The 302 relative links, five sections, four badges, three download URLs and 56-command catalog remain valid.
+
+## Grouped command tables and CLI map refinement
+
+The user requested separate logical-group tables in README with columns Команда / Пример / Назначение, and removal of the test column from the CLI map. README now has 13 command tables and 56 rows; every example and description matches the current public JSON catalog exactly. The Windows installation and three connection spoilers remain unchanged. README is 288 lines.
+
+The Markdown CLI map and generator now output four columns (command, purpose, effect, example), with no integration-test column or obsolete explanation of that column. JSON reference metadata retains its contract. The existing HelpAndAboutTest example matcher now also accepts the example cell at the end of a row. CHANGELOG covers both requested layout changes and links #134.
+
+Validation: GitHub GFM rendering parsed into 13 three-column README command tables and one four-column CLI-map table; each contains all 56 commands exactly once. `make cli-reference-check`, `make unit TEST_ARGS='--filter HelpAndAboutTest'` (5 tests / 588 assertions), PHP-CS-Fixer (0 of 342 files need changes), OpenSpec strict validation and whitespace checks passed. All 246 remaining relative links/anchors are valid; the reduction from 302 reflects removal of the map's 56 test links.

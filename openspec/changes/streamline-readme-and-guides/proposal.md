@@ -11,7 +11,8 @@ README mixes a quick start with almost a thousand lines of installation, configu
 - Retain three short platform installation paths ending in `b24cli --version`; move detailed installation, checksum, PATH, updates, CI artifacts and troubleshooting to `docs/install.md`.
 - Keep Linux/macOS installation expanded and place the Windows amd64 PowerShell path inside a GitHub spoiler, as requested in the final layout review.
 - Give a common connection workflow and platform details in GitHub spoilers; move advanced connection selection and examples to `docs/connection.md`.
-- Refresh the compact CLI overview against the registered public catalog and `docs/cli-command-map.md`; move lengthy scenarios into appropriate docs and link them from the overview.
+- Present each logical command group as a separate table with columns «Команда», «Пример», «Назначение», using the registered public catalog and `docs/cli-command-map.md`; move lengthy scenarios into appropriate docs and link them from the overview.
+- Remove the integration-test column from the generated Markdown CLI map and update its generator.
 - Add a short «Конфиг» section explaining purpose and OS locations, with details in `docs/config.md`. Reconcile the existing `docs/configuration.md` and its incoming links.
 - Remove the requested group/project ID examples and explanatory block, and the closing development/connection/build sentence. Preserve useful technical information in suitable docs.
 - Include a substantive `Unreleased` changelog entry linking #134. After integration with current dev, keep extracted CI download instructions aligned with the builds/RC workflow.
