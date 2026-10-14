@@ -182,6 +182,10 @@ Runtime SHALL заранее проверять все потенциальны�
 - **WHEN** task:file:attach выбрана с --file/--folder-id
 - **THEN** task-v3 допускает только disk.folder.uploadFile REST1 и tasks.task.file.attach REST3; strict-rest3 возвращает policy-denied/exit4 до credentials/API, включая dry-run; режим --file-id сохраняет только REST3
 
+#### Scenario: Explicit lifecycle routes
+- **WHEN** выбрана одна из семи lifecycle команд
+- **THEN** task-v3 допускает только соответствующий REST1 tasks.task.<action>, REST3 tasks.task.get/access.get и условный tasks.task.result.list для complete; strict-rest3 отклоняет весь план до credentials и первого запроса
+
 ### Requirement: Default policy selected route admission
 task-v3 SHALL допускать выбранные REST3, IM companion, согласованные REST1 task-маршруты, users-маршруты, opt-in назначение наблюдателя после task:add, выбранное обогащение участников task:show и ролевое чтение участников для task:list/task:find.
 

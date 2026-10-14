@@ -49,11 +49,19 @@ task:subtask:add
 - **WHEN** пользователь явно задаёт parentId через advanced writable fields обычной task:add
 - **THEN** отдельная task:subtask:add не регистрируется и не вызывается; task:add сохраняет явное поле, проверяет его допустимость и не выбирает parent неявно. Рабочее предположение касается удаления отдельной команды и уточняется при запросе полного запрета подзадач
 
+#### Scenario: Lifecycle admitted after the first MVP
+- **WHEN** формируется каталог 0.2.0 по task-lifecycle
+- **THEN** семь task:start/pause/defer/renew/complete/approve/disapprove предоставляются как развитие после MVP; остальные 17 исключений (четыре result-команды и task:my уже допущены отдельно) сохраняются, исторический scope 0.1.0 не расширяется
+
+#### Scenario: Personal view admitted separately after MVP
+- **WHEN** каталог 0.2.0 включает доставленную task:my по task-personal-view (#118)
+- **THEN** её read-only представление сохраняется наряду с семью lifecycle командами; исторический список исключений первого MVP не запрещает отдельно принятую команду 0.2.0
+
 ### Requirement: API admission and future lifecycle acceptance remain explicit
 Каталог SHALL отделять release scope от API support: 59 операций = 30 кандидатов MVP, 0 API-policy-pending и 29 после MVP. Права SHALL проверяться для кандидатов; lifecycle SHALL оставаться после MVP независимо от возможности записи status. Наличие команды в каталоге не SHALL означать принятие иных API exceptions, доказанную семантику или runtime readiness.
 
 #### Scenario: Legacy admission is limited to selected commands
-- **WHEN** вызывается legacy маршрут вне согласованных команд/companion reads/записи TAGS/custom schema and writes либо общий tasks.task.update используется для действий за пределами participants:set, записи TAGS и explicit custom writes в task:add/task:update
+- **WHEN** вызывается legacy маршрут вне согласованных команд/companion reads/записи TAGS/custom schema and writes/семи lifecycle маршрутов 0.2.0 либо общий tasks.task.update используется для действий за пределами participants:set, записи TAGS и explicit custom writes в task:add/task:update
 - **THEN** допуск выбранных REST1 команд и чтений не разрешает такую операцию; policy отклоняет запрос и не выполняет скрытый fallback или исключённый lifecycle переход
 
 #### Scenario: Lifecycle commands after MVP
@@ -78,7 +86,11 @@ task:subtask:add
 
 #### Scenario: Scoped Disk upload admission
 - **WHEN** пользователь прикрепляет локальный файл через task:file:attach --file PATH --folder-id ID
-- **THEN** допускается только disk.folder.uploadFile REST1 с последующим attach REST3; каталог сохраняет 34 task команд, общий Disk API/произвольные методы не открываются, strict-rest3 запрещает mixed plan до credentials/API
+- **THEN** допускается только disk.folder.uploadFile REST1 с последующим attach REST3; каталог содержит 42 task-команды после добавления lifecycle и task:my, общий Disk API/произвольные методы не открываются, strict-rest3 запрещает mixed plan до credentials/API
+
+#### Scenario: Required result read is an internal lifecycle preflight
+- **WHEN** task:complete проверяет requireResult=true в 0.2.0
+- **THEN** допускается только внутреннее ограниченное REST3 tasks.task.result.list для выбранной задачи; lifecycle не создаёт результат неявно и не делает fallback, отдельные result-команды сохраняют capability task-results, raw task:update status остаётся запрещён
 
 ### Requirement: Initial scoped REST1 task admission
 Через REST1 SHALL быть явно допущены 4 time, 8 checklist/root/item, 2 participants/history команды и выбранные companion reads участников task:show.
