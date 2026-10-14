@@ -14,6 +14,13 @@
 - [ ] 2.3 На каждом финальном артефакте 0.2.0 повторить общую/командную help-проверку и about из #100 вне checkout, без credentials; сверить версию с --version, фактический каталог, документы и примеры, при расхождениях актуализировать и повторить проверку.
 - [ ] 2.4 Выполнить существующую native acceptance матрицу установки и запуска; сохранить результаты по каждой платформе и явные оставшиеся ограничения.
 
+## 3. RC 0.2.0-rc-1 без публикации
+
+- [x] 3.1 Дождаться зелёных CI/builds, merge #132 в dev с head guard, выбрать проверенный SHA из builds и создать 0.2.0-rc-1 без перемещения тега; проверить PR/tag/ancestry readbacks.
+- [ ] 3.2 Дождаться RC native matrix и archive job, скачать immutable artifact set и сохранить run/source/tag/checksum receipts; проверить отсутствие RC Release и неизменный latest.
+- [ ] 3.3 Реализовать helper готовых artifacts и проверить RC бинарники на трёх native runners без пересборки: identity/56 commands/help/about/offline JSON/errors, сохранить terminal results.
+- [ ] 3.4 Сохранить RC report, ограничения, OpenSpec-трассировку и CHANGELOG в PR dev, отдельно от stable-release acceptance; проверить отчёт/links/diff.
+
 ## Workflow follow-up
 
 - Promotion в main, создание тега и публикация Release выполняются после согласования конкретного release scope.
