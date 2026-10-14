@@ -17,9 +17,9 @@
 
 | Dimension | Result |
 | --- | --- |
-| Completeness | Source implementation готова; external delivery и native run ожидаются |
-| Correctness | 2 delta requirements mapped: CI artifact verification → caller; Intermediate artifact retention → четыре upload шага и build README |
-| Coherence | Existing builders, SHA identity, manual route и main-tag production guard сохранены; bootstrap branch ownership описан в design |
+| Completeness | 9/9 tracked tasks выполнены; PR #132 open, review/merge в dev остаётся workflow follow-up |
+| Correctness | 4 delta requirements mapped: CI artifact verification → caller/preparation; Release assets and publication gate → RC exclusion/production source guard; Intermediate artifact retention → upload шага/README; Release candidate identity and manual promotion → source RC guard/tests/maintainer skill |
+| Coherence | Existing builders, manual route и main-tag guard сохранены; RC выделен в development route, history/version/evidence boundaries согласованы со скиллом |
 
 Сценарии negative triggers/manual/production retention проверены source review и actionlint; новых live runs для этих ref не запускали. Live builds-trigger/retention будет подтверждён отдельным run. Application PHP/unit/linters на новом SHA будут проверены GitHub source CI; локально application suite не повторяли, поскольку PHP/application/dependency inputs не менялись. Полная 0.2.0 приёмка, #121/#60, browser quarantine и публичная установка не выполнялись этим change.
 
@@ -51,3 +51,9 @@
 - #121 закрыто и доставлено в dev `6efba52`; source/test/docs changes интегрированы обычным merge, CHANGELOG сохраняет обе стороны. Обнаружен stale packaging inventory 42 → исправлен на 43 с registration/ID validation task:status:durations. README соответствует 43 task-командам.
 - RC/skill/current-dev SHA `9c268e5bbb6b3c3cea85cfbb3726cbd8b5efbb99`: 13 source CI checks SUCCESS. Builds fast-forward на этот SHA после terminal результата первого run. Следующий run: https://github.com/mesilov/bitrix24-cli/actions/runs/38534772781 ; его native terminal outcome проверяется отдельно, не переносится из первого run.
 - Change: 9/9 задач реализации/исходной native acceptance выполнены; review/delivery в dev и archive остаются follow-up. Live RC-tag acceptance не выполнялась, numbered candidate не создан. Финальная 0.2.0 приёмка и публикация не выполнены.
+
+## Successful local macOS receipt after transport retry
+
+Скачивание macOS artifact первого run после TLS timeout завершилось успешно. Проверка на машине пользователя вне checkout, с whitelist environment без credentials и clean PATH: exact version/source SHA, about/version agreement, --help/-h, обе формы list help и обе формы help всех 55 публичных команд (110 command-help invocations) — pass. `codesign --verify --strict` — exit 0. Raw receipt: [macos-bootstrap-help-receipt.json](macos-bootstrap-help-receipt.json). Browser quarantine/first-download Gatekeeper acceptance этим CLI download не подтверждается.
+
+Source CI PR head `0d192a075b037aaa4006014ff5bf2e4dec99af02`: 13 checks SUCCESS. Вторая matrix на `9c268e5` имеет успешные preparation/macOS/Windows; Linux/archive terminal outcome ещё ожидается и не засчитывается по первому run. RC gate covered локальными fixtures, живой RC tag не создан. Нет critical implementation issues в выполненных checks; unperformed acceptance границы указаны выше, archive ждёт review/merge в dev.
