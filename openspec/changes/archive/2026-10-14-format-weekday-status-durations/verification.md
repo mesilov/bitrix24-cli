@@ -1,5 +1,13 @@
 # Verification — format-weekday-status-durations — 14.10.2026
 
+## Delivery and archive — 14.10.2026
+
+- Verified PR #137 MERGED to dev at `35ee28e641c4173eff13e95f4c3f655ff6786223`, 15:05:34 Asia/Bishkek. Final source head `2ffb7c2049d0968363c79951ab65ee20fa221e1c`: 13/13 CI checks SUCCESS, including unit, schema, four lint gates and worktree isolation. No failed checks bypassed.
+- Verified issue #136 CLOSED at 15:05:43 Asia/Bishkek. Pre-merge JTBD links/scenarios and substantive CHANGELOG diff checked; runtime verification from prior implementation remains valid, final update only changed JTBD documentation.
+- All 4 artifacts and 6/6 tracked tasks complete. Inline spec sync replaces three requirements and adds Server offset determines excluded weekdays, retaining every prior scenario, authored title/Purpose and unrelated requirements. Specs strict: 20 passed/0 failed.
+- Archived at `openspec/changes/archive/2026-10-14-format-weekday-status-durations/`. CLI --skip-specs used after independently verified inline sync; spec synchronization was completed, not omitted.
+- Initial publication statements below are historical; the explicit subsequent merge/archive request supersedes their former delivery boundary. Original live receipts and long replay JSON are retained unchanged.
+
 ## Evidence
 
 - Unit: 825 tests / 13125 assertions, pass. WeekdayDuration cases cover weekend-only, Friday–Monday (64800 seconds), positive/negative server offset with UTC cutoff, microseconds and 52 full weeks. Calculator case proves exact accumulation before independent rounding, excludes weekend completed time and preserves all source date strings and offset.
