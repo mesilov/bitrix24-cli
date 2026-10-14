@@ -27,6 +27,9 @@
   checksums и source/version metadata, help/about всех 56 публичных команд,
   offline JSON/errors и запуск вне checkout без credentials; результаты RC
   сохраняются отдельно от stable приёмки ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
+- Синхронизированы правила builds/RC в `binary-distribution`; завершённый CI change
+  архивирован после зелёной matrix и merge PR #132 в dev
+  ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
 
 - Ветка `builds` для выбранных промежуточных снимков `dev`: push запускает
   проверку и упаковку Linux amd64/macOS arm64/Windows amd64 без тега и Release.

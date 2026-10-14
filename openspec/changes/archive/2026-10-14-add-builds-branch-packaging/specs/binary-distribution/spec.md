@@ -31,7 +31,7 @@ Development packaging CI SHALL run on manual dispatch, pushes to builds or RC ta
 - **AND** publication requires main-history validation, successful smoke tests, complete archives and matching checksums
 
 ### Requirement: Release assets and publication gate
-Production CI SHALL build only a specific non-RC version tag whose commit is reachable from main. A production version-tag workflow SHALL publish `b24cli-linux-amd64.tar.gz`, `b24cli-macos-arm64.tar.gz`, `b24cli-windows-amd64.zip` and `SHA256SUMS` only after all platform builds and smoke tests succeed. Checksums MUST cover the exact final archives. Publication retries MUST resume an existing draft, upload the complete verified asset set before publication and leave already public releases unchanged.
+Production CI SHALL build only a non-RC version tag reachable from main. A production version-tag workflow SHALL publish `b24cli-linux-amd64.tar.gz`, `b24cli-macos-arm64.tar.gz`, `b24cli-windows-amd64.zip` and `SHA256SUMS` only after all platform builds and smoke tests succeed. Checksums MUST cover the exact final archives. Publication retries MUST resume an existing draft, upload the complete verified asset set before publication and leave already public releases unchanged.
 
 #### Scenario: Publish a verified release
 - **WHEN** all supported platform packages for a version tag have passed their checks
