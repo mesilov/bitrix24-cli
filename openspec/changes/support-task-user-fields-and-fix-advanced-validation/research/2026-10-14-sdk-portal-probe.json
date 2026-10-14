@@ -1,0 +1,403 @@
+{
+  "checkedAtUtc": "2026-10-13T20:06:01+00:00",
+  "portalHost": "bitrix24-php-sdk-playground.bitrix24.ru",
+  "sdk": "3.7.0",
+  "sdkCommit": "8ebd4c154d5557db949b0196825f347a3a6c5bf0",
+  "actingUserId": 1,
+  "groupId": 234,
+  "fieldCode": "UF_AUTO_860796849253",
+  "marker": "b24cli-issue58-probe-20261013-200601-a6cd90dc",
+  "expectedValue": "b24cli-issue58-probe-20261013-200601-a6cd90dc-value",
+  "ownedTaskIds": [
+    6260,
+    6262
+  ],
+  "cleanup": [
+    {
+      "taskId": 6260,
+      "deleteResult": {
+        "result": true
+      },
+      "verification": "read-rejected",
+      "readError": [
+        {
+          "class": "Bitrix24\\SDK\\Core\\Exceptions\\AuthForbiddenException",
+          "message": "bitrix_rest_v3_exception_accessdeniedexception - Доступ запрещен"
+        }
+      ]
+    },
+    {
+      "taskId": 6262,
+      "deleteResult": {
+        "result": true
+      },
+      "verification": "read-rejected",
+      "readError": {
+        "class": "Bitrix24\\SDK\\Core\\Exceptions\\AuthForbiddenException",
+        "message": "bitrix_rest_v3_exception_accessdeniedexception - Доступ запрещен"
+      }
+    }
+  ],
+  "cleanupAudit": {
+    "method": "tasks.task.list",
+    "apiVersion": "1.0",
+    "marker": "b24cli-issue58-probe-20261013-200601-a6cd90dc",
+    "remainingMarkedTasks": [],
+    "next": null
+  },
+  "v3Metadata": {
+    "default": [
+      {
+        "name": "title",
+        "type": "string",
+        "title": "title",
+        "description": null,
+        "validationRules": [],
+        "requiredGroups": [
+          "add"
+        ],
+        "filterable": false,
+        "sortable": true,
+        "editable": true,
+        "editableGroups": [],
+        "multiple": false,
+        "elementType": null
+      },
+      {
+        "name": "creatorId",
+        "type": "int",
+        "title": "creatorId",
+        "description": null,
+        "validationRules": [],
+        "requiredGroups": [
+          "add"
+        ],
+        "filterable": false,
+        "sortable": true,
+        "editable": false,
+        "editableGroups": null,
+        "multiple": false,
+        "elementType": null
+      },
+      {
+        "name": "responsibleId",
+        "type": "int",
+        "title": "responsibleId",
+        "description": null,
+        "validationRules": [],
+        "requiredGroups": [
+          "add"
+        ],
+        "filterable": false,
+        "sortable": true,
+        "editable": true,
+        "editableGroups": [],
+        "multiple": false,
+        "elementType": null
+      },
+      {
+        "name": "groupId",
+        "type": "int",
+        "title": "groupId",
+        "description": null,
+        "validationRules": [],
+        "requiredGroups": null,
+        "filterable": false,
+        "sortable": true,
+        "editable": true,
+        "editableGroups": [],
+        "multiple": false,
+        "elementType": null
+      },
+      {
+        "name": "userFields",
+        "type": "object",
+        "title": "userFields",
+        "description": null,
+        "validationRules": [],
+        "requiredGroups": null,
+        "filterable": false,
+        "sortable": false,
+        "editable": false,
+        "editableGroups": null,
+        "multiple": true,
+        "elementType": "object"
+      }
+    ],
+    "explicit": [
+      {
+        "name": "title",
+        "type": "string",
+        "editable": true,
+        "multiple": false,
+        "elementType": null
+      },
+      {
+        "name": "creatorId",
+        "type": "int",
+        "editable": false,
+        "multiple": false,
+        "elementType": null
+      },
+      {
+        "name": "responsibleId",
+        "type": "int",
+        "editable": true,
+        "multiple": false,
+        "elementType": null
+      },
+      {
+        "name": "groupId",
+        "type": "int",
+        "editable": true,
+        "multiple": false,
+        "elementType": null
+      },
+      {
+        "name": "userFields",
+        "type": "object",
+        "editable": false,
+        "multiple": true,
+        "elementType": "object"
+      }
+    ]
+  },
+  "legacyMetadata": {
+    "UF_CRM_TASK": {
+      "title": "Элементы CRM",
+      "type": "crm"
+    },
+    "UF_TASK_WEBDAV_FILES": {
+      "title": "Load files",
+      "type": "disk_file"
+    },
+    "UF_MAIL_MESSAGE": {
+      "title": null,
+      "type": "mail_message"
+    },
+    "UF_AUTO_411664353318": {
+      "title": "string_req",
+      "type": "string"
+    },
+    "UF_AUTO_584558105987": {
+      "title": "string_multiple",
+      "type": "string"
+    },
+    "UF_AUTO_199893122420": {
+      "title": "int_req",
+      "type": "double"
+    },
+    "UF_AUTO_860796849253": {
+      "title": "string",
+      "type": "string"
+    },
+    "UF_AUTO_328523888294": {
+      "title": "int_multiple",
+      "type": "double"
+    },
+    "UF_AUTO_367535268262": {
+      "title": "int",
+      "type": "double"
+    },
+    "UF_AUTO_635374690198": {
+      "title": "date_time",
+      "type": "datetime"
+    },
+    "UF_AUTO_806125117113": {
+      "title": "boolean",
+      "type": "boolean"
+    }
+  },
+  "cases": [
+    {
+      "case": "control",
+      "method": "tasks.task.add",
+      "apiVersion": "3.0",
+      "fields": {
+        "title": "b24cli-issue58-probe-20261013-200601-a6cd90dc-control",
+        "creatorId": 1,
+        "responsibleId": 1,
+        "groupId": 234,
+        "allowsTimeTracking": false
+      },
+      "taskId": 6260,
+      "result": "created",
+      "readback": {
+        "v3TaskId": 6260,
+        "v3CustomValue": null,
+        "v1CustomValue": null
+      }
+    },
+    {
+      "case": "sdk-withUserField-flat",
+      "method": "tasks.task.add",
+      "apiVersion": "3.0",
+      "fields": {
+        "title": "b24cli-issue58-probe-20261013-200601-a6cd90dc-sdk-withUserField-flat",
+        "creatorId": 1,
+        "responsibleId": 1,
+        "groupId": 234,
+        "allowsTimeTracking": false,
+        "UF_AUTO_860796849253": "b24cli-issue58-probe-20261013-200601-a6cd90dc-value"
+      },
+      "error": [
+        {
+          "class": "Bitrix24\\SDK\\Core\\Exceptions\\InvalidArgumentException",
+          "message": "bitrix_rest_v3_exception_unknowndtopropertyexception - Неизвестное поле `uf_auto_860796849253` для сущности `taskdto` "
+        }
+      ]
+    },
+    {
+      "case": "v3-userFields-list",
+      "method": "tasks.task.add",
+      "apiVersion": "3.0",
+      "fields": {
+        "title": "b24cli-issue58-probe-20261013-200601-a6cd90dc-v3-userFields-list",
+        "creatorId": 1,
+        "responsibleId": 1,
+        "groupId": 234,
+        "allowsTimeTracking": false,
+        "userFields": [
+          {
+            "key": "UF_AUTO_860796849253",
+            "value": "b24cli-issue58-probe-20261013-200601-a6cd90dc-value"
+          }
+        ]
+      },
+      "error": [
+        {
+          "class": "Bitrix24\\SDK\\Core\\Exceptions\\ValidationException",
+          "message": "bitrix_rest_v3_exception_validation_dtovalidationexception - Ошибка при валидации объекта"
+        },
+        {
+          "field": "userFields",
+          "message": "Поле \"userFields\" не доступно к заполнению"
+        }
+      ]
+    },
+    {
+      "case": "v3-userFields-update",
+      "method": "tasks.task.update",
+      "apiVersion": "3.0",
+      "parameters": {
+        "id": 6260,
+        "fields": {
+          "userFields": [
+            {
+              "key": "UF_AUTO_860796849253",
+              "value": "b24cli-issue58-probe-20261013-200601-a6cd90dc-value"
+            }
+          ]
+        }
+      },
+      "error": [
+        {
+          "class": "Bitrix24\\SDK\\Core\\Exceptions\\ValidationException",
+          "message": "bitrix_rest_v3_exception_validation_dtovalidationexception - Ошибка при валидации объекта"
+        },
+        {
+          "field": "userFields",
+          "message": "Поле \"userFields\" не доступно к заполнению"
+        }
+      ]
+    },
+    {
+      "case": "v3-creatorId-update",
+      "method": "tasks.task.update",
+      "apiVersion": "3.0",
+      "parameters": {
+        "id": 6260,
+        "fields": {
+          "creatorId": 1
+        }
+      },
+      "confirmation": {
+        "result": true
+      },
+      "readback": {
+        "v3TaskId": 6260,
+        "v3CustomValue": null,
+        "v1CustomValue": null
+      }
+    },
+    {
+      "case": "legacy-custom-update",
+      "method": "tasks.task.update",
+      "apiVersion": "1.0",
+      "parameters": {
+        "taskId": 6260,
+        "fields": {
+          "UF_AUTO_860796849253": "b24cli-issue58-probe-20261013-200601-a6cd90dc-value"
+        }
+      },
+      "confirmation": {
+        "taskId": "6260"
+      },
+      "readback": {
+        "v3TaskId": 6260,
+        "v3CustomValue": "b24cli-issue58-probe-20261013-200601-a6cd90dc-value",
+        "v1CustomValue": "b24cli-issue58-probe-20261013-200601-a6cd90dc-value"
+      }
+    },
+    {
+      "case": "legacy-custom-add",
+      "method": "tasks.task.add",
+      "apiVersion": "1.0",
+      "fields": {
+        "TITLE": "b24cli-issue58-probe-20261013-200601-a6cd90dc-legacy",
+        "CREATED_BY": 1,
+        "RESPONSIBLE_ID": 1,
+        "GROUP_ID": 234,
+        "UF_AUTO_860796849253": "b24cli-issue58-probe-20261013-200601-a6cd90dc-value"
+      },
+      "error": [
+        {
+          "class": "Bitrix24\\SDK\\Core\\Exceptions\\BaseException",
+          "message": "error_core - Не введено значение обязательного поля string_req.<br>Не введено значение обязательного поля int_req.<br> "
+        }
+      ]
+    },
+    {
+      "case": "legacy-custom-add-with-required-fields",
+      "method": "tasks.task.add",
+      "apiVersion": "1.0",
+      "fields": {
+        "TITLE": "b24cli-issue58-probe-20261013-200601-a6cd90dc-legacy-required",
+        "CREATED_BY": 1,
+        "RESPONSIBLE_ID": 1,
+        "GROUP_ID": 234,
+        "UF_AUTO_860796849253": "b24cli-issue58-probe-20261013-200601-a6cd90dc-value",
+        "UF_AUTO_411664353318": "b24cli-issue58-probe-20261013-200601-a6cd90dc-required",
+        "UF_AUTO_199893122420": 58
+      },
+      "taskId": 6262,
+      "matchesExpectedValue": true,
+      "result": "created",
+      "readback": {
+        "v3TaskId": 6262,
+        "v3CustomValue": "b24cli-issue58-probe-20261013-200601-a6cd90dc-value",
+        "v1CustomValue": "b24cli-issue58-probe-20261013-200601-a6cd90dc-value"
+      }
+    }
+  ],
+  "cliAdvancedDryRun": {
+    "fields": {
+      "title": "b24cli-issue58-advanced-preview",
+      "creatorId": 1,
+      "responsibleId": 1,
+      "groupId": 234
+    },
+    "exitStatus": 2,
+    "apiCalls": [
+      {
+        "method": "tasks.task.field.list",
+        "apiVersion": "3.0",
+        "effect": "read"
+      }
+    ],
+    "error": {
+      "code": "usage-error",
+      "message": "An advanced field is not confirmed editable by the portal metadata."
+    }
+  }
+}

@@ -428,7 +428,7 @@ Docker работает от UID/GID пользователя; config mount по
 Используйте путь `/run/b24cli-config` для явного `--config-dir` внутри контейнера.
 Headless task-команды не спрашивают webhook и не сохраняют CI credentials.
 Help/version/list/completion и offline dry-run не читают credential files и не пишут конфиг;
-advanced fields сохраняют описанный preflight editable metadata.
+Обычные advanced fields проверяются локально по документированному REST3 контракту; dry-run не требует metadata API.
 
 ## Справка и сведения о приложении
 
@@ -931,3 +931,34 @@ JSON содержит `data.operation` с `taskId/action/confirmed` и `data.tas
 карточки подходящей по остальным условиям задачи. Эти REST3 чтения отражаются
 в meta.apiCalls и ограничиваются числом просмотренных задач; непроверенная
 принадлежность даёт partial вместо недостоверной пустой выборки.
+
+
+### Пользовательские поля задач
+
+`--user-fields JSON` или `--user-fields-file PATH|-` принимает непустой JSON-объект с точными custom `UF_*` кодами. Доступны строки, числа, логические значения и плоские списки поддержанных значений; `null`, вложенные объекты и системные `UF_CRM_TASK`, `UF_TASK_WEBDAV_FILES`, `UF_MAIL_MESSAGE` отклоняются. Пустая строка или список явно передаются для очистки; обязательные поля очищать может запретить портал. Пропущенные поля сохраняются.
+
+```bash
+b24cli task:add --title "План работ" --creator 1 --responsible 2 \
+  --group-id 42 --user-fields '{"UF_QUERY":"5"}'
+b24cli task:update 123 --user-fields '{"UF_QUERY":"6"}'
+b24cli task:update 123 --user-fields-file fields.json --dry-run --json
+b24cli task:show 123 --select userFields.key --select userFields.value --json
+```
+
+Поля должны существовать на выбранном портале; `UF_QUERY` — пример кода. CLI читает `tasks.task.getFields` через REST1, проверяет доступные имена и типы. Обязательность и множественность проверяет портал: их metadata может быть неполной.
+
+Создание с custom значениями выполняет **один REST1 tasks.task.add**, включая ordinary и custom значения сразу. Basic-флаги и значения `default.task` собирают native REST1 payload: TITLE, DESCRIPTION, CREATED_BY, RESPONSIBLE_ID, GROUP_ID, DEADLINE, ALLOW_TIME_TRACKING. Поля профиля сохраняют свою описанную структуру; явные значения выше default, учёт времени без default выключен.
+
+Advanced JSON при custom создании использует **точные REST1 имена**; он не смешивается с basic-флагами. CLI не переименовывает camelCase JSON:
+
+```bash
+b24cli task:add \
+  --fields '{"TITLE":"План работ","CREATED_BY":1,"RESPONSIBLE_ID":2,"ALLOW_TIME_TRACKING":"N"}' \
+  --user-fields '{"UF_QUERY":"5"}' --dry-run --json
+```
+
+Без custom input ordinary создание/обновление и `--fields` используют REST3 camelCase поля и JSON booleans. Их имена и типы проверяются локально по контракту add/update; `editable=false` из field.list не служит универсальным запретом записи. Ordinary advanced dry-run работает без API.
+
+Custom-only update выполняет один REST1 update. Смешанный update сначала меняет ordinary поля через REST3, затем custom через REST1, затем явно заданные теги. При частичном результате CLI сохраняет TASK_ID и подтверждённые шаги; проверьте значения существующей задачи перед повторением `task:update`. Создание и записи автоматически не повторяются и не откатываются.
+
+Custom dry-run читает схему и показывает версии API и native поля без записи. `strict-rest3` отклоняет весь custom план до credentials/API. Теги и default observer сохраняют свои отдельные объявленные шаги; ошибка прекращает последующие записи.

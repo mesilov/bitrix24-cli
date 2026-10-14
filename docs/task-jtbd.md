@@ -1,6 +1,6 @@
 # JTBD задач по ролям
 
-Сверка каталога для [#100](https://github.com/mesilov/bitrix24-cli/issues/100) от 14.10.2026, базовый commit `8a4bd2ab0604d905fcf091e0f98ff282380080f4`. Дополнено для [#118](https://github.com/mesilov/bitrix24-cli/issues/118) от 14.10.2026 на базе `8662ee7` (новая команда поверх этого снимка). Задача исходной документации: [#80](https://github.com/mesilov/bitrix24-cli/issues/80).
+Сверка каталога для [#100](https://github.com/mesilov/bitrix24-cli/issues/100) от 14.10.2026, базовый commit `8a4bd2ab0604d905fcf091e0f98ff282380080f4`. Дополнено для [#118](https://github.com/mesilov/bitrix24-cli/issues/118) от 14.10.2026 на базе `8662ee7` (новая команда поверх этого снимка). Дополнено для [#58](https://github.com/mesilov/bitrix24-cli/issues/58) от 14.10.2026: исходники реализации `3653131e27b0767604c6e64f7ae7b72a5f23e369`, база `dev` — `38a39a03ba8cbffaec45cc9b2a289c32ccd97231`. Задача исходной документации: [#80](https://github.com/mesilov/bitrix24-cli/issues/80).
 
 [Карта публичных CLI-вызовов](cli-command-map.md) содержит назначения и проверяемые
 примеры команд. Для любого сценария можно открыть `b24cli COMMAND --help`;
@@ -35,13 +35,13 @@
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
-| ✅ Готово | [`task:add`](../src/Console/Command/Task/AddTaskCommand.php) | [`AddTaskCommandTest.php`](../tests/Integration/Task/AddTaskCommandTest.php) |
+| ✅ Готово | [`task:add`](../src/Console/Command/Task/AddTaskCommand.php) (`--user-fields` / `--user-fields-file`) | [`AddTaskCommandTest.php`](../tests/Integration/Task/AddTaskCommandTest.php) |
 | ✅ Готово | [`task:show`](../src/Console/Command/Task/ShowTaskCommand.php) | [`ShowTaskCommandTest.php`](../tests/Integration/Task/ShowTaskCommandTest.php) |
 | ✅ Готово | [`task:checklist:add`](../src/Console/Command/Task/AddTaskChecklistCommand.php) | [`AddTaskChecklistCommandTest.php`](../tests/Integration/Task/AddTaskChecklistCommandTest.php) |
 | ✅ Готово | [`task:checklist:item:add`](../src/Console/Command/Task/AddTaskChecklistItemCommand.php) | [`AddTaskChecklistItemCommandTest.php`](../tests/Integration/Task/AddTaskChecklistItemCommandTest.php) |
 | 🕓 План | `task:subtask:add` | Нет |
 
-**Границы:** Проверяются отдельные создание/карточка/чек-листы; нет сквозной проверки декомпозиции этапа и полноты критериев приёмки.
+**Границы:** Проверяются отдельные создание/карточка/чек-листы. Создание с `--user-fields`/`--user-fields-file` передаёт обычные и кастомные значения одним REST1 add; ordinary advanced create проходит локальную проверку без editable-метаданных. Portal-приёмка #58 подтверждает string/numeric/multiple значения и отказ при отсутствии обязательного поля на SDK playground; детали и ограничения — ниже. Сквозная декомпозиция этапа и полнота критериев приёмки не проверены.
 
 <a id="pm-02"></a>
 
@@ -175,11 +175,11 @@
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
-| ✅ Готово | [`task:add`](../src/Console/Command/Task/AddTaskCommand.php) | [`AddTaskCommandTest.php`](../tests/Integration/Task/AddTaskCommandTest.php) |
+| ✅ Готово | [`task:add`](../src/Console/Command/Task/AddTaskCommand.php) (`--user-fields` / `--user-fields-file`) | [`AddTaskCommandTest.php`](../tests/Integration/Task/AddTaskCommandTest.php) |
 | ✅ Готово | [`task:show`](../src/Console/Command/Task/ShowTaskCommand.php) | [`ShowTaskCommandTest.php`](../tests/Integration/Task/ShowTaskCommandTest.php) |
 | ✅ Готово | [`task:find`](../src/Console/Command/Task/FindTaskCommand.php) | [`FindTaskCommandTest.php`](../tests/Integration/Task/FindTaskCommandTest.php) |
 
-**Границы:** Проверяются поля создания, карточка и поиск; сохранение всего клиентского контекста как бизнес-контракта отдельно не проверяется.
+**Границы:** Проверяются поля создания, карточка и поиск; `--user-fields`/`--user-fields-file` сохраняет поддержанные кастомные значения при создании. Portal-приёмка #58 подтверждает string/numeric/multiple поля SDK playground; портал автора и UF_QUERY не проверены. Сохранение всего клиентского контекста как бизнес-контракта отдельно не проверяется.
 
 <a id="am-02"></a>
 
@@ -232,11 +232,11 @@
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
-| ✅ Готово | [`task:update`](../src/Console/Command/Task/UpdateTaskCommand.php) | [`UpdateTaskCommandTest.php`](../tests/Integration/Task/UpdateTaskCommandTest.php) |
+| ✅ Готово | [`task:update`](../src/Console/Command/Task/UpdateTaskCommand.php) (`--user-fields` / `--user-fields-file`) | [`UpdateTaskCommandTest.php`](../tests/Integration/Task/UpdateTaskCommandTest.php) |
 | 🕓 План | `task:change:propose` | Нет |
 | 🕓 План | `task:change:accept` | Нет |
 
-**Границы:** Проверяется изменение заголовка/описания; согласование влияния на объём и сроки не проверяется.
+**Границы:** Проверяется изменение заголовка/описания и кастомных значений через `--user-fields`/`--user-fields-file`: custom-only REST1 update, смешанный REST3 затем REST1, очистка и независимый readback. Portal-приёмка #58 включает unknown/strict-rest3/dry-run без записей; denied-role/unknown outcome/cancellation проверены fixtures, ограниченная роль на портале не проверена. Согласование влияния на объём и сроки не проверяется.
 
 <a id="am-05"></a>
 
@@ -472,4 +472,4 @@ make test-integration TEST_ARGS='--group command:task:add'
 - **Планируемые команды** — остальные связи исходной матрицы; их нет в текущем runtime. [Каталог кандидатов](../openspec/changes/define-task-jtbd/cli-candidates.md) описывает план, а не доступные команды. Ветки разработки и открытые issues не считаются реализацией в этом снимке.
 - **Статус** — «✅ Готово» означает наличие текущей команды в коде; «🕓 План» — команду из исходного плана. Статус не сообщает результат запуска теста.
 - **Тесты** — имена существующих файлов интеграционных тестов в `tests/Integration/Task`, с группами PHPUnit `command:<имя команды>` / `happy-path`. Они проверяют команды по отдельности; отдельных сквозных интеграционных тестов с ID `PM-*`, `AM-*`, `EMP-*` сейчас нет. Повторение файла в нескольких сценариях означает общую команду, а не независимое покрытие каждого JTBD.
-- Поле **границы** показывает, чего командные тесты не доказывают. Ссылка на тест означает наличие его исходника, а не успешный запуск. Открытая [portal-приёмка #42](https://github.com/mesilov/bitrix24-cli/issues/42) и [границы релиза](rc-0.1.0.md) сохраняются; в этой задаче live-тесты не запускались.
+- Поле **границы** показывает, чего командные тесты не доказывают. Ссылка на тест означает наличие его исходника, а не успешный запуск. Открытая [portal-приёмка #42](https://github.com/mesilov/bitrix24-cli/issues/42) и [границы релиза](rc-0.1.0.md) сохраняются; исходная сверка каталога не запускала live-тесты. Для #58 выполнены 4 CLI portal-теста (63 assertions, без skips), результаты и удаление owned fixtures сохранены в [verification.md](../openspec/changes/support-task-user-fields-and-fix-advanced-validation/verification.md). Поддержанные string/numeric/multiple поля проверены на SDK playground; UF_QUERY, портал автора, restricted-role live и сквозные бизнес-сценарии не проверены.
