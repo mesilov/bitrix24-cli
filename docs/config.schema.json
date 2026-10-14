@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/mesilov/bitrix24-cli/main/docs/config.schema.json",
   "title": "Bitrix24 CLI connection configuration, version 1",
-  "description": "Non-secret user configuration. Credentials remain in managed dotenv files. See configuration.md for selection and additional runtime checks.",
+  "description": "Non-secret user configuration. Credentials remain in managed dotenv files. See config.md for selection and additional runtime checks.",
   "$comment": "CLI additionally verifies defaultProfile exists, credential references are unique, exact JSON integer literals, permissions/ownership/symlinks, credential file existence and matching HTTPS hostname. The default keyword is an annotation and does not write values.",
   "type": "object",
   "additionalProperties": false,

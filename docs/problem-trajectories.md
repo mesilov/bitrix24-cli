@@ -8,7 +8,7 @@
 
 Все локальные действия работают без credentials и портала. Файлы находятся
 в `<resolved-config-dir>/.problem-trajectories/<cardId>.json`; выбор каталога:
-`--config-dir` → `B24CLI_CONFIG_DIR` → [OS default](configuration.md).
+`--config-dir` → `B24CLI_CONFIG_DIR` → [OS default](config.md).
 Это каталог пользовательского `config.json`, независимо от выбранного profile.
 Скилл обращается к нему только через CLI, без прямого чтения/редактирования.
 
@@ -94,7 +94,7 @@ snapshot; новые карточки не должны попадать в уж
 ## Telemetry и еженедельное предложение
 
 Корневой `telemetry` в пользовательском config описан в
-[configuration.md](configuration.md): default collection=true, max files=100,
+[config.md](config.md): default collection=true, max files=100,
 даты Processing/Offered=null. `configure` разрешает менять только
 `collectProblemTrajectories` и `maxProblemTrajectoryFiles`. Например, файл
 `settings.json`: `{"collectProblemTrajectories":false}`.
