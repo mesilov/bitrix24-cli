@@ -32,6 +32,10 @@
 
 ### Добавлено
 
+- RC-проверка сверяет полные сведения about, каталоги README/карты/JSON и синтаксис
+  всех 56 документированных примеров с определениями скачанного бинарника;
+  готовится обновлённый кандидат 0.2.0-rc-2 ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
+
 - Подготовлена проверка уже собранных RC-пакетов на native Linux/macOS/Windows:
   checksums и source/version metadata, help/about всех 56 публичных команд,
   offline JSON/errors и запуск вне checkout без credentials; результаты RC

@@ -12,6 +12,8 @@
 - Подготовить release notes, CHANGELOG, архивы и SHA256SUMS; сохранить результаты Linux/macOS/Windows и terminal CI.
 - По явному запросу пользователя подготовить и принять `0.2.0-rc-1` через builds без GitHub Release. Зафиксировать merge PR #132, точный RC SHA и проверку уже собранных архивов на трёх native runners; результаты RC не отмечают автоматически приёмку финальной stable 0.2.0.
 
+- По продолжению пользователя «дожимай» подготовить RC-2 из согласованной актуальной dev: служебные PR, новые README/#136, синхронизация скилла #6, полная offline help/about/docs проверка, native binaries и отчёт без Release.
+
 ## Capabilities
 
 ### New Capabilities
