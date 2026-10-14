@@ -9,10 +9,10 @@
 
 ## 2. Сборка и приёмка 0.2.0
 
-- [ ] 2.1 Выполнить обязательные тесты/линтеры и сохранить успешный terminal CI для точного source SHA.
-- [ ] 2.2 Собрать Linux amd64/macOS arm64/Windows amd64 архивы и SHA256SUMS; проверить checksum, packaging metadata и идентичность версии/source SHA.
-- [ ] 2.3 На каждом финальном артефакте 0.2.0 повторить общую/командную help-проверку и about из #100 вне checkout, без credentials; сверить версию с --version, фактический каталог, документы и примеры, при расхождениях актуализировать и повторить проверку.
-- [ ] 2.4 Выполнить существующую native acceptance матрицу установки и запуска; сохранить результаты по каждой платформе и явные оставшиеся ограничения.
+- [x] 2.1 Выполнить обязательные тесты/линтеры и сохранить успешный terminal CI для точного source SHA.
+- [x] 2.2 Собрать Linux amd64/macOS arm64/Windows amd64 архивы и SHA256SUMS; проверить checksum, packaging metadata и идентичность версии/source SHA.
+- [x] 2.3 На каждом финальном артефакте 0.2.0 повторить общую/командную help-проверку и about из #100 вне checkout, без credentials; сверить версию с --version, фактический каталог, документы и примеры, при расхождениях актуализировать и повторить проверку.
+- [x] 2.4 Выполнить существующую native acceptance матрицу установки и запуска; сохранить результаты по каждой платформе и явные оставшиеся ограничения.
 
 ## 3. RC 0.2.0-rc-1 без публикации
 
@@ -33,7 +33,18 @@
 
 - [x] 4.8 Открыть MR dev → main по запросу пользователя, разрешить конфликты истории main через PR в dev, дождаться CI и проверить mergeability/точный head без merge/publish.
 
+## 5. Разрешённая публикация 0.2.0
+
+- [x] 5.1 Проверить exact-head CI/review MR #143 и подтвердить merge в main с SHA/tag ancestry.
+- [x] 5.2 Дождаться production native/archive/publication jobs; проверить stable Release, assets, metadata/tag identity и exact-source CI.
+- [x] 5.3 Повторить downloaded-artifact acceptance на трёх native OS и проверить public/latest URLs, Unix installation и source/version.
+- [x] 5.4 Подготовить final notes/CHANGELOG/receipts, проверить release change и сформировать архив с актуальной OpenSpec-трассировкой.
+
 ## Workflow follow-up
 
 - Promotion в main, создание тега и публикация Release выполняются после согласования конкретного release scope.
 - После разрешённой публикации проверить assets и latest-ссылки, закрыть issue по receipts и архивировать change.
+
+## Post-delivery maintainer readbacks
+
+Merge архивного PR в dev, обновление/закрытие #109 и удаление собственных worktree выполняются после Git delivery. Эти административные readbacks отслеживаются отдельно в #109; они не объявлены выполненными этим archive snapshot и не являются самоподтверждающей задачей артефакта.
