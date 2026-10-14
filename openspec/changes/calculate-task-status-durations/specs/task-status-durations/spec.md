@@ -90,3 +90,7 @@ JSON SHALL содержать asOf, интервалы enteredAt/leftAt/status/s
 #### Scenario: Rejected review followed by successful completion
 - **WHEN** disposable SDK fixture passes through pending → in_progress → supposedly_completed → pending after disapprove, then in_progress → supposedly_completed → completed after approve
 - **THEN** live evidence retains independent state readbacks and newly observed raw history events after each action, distinguishes pre-existing events by ID, and records cleanup; this does not upgrade history completeness or prove exact totals
+
+#### Scenario: Server history contains earlier lifetimes for a numeric task ID
+- **WHEN** a new owned fixture has NEW/DELETE before its independently read creation date
+- **THEN** investigation compares raw HTTP, SDK and adapter evidence, checks task isolation and more than fifty known fixture changes, and retains a sanitized reproduction; completeness of known fixture changes does not prove completeness for arbitrary task history, and ambiguous lifetimes keep exact totals null

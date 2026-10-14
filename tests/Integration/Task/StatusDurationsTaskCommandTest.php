@@ -12,6 +12,59 @@ use PHPUnit\Framework\Attributes\Group;
 #[Group('command:task:status:durations')]
 final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
 {
+    public function testRawHistoryIsolationAndMoreThanFiftyKnownChanges(): void
+    {
+        $runtimeState = new \Bitrix24\CLI\Application\RuntimeState();
+        $core = (new \Bitrix24\CLI\Infrastructure\Connection\B24ClientProvider(new \Bitrix24\CLI\Infrastructure\Connection\EnvConnectionResolver($this->root()), $runtimeState))->get()->core;
+        $a = $this->createTask();
+        $b = $this->createTask();
+        $receipt = ['taskIds' => ['A' => $a, 'B' => $b], 'apiVersions' => ['1.0', '3.0'], 'sourceCompletenessProven' => false];
+        try {
+            $capture = static function (int $id, array $parameters = []) use ($core): array {
+                $response = $core->call('tasks.task.history.list', ['taskId' => $id, ...$parameters], \Bitrix24\SDK\Core\Contracts\ApiVersion::v1);
+                $wire = json_decode($response->getHttpResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+                $dto = $response->getResponseData();
+                self::assertSame($wire['result']['list'], $dto->getResult()['list'], 'SDK must preserve server history, including any earlier lifetime.');
+                return ['parameters' => $parameters, 'rootKeys' => array_keys($wire), 'resultKeys' => array_keys($wire['result']), 'next' => $dto->getPagination()->getNextItem(), 'total' => $dto->getPagination()->getTotal(), 'events' => array_map(static fn (array $row): array => [...array_intersect_key($row, array_flip(['id', 'createdDate', 'field', 'value'])), 'userId' => $row['user']['id'] ?? null], $wire['result']['list'])];
+            };
+            $receipt['baselineA'] = $capture($a);
+            $receipt['baselineB'] = $capture($b);
+            self::assertSame([], array_intersect(array_column($receipt['baselineA']['events'], 'id'), array_column($receipt['baselineB']['events'], 'id')));
+            $expected = [];
+            $prefix = $this->fixtureTitle();
+            for ($i = 1; $i <= 60; $i++) {
+                $title = $prefix . '-change-' . $i;
+                $this->tasks->update($a, ['title' => $title]);
+                $expected[] = $title;
+            }
+
+            $receipt['knownTitleUpdates'] = $expected;
+            $receipt['creationReadback'] = $this->tasks->page([['id', '=', $a]], ['id', 'created', 'status'], ['id' => 'ASC'], 0, 2)->items;
+            $receipt['probes'] = [];
+            foreach ([[], ['start' => 0], ['start' => 50], ['start' => 10000], ['start' => -1], ['filter' => ['FIELD' => 'NEW']], ['filter' => ['FIELD' => 'STATUS']], ['order' => ['createdDate' => 'DESC']]] as $parameters) {
+                $receipt['probes'][] = $capture($a, $parameters);
+            }
+
+            $all = $receipt['probes'][0]['events'];
+            $actual = array_column(array_column(array_values(array_filter($all, static fn (array $row): bool => $row['field'] === 'TITLE')), 'value'), 'to');
+            self::assertSame([], array_values(array_diff($expected, $actual)), 'Known fixture completeness is tested independently of navigation metadata.');
+            self::assertGreaterThan(50, count($all));
+            $receipt['unchangedB'] = $capture($b);
+            self::assertSame($receipt['baselineB']['events'], $receipt['unchangedB']['events'], 'Writes to A must not alter B history.');
+            $adapter = (new Rest1TaskHistoryAdapter($this->api))->page($a, [], 0);
+            self::assertSame(array_column($all, 'id'), array_column($adapter->items, 'id'), 'Adapter must preserve server history IDs.');
+            $receipt['commandResult'] = $this->invoke(['task:status:durations', $a], [0, 3]);
+            if (!$receipt['commandResult']['meta']['complete']) {
+                self::assertSame([null], array_values(array_unique($receipt['commandResult']['data']['totals'])));
+            }
+
+            self::assertNotContains('write', array_column($receipt['commandResult']['meta']['apiCalls'], 'effect'));
+        } finally {
+            $receipt['cleanupEvidence'] = 'portal-evidence.jsonl records owned task deletion in tearDown';
+            file_put_contents($this->root() . '/var/cache/wire-history-investigation.json', json_encode($receipt, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+        }
+    }
+
     private function reopenedFixture(): int
     {
         $id = $this->createTask(fields: ['needsControl' => false, 'requireResult' => false]);

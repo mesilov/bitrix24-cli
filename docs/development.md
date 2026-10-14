@@ -361,3 +361,19 @@ Live-сценарий `testRejectedReviewThenSuccessfulCompletionRetainsIncremen
 сохранённый обезличенный receipt — OpenSpec `review-cycle-history-check.md`.
 Этот сценарий подтверждает форму наблюдённых событий и завершение fixture;
 полнота lifetime истории и exact totals остаются отдельной приёмкой.
+
+`testRawHistoryIsolationAndMoreThanFiftyKnownChanges` сравнивает сырое HTTP тело
+с SDK DTO и ID адаптера, проверяет изоляцию двух собственных задач и 60 известных
+изменений TITLE. Ответы без start и со start=0/50/10000/-1, FIELD-фильтры и DESC
+сохраняются в `var/cache/wire-history-investigation.json`; cleanup отражён в
+`portal-evidence.jsonl`. Это проверка полноты **известной fixture**, не гарантия
+источника для произвольной задачи. Запуск:
+`make integration TEST_ARGS="--filter testRawHistoryIsolationAndMoreThanFiftyKnownChanges"`.
+
+Исследование 14.10.2026 подтвердило старые NEW/DELETE в HTTP ответе новой задачи
+и тот же TASK_ID через независимый legacy read. В операторском подтверждении
+переинициализации БД/изменения счётчика не было; конкретная причина на сервере
+не установлена. Полный receipt, неоднозначность документации pagination и
+готовые вопросы поставщику — OpenSpec `history-investigation-check.md` и
+`bitrix24-history-support-reproducer.md`. Production не удаляет старые записи,
+не выбирает последний NEW эвристически и сохраняет null exact totals.

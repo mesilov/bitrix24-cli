@@ -4,6 +4,19 @@
 
 Implementation is reviewable as a **draft**, not complete acceptance. Task 3.3 remains open: exact live calendar totals cannot be proved with the available portal history. No merge/closure/archive is warranted from partial acceptance. Primary dirty checkout was preserved; work ran in /private/tmp/bitrix24-cli-issue-121, existing PR #123 targets dev.
 
+## Follow-up: history identity and exhaustive-source investigation
+
+OpenSpec task 3.5 completed; **9/10 tasks**, with 3.3 still critical/open. Fresh origin/dev 464bdb9 was integrated in 79201db; CHANGELOG conflict was resolved preserving both #121 and #58. Runtime completeness and creation gates were not changed.
+
+- Raw HTTP contains earlier NEW/DELETE; SDK DTO and adapter IDs preserve them. Independent legacy rows explicitly have TASK_ID=6324, matching the new current task. The operator denies DB restore/counter changes. Server association is established; allocation/migration/retention cause is not established.
+- Large fixture recovered all sixty known TITLE changes in 64 rows, with start ignored and next/total absent. A separate committed live test on 6328/6330 passed **1 test, 22 assertions**; 63 rows, all sixty changes, task isolation, read-only CLI/null totals and successful owned cleanup.
+- Retained wire/legacy receipt plus regression fixture prove that even supplying historyComplete=true cannot justify exact totals for this ambiguous multi-lifetime source. Unit regression and prior arithmetic/concurrency/error tests pass.
+- Final local suite after dev integration: **814 tests, 12822 assertions**. License, CS Fixer, PHPStan and Rector gates pass. OpenSpec strict validation and diff check pass.
+- Requirement coverage adds the earlier-lifetime investigation scenario. Completeness and correctness remain **not fully verified** for exact live totals; no archive readiness is claimed. Existing status mapping/observed-cycle evidence is preserved separately from lifetime evidence.
+- Vendor questions and attachment references are prepared in bitrix24-history-support-reproducer.md; no external support message sent. CI for the published follow-up SHA is verified separately.
+
+See history-investigation-check.md and history-investigation-fixture.json for raw structure, exact IDs/dates, official source ambiguity and the diagnostic-only legacy SDK request-ID obstruction.
+
 ## Completeness, correctness, coherence
 
 | Dimension | Evidence and limit |

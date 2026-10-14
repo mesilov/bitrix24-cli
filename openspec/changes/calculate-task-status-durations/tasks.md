@@ -18,6 +18,8 @@
 
 - [x] 3.4 По запросу пользователя добавить и выполнить live-сценарий pending → in_progress → supposedly_completed → pending (disapprove) → in_progress → supposedly_completed → completed (approve). Проверка: после каждого SDK-действия REST3 readback и сырая история с выделением новых ID; отдельный JSON receipt, новые/старые события не смешаны, production команда только читает, cleanup успешен. Подтверждённый код 4 сопоставлен с supposedly_completed; unit/live checks отличают известный mapping от неподтверждённой полноты. Это исследование формы истории, не замена exact acceptance 3.3.
 
+- [x] 3.5 Исследовать старые NEW/DELETE и полноту на уровне HTTP → SDK → adapter: изоляция двух собственных задач, before-create/after-delete наблюдения, start/filter/order, >50 событий и контроль полноты fixture. Проверка: history-investigation-check.md/fixture.json подтверждают server-origin и legacy TASK_ID, 60/60 изменений fixture; live 1 test/22 assertions, owned cleanup успешен. Полнота произвольного источника и причина серверного связывания старых строк не доказаны; подготовлен bitrix24-history-support-reproducer.md. Exact gates не ослаблены.
+
 ## 4. Cross-contract verification
 
 - [x] 4.1 Выполнить целевые unit/integration и обязательные repository checks, openspec strict validate и openspec-verify-change. Проверка: итоговый receipt разделяет offline arithmetic, CLI contract, portal completeness и CI; каждое невыполненное acceptance условие оставлено открытым.

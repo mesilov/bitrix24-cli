@@ -10,6 +10,23 @@ use PHPUnit\Framework\TestCase;
 
 final class StatusDurationCalculatorTest extends TestCase
 {
+    public function testRetainedServerHistoryForTwoLifetimesCannotYieldExactTotalsEvenWithNavigation(): void
+    {
+        $fixture = json_decode(file_get_contents(__DIR__ . '/../Fixtures/task-history/reused-numeric-id.json'), true, 512, JSON_THROW_ON_ERROR);
+        $events = array_map(static fn (array $row): array => [
+            'id' => $row['id'], 'createdDate' => $row['createdDate'], 'field' => $row['field'], 'userId' => $row['userId'],
+            'from' => $row['value']['from'], 'to' => $row['value']['to'],
+        ], $fixture['modern']['events']);
+        $result = (new StatusDurationCalculator())->calculate($fixture['taskId'], $events, true, [], $fixture['finalCard'], $fixture['finalCard'], new \DateTimeImmutable($fixture['finalCard']['changed']));
+        self::assertSame(3, $result->exitStatus);
+        self::assertContains('ambiguous-creation-boundary', $result->meta['reasons']);
+        self::assertContains('deleted-task-history', $result->meta['reasons']);
+        self::assertSame([null], array_values(array_unique($result->data['totals'])));
+        self::assertCount(4, $result->data['historyEvidence']);
+        self::assertCount(1, $result->data['observedTransitions']);
+        self::assertSame('in_progress', $result->data['observedTransitions'][0]['toStatus']);
+    }
+
     private function time(int $seconds): string
     {
         return (new \DateTimeImmutable('2026-10-01T00:00:00Z'))->modify('+' . $seconds . ' seconds')->format(DATE_ATOM);
