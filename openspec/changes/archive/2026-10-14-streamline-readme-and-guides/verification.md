@@ -1,5 +1,12 @@
 # Verification: streamline-readme-and-guides
 
+## Delivery receipt (2026-10-14)
+
+- Implementation PR [#135](https://github.com/mesilov/bitrix24-cli/pull/135) merged into `dev` at `44a366d4808f5061dda388737fdaef3fd730b1d5` (2026-10-14 09:23:11 UTC).
+- Exact reviewed delivery source `62d0d9ac7a30f5d6002e17d5eac71d99f1b8bdf6`: all 13 CI checks completed successfully, all review threads resolved, no change requests. The substantive issue-linked CHANGELOG diff was checked immediately before merge.
+- GitHub readback confirmed `state=MERGED`, base `dev`, merge SHA present in fetched `origin/dev`; issue #134 is closed. All 13 OpenSpec tasks are complete, artifacts complete and delta specs intentionally absent (`skip_specs: true`).
+- Archive delivery is tracked by a separate PR from `bugfix/134-archive-readme-guides`; no runtime/API changes or new release/native/portal claims are introduced by the archive.
+
 Verified on 2026-10-14 against issue [#134](https://github.com/mesilov/bitrix24-cli/issues/134), proposal, design and the implementation in [PR #135](https://github.com/mesilov/bitrix24-cli/pull/135) targeting `dev`.
 
 ## Scorecard
