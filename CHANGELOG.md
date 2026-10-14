@@ -36,6 +36,11 @@
 
 ### Добавлено
 
+- Принят RC 0.2.0-rc-2 на Linux/macOS/Windows: подтверждены exact version/source,
+  archive/binary checksums, 56 команд и примеров, 112 command-help и 125 CLI запусков
+  на каждой ОС; скилл обновлён, подготовлен MR dev → main без Release
+  ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
+
 - RC-проверка сверяет полные сведения about, каталоги README/карты/JSON и синтаксис
   всех 56 документированных примеров с определениями скачанного бинарника;
   готовится обновлённый кандидат 0.2.0-rc-2 ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
