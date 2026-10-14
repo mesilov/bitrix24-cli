@@ -41,3 +41,13 @@
 - source-check теперь 14/14 tests: light/annotated RC tags в builds history, exact SHA mismatch, invalid/zero/leading-zero counters и unselected snapshot rejection. Production source guard отдельно отклоняет RC.
 - actionlint всех workflows и strict OpenSpec проходят; 5 локальных tag-route cases показывают RC только в development, stable только в production, invalid RC в development validation gate. Prepare job перед matrix, contents:read, publish отсутствует.
 - RC версия передаётся существующим builders через release_version, который поддерживает prerelease string; RC retention 7/30. Live RC tag/build не создавался: нет выбранного финального кандидата и #121 остаётся в scope.
+
+## Terminal native bootstrap and current snapshot
+
+- Первый run 38532046240 completed/success на `30fa7053a2b031b4c80ac2aa3b503027a2a3e4b9`: 4/4 jobs SUCCESS (Linux amd64, macOS arm64, Windows amd64 и verified archive set). Raw sanitized receipts: [native-bootstrap-receipt.json](native-bootstrap-receipt.json).
+- Все три platform artifacts истекают 21.10.2026 (7 дней), b24cli-release-assets — 13.11.2026 (30 дней). Archive set: 80066904 bytes. Независимый BuildKit record имеет default 90 дней и занимает 109906 bytes; platform/archive retention не распространяется на этот служебный record.
+- Native jobs проверили copied artifacts, version, command help, profiles, compression, linkage, checksums/archive/install contracts вне checkout. Это CI proof bootstrap snapshot с 42 task-командами, а не финального RC/current snapshot.
+- Дополнительная локальная загрузка macOS artifact была прервана transport TLS handshake timeout; локальная проверка скачанного бинарника не засчитывается.
+- #121 закрыто и доставлено в dev `6efba52`; source/test/docs changes интегрированы обычным merge, CHANGELOG сохраняет обе стороны. Обнаружен stale packaging inventory 42 → исправлен на 43 с registration/ID validation task:status:durations. README соответствует 43 task-командам.
+- RC/skill/current-dev SHA `9c268e5bbb6b3c3cea85cfbb3726cbd8b5efbb99`: 13 source CI checks SUCCESS. Builds fast-forward на этот SHA после terminal результата первого run. Следующий run: https://github.com/mesilov/bitrix24-cli/actions/runs/38534772781 ; его native terminal outcome проверяется отдельно, не переносится из первого run.
+- Change: 9/9 задач реализации/исходной native acceptance выполнены; review/delivery в dev и archive остаются follow-up. Live RC-tag acceptance не выполнялась, numbered candidate не создан. Финальная 0.2.0 приёмка и публикация не выполнены.

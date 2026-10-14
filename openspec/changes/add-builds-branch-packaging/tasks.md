@@ -10,13 +10,13 @@
 
 - [x] 2.1 Выполнить целевые source/publish/compression checks, strict OpenSpec и diff check; сохранить verification с границами проверок.
 - [x] 2.2 Добавить обратную OpenSpec ссылку в #109 и открыть PR в dev после свежей интеграции origin/dev; проверить milestone, changelog и обе стороны трассировки.
-- [ ] 2.3 Создать builds без force push с bootstrap CI change, подтвердить trigger и успешную native matrix на точном SHA; сохранить run/job/artifact receipts с retention.
+- [x] 2.3 Создать builds без force push с bootstrap CI change, подтвердить trigger и успешную native matrix на точном SHA; сохранить run/job/artifact receipts с retention.
 
 ## 3. Ручные режимы и RC (дополнение пользователя)
 
 - [x] 3.1 Дополнить скилл мейнтейнера двумя ручными режимами builds и numbered RC tags, source/run/checksum evidence и исправлениями через dev; проверить frontmatter/ссылки и согласованность с фактическим CI.
 - [x] 3.2 Реализовать отдельный development RC route, exact tag/version/builds-ancestry guard и исключение RC из production workflow; проверить positive/negative source fixtures и actionlint.
-- [ ] 3.3 Обновить build README/CHANGELOG/issue/PR и verification; проверить strict OpenSpec, source CI и сохранение ранее запущенного intermediate run. Живой RC tag не создаётся до явного выбора кандидата.
+- [x] 3.3 Обновить build README/CHANGELOG/issue/PR и verification; проверить strict OpenSpec, source CI и сохранение ранее запущенного intermediate run. Живой RC tag не создаётся до явного выбора кандидата.
 
 ## Workflow follow-up
 
