@@ -75,7 +75,7 @@ python3 build/tests/smoke.py dist/macos-arm64 --expected-version "dev-$(git rev-
 
 На Windows используйте `python` и `dist/windows-amd64`. Linux harness выполняется
 в чистом Python container с mounts только artifacts и smoke.py. Проверяются
-exact version, help/list, регистрацию и help всех 30 команд задач, Unicode
+exact version, help/list, регистрацию и help всех 43 команд задач, Unicode
 `task:add --dry-run`, JSON usage/connection errors и exit codes, SDK autoload, production
 extensions, BCMath/ICU, trusted HTTPS и отказ на чужой CA. Smoke копирует artifacts
 в temp directory, убирает build tools из PATH и использует whitelist environment
@@ -91,7 +91,8 @@ payload. Он не входит в public archive; в основном CLI не�
 
 ## CI и release
 
-`Package standalone binaries` запускается вручную для выбранной ветки или ref.
+`Package standalone binaries` запускается по push в `builds`, numbered RC-тегу или вручную
+для выбранной ветки или ref.
 В **Actions → Package standalone binaries → Run workflow** выберите `dev`
 или нужную ветку изменений. Для запуска нужны права записи в репозиторий.
 Через GitHub CLI:
@@ -101,7 +102,8 @@ gh workflow run package-static.yml --ref dev
 ```
 
 На MR в `dev`/`main` и push в `dev` работают тесты и линтеры.
-Автоматическая сборка бинарников выполняется только по релизному тегу.
+Автоматическая сборка бинарников выполняется по push в `builds`, RC-тегу и production-тегу.
+Обычные push в `dev` и PR сами по себе packaging не запускают.
 Матрица: Ubuntu 24.04 amd64 / macOS 15 arm64 / Windows 2022 amd64.
 После smoke загружаются `b24cli-linux-amd64`, `b24cli-macos-arm64`,
 `b24cli-windows-amd64`, включая диагностические PHAR/probe и build metadata.
@@ -111,7 +113,98 @@ gh workflow run package-static.yml --ref dev
 gh run download RUN_ID --name b24cli-release-assets --dir ./downloaded
 ```
 
-Production-бинарники собираются в CI из конкретного version tag на коммите
+### Промежуточные снимки из dev
+
+`builds` — постоянная ветка для осознанно выбранных промежуточных сборок.
+Она начинается со снимка `dev` с настройкой packaging; последующие изменения
+переносятся из актуальной `dev`. Обновление ветки запускает всю native matrix,
+сохраняет точный SHA коммита `builds` и не создаёт тег или GitHub Release.
+Не вливайте `builds` обратно в `dev`/`main`; настройка CI доставляется в `dev`
+через отдельный PR. Для обновления используйте отдельный чистый checkout:
+
+```sh
+git fetch origin
+git switch builds
+git merge --ff-only origin/builds
+git merge --no-edit origin/dev
+git push origin builds
+```
+
+При расхождении с `origin/builds` сначала согласуйте историю обычным merge;
+не используйте force push/reset для выбора нового снимка. Новый push в `builds`
+отменяет устаревшую packaging-сборку этой ветки. Для повторной сборки того же
+снимка без нового коммита доступен ручной запуск:
+
+```sh
+gh workflow run package-static.yml --ref builds
+gh run list --workflow package-static.yml --branch builds
+```
+
+После успешного run скачайте `b24cli-release-assets` по конкретному `RUN_ID`
+командой выше. Platform artifacts с диагностическими probe/PHAR хранятся
+7 дней, итоговый набор из трёх архивов и `SHA256SUMS` — 30 дней; RC имеет тот же retention. Другие ref
+сохраняют repository retention; значение `retention-days: 0` означает его default.
+Перед распаковкой проверьте SHA-256 нужного архива по `SHA256SUMS`, затем
+сверьте `build-info.json` с run SHA и выполните бинарник вне checkout:
+
+```sh
+./b24cli --version
+./b24cli --about
+./b24cli --help
+./b24cli list
+```
+
+На Windows используйте `./b24cli.exe`. Ожидаемая версия — `dev-<полный source SHA>`;
+это приёмка промежуточного снимка, финальная 0.2.0 проверяется отдельно в #109.
+Имена установочных архивов одинаковы у разных runs: не смешивайте архивы,
+checksums и metadata из разных сборок.
+
+Репозиторий public, используемые Ubuntu/macOS/Windows labels относятся к
+[standard GitHub-hosted runners](https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job):
+compute бесплатен для public repositories. Одна matrix использует три параллельных
+jobs (один macOS), затем archive job. Проектный timeout платформ — 90 минут;
+[GitHub job limit](https://docs.github.com/en/actions/reference/limits) — 6 часов.
+Retained artifacts и cache расходуют storage; его billing/budgets проверяются
+отдельно. По умолчанию cache ограничен 10 GB с eviction; ветка видит свои caches
+и caches default `main`, поэтому cache sibling `dev` не гарантирован.
+[Cache limits](https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching#usage-limits-and-eviction-policy)
+не увеличиваются этим workflow. Короткий retention уменьшает накопление
+диагностики, accepted archives следует скачать до истечения срока.
+
+### Ручной RC перед релизом
+
+Второй режим `builds` — проверка выбранного RC из `dev` перед релизом.
+После успешной промежуточной сборки явно выберите её source SHA, подтвердите
+scope кандидата и создайте новый тег `MAJOR.MINOR.PATCH-rc-N` с N>0:
+`0.2.0-rc-1`, `0.2.0-rc-2` и далее. Не используйте префикс `v`, `rc-0` или
+leading-zero counter. Перед созданием проверьте отсутствие имени тега в remote
+и принадлежность выбранного SHA истории `origin/builds`.
+
+Пример после выбора SHA (замените `<accepted-builds-sha>`; это не команда
+создания RC на текущем tip по умолчанию):
+
+```sh
+git fetch origin
+git tag -a 0.2.0-rc-1 <accepted-builds-sha> -m 'Release candidate 0.2.0-rc-1'
+git push origin refs/tags/0.2.0-rc-1
+gh run list --workflow package-static.yml --branch 0.2.0-rc-1
+```
+
+RC-tag push запускает development caller. До компиляции он проверяет формат,
+точный tag/source SHA и ancestry `origin/builds`; production workflow
+исключает `*.*.*-rc-*`, а production source guard отдельно отклоняет RC.
+Общие builders получают `release_version=0.2.0-rc-1`; `--version`, `--about`
+и metadata должны содержать эту точную версию, а не `dev-<SHA>`.
+Ни RC tag, ни RC artifacts не создают GitHub Release и не изменяют latest-ссылки.
+
+После успешной matrix скачайте архивы конкретного RC run и проверьте checksum,
+metadata, установку и согласованные сценарии на этих бинарниках. Если нужны
+исправления, доставьте их через обычные feature/bugfix → `dev`, выберите новый
+снимок `builds` и следующий номер RC. Не перемещайте старый тег и не выдавайте
+dev/RC bytes за stable. Promotion в `main`, stable tag, финальная сборка и
+публикация выполняются отдельно после приёмки.
+
+Production-бинарники собираются в CI из конкретного non-RC version tag на коммите
 ветки `main`. Workflow получает полную историю, разрешает тег в точный commit SHA
 (включая annotated tag) и проверяет, что коммит входит в историю `origin/main`.
 Тег на отдельной feature/dev истории отклоняется до запуска platform builders.
@@ -120,7 +213,7 @@ Production identity сохраняет точное имя тега, напри�
 Ручной workflow создаёт тестовые artifacts с `dev-<full SHA>` выбранного коммита
 и не публикует Release.
 
-Version-tag workflow использует те же builders; publish зависит от всех checks.
+Production-tag workflow использует те же builders; publish зависит от всех checks.
 Failure блокирует публикацию. Публикация создаёт или
 переиспользует draft, загружает все четыре проверенных assets и только затем
 делает Release публичным. Повторный запуск после create/upload/publish failure

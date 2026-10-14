@@ -2,7 +2,7 @@ name: Release standalone binaries
 
 on:
   push:
-    tags: ['*.*.*']
+    tags: ['*.*.*', '!*.*.*-rc-*']
 
 permissions:
   contents: read
