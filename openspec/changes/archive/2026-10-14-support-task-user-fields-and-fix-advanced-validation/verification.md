@@ -6,7 +6,7 @@ Verified on 2026-10-14 using `openspec-verify-change`. Change: `support-task-use
 
 | Dimension | Result |
 |---|---|
-| Completeness | All 9/9 tracked tasks completed; PR #127 is OPEN to dev and its initial head/CI snapshot is saved in delivery.json. Ten added/modified requirements are mapped below. |
+| Completeness | All 9/9 tracked tasks completed; PR #127 merged to dev on 2026-10-14. Its initial head/CI snapshot in delivery.json is historical; final implementation merge and CI are recorded in completion.md. Ten added/modified requirements are mapped below. |
 | Correctness | Local unit/contract and four live CLI cases cover the declared behavior; strict OpenSpec validation passes. |
 | Coherence | Single REST1 custom create, exact native JSON, bounded scalar/list input, explicit schema read and versions, documented partial semantics and existing tag/observer behavior match the accepted revised design. |
 
@@ -32,7 +32,7 @@ All 29 scenarios were inspected against these paths and tests. No implementation
 - `make lint-all`: PASS, including license checker, CS Fixer, PHPStan and Rector, after merge and final integration-test placement.
 - `openspec validate support-task-user-fields-and-fix-advanced-validation --strict`: PASS; `git diff --check`: PASS.
 - Mandatory fresh origin/dev merge completed; changelog conflict resolved with both #58 and #118 entries. PR diff retains substantive #58 Unreleased entries.
-- Issue #58 is assigned to mesilov, label bug, milestone 0.2.0, OPEN; proposal and issue contain the change path and reciprocal issue link.
+- Issue #58 is assigned to mesilov, label bug, milestone 0.2.0, CLOSED after the confirmed merge; proposal and issue contain the change path and reciprocal issue link.
 
 ## Portal boundary and cleanup
 
@@ -44,9 +44,7 @@ Owned task IDs **6296, 6298, 6300, 6302** were all deleted with no cleanup failu
 
 ## Delivery
 
-Requested scope is a reviewed implementation PR to dev, not merge or release. The active change is retained until merged completion; then archive/sync/issue-path update/worktree cleanup follow maintainer instructions. CI state must be read from the published head, not inferred from local or portal checks.
-
-PR: https://github.com/mesilov/bitrix24-cli/pull/127. Initial head d5c0a48c7e1e1a5d2289360317821d51da7e4ef8; terminal CI must be verified against the final published head. The PR is not merged and no release is published.
+PR #127 merged into dev on 2026-10-14; issue #58 closed as completed. Implementation head `ad36f23c6273f5120bc08417695ab130ed423377`, merge commit `464bdb9947aaba4dbeb1794e080d1a2e0226f75c`, final CI 13/13 SUCCESS. No release is published by this operation. Archive/spec synchronization is a separate delivery step; see completion.md.
 
 ## Review follow-up — 2026-10-14
 
