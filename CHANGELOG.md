@@ -38,6 +38,14 @@
   «Команда / Назначение / Пример»; актуальные спецификации не меняются
   ([#134](https://github.com/mesilov/bitrix24-cli/issues/134)).
 
+- Подготовлена проверка уже собранных RC-пакетов на native Linux/macOS/Windows:
+  checksums и source/version metadata, help/about всех 56 публичных команд,
+  offline JSON/errors и запуск вне checkout без credentials; результаты RC
+  сохраняются отдельно от stable приёмки ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
+- Синхронизированы правила builds/RC в `binary-distribution`; завершённый CI change
+  архивирован после зелёной matrix и merge PR #132 в dev
+  ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
+
 - Завершённый OpenSpec #136 архивирован, актуальная спецификация длительностей
   синхронизирована с seconds/hours/days, округлением и исключением выходных по
   серверному offset; сохранены live/replay доказательства и nullable-контракт

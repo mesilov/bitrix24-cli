@@ -82,3 +82,5 @@ Validation: GitHub GFM rendering parsed into 13 three-column README command tabl
 ## Final column-order refinement after implementation merge
 
 The user requested the purpose and example columns to swap places. The 13 README command tables now use Команда / Назначение / Пример, preserving all 56 commands, descriptions and examples. This small post-merge formatting refinement is delivered with archive PR #139; the original 13 completed tasks and implementation delivery receipt describe PR #135. The CLI map keeps its existing four-column order.
+
+During the final dev integration, the incoming Windows RC receipt retains its upstream CRLF bytes. The generic staged whitespace check reports those existing line endings; the receipt was not rewritten. The staged comparison against MERGE_HEAD (current dev), and the final PR diff against origin/dev, check this MR's changes without modifying upstream raw evidence.
