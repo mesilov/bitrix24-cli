@@ -72,8 +72,8 @@ final readonly class ResultPresenter
         }
 
         if ($mode === 'plain' && $result->profile === 'task-status-durations') {
-            foreach ($result->data['totals'] as $status => $seconds) {
-                $this->diagnostic($output, $status . ': ' . ($seconds ?? 'неизвестно'));
+            foreach ($result->data['totals'] as $status => $duration) {
+                $this->diagnostic($output, $status . ': ' . ($duration['seconds'] === null ? 'неизвестно' : sprintf('%d s / %.2f h / %.2f d', $duration['seconds'], $duration['hours'], $duration['days'])));
             }
         }
 
@@ -112,7 +112,7 @@ final readonly class ResultPresenter
     private function rows(OperationResult $result): array
     {
         if ($result->profile === 'task-status-durations') {
-            $columns = ['status', 'enteredAt', 'leftAt', 'seconds', 'verified', 'evidenceIds'];
+            $columns = ['status', 'enteredAt', 'leftAt', 'seconds', 'hours', 'days', 'verified', 'evidenceIds'];
             return [$columns, array_map(static fn (array $row): array => array_map(static fn (string $field): mixed => $row[$field] ?? 'неизвестно', $columns), $result->data['intervals'])];
         }
 

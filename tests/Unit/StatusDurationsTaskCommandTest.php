@@ -59,8 +59,8 @@ final class StatusDurationsTaskCommandTest extends TestCase
         $run = $this->invoke($api, ['--json', 'task:status:durations', '123']);
         self::assertSame(0, $run->status, $run->stdout);
         $json = $run->json();
-        self::assertSame(10, $json['data']['totals']['pending']);
-        self::assertSame(110, $json['data']['totals']['in_progress']);
+        self::assertSame(10, $json['data']['totals']['pending']['seconds']);
+        self::assertSame(110, $json['data']['totals']['in_progress']['seconds']);
         self::assertSame('2026-10-01T00:02:00.000000+00:00', $json['data']['asOf']);
         self::assertSame(['tasks.task.get', 'tasks.task.list', 'tasks.task.history.list', 'tasks.task.list', 'tasks.task.get'], array_column($api->calls, 'method'));
         self::assertSame(['id' => 123, 'select' => ['id', 'status', 'statusChanged', 'changed']], $api->calls[0]['parameters']);
@@ -68,6 +68,17 @@ final class StatusDurationsTaskCommandTest extends TestCase
         self::assertSame(['taskId' => 123, 'start' => 0, 'order' => ['createdDate' => 'ASC']], $api->calls[2]['parameters']);
         self::assertSame(['read'], array_unique(array_column($api->calls, 'effect')));
         self::assertFalse($json['meta']['snapshotAtomic']);
+        self::assertSame(['seconds' => 110, 'hours' => 0.03, 'days' => 0], $json['data']['totals']['in_progress']);
+        self::assertSame('weekdays-only', $json['meta']['semantics']);
+        self::assertSame('server', $json['meta']['calendar']['timezoneSource']);
+        self::assertSame('+00:00', $json['meta']['calendar']['utcOffset']);
+        self::assertArrayNotHasKey('precision', $json['meta']);
+        $human = $this->invoke($this->api(), ['--no-ansi', 'task:status:durations', '123']);
+        self::assertSame(0, $human->status);
+        self::assertStringContainsString('110 с / 0.03 ч / 0.00 д', $human->stdout);
+        $plain = $this->invoke($this->api(), ['--plain', 'task:status:durations', '123']);
+        self::assertSame(0, $plain->status);
+        self::assertCount(8, explode("\t", strtok($plain->stdout, "\n")));
         $api = $this->api();
         $badProfile = $this->invoke($api, ['--json', '--profile', 'missing', '--config-dir', sys_get_temp_dir() . '/b24cli-absent-status-profile', 'task:status:durations', '123']);
         self::assertNotSame(0, $badProfile->status);
@@ -92,7 +103,7 @@ final class StatusDurationsTaskCommandTest extends TestCase
             $run = $this->invoke($api, ['--json', 'task:status:durations', '123']);
             self::assertSame(3, $run->status, $run->stdout);
             self::assertSame('partial-result', $run->json()['error']['code']);
-            self::assertNull($run->json()['data']['totals']['pending']);
+            self::assertNull($run->json()['data']['totals']['pending']['seconds']);
             self::assertNotEmpty($run->json()['meta']['reasons']);
         }
 
