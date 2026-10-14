@@ -88,3 +88,9 @@ Requested live scenario passes: **1 test, 38 assertions**; SDK task 6306 travers
 Code 4 mapping is now confirmed and included as supposedly_completed. Numeric review/rejection/approval unit fixture proves 120-second conservation; STATUS-only remains partial/null even with this mapping. Targeted arithmetic/CLI suite: 14 tests, 144 assertions, pass. All four lint-all checks pass. Task 3.4 done; 3.3 exact live acceptance remains open (**8/9**).
 
 - Final follow-up full unit suite: **800 tests, 12665 assertions**, pass. Live review-cycle run: **1 test, 38 assertions**, pass; all lint-all and OpenSpec strict/diff checks pass. New commit CI is checked separately after push; prior head 6ecbaa4 had 13/13 successful checks.
+
+## Five-second live output follow-up
+
+User-requested test `testFiveSecondReviewCycleShowsStatusDurationResult` passes: **1 test / 52 assertions**, fixture 6332 deleted, all seven measured pauses >=5 seconds. Six transitions have independent REST3 readbacks and new STATUS IDs; actual command JSON is preserved in five-second-status-durations-result.json and full receipt in five-second-review-cycle-fixture.json. Observed intervals are 6/5/6/6/5/6.110346 seconds; initial pending is unknown. Complete=false/exit3/null totals remains explicit.
+
+Task 3.6 is complete; **10/11 tasks**. Exact acceptance 3.3 remains open. Shared review-cycle helper was parameterized; runtime PHP did not change. License/CS Fixer/PHPStan/Rector and OpenSpec strict/diff checks pass. Current dev 0f6c006 was integrated in 03876c6; its changes only archive binary-distribution docs/specs. No additional production unit-suite repetition is needed for this test-only follow-up. CI is checked separately after publishing the final SHA.

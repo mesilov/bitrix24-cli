@@ -30,7 +30,8 @@
   и повторного принятия; history-код 4 распознаётся как supposedly_completed.
   Добавлены HTTP/SDK/adapter проверка изоляции и 60 контрольных изменений,
   regression fixture для старых NEW/DELETE с тем же TASK_ID и воспроизводимый
-  отчёт о недоказанной полноте серверной истории
+  отчёт о недоказанной полноте серверной истории. Отдельный live-сценарий
+  с паузами 5 секунд сохраняет реальные переходы, задержки и JSON отчёта
   ([#121](https://github.com/mesilov/bitrix24-cli/issues/121)).
 - Пользовательские поля задач через --user-fields/--user-fields-file: один REST1 add с обязательными custom значениями, sparse update и явные результаты составных операций ([#58](https://github.com/mesilov/bitrix24-cli/issues/58)).
 - `task:my --user ID`: задачи явного исполнителя с `--open`, строгим

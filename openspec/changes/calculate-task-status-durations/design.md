@@ -79,3 +79,7 @@ User requested a live task lifecycle simulation followed by inspection of its hi
 ## Follow-up: root cause and completeness investigation
 
 User requests investigation of old NEW/DELETE and a defensible exact calculation. Compare SDK raw HTTP body to SDK DTO/adapter, task IDs and creation dates, separate active fixtures and deleted/nonexistent IDs. Exercise start/filter/order and a controlled >50-event history; record complete capture only for the known fixture, not an inferred global guarantee. Research official endpoint/navigation contract via required MCP and public official sources. Preserve prior partial receipts. No production completeness gate may be loosened based on page size/chain consistency alone.
+
+## Follow-up: five-second lifecycle output example
+
+Add a separate integration test reusing the controlled review-cycle helper with 5-second pauses before each of start/complete/disapprove/start/complete/approve and before the final report asOf. Measure actual pauses with a monotonic clock; server event timestamps also include API/readback latency and need not differ by exactly five seconds. Retain the complete CLI result, raw incremental history and snapshots in a separate sanitized receipt. The existing faster scenario keeps its separate receipt. Production arithmetic/completeness gates are unchanged.

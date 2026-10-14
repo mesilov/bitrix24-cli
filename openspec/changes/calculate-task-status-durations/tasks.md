@@ -20,6 +20,8 @@
 
 - [x] 3.5 Исследовать старые NEW/DELETE и полноту на уровне HTTP → SDK → adapter: изоляция двух собственных задач, before-create/after-delete наблюдения, start/filter/order, >50 событий и контроль полноты fixture. Проверка: history-investigation-check.md/fixture.json подтверждают server-origin и legacy TASK_ID, 60/60 изменений fixture; live 1 test/22 assertions, owned cleanup успешен. Полнота произвольного источника и причина серверного связывания старых строк не доказаны; подготовлен bitrix24-history-support-reproducer.md. Exact gates не ослаблены.
 
+- [x] 3.6 Добавить отдельный live review-cycle test с паузой 5 секунд перед каждым переходом и перед asOf в completed. Проверка: monotonic delay не меньше 5 секунд; REST3 readback/новые STATUS события после каждого действия; сохранён фактический JSON task:status:durations, наблюдаемые промежутки не объявлены exact totals; fixture удалена.
+
 ## 4. Cross-contract verification
 
 - [x] 4.1 Выполнить целевые unit/integration и обязательные repository checks, openspec strict validate и openspec-verify-change. Проверка: итоговый receipt разделяет offline arithmetic, CLI contract, portal completeness и CI; каждое невыполненное acceptance условие оставлено открытым.

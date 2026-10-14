@@ -362,6 +362,14 @@ Live-сценарий `testRejectedReviewThenSuccessfulCompletionRetainsIncremen
 Этот сценарий подтверждает форму наблюдённых событий и завершение fixture;
 полнота lifetime истории и exact totals остаются отдельной приёмкой.
 
+`testFiveSecondReviewCycleShowsStatusDurationResult` выполняет тот же цикл
+с паузой 5 секунд перед каждым действием и перед последним отчётом в completed.
+Тест измеряет паузы монотонными часами и проверяет минимум 5 секунд;
+серверные промежутки включают дополнительно время SDK/API/readback.
+Полный JSON команды и incremental history сохраняются отдельно в
+`var/cache/five-second-review-cycle-history.json`. Запуск:
+`make integration TEST_ARGS="--filter testFiveSecondReviewCycleShowsStatusDurationResult"`.
+
 `testRawHistoryIsolationAndMoreThanFiftyKnownChanges` сравнивает сырое HTTP тело
 с SDK DTO и ID адаптера, проверяет изоляцию двух собственных задач и 60 известных
 изменений TITLE. Ответы без start и со start=0/50/10000/-1, FIELD-фильтры и DESC

@@ -83,6 +83,16 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
 
     public function testRejectedReviewThenSuccessfulCompletionRetainsIncrementalHistory(): void
     {
+        $this->reviewCycle(1100000, 'review-cycle-history.json');
+    }
+
+    public function testFiveSecondReviewCycleShowsStatusDurationResult(): void
+    {
+        $this->reviewCycle(5000000, 'five-second-review-cycle-history.json', true);
+    }
+
+    private function reviewCycle(int $delayMicroseconds, string $receiptName, bool $waitInCompleted = false): void
+    {
         [$id, $executorApi] = $this->controlledTask();
         $rest1TaskLifecycleAdapter = new \Bitrix24\CLI\Infrastructure\Bitrix24\Rest1TaskLifecycleAdapter($executorApi);
         $snapshots = [];
@@ -92,7 +102,7 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
         self::assertSame('pending', $initial['status']);
         self::assertTrue($initial['needsControl']);
         self::assertNotSame($initial['creator']['id'], $initial['responsible']['id']);
-        $receipt = ['taskId' => $id, 'apiVersions' => ['1.0', '3.0'], 'initial' => $initial];
+        $receipt = ['taskId' => $id, 'apiVersions' => ['1.0', '3.0'], 'initial' => $initial, 'delaySeconds' => $delayMicroseconds / 1000000];
         try {
             $baseline = $this->captureHistory($id);
             $receipt['baseline'] = $baseline;
@@ -106,7 +116,10 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
                 [LifecycleAction::Complete, 'supposedly_completed', '4'],
                 [LifecycleAction::Approve, 'completed', '5'],
             ] as [$action, $expected, $rawStatus]) {
-                usleep(1100000);
+                $started = hrtime(true);
+                usleep($delayMicroseconds);
+                $delayElapsedSeconds = (hrtime(true) - $started) / 1000000000;
+                self::assertGreaterThanOrEqual($delayMicroseconds / 1000000, $delayElapsedSeconds);
                 if (in_array($action, [LifecycleAction::Disapprove, LifecycleAction::Approve], true)) {
                     $this->transition($id, $action);
                 } else {
@@ -116,7 +129,7 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
                 $card = $this->card($id, ['status', 'statusChanged', 'changed']);
                 $history = $this->captureHistory($id);
                 $new = array_values(array_filter($history['events'], static fn (array $row): bool => !isset($seen[$row['id']])));
-                $snapshots[] = ['action' => $action->value, 'expectedStatus' => $expected, 'card' => $card, 'history' => $history, 'newEvents' => $new];
+                $snapshots[] = ['action' => $action->value, 'delayElapsedSeconds' => $delayElapsedSeconds, 'expectedStatus' => $expected, 'card' => $card, 'history' => $history, 'newEvents' => $new];
                 $receipt['steps'] = $snapshots;
                 self::assertSame($expected, $card['status']);
                 $statusEvents = array_values(array_filter($new, static fn (array $row): bool => in_array($row['field'], ['STATUS', 'REAL_STATUS'], true)));
@@ -129,6 +142,13 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
             }
 
             $receipt['expectedRawTransitions'] = $expectedTransitions;
+            if ($waitInCompleted) {
+                $started = hrtime(true);
+                usleep($delayMicroseconds);
+                $receipt['completedDelayElapsedSeconds'] = (hrtime(true) - $started) / 1000000000;
+                self::assertGreaterThanOrEqual($delayMicroseconds / 1000000, $receipt['completedDelayElapsedSeconds']);
+            }
+
             $result = $this->invoke(['task:status:durations', $id], [0, 3]);
             $receipt['commandResult'] = $result;
             self::assertNotContains('write', array_column($result['meta']['apiCalls'], 'effect'));
@@ -141,7 +161,7 @@ final class StatusDurationsTaskCommandTest extends LiveTaskLifecycleTestCase
         } finally {
             // Save evidence even when assertions fail; inherited tearDown always removes the owned fixture.
             $receipt['cleanupEvidence'] = 'portal-evidence.jsonl records owned task deletion in tearDown';
-            file_put_contents($this->root() . '/var/cache/review-cycle-history.json', json_encode($receipt, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+            file_put_contents($this->root() . '/var/cache/' . $receiptName, json_encode($receipt, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
         }
     }
 

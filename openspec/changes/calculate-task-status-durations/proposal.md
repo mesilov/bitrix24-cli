@@ -41,3 +41,5 @@
 Runtime implemented in draft PR #123, synchronized with dev `2b24edd1a808150fb382812c52d22b235e25d940` (including task:my). See live-contract-check.md and verification.md: STATUS-only reopening/readbacks and partial boundary are verified; navigation/canonical REAL_STATUS and unambiguous creation are not proved, so exact live acceptance remains open.
 
 Follow-up investigation: synced dev 464bdb9; raw HTTP and legacy TASK_ID establish server-origin old NEW/DELETE, while >50 controlled changes test fixture completeness without claiming a global contract. See history-investigation-check.md, retained fixture and prepared vendor reproduction. 9/10 tasks complete; exact task 3.3 remains open. DB restore/counter changes are denied by the operator; no server cause is assumed.
+
+Five-second follow-up: a separate live test holds each review-cycle state for at least five seconds and records the actual command output. See five-second-review-cycle-check.md; 10/11 tasks complete, exact acceptance still open.
