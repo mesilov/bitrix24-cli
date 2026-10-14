@@ -2,7 +2,9 @@
 
 ## Verdict
 
-Реализация присутствует, 19/21 задач завершены. Полная приёмка **не завершена**: task 4.4 требует denied-role live evidence, task 5.3 — итоговой verify со всеми завершёнными задачами. Change остаётся активным. Пользователь 14.10.2026 разрешил синхронизацию с dev и merge реализации; это не закрывает gaps приёмки и не подтверждает release. Состояние доставки и CI проверяется отдельно в PR #66.
+Реализация доставлена в dev через merged PR #66; 19/21 задач завершены. Пользователь 14.10.2026 после объяснения оставшихся gaps явно поручил прекратить дополнительную приёмку и архивировать change: «забей, архивируй изменений». Архивирование выполняется с двумя незавершёнными задачами, без объявления полной приёмки или release. Task 4.4 (denied-role live evidence) и task 5.3 (итоговая полная verify после приёмки) остаются невыполненными; семь observer cases остаются skipped. Контракт запрета действий без прав сохраняется в спецификациях и runtime.
+
+Исторические результаты ниже сохранены. Прежнее требование держать change активным заменено явным решением пользователя об архивировании с известными ограничениями.
 
 ## Completeness
 
@@ -67,10 +69,26 @@
 - task-mvp-scope: raw status остаётся запрещён FieldSchema; внутренний lifecycle result read не создаёт result и не заменяет отдельный task-results scope. Сохраняются существующие tags, Disk и participant admissions; историческая граница 0.1.0 не переписывается.
 - task-workflows: ListTaskCommandTest и TaskLifecycleTest подтверждают EMP-01/PM-02/AM-02 фильтры своего/другого responsibleId, groupId, status и membership после переходов; видимая выборка и ограничение scan не объявляются полным проектом.
 
-### Осталось
+### Исторический остаток перед решением об архивировании
 
 Два critical completeness gaps: 4.4 (ограниченное подключение наблюдателя) и 5.3 (итоговая verify после полной приёмки). Пользователь разрешил merge реализации с известными gaps. Change не готов к архивированию; checklist не помечается полностью выполненным. Issue #60 сохраняет активный путь change до завершения приёмки.
+
+## Архивирование по решению пользователя — 14.10.2026
+
+- После объяснения указанных gaps пользователь разрешил архивирование без дополнительной приёмки. Прежний статус «не готов к архивированию» выше описывает историческое состояние до этого решения.
+- Архив: `openspec/changes/archive/2026-10-14-add-task-lifecycle/`.
+- Четыре delta specs синхронизируются с актуальными спецификациями: task-lifecycle, task-console-runtime, task-mvp-scope, task-workflows. Существующие требования, Purpose и сценарии вне delta сохраняются.
+- Дополнительные portal runs не выполняются. 17 passed / 7 skipped остаются последним recorded lifecycle результатом; 4.4 и 5.3 не помечаются выполненными.
+- Схема OpenSpec, целостность синхронизации, archive path и отсутствие runtime изменений проверяются отдельно при доставке архива. Это проверка документационного завершения, а не замена полной verify 5.3.
 
 ## Concurrent task:my reconciliation — 2026-10-14
 
 The receipts above describe the lifecycle delivery snapshot (41 task commands); task:my was later delivered separately by #118/#122. Active lifecycle deltas now preserve 42 current task commands and 17 remaining future exclusions, including the personal-view admission scenario. This planning reconciliation changes no runtime and does not replace the earlier portal/native receipts. Forward-sync validation is recorded in the #118 archive delivery receipt.
+
+### Проверка архива
+
+- `openspec validate add-task-lifecycle --strict` перед переносом: pass.
+- `openspec validate --specs --strict`: 19 passed / 0 failed.
+- Все requirement blocks четырёх delta specs совпадают с синхронизированными main specs; delta operation headers отсутствуют в main specs. Существующие Purpose сохранены.
+- `git diff --check`: pass. Изменения ограничены OpenSpec документацией.
+- Checklist: 19/21, две незавершённые задачи сохранены по решению пользователя.
