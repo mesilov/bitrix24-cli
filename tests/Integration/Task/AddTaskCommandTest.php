@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Bitrix24\CLI\Tests\Integration\Task;
 
 use Bitrix24\CLI\Tests\Support\LiveTaskCommandTestCase;
+use Bitrix24\CLI\Tests\Support\CustomFieldPortalFixtures;
 use PHPUnit\Framework\Attributes\Group;
 
 #[Group('command:task:add')]
 final class AddTaskCommandTest extends LiveTaskCommandTestCase
 {
+    use CustomFieldPortalFixtures;
+
     #[Group('happy-path')]
     public function testHappyPathCreatesTaskWithRequestedFields(): void
     {
@@ -64,5 +67,38 @@ final class AddTaskCommandTest extends LiveTaskCommandTestCase
         $names = array_column($this->card($id, ['id', 'tags.id', 'tags.name'])['tags'], 'name');
         sort($names);
         self::assertSame(['#плановая', 'Этап 1'], $names);
+    }
+
+    #[Group('happy-path')]
+    public function testNativeCustomCreateReadbackAndRequiredFieldRejection(): void
+    {
+        $schema = $this->customSchema();
+        $title = $this->fixtureTitle();
+        $values = $this->customValues($schema, $title);
+        $json = $this->invoke(['task:add', '--title', $title, '--creator', $this->userId, '--responsible', $this->userId, '--user-fields', json_encode($values, JSON_THROW_ON_ERROR)]);
+        $id = $json['data']['operation']['taskId'];
+        self::assertSame(['1.0', '1.0'], array_column($json['meta']['apiCalls'], 'apiVersion'));
+        $stored = $this->customCard($id);
+        foreach ($values as $key => $value) {
+            self::assertSame($value, $stored[$key]);
+        }
+
+        $this->receipt('custom-create', ['taskId' => $id, 'submitted' => $values, 'readback' => $stored, 'apiCalls' => $json['meta']['apiCalls']]);
+        $deniedTitle = $this->fixtureTitle();
+        $denied = $this->invoke(['task:add', '--title', $deniedTitle, '--creator', $this->userId, '--responsible', $this->userId, '--user-fields', json_encode([$schema['string'] => 'missing-required'], JSON_THROW_ON_ERROR)], [1]);
+        self::assertNull($denied['data']);
+        self::assertSame(['tasks.task.getFields', 'tasks.task.add'], array_column($denied['meta']['apiCalls'], 'method'));
+        $found = $this->api->call('tasks.task.list', 1, ['filter' => ['TITLE' => $deniedTitle, 'CREATED_BY' => $this->userId], 'select' => ['ID', 'TITLE']])->result['tasks'];
+        self::assertSame([], $found, 'A rejected required-field create must leave no task.');
+        $this->receipt('required-create-rejection', ['title' => $deniedTitle, 'error' => $denied['error'], 'remainingTasks' => $found]);
+    }
+
+    #[Group('happy-path')]
+    public function testOrdinaryAdvancedCreateDoesNotReadEditableMetadata(): void
+    {
+        $json = $this->invoke(['task:add', '--fields', json_encode(['title' => $this->fixtureTitle(), 'creatorId' => $this->userId, 'responsibleId' => $this->userId], JSON_THROW_ON_ERROR)]);
+        self::assertSame(['tasks.task.add'], array_column($json['meta']['apiCalls'], 'method'));
+        self::assertSame('3.0', $json['meta']['apiCalls'][0]['apiVersion']);
+        $this->receipt('ordinary-advanced-create', ['taskId' => $json['data']['operation']['taskId'], 'apiCalls' => $json['meta']['apiCalls']]);
     }
 }

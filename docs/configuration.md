@@ -186,7 +186,7 @@ b24cli --profile work users:manager --source config
 
 При включённой автодобавке `task:add` создаёт задачу, читает существующих наблюдателей и добавляет `observerId`, сохраняя остальные ID. Назначение использует REST1 `AUDITORS`; read relation REST3 `auditors` не записывается. При ошибке после создания CLI возвращает partial/exit3 с ID задачи и ledger: проверяйте уже созданную задачу перед следующим действием. `false` или отсутствие флага не добавляет запросов. Env/file/process подключения не наследуют роли сохранённых профилей.
 
-Basic `task:add --dry-run` показывает будущие шаги без credentials/API; advanced `--fields` сохраняет remote schema preflight. Явно выбранная строгая API policy проверяется до создания задачи.
+Basic `task:add --dry-run` показывает будущие шаги без credentials/API; Обычный advanced `--fields` проверяется локально без API; custom input выполняет явное чтение REST1 schema перед планом записи. Явно выбранная строгая API policy проверяется до создания задачи.
 
 ## Настройка и состояние файлов
 

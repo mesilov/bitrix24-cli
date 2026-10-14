@@ -17,13 +17,13 @@ use Bitrix24\CLI\Application\Task\Port\ParticipantGateway;
 
 final readonly class AddTaskHandler
 {
-    public function __construct(private TaskGateway $tasks, private ParticipantGateway $participants, private RuntimeState $state, private \Bitrix24\CLI\Application\Task\TaskTagMutation $tags)
+    public function __construct(private TaskGateway $tasks, private ParticipantGateway $participants, private RuntimeState $state, private \Bitrix24\CLI\Application\Task\TaskTagMutation $tags, private \Bitrix24\CLI\Application\Task\Port\TaskUserFieldGateway $custom)
     {
     }
 
     public function routes(AddTaskRequest $request): array
     {
-        return [new Route('tasks.task.add', 3, 'write'), ...($request->advanced ? [new Route('tasks.task.field.list', 3)] : []),
+        return [...($request->userFields === null ? [] : [new Route('tasks.task.getFields', 1)]), new Route('tasks.task.add', $request->userFields === null ? 3 : 1, 'write'),
             ...($request->TAGS === null ? [] : [new Route('tasks.task.update', 1, 'write')]),
             ...($request->observerId === null ? [] : [new Route('tasks.task.get', 1), new Route('tasks.task.update', 1, 'write')]),
         ];
@@ -31,13 +31,22 @@ final readonly class AddTaskHandler
 
     public function prepare(AddTaskRequest $request): PreparedOperation
     {
-        if ($request->advanced) {
-            FieldSchema::validateWritable($this->tasks, $request->fields);
+        $version = $request->userFields === null ? 3 : 1;
+        $fields = $request->fields;
+        $plan = [];
+        if ($request->userFields !== null) {
+            \Bitrix24\CLI\Application\Task\LegacyTaskFields::validate($fields);
+            \Bitrix24\CLI\Application\Task\CustomTaskFields::validate($request->userFields, $this->custom->fields());
+            $fields = [...$fields, ...$request->userFields];
+            $plan[] = Plan::step(null, 'tasks.task.getFields', 1, 'read');
+        } else {
+            FieldSchema::localPatch($fields, true);
         }
 
-        $plan = [Plan::step(null, 'tasks.task.add', 3, 'write', $request->fields)];
+        $createStep = count($plan) + 1;
+        $plan[] = Plan::step(null, 'tasks.task.add', $version, 'write', $fields, $createStep);
         if ($request->TAGS !== null) {
-            $plan[] = [...Plan::step(null, 'tasks.task.update', 1, 'write', ['TAGS' => $request->TAGS], 2), 'taskIdFromStep' => 1];
+            $plan[] = [...Plan::step(null, 'tasks.task.update', 1, 'write', ['TAGS' => $request->TAGS], count($plan) + 1), 'taskIdFromStep' => $createStep];
         }
 
         if ($request->observerId !== null) {
@@ -45,11 +54,11 @@ final readonly class AddTaskHandler
             $plan[] = [...Plan::step(null, 'tasks.task.update', 1, 'write', ['AUDITORS' => [$request->observerId]], count($plan) + 1), 'taskIdSource' => 'created-task', 'mergeWithExisting' => true];
         }
 
-        return new PreparedOperation($plan, function () use ($request): OperationResult {
-            $id = $this->tasks->add($request->fields);
-            $result = OperationResult::mutation($id, $id, 'add', $request->fields);
+        return new PreparedOperation($plan, function () use ($request, $fields, $version): OperationResult {
+            $id = $request->userFields === null ? $this->tasks->add($fields) : $this->custom->add($request->fields, $request->userFields);
+            $result = OperationResult::mutation($id, $id, 'add', $fields);
             if ($request->TAGS !== null) {
-                $result = $this->tags->finish($id, $request->fields, $request->TAGS, 'add', $result->data['operation']);
+                $result = $this->tags->finish($id, $fields, $request->TAGS, 'add', $result->data['operation']);
             }
 
             if ($request->observerId === null) {
@@ -63,7 +72,7 @@ final readonly class AddTaskHandler
                 ]], $result->exitStatus);
             }
 
-            $ledger = $result->meta['ledger'] ?? [['method' => 'tasks.task.add', 'apiVersion' => '3.0', 'taskId' => $id, 'status' => 'confirmed']];
+            $ledger = $result->meta['ledger'] ?? [['method' => 'tasks.task.add', 'apiVersion' => $version . '.0', 'taskId' => $id, 'status' => 'confirmed']];
             $method = 'tasks.task.get';
             try {
                 $this->state->checkCancellation();

@@ -4,6 +4,8 @@
 
 ### Исправлено
 
+- Advanced-поля задач проверяются локально по документированным контрактам add/update; editable=false не блокирует допустимые поля создания, ordinary advanced dry-run работает без API ([#58](https://github.com/mesilov/bitrix24-cli/issues/58)).
+
 - Выборка проекта при groupId=null в REST3 list: принадлежность проверяется через
   заранее объявленное REST3 чтение group.id карточки; непроверенные данные дают partial
   ([#60](https://github.com/mesilov/bitrix24-cli/issues/60)).
@@ -27,6 +29,7 @@
   exact live acceptance остаётся открытой. Добавлен live-сценарий возврата с контроля
   и повторного принятия; history-код 4 распознаётся как supposedly_completed
   ([#121](https://github.com/mesilov/bitrix24-cli/issues/121)).
+- Пользовательские поля задач через --user-fields/--user-fields-file: один REST1 add с обязательными custom значениями, sparse update и явные результаты составных операций ([#58](https://github.com/mesilov/bitrix24-cli/issues/58)).
 - `task:my --user ID`: задачи явного исполнителя с `--open`, строгим
   `--due-before` и конечным `--max-scan` через существующий list scanner.
   Общие форматы вывода, REST 3.0/strict-rest3, честный partial при неизвестных

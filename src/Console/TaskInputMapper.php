@@ -57,7 +57,7 @@ final readonly class TaskInputMapper
         return $value === null ? null : $this->reader->object($value);
     }
 
-    private function patch(InputInterface $input, bool $create, ?array $TAGS = null): array
+    private function patch(InputInterface $input, bool $create, ?array $TAGS = null, ?array $custom = null): array
     {
         $advanced = $this->json($input, 'fields');
         if ($advanced !== null && $TAGS !== null) {
@@ -82,23 +82,26 @@ final readonly class TaskInputMapper
             $fields[$field] = in_array($flag, ['creator', 'responsible', 'group-id'], true) ? $this->id($value, '--' . $flag) : $value;
         }
 
-        $fields = $advanced ?? $fields;
+        $legacy = $create && $custom !== null;
+        $fields = $advanced ?? ($legacy ? \Bitrix24\CLI\Application\Task\LegacyTaskFields::basic($fields) : $fields);
         if ($create) {
             if ($fields !== []) {
-                FieldSchema::localPatch($fields, false);
+                $legacy ? \Bitrix24\CLI\Application\Task\LegacyTaskFields::validate($fields, false) : FieldSchema::localPatch($fields, false);
             }
 
             $sources = array_fill_keys(array_keys($fields), 'explicit');
-            foreach ($this->connections?->defaults($input->getOption('dry-run')) ?? [] as $field => $value) {
+            $defaults = $this->connections?->defaults($input->getOption('dry-run')) ?? [];
+            foreach ($legacy ? \Bitrix24\CLI\Application\Task\LegacyTaskFields::basic($defaults) : $defaults as $field => $value) {
                 if (!array_key_exists($field, $fields)) {
                     $fields[$field] = $value;
                     $sources[$field] = 'profile-default';
                 }
             }
 
-            if (!array_key_exists('allowsTimeTracking', $fields)) {
-                $fields['allowsTimeTracking'] = false;
-                $sources['allowsTimeTracking'] = 'built-in-default';
+            $tracking = $legacy ? 'ALLOW_TIME_TRACKING' : 'allowsTimeTracking';
+            if (!array_key_exists($tracking, $fields)) {
+                $fields[$tracking] = $legacy ? 'N' : false;
+                $sources[$tracking] = 'built-in-default';
             }
 
             if ($this->connections instanceof \Bitrix24\CLI\Infrastructure\Connection\ConnectionManager) {
@@ -106,8 +109,8 @@ final readonly class TaskInputMapper
             }
         }
 
-        if ($fields !== [] || $create || $TAGS === null) {
-            FieldSchema::localPatch($fields, $create);
+        if ($fields !== [] || $create || ($TAGS === null && $custom === null)) {
+            $legacy ? \Bitrix24\CLI\Application\Task\LegacyTaskFields::validate($fields) : FieldSchema::localPatch($fields, $create);
         }
 
         return [$fields, $advanced !== null];
@@ -130,17 +133,30 @@ final readonly class TaskInputMapper
         return $clear ? [] : ($values === [] ? null : array_values(array_unique($values)));
     }
 
+    private function customFields(InputInterface $input): ?array
+    {
+        $value = $this->text($input, 'user-fields', false);
+        if ($value === null) {
+            return null;
+        }
+
+        $fields = $this->reader->uniqueObject($value);
+        \Bitrix24\CLI\Application\Task\CustomTaskFields::input($fields);
+        return $fields;
+    }
+
     public function addTask(InputInterface $input): Request\AddTaskRequest
     {
         $TAGS = $this->TAGS($input);
-        [$fields, $advanced] = $this->patch($input, true, $TAGS);
+        $custom = $this->customFields($input);
+        [$fields, $advanced] = $this->patch($input, true, $TAGS, $custom);
         $roles = $this->connections?->userDefaults($input->getOption('dry-run')) ?? [];
         $observer = ($roles['autoAddObserver'] ?? false) ? $roles['observerId'] : null;
         if ($observer !== null && $this->connections instanceof \Bitrix24\CLI\Infrastructure\Connection\ConnectionManager) {
             $this->connections->fieldSources['default.users.observerId'] = 'profile-default';
         }
 
-        return new Request\AddTaskRequest($fields, $advanced, $observer, $TAGS);
+        return new Request\AddTaskRequest($fields, $advanced, $observer, $TAGS, $custom);
     }
 
     public function showTask(InputInterface $input): Request\ShowTaskRequest
@@ -153,8 +169,9 @@ final readonly class TaskInputMapper
     public function updateTask(InputInterface $input): Request\UpdateTaskRequest
     {
         $TAGS = $this->TAGS($input);
-        [$fields, $advanced] = $this->patch($input, false, $TAGS);
-        return new Request\UpdateTaskRequest($this->taskId($input), $fields, $advanced, 'task:update', $TAGS);
+        $custom = $this->customFields($input);
+        [$fields, $advanced] = $this->patch($input, false, $TAGS, $custom);
+        return new Request\UpdateTaskRequest($this->taskId($input), $fields, $advanced, 'task:update', $TAGS, $custom);
     }
 
     public function assignTask(InputInterface $input): Request\UpdateTaskRequest

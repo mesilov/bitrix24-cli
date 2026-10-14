@@ -1,0 +1,141 @@
+{
+  "baseRefName": "dev",
+  "headRefName": "bugfix/58-task-user-fields-editability",
+  "headRefOid": "d5c0a48c7e1e1a5d2289360317821d51da7e4ef8",
+  "isDraft": false,
+  "mergeStateStatus": "UNSTABLE",
+  "state": "OPEN",
+  "statusCheckRollup": [
+    {
+      "__typename": "CheckRun",
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38464725798/job/115528585965",
+      "name": "composer-license-checker",
+      "startedAt": "2026-10-13T20:40:43Z",
+      "status": "IN_PROGRESS",
+      "workflowName": "Allowed licenses checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38464623121/job/115528249900",
+      "name": "composer-license-checker",
+      "startedAt": "2026-10-13T20:40:00Z",
+      "status": "IN_PROGRESS",
+      "workflowName": "Allowed licenses checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38464725834/job/115528585835",
+      "name": "Configuration schema contract",
+      "startedAt": "2026-10-13T20:40:44Z",
+      "status": "IN_PROGRESS",
+      "workflowName": "Command tests"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38464726188/job/115528587134",
+      "name": "PHPStan",
+      "startedAt": "2026-10-13T20:40:44Z",
+      "status": "IN_PROGRESS",
+      "workflowName": "PHPStan lint checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38464725785/job/115528585797",
+      "name": "PhpCsFixer",
+      "startedAt": "2026-10-13T20:40:43Z",
+      "status": "IN_PROGRESS",
+      "workflowName": "PhpCsFixer lint checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38464623110/job/115528249443",
+      "name": "PhpCsFixer",
+      "startedAt": "2026-10-13T20:40:00Z",
+      "status": "IN_PROGRESS",
+      "workflowName": "PhpCsFixer lint checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38464725879/job/115528586355",
+      "name": "Rector",
+      "startedAt": "2026-10-13T20:40:44Z",
+      "status": "IN_PROGRESS",
+      "workflowName": "Rector lint checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38464623184/job/115528250400",
+      "name": "Rector",
+      "startedAt": "2026-10-13T20:40:00Z",
+      "status": "IN_PROGRESS",
+      "workflowName": "Rector lint checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38464726011/job/115528586684",
+      "name": "linux",
+      "startedAt": "2026-10-13T20:40:43Z",
+      "status": "IN_PROGRESS",
+      "workflowName": "Worktree isolation"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T20:40:13Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38464623117/job/115528250192",
+      "name": "Configuration schema contract",
+      "startedAt": "2026-10-13T20:40:00Z",
+      "status": "COMPLETED",
+      "workflowName": "Command tests"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-13T20:41:03Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38464623150/job/115528250045",
+      "name": "PHPStan",
+      "startedAt": "2026-10-13T20:40:00Z",
+      "status": "COMPLETED",
+      "workflowName": "PHPStan lint checks"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38464725834/job/115528586443",
+      "name": "unit-tests",
+      "startedAt": "2026-10-13T20:40:43Z",
+      "status": "IN_PROGRESS",
+      "workflowName": "Command tests"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38464623117/job/115528249680",
+      "name": "unit-tests",
+      "startedAt": "2026-10-13T20:40:00Z",
+      "status": "IN_PROGRESS",
+      "workflowName": "Command tests"
+    }
+  ],
+  "url": "https://github.com/mesilov/bitrix24-cli/pull/127"
+}

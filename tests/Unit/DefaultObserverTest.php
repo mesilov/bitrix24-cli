@@ -131,7 +131,7 @@ final class DefaultObserverTest extends TestCase
         $this->profile(['observerId' => 5, 'autoAddObserver' => true]);
         [$status, $json, $calls] = $this->invoke(['--fields', '{"title":"Advanced"}']);
         self::assertSame(0, $status, json_encode($json));
-        self::assertSame(['tasks.task.field.list', 'tasks.task.add', 'tasks.task.get', 'tasks.task.update'], array_column($calls, 'method'));
+        self::assertSame(['tasks.task.add', 'tasks.task.get', 'tasks.task.update'], array_column($calls, 'method'));
     }
 
     public static function failures(): iterable
@@ -214,6 +214,33 @@ final class DefaultObserverTest extends TestCase
         self::assertCount(3, $calls);
     }
 
+    public function testCustomCreationKeepsProfileDefaultsTagsAndObserver(): void
+    {
+        $this->profile(['observerId' => 5, 'autoAddObserver' => true]);
+        foreach ([null, 'tags', 'observer'] as $failed) {
+            [$status, $json, $calls] = $this->invoke(['--title', 'Custom', '--user-fields', '{"UF_QUERY":"5"}', '--tag', '#plan'], respond: function ($method, int $version, array $params) use ($failed): ApiResponse {
+                if ($method === 'tasks.task.getFields') {
+                    return new ApiResponse(['fields' => ['UF_QUERY' => ['type' => 'string']]]);
+                }
+
+                if ($method === 'tasks.task.add') {
+                    return new ApiResponse(['task' => ['id' => '123']]);
+                }
+
+                if (($failed === 'tags' && isset($params['fields']['TAGS'])) || ($failed === 'observer' && $method === 'tasks.task.get')) {
+                    throw new Failure('permission-denied', 'Companion denied.');
+                }
+
+                return $this->response($method, $version, $params);
+            });
+            self::assertSame($failed === null ? 0 : 3, $status, json_encode($json));
+            self::assertSame([1, 1], array_slice(array_column($calls, 'version'), 0, 2));
+            self::assertSame(['TITLE' => 'Custom', 'CREATED_BY' => 1, 'RESPONSIBLE_ID' => 2, 'ALLOW_TIME_TRACKING' => 'N', 'UF_QUERY' => '5'], $calls[1]['parameters']['fields']);
+            self::assertSame(123, $json['data']['operation']['taskId'] ?? $json['data']['items'][0]['taskId']);
+            self::assertCount($failed === 'tags' ? 3 : ($failed === 'observer' ? 4 : 5), $calls);
+        }
+    }
+
     public function testCancellationAfterCreationStopsAllCompanionCalls(): void
     {
         $runtimeState = new RuntimeState();
@@ -221,8 +248,8 @@ final class DefaultObserverTest extends TestCase
             $runtimeState->cancelled = true;
             return new ApiResponse(['item' => ['id' => 123]]);
         });
-        $addTaskHandler = new AddTaskHandler(new Rest3TaskAdapter($fakeApiTransport), new Rest1ParticipantAdapter($fakeApiTransport), $runtimeState, new \Bitrix24\CLI\Application\Task\TaskTagMutation(new \Bitrix24\CLI\Infrastructure\Bitrix24\Rest1TaskTagAdapter($fakeApiTransport)));
-        $operation = $addTaskHandler->prepare(new AddTaskRequest(['title' => 'Fixture'], false, 5));
+        $addTaskHandler = new AddTaskHandler(new Rest3TaskAdapter($fakeApiTransport), new Rest1ParticipantAdapter($fakeApiTransport), $runtimeState, new \Bitrix24\CLI\Application\Task\TaskTagMutation(new \Bitrix24\CLI\Infrastructure\Bitrix24\Rest1TaskTagAdapter($fakeApiTransport)), new \Bitrix24\CLI\Infrastructure\Bitrix24\Rest1TaskUserFieldAdapter($fakeApiTransport));
+        $operation = $addTaskHandler->prepare(new AddTaskRequest(['title' => 'Fixture', 'creatorId' => 1, 'responsibleId' => 1], false, 5));
         $result = ($operation->execute)();
         self::assertSame(130, $result->exitStatus);
         self::assertSame(123, $result->data['operation']['taskId']);
