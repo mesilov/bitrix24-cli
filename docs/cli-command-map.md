@@ -1,6 +1,6 @@
 # Карта CLI-вызовов
 
-Каталог содержит 55 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
+Каталог содержит 56 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
 
 `b24cli --help`/`-h` показывают назначение, список команд, глобальные опции и примеры задач. Вся справка — на русском; имена команд, флагов и API/JSON-полей сохраняются. Единый первый блок «Общие» содержит `completion`, `help` и `list`; далее пространства имён и команды внутри блоков упорядочены по имени. `b24cli --about` показывает назначение, версию, автора, лицензию и ссылки на [приложение](https://github.com/mesilov/bitrix24-cli) и [скилл](https://github.com/mesilov/bitrix24-cli-skill). Эти вызовы не требуют подключения и не обращаются к порталу. `list --help` описывает именно list; вызов без аргументов выводит список команд.
 
@@ -53,6 +53,7 @@
 | [`task:result:update`](../src/Console/Command/Task/UpdateTaskResultCommand.php) | Изменить текст результата задачи | write | `b24cli task:result:update 123 --result 17 --text "Договор проверен" --dry-run` | [`UpdateTaskResultCommandTest.php`](../tests/Integration/Task/UpdateTaskResultCommandTest.php) |
 | [`task:show`](../src/Console/Command/Task/ShowTaskCommand.php) | Показать карточку задачи | read | `b24cli task:show 123` | [`ShowTaskCommandTest.php`](../tests/Integration/Task/ShowTaskCommandTest.php) |
 | [`task:start`](../src/Console/Command/Task/StartTaskCommand.php) | Начать работу над задачей | write | `b24cli task:start 123 --dry-run` | [`StartTaskCommandTest.php`](../tests/Integration/Task/StartTaskCommandTest.php) |
+| [`task:status:durations`](../src/Console/Command/Task/StatusDurationsTaskCommand.php) | Рассчитать календарное время задачи в статусах | read | `b24cli task:status:durations 123 --as-of 2026-10-01T12:00:00+03:00 --json` | [`StatusDurationsTaskCommandTest.php`](../tests/Integration/Task/StatusDurationsTaskCommandTest.php) |
 | [`task:time:add`](../src/Console/Command/Task/AddTaskTimeEntryCommand.php) | Добавить запись времени | write | `b24cli task:time:add 123 --seconds 3600 --text "Подготовка договора" --dry-run` | [`AddTaskTimeEntryCommandTest.php`](../tests/Integration/Task/AddTaskTimeEntryCommandTest.php) |
 | [`task:time:delete`](../src/Console/Command/Task/DeleteTaskTimeEntryCommand.php) | Удалить запись времени | delete | `b24cli task:time:delete 123 --entry 30 --force --dry-run` | [`DeleteTaskTimeEntryCommandTest.php`](../tests/Integration/Task/DeleteTaskTimeEntryCommandTest.php) |
 | [`task:time:list`](../src/Console/Command/Task/ListTaskTimeEntriesCommand.php) | Показать записи времени | read | `b24cli task:time:list 123` | [`ListTaskTimeEntriesCommandTest.php`](../tests/Integration/Task/ListTaskTimeEntriesCommandTest.php) |

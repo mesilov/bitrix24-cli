@@ -1,0 +1,310 @@
+{
+  "data": {
+    "taskId": 6366,
+    "asOf": "2026-10-14T07:17:43.236554+00:00",
+    "intervals": [
+      {
+        "status": "pending",
+        "enteredAt": "2026-10-14T10:17:02+03:00",
+        "leftAt": "2026-10-14T10:17:08+03:00",
+        "seconds": 6,
+        "elapsedBetweenEventsSeconds": 6,
+        "verified": true,
+        "evidenceIds": [
+          23996,
+          23998
+        ]
+      },
+      {
+        "status": "in_progress",
+        "enteredAt": "2026-10-14T10:17:08+03:00",
+        "leftAt": "2026-10-14T10:17:14+03:00",
+        "seconds": 6,
+        "elapsedBetweenEventsSeconds": 6,
+        "verified": true,
+        "evidenceIds": [
+          23998,
+          24000
+        ]
+      },
+      {
+        "status": "supposedly_completed",
+        "enteredAt": "2026-10-14T10:17:14+03:00",
+        "leftAt": "2026-10-14T10:17:20+03:00",
+        "seconds": 6,
+        "elapsedBetweenEventsSeconds": 6,
+        "verified": true,
+        "evidenceIds": [
+          24000,
+          24002
+        ]
+      },
+      {
+        "status": "pending",
+        "enteredAt": "2026-10-14T10:17:20+03:00",
+        "leftAt": "2026-10-14T10:17:26+03:00",
+        "seconds": 6,
+        "elapsedBetweenEventsSeconds": 6,
+        "verified": true,
+        "evidenceIds": [
+          24002,
+          24004
+        ]
+      },
+      {
+        "status": "in_progress",
+        "enteredAt": "2026-10-14T10:17:26+03:00",
+        "leftAt": "2026-10-14T10:17:31+03:00",
+        "seconds": 5,
+        "elapsedBetweenEventsSeconds": 5,
+        "verified": true,
+        "evidenceIds": [
+          24004,
+          24006
+        ]
+      },
+      {
+        "status": "supposedly_completed",
+        "enteredAt": "2026-10-14T10:17:31+03:00",
+        "leftAt": "2026-10-14T10:17:37+03:00",
+        "seconds": 6,
+        "elapsedBetweenEventsSeconds": 6,
+        "verified": true,
+        "evidenceIds": [
+          24006,
+          24008
+        ]
+      },
+      {
+        "status": "completed",
+        "enteredAt": "2026-10-14T10:17:37+03:00",
+        "leftAt": "2026-10-14T07:17:43.236554+00:00",
+        "seconds": 6.236554,
+        "elapsedBetweenEventsSeconds": 6.236554,
+        "verified": true,
+        "evidenceIds": [
+          24008
+        ]
+      }
+    ],
+    "totals": {
+      "pending": 12,
+      "in_progress": 11,
+      "supposedly_completed": 12,
+      "completed": 6.236554,
+      "deferred": 0,
+      "declined": 0
+    },
+    "observedTransitions": [
+      {
+        "id": 23998,
+        "createdDate": "2026-10-14T10:17:08+03:00",
+        "field": "STATUS",
+        "userId": 1,
+        "from": "2",
+        "to": "3",
+        "source": "tasks.task.history.list",
+        "apiVersion": "1.0",
+        "fromStatus": "pending",
+        "toStatus": "in_progress",
+        "evidenceIds": [
+          23998
+        ]
+      },
+      {
+        "id": 24000,
+        "createdDate": "2026-10-14T10:17:14+03:00",
+        "field": "STATUS",
+        "userId": 1,
+        "from": "3",
+        "to": "4",
+        "source": "tasks.task.history.list",
+        "apiVersion": "1.0",
+        "fromStatus": "in_progress",
+        "toStatus": "supposedly_completed",
+        "evidenceIds": [
+          24000
+        ]
+      },
+      {
+        "id": 24002,
+        "createdDate": "2026-10-14T10:17:20+03:00",
+        "field": "STATUS",
+        "userId": 1,
+        "from": "4",
+        "to": "2",
+        "source": "tasks.task.history.list",
+        "apiVersion": "1.0",
+        "fromStatus": "supposedly_completed",
+        "toStatus": "pending",
+        "evidenceIds": [
+          24002
+        ]
+      },
+      {
+        "id": 24004,
+        "createdDate": "2026-10-14T10:17:26+03:00",
+        "field": "STATUS",
+        "userId": 1,
+        "from": "2",
+        "to": "3",
+        "source": "tasks.task.history.list",
+        "apiVersion": "1.0",
+        "fromStatus": "pending",
+        "toStatus": "in_progress",
+        "evidenceIds": [
+          24004
+        ]
+      },
+      {
+        "id": 24006,
+        "createdDate": "2026-10-14T10:17:31+03:00",
+        "field": "STATUS",
+        "userId": 1,
+        "from": "3",
+        "to": "4",
+        "source": "tasks.task.history.list",
+        "apiVersion": "1.0",
+        "fromStatus": "in_progress",
+        "toStatus": "supposedly_completed",
+        "evidenceIds": [
+          24006
+        ]
+      },
+      {
+        "id": 24008,
+        "createdDate": "2026-10-14T10:17:37+03:00",
+        "field": "STATUS",
+        "userId": 1,
+        "from": "4",
+        "to": "5",
+        "source": "tasks.task.history.list",
+        "apiVersion": "1.0",
+        "fromStatus": "supposedly_completed",
+        "toStatus": "completed",
+        "evidenceIds": [
+          24008
+        ]
+      }
+    ],
+    "unknownBoundaries": [],
+    "historyEvidence": [
+      {
+        "id": 16558,
+        "createdDate": "2026-02-23T07:50:20+03:00",
+        "field": "NEW",
+        "userId": 1,
+        "from": null,
+        "to": null
+      },
+      {
+        "id": 16676,
+        "createdDate": "2026-02-23T07:50:27+03:00",
+        "field": "DELETE",
+        "userId": 1,
+        "from": null,
+        "to": null
+      },
+      {
+        "id": 23996,
+        "createdDate": "2026-10-14T10:17:02+03:00",
+        "field": "NEW",
+        "userId": 1,
+        "from": null,
+        "to": null
+      },
+      {
+        "id": 23998,
+        "createdDate": "2026-10-14T10:17:08+03:00",
+        "field": "STATUS",
+        "userId": 1,
+        "from": "2",
+        "to": "3"
+      },
+      {
+        "id": 24000,
+        "createdDate": "2026-10-14T10:17:14+03:00",
+        "field": "STATUS",
+        "userId": 1,
+        "from": "3",
+        "to": "4"
+      },
+      {
+        "id": 24002,
+        "createdDate": "2026-10-14T10:17:20+03:00",
+        "field": "STATUS",
+        "userId": 1,
+        "from": "4",
+        "to": "2"
+      },
+      {
+        "id": 24004,
+        "createdDate": "2026-10-14T10:17:26+03:00",
+        "field": "STATUS",
+        "userId": 1,
+        "from": "2",
+        "to": "3"
+      },
+      {
+        "id": 24006,
+        "createdDate": "2026-10-14T10:17:31+03:00",
+        "field": "STATUS",
+        "userId": 1,
+        "from": "3",
+        "to": "4"
+      },
+      {
+        "id": 24008,
+        "createdDate": "2026-10-14T10:17:37+03:00",
+        "field": "STATUS",
+        "userId": 1,
+        "from": "4",
+        "to": "5"
+      }
+    ],
+    "excludedHistoryEvidence": [
+      {
+        "id": 16558,
+        "createdDate": "2026-02-23T07:50:20+03:00",
+        "field": "NEW",
+        "userId": 1,
+        "from": null,
+        "to": null,
+        "exclusionReason": "before-current-task-created"
+      },
+      {
+        "id": 16676,
+        "createdDate": "2026-02-23T07:50:27+03:00",
+        "field": "DELETE",
+        "userId": 1,
+        "from": null,
+        "to": null,
+        "exclusionReason": "before-current-task-created"
+      }
+    ],
+    "creationBoundary": {
+      "created": "2026-10-14T10:17:02+03:00",
+      "source": "tasks.task.list",
+      "apiVersion": "3.0",
+      "verified": true
+    }
+  },
+  "meta": {
+    "complete": true,
+    "historyComplete": true,
+    "reasons": [],
+    "reason": null,
+    "semantics": "calendar-seconds",
+    "coverage": "controlled-fixture-actions",
+    "knownCurrentEventIds": [
+      23996,
+      23998,
+      24000,
+      24002,
+      24004,
+      24006,
+      24008
+    ]
+  },
+  "exitStatus": 0
+}

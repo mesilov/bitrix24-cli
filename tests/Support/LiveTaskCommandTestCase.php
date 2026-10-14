@@ -78,9 +78,9 @@ abstract class LiveTaskCommandTestCase extends LiveCommandTestCase
         }
 
         if (isset($this->userId)) {
-            $evidence = ['class' => static::class, 'test' => $this->nameWithDataSet(), 'command' => $this->commandName(), 'happyPath' => $this->isHappyPath(), 'actingUserId' => $this->userId, 'ownedTaskIds' => $this->ownedTaskIds, 'ownedDiskFileIds' => $this->createdDiskFiles, 'ownedDiskFolderIds' => $this->createdDiskFolders, 'commands' => $this->observedCommands, 'cleanupFailures' => ['taskIds' => $failed, 'diskFileIds' => $failedFiles, 'diskFolderIds' => $failedFolders]];
+            $evidence = ['class' => static::class, 'test' => $this->nameWithDataSet(), 'command' => $this->commandName(), 'happyPath' => $this->isHappyPath(), 'incomplete' => $this->status()->isIncomplete(), 'actingUserId' => $this->userId, 'ownedTaskIds' => $this->ownedTaskIds, 'ownedDiskFileIds' => $this->createdDiskFiles, 'ownedDiskFolderIds' => $this->createdDiskFolders, 'commands' => $this->observedCommands, 'cleanupFailures' => ['taskIds' => $failed, 'diskFileIds' => $failedFiles, 'diskFolderIds' => $failedFolders]];
             $evidence['acceptance'] = $this->acceptanceRecords;
-            $evidence['passed'] = !$this->status()->isFailure() && !$this->status()->isError() && !$this->status()->isSkipped();
+            $evidence['passed'] = !$this->status()->isFailure() && !$this->status()->isError() && !$this->status()->isSkipped() && !$this->status()->isIncomplete();
             $directory = $this->root() . '/var/cache';
             if (!is_dir($directory)) {
                 mkdir($directory, 0700, true);
@@ -93,7 +93,7 @@ abstract class LiveTaskCommandTestCase extends LiveCommandTestCase
             self::fail('Could not remove owned test fixtures: task IDs [' . implode(', ', $failed) . '], Disk file IDs [' . implode(', ', $failedFiles) . '], Disk folder IDs [' . implode(', ', $failedFolders) . ']. Remove them manually.');
         }
 
-        if (isset($this->userId) && $this->isHappyPath()) {
+        if (isset($this->userId) && $this->isHappyPath() && !$this->status()->isSkipped() && !$this->status()->isIncomplete()) {
             $expectedPartial = match ($this->commandName()) {
                 'task:time:show' => 'Selected elapsedTime was not returned.',
                 'task:history:list' => 'history-navigation-unverified',

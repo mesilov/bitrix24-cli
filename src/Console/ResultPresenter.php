@@ -55,6 +55,8 @@ final readonly class ResultPresenter
                 foreach ($rows as $row) {
                     $output->writeln(implode("\t", array_map($this->escape(...), $row)), OutputInterface::OUTPUT_RAW);
                 }
+            } elseif ($result->profile === 'task-status-durations') {
+                $this->tasks->statusDurations($result, $output);
             } elseif ($result->profile === 'task-card') {
                 $this->tasks->card($result->data['task'] ?? [], $output);
             } elseif (in_array($result->profile, ['task-list', 'title-matches'], true)) {
@@ -67,6 +69,12 @@ final readonly class ResultPresenter
         if ($mode !== 'json' && in_array($result->profile, ['task-list', 'title-matches'], true)) {
             $stream = $mode === 'plain' && $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
             $this->tasks->summary($result->meta, $stream);
+        }
+
+        if ($mode === 'plain' && $result->profile === 'task-status-durations') {
+            foreach ($result->data['totals'] as $status => $seconds) {
+                $this->diagnostic($output, $status . ': ' . ($seconds ?? 'неизвестно'));
+            }
         }
 
         if ($error !== null) {
@@ -103,6 +111,11 @@ final readonly class ResultPresenter
 
     private function rows(OperationResult $result): array
     {
+        if ($result->profile === 'task-status-durations') {
+            $columns = ['status', 'enteredAt', 'leftAt', 'seconds', 'verified', 'evidenceIds'];
+            return [$columns, array_map(static fn (array $row): array => array_map(static fn (string $field): mixed => $row[$field] ?? 'неизвестно', $columns), $result->data['intervals'])];
+        }
+
         if ($result->profile === 'doctor') {
             $rows = [];
             foreach ($result->data as $key => $value) {

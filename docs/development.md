@@ -200,7 +200,7 @@ make integration TEST_ARGS='--group command:task:update' # все cases одно
 make integration TEST_ARGS='--group happy-path'         # отдельный happy-path каждой команды
 ```
 
-Unit suite (`tests/Unit`, PHPUnit `unit-tests`) проверяет все 41 команду задач и четыре команды сотрудников, JSON-параметры, поиск/пагинацию, patches, binding, dry-run, API policy, вывод, env precedence, SDK ошибки, timeout и SIGINT в subprocess. GitHub Actions запускает только `make unit` без секретов. `make integration` запускается отдельно с реальным webhook. Прежние `make test`/`make test-integration` и `make make-unit`/`make make-integration` остаются aliases соответствующих запусков.
+Unit suite (`tests/Unit`, PHPUnit `unit-tests`) проверяет все 43 команды задач и четыре команды сотрудников, JSON-параметры, поиск/пагинацию, patches, binding, dry-run, API policy, вывод, env precedence, SDK ошибки, timeout и SIGINT в subprocess. GitHub Actions запускает только `make unit` без секретов. `make integration` запускается отдельно с реальным webhook. Прежние `make test`/`make test-integration` и `make make-unit`/`make make-integration` остаются aliases соответствующих запусков.
 
 Для каждой прикладной CLI-команды есть отдельный `tests/Integration/Task/<CommandClass>Test.php` с PHPUnit Group `command:<имя>` на классе. Минимум один метод помечен Group `happy-path`; новые позитивные/негативные cases добавляются в класс этой команды. Unit guard сравнивает классы и собственные happy-path методы с CommandCatalog, отклоняет объединение нескольких команд в одном классе и отсутствие покрытия. [Карта покрытия](../openspec/changes/archive/2026-10-12-design-task-console-architecture/command-map.md#integration-happy-path-coverage) описывает 30 исходных классов; четыре result-класса и их проверки описаны в [verification #61](../openspec/changes/archive/2026-10-13-add-task-results/verification.md). `TEST_ARGS` передаёт PHPUnit фильтры в выбранную suite, включая совместимые Make aliases.
 
@@ -326,3 +326,93 @@ REST3 list на тестовом портале возвращает groupId=nul
 на просмотренный ID и ограничен max-scan; scalar groupId из списка сохраняется
 при наличии. Недоступное чтение даёт partial/group-membership-unverified.
 REST1 маршруты не добавляются и strict-rest3 остаётся допустимой политикой.
+
+## Evidence для расчёта статусных длительностей
+
+`HistoryScanner::scan(..., withEvidence: true)` используется новой read-only
+командой `task:status:durations`. Внутренний результат сохраняет исходные
+нормализованные события, включая конфликтующие дубликаты ID, offsets и
+совокупность причин navigation/page-error/budget. Публичный `task:history:list`
+сохраняет JSON/TSV и дедупликацию; ошибочная terminal completeness исправлена. Budget — 10000 событий; ID не является
+доказательством порядка событий с одинаковым timestamp.
+
+`StatusDurationCalculator` строит полуоткрытые интервалы в абсолютном времени;
+`from == to` не создаёт новый вход. При любой недоказанной границе/распределении
+`seconds` и `totals` равны `null`; `elapsedBetweenEventsSeconds` содержит только
+разницу меток. Календарь рабочих дней и учёт трудозатрат не применяются.
+Две REST3 карточки `status/statusChanged/changed` проверяют гонки, но не являются
+атомарным snapshot. Положительные числовые STATUS 2/3/4/5 подтверждены
+официальным numeric subset и независимым REST3 readback; мета-коды и строковые
+aliases без подтверждения REAL_STATUS остаются partial.
+
+Проверки: `make unit TEST_ARGS="--filter StatusDuration"` и
+`make integration TEST_ARGS="--group command:task:status:durations"`.
+Интеграционный happy-path требует доказанную source completeness, стабильный
+created и поддержанные статусные переходы с двумя повторными открытиями. Невозможность доказать эти условия отмечается
+как **incomplete**, без успешного exact CLI вызова; это не точная приёмка.
+Отдельный live-тест проверяет null totals, исходную navigation reason и exit 3.
+SDK fixtures удаляются даже при incomplete. Обезличенные live-ограничения
+сохранены в OpenSpec `calculate-task-status-durations/live-contract-check.md`.
+
+Live-сценарий `testRejectedReviewThenSuccessfulCompletionRetainsIncrementalHistory`
+моделирует start/complete/disapprove/start/complete/approve с контролем,
+отдельными постановщиком/исполнителем, SDK readback и capture истории после
+каждого действия. Новые события выделяются по сравнению ID между чтениями;
+старые NEW/DELETE не удаляются из evidence. Код 4 подтверждён как
+`supposedly_completed`. Raw capture — `var/cache/review-cycle-history.json`,
+сохранённый обезличенный receipt — OpenSpec `review-cycle-history-check.md`.
+Этот сценарий подтверждает форму наблюдённых событий и завершение fixture;
+полнота lifetime истории и exact totals остаются отдельной приёмкой.
+
+`testFiveSecondReviewCycleShowsStatusDurationResult` выполняет тот же цикл
+с паузой 5 секунд перед каждым действием и перед последним отчётом в completed.
+Тест измеряет паузы монотонными часами и проверяет минимум 5 секунд;
+серверные промежутки включают дополнительно время SDK/API/readback.
+Полный JSON команды и incremental history сохраняются отдельно в
+`var/cache/five-second-review-cycle-history.json`. Запуск:
+`make integration TEST_ARGS="--filter testFiveSecondReviewCycleShowsStatusDurationResult"`.
+
+`testRawHistoryIsolationAndMoreThanFiftyKnownChanges` сравнивает сырое HTTP тело
+с SDK DTO и ID адаптера, проверяет изоляцию двух собственных задач и 60 известных
+изменений TITLE. Ответы без start и со start=0/50/10000/-1, FIELD-фильтры и DESC
+сохраняются в `var/cache/wire-history-investigation.json`; cleanup отражён в
+`portal-evidence.jsonl`. Это проверка полноты **известной fixture**, не гарантия
+источника для произвольной задачи. Запуск:
+`make integration TEST_ARGS="--filter testRawHistoryIsolationAndMoreThanFiftyKnownChanges"`.
+
+Исследование 14.10.2026 подтвердило старые NEW/DELETE в HTTP ответе новой задачи
+и тот же TASK_ID через независимый legacy read. В операторском подтверждении
+переинициализации БД/изменения счётчика не было; конкретная причина на сервере
+не установлена. Полный receipt, неоднозначность документации pagination и
+готовые вопросы поставщику — OpenSpec `history-investigation-check.md` и
+`bitrix24-history-support-reproducer.md`. Production не удаляет старые записи,
+не выбирает последний NEW эвристически и сохраняет null exact totals.
+
+Длительности относятся к текущему экземпляру задачи: handler заранее объявляет
+REST3 tasks.task.list, фильтр точного id и select id/created, два чтения вокруг
+истории. При совпадающем ID/created калькулятор исключает только строго более
+ранние события и сохраняет их в excludedHistoryEvidence. Невалидные даты,
+изменение created, ошибки identity или текущий DELETE остаются partial.
+creationBoundary показывает источник и доказанную дату, независимо от полноты
+распределения; NEW может быть записан позднее этой границы.
+
+Controlled five-second test отдельно сверяет known current event IDs,
+начальный статус, readbacks до/после каждого своего действия и created,
+затем вызывает тот же production calculator с coverage=controlled-fixture-actions.
+В receipt раздельно сохраняются commandResult (обычный CLI/source gate) и
+controlledResult (точные суммы для собственной fixture). API pagination не
+подделывается; доказательства из теста не передаются обычной CLI-команде.
+
+REST1 completeness исправлена по официальному контракту списочных методов:
+next ведёт на следующую страницу; его отсутствие означает конец, total
+необязателен. Никакого вывода по короткой странице/числу 50 нет. Если total
+передан, он обязан согласоваться с offset/returned/next; malformed payload,
+page-error, no-progress и budget сохраняют partial. Это исправляет и прежнее
+ложное partial-result history:list, сохраняя формат событий.
+
+Длинный сценарий `testLongReviewAndReopenCyclePreservesMoreThanFiftyStatusEvents`
+(group long-running) выполняет 8 review/reopen циклов, 55 переходов и 5-секундные
+паузы. Запуск занимает около 5.5 минут; receipt long-review-reopen-history.json
+обновляется после каждого действия. Ordinary CLI totals сверяются с independent
+control journal. Live race отдельно требует null totals; новая pending task
+с полной историей и statusChanged=null начинает интервал с created.
