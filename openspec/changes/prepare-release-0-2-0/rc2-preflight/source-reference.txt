@@ -1,0 +1,4 @@
+sh ./scripts/compose.sh run --rm -T php-cli php scripts/cli-reference.php --check
+ Container bitrix24-cli-47176927b465f0ddaab87fda891e8be985a33e623870879c7fd9de657ff3fb2c-php-cli-run-d31bd9fd187c Creating 
+ Container bitrix24-cli-47176927b465f0ddaab87fda891e8be985a33e623870879c7fd9de657ff3fb2c-php-cli-run-d31bd9fd187c Created 
+Карта CLI соответствует 56 публичным командам.
