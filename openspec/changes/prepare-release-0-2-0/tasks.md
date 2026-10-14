@@ -29,9 +29,9 @@
 - [x] 4.4 Создать отсутствующий immutable tag 0.2.0-rc-2 на принятом builds SHA; дождаться зелёной RC matrix/archive и проверить tag/source identity.
 - [x] 4.5 Проверить готовые RC2 архивы на трёх native OS вне checkout: checksum/version/about/help/catalog/offline/errors; скачать receipts и явно сохранить границы установки/portal.
 - [x] 4.6 Завершить синхронизацию скилла #6 через PR; передать exact RC2 version/source/catalog и проверить delivery readback.
-- [ ] 4.7 Сохранить RC2 report, release notes, CHANGELOG, issue trace и native/CI receipts в dev через PR; проверить отсутствие RC Release/latest unchanged, оставить stable tasks pending.
+- [x] 4.7 Сохранить RC2 report, release notes, CHANGELOG, issue trace и native/CI receipts в dev через PR; проверить отсутствие RC Release/latest unchanged, оставить stable tasks pending.
 
-- [ ] 4.8 Открыть MR dev → main по запросу пользователя, разрешить конфликты истории main через PR в dev, дождаться CI и проверить mergeability/точный head без merge/publish.
+- [x] 4.8 Открыть MR dev → main по запросу пользователя, разрешить конфликты истории main через PR в dev, дождаться CI и проверить mergeability/точный head без merge/publish.
 
 ## Workflow follow-up
 
