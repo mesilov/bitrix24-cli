@@ -8,6 +8,7 @@
 
 ### Изменено
 
+- **Правила мейнтейнера:** каждый MR требует собственной содержательной записи changelog со ссылкой на issue. Через пять минут после открытия проверяются reviews, inline threads и обсуждение; merge запрещён до снятия всех замечаний и активных запросов изменений, даже при зелёном CI. [#156](https://github.com/mesilov/bitrix24-cli/issues/156)
 - Требования проверки scope вебхука синхронизированы в актуальную спецификацию `connection-scope-validation`; завершённый OpenSpec change архивирован после доставки MR #150 в `dev` и устранения всех замечаний review. [#149](https://github.com/mesilov/bitrix24-cli/issues/149)
 - Финальные receipts выпуска 0.2.0 и завершённый OpenSpec релиза архивированы после production/native/public-install проверки ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
 
