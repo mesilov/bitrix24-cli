@@ -43,4 +43,12 @@
 
 ## Проверка review MR #157
 
-MR создан 2026-10-15T16:52:38Z. В 2026-10-15T16:57:55Z, спустя более пяти минут, получены reviews, inline threads и обсуждение. Найдено [одно замечание P2](https://github.com/mesilov/bitrix24-cli/pull/157#discussion_r4285860124): требование успешного CI на последнем SHA не было явно записано в скилле. Оно добавлено в правило перед merge; после push/sync проверки должны повторяться на новом head. Proposal, design, tasks и changelog согласованы с уточнением. Повторные quick_validate.py, strict OpenSpec validation и git diff --check прошли. Закрытие thread и терминальный CI окончательного SHA проверяются в GitHub после публикации исправления.
+MR создан 2026-10-15T16:52:38Z. В 2026-10-15T16:57:55Z, спустя более пяти минут, получены reviews, inline threads и обсуждение. Найдено [одно замечание P2](https://github.com/mesilov/bitrix24-cli/pull/157#discussion_r4285860124): требование успешного CI на последнем SHA не было явно записано в скилле. Оно добавлено в правило перед merge; после push/sync проверки должны повторяться на новом head. Proposal, design, tasks и changelog согласованы с уточнением. Повторные quick_validate.py, strict OpenSpec validation и git diff --check прошли. Thread закрыт после проверки исправления; непосредственно перед merge повторно проверены все reviews, threads и обсуждение: неснятых замечаний и CHANGES_REQUESTED нет.
+
+## Доставка в dev
+
+- Перед merge актуальная dev ушла вперёд до `69b3864` через MR #155/#158. Она интегрирована в ветку задачи; единственный конфликт CHANGELOG.md разрешён с сохранением записей #151 и #156. После sync повторены quick_validate.py, strict OpenSpec validation и diff check.
+- Окончательный head MR #157: `12d0173443a3e55ed7b22ee9cb6d8b95628dcb48`. Подтверждены **13/13 CI check runs SUCCESS**: [Command tests](https://github.com/mesilov/bitrix24-cli/actions/runs/38779134445), [Worktree isolation](https://github.com/mesilov/bitrix24-cli/actions/runs/38779134219).
+- [MR #157](https://github.com/mesilov/bitrix24-cli/pull/157) **MERGED** в dev 2026-10-15T17:42:33Z, merge SHA `28bbbcc1aaa9ee1a32add652c12ef23028bc6336`. Issue #156 **CLOSED** 2026-10-15T17:42:37Z.
+- Change не содержит delta specs, skip_specs: true; синхронизация openspec/specs/ не требуется. В архив переносится весь change с metadata и 5/5 выполненными задачами.
+- Архивный MR содержит собственную запись changelog. Его доставка, post-merge CI, окончательная трассировка issue и удаление worktree подтверждаются через GitHub/Git после merge архивного MR; локальный архив сам по себе этого не доказывает.
