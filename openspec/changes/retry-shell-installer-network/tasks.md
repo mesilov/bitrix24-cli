@@ -2,7 +2,7 @@
 
 ## 1. Ограниченные сетевые повторы
 
-- [ ] 1.1 Добавить retry-политику к latest и обоим assets; дополнить contract suite настоящим curl и локальным HTTP стендом для recovery 504/503/timeout/refused, исчерпания попыток и постоянного 404; проверить сохранность старой установки и частичного output.
+- [x] 1.1 Добавить retry-политику к latest и обоим assets; дополнить contract suite настоящим curl и локальным HTTP стендом для recovery 504/503/timeout/refused, исчерпания попыток и постоянного 404; проверить сохранность старой установки и частичного output.
 - [x] 1.2 Описать retry count, backoff, retry-start budget, окончательную ошибку и явный тег в docs/install.md; сверить текст с curl options и записать исправление #151 в Unreleased CHANGELOG.
 
 ## 2. Условные команды установки
@@ -12,7 +12,7 @@
 
 ## 3. Интеграционная проверка
 
-- [ ] 3.1 Выполнить sh -n, полный shell-installer contract suite, native archive acceptance, strict OpenSpec validation и git diff --check; оформить verification.md с покрытием всех требований и границами live/CI.
+- [x] 3.1 Выполнить sh -n, полный shell-installer contract suite, native archive acceptance, strict OpenSpec validation и git diff --check; оформить verification.md с покрытием всех требований и границами live/CI.
 
 ## Workflow follow-up
 
