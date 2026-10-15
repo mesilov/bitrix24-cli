@@ -128,7 +128,9 @@ final class HelpAndAboutTest extends TestCase
                 $input = new StringInput(trim(substr($example, strlen('b24cli ' . $name))));
                 $input->bind($command->getDefinition());
                 $input->validate();
-                if ($command->getDefinition()->hasOption('dry-run')) {
+                if ($name === 'connection:check') {
+                    self::assertFalse($input->getOption('dry-run'), $name);
+                } elseif ($command->getDefinition()->hasOption('dry-run')) {
                     self::assertTrue($input->getOption('dry-run'), $name);
                 }
             }

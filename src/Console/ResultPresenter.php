@@ -104,6 +104,11 @@ final readonly class ResultPresenter
             ], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), OutputInterface::OUTPUT_RAW);
         } else {
             $this->diagnostic($output, $failure->errorCode . ': ' . $failure->getMessage());
+            if ($mode !== 'json' && isset($failure->details['scopeValidation'])) {
+                foreach ($failure->details['scopeValidation'] as $field => $value) {
+                    $this->diagnostic($output, $mode === 'plain' ? $this->escape($field) . "\t" . $this->escape($value) : $field . ': ' . $this->string($value));
+                }
+            }
         }
     }
 

@@ -97,12 +97,28 @@ final class ScopeValidationCommandTest extends TestCase
 
     public function testExplicitCheckForcesRefreshAndAllOutputModesExplainMissingScopes(): void
     {
+        $report = null;
         foreach ([['--json'], ['--plain'], []] as $mode) {
             $run = ConsoleHarness::run($this->app, ['connection:check', ...$mode]);
             self::assertSame(4, $run->status, $run->stdout . $run->stderr);
             self::assertStringContainsString('im', $run->stdout . $run->stderr);
             self::assertStringContainsString('connection:check', $run->stdout . $run->stderr);
             self::assertStringNotContainsString('ScopeFixtureSecret', $run->stdout . $run->stderr);
+            if ($mode === ['--json']) {
+                $report = $run->json()['error']['details']['scopeValidation'];
+                self::assertNull($run->json()['data']);
+                self::assertSame('scope-missing', $run->json()['error']['code']);
+                self::assertSame(['task'], $report['grantedScopes']);
+                self::assertSame(['im'], $report['potentiallyAffectedCommands']['task:chat:list']);
+            } else {
+                self::assertIsArray($report);
+                self::assertSame('', $run->stdout);
+                $separator = $mode === ['--plain'] ? "\t" : ': ';
+                foreach (['grantedScopes', 'lastSuccessfulCheckAt', 'scopeManifestRevision', 'potentiallyAffectedCommands', 'connection'] as $field) {
+                    $value = is_array($report[$field]) ? json_encode($report[$field], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : $report[$field];
+                    self::assertStringContainsString($field . $separator . $value, $run->stderr);
+                }
+            }
         }
 
         self::assertCount(3, $this->calls);
@@ -114,6 +130,13 @@ final class ScopeValidationCommandTest extends TestCase
         $run = ConsoleHarness::run($this->app, ['task:chat:list', '1', '--json']);
         self::assertSame(0, $run->status, $run->stdout);
         self::assertSame(4, count(array_filter($this->calls, static fn (string $method): bool => $method === 'scope')));
+    }
+
+    public function testCheckUsageExamplePerformsTheDiagnosticInsteadOfDryRun(): void
+    {
+        $examples = \Bitrix24\CLI\Console\TaskUsage::examples($this->app->get('connection:check'));
+        self::assertStringContainsString('b24cli connection:check', $examples[0]);
+        self::assertStringNotContainsString('--dry-run', $examples[0]);
     }
 
     public function testTtlAndManifestRevisionTriggerRefreshButAppVersionAloneDoesNot(): void

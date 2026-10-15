@@ -176,7 +176,8 @@ final class B24Application extends Application
                 $failure = new Failure($exception->errorCode, $exception->getMessage() . ' ' . TaskUsage::advice($command), $exception->exitStatus, $exception->details, $exception->outcomeUnknown);
             }
 
-            $this->presenter->failure($failure, $input->hasParameterOption('--json', true) ? 'json' : 'human', $output, $this->state->calls);
+            $mode = $input->hasParameterOption('--json', true) ? 'json' : ($input->hasParameterOption('--plain', true) ? 'plain' : 'human');
+            $this->presenter->failure($failure, $mode, $output, $this->state->calls);
             return $failure->exitStatus;
         }
     }

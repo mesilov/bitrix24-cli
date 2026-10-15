@@ -81,6 +81,11 @@ connection:check SHALL принудительно обновлять выбра�
 - **WHEN** пользователь добавил im и выполнил connection:check с выбранным профилем
 - **THEN** обновлённые права сохраняются и следующая чат-команда использует кеш
 
+#### Scenario: Missing scopes retain the complete diagnostic report
+- **WHEN** connection:check успешно читает права, но обнаруживает отсутствующие scope
+- **THEN** команда возвращает scope-missing/exit4 и показывает grantedScopes, lastSuccessfulCheckAt, scopeManifestRevision, potentiallyAffectedCommands и выбранное подключение во всех трёх режимах
+- **AND** human/plain выводят отчёт в stderr без данных в stdout; JSON сохраняет отчёт в error.details.scopeValidation
+
 ### Requirement: Preserve offline and API policy boundaries
 Help/version/list/completion, существующие локальные connection-команды и dry-run MUST NOT добавлять scope-запрос или чтение/запись state. strict-rest3 SHALL использовать только свежий кеш без REST1; явный connection:check SHALL отклоняться этой policy до credentials/API.
 

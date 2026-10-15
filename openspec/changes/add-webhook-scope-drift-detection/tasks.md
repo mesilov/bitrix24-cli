@@ -15,8 +15,10 @@
 
 - [x] 3.1 Выполнить полные unit tests, Composer/syntax/CLI checks, quality linters и strict OpenSpec validation; сохранить результаты и границы portal/native acceptance.
 - [x] 3.2 Проверить соответствие issue ↔ proposal/design/spec/tasks и реализации через openspec-verify-change; опубликовать ветку и MR в dev с проверенными milestone/категорией и ссылками.
+- [x] 3.3 Устранить замечания MR #150: добавить issue-linked Unreleased changelog, сохранить полный scope report при ошибке human/plain и исправить диагностический пример без dry-run; проверить регрессии и CLI reference.
 
 ## Workflow follow-up
 
+- Перед merge повторно проверить reviews/threads/комментарии MR #150 и зелёный CI на окончательном SHA.
 - После подтверждённого merge/закрытия issue архивировать change, синхронизировать spec, доставить архив в dev через MR и обновить путь issue.
 - Сохранить необходимые файлы и удалить только worktree этой задачи после доставки архива.

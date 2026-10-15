@@ -10,7 +10,7 @@
 | --- | --- | --- | --- |
 | `completion` | Вывести скрипт автодополнения для оболочки | offline | `b24cli completion bash` |
 | [`connection:add`](../src/Console/Command/Connection/AddConnectionCommand.php) | Сохранить локальное подключение | local | `b24cli connection:add work --group-id 7 --creator-id 1 --responsible-id 42` |
-| [`connection:check`](../src/Console/Command/Connection/CheckConnectionCommand.php) | Проверить разрешения выбранного вебхука и требования CLI | read | `b24cli connection:check work --json --dry-run` |
+| [`connection:check`](../src/Console/Command/Connection/CheckConnectionCommand.php) | Проверить разрешения выбранного вебхука и требования CLI | read | `b24cli connection:check work --json` |
 | [`connection:list`](../src/Console/Command/Connection/ListConnectionsCommand.php) | Показать сохранённые подключения | local | `b24cli connection:list` |
 | [`connection:remove`](../src/Console/Command/Connection/RemoveConnectionCommand.php) | Удалить локальный профиль и его учётные данные | local | `b24cli connection:remove work` |
 | [`connection:show`](../src/Console/Command/Connection/ShowConnectionCommand.php) | Показать безопасные параметры выбранного подключения | local | `b24cli connection:show work` |

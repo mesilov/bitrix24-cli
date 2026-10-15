@@ -30,7 +30,7 @@ final class TaskUsage
             'task:delete' => ['b24cli task:delete 123 --dry-run'],
             default => preg_match('/Пример(?:ы)?:\s*(b24cli[^;\n]*)/u', $command->getHelp(), $match) ? [trim(preg_split('/\.(?:\s|$)/u', $match[1])[0])] : ['b24cli ' . $command->getName() . ' --help'],
         };
-        if ($command->getDefinition()->hasOption('dry-run')) {
+        if ($command->getDefinition()->hasOption('dry-run') && $command->getName() !== 'connection:check') {
             return array_map(static fn (string $example): string => str_contains($example, '--dry-run') ? $example : $example . ' --dry-run', $examples);
         }
 

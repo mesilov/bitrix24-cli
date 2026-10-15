@@ -4,7 +4,7 @@
 
 ## Completeness
 
-7/7 задач выполнены. Опубликован MR https://github.com/mesilov/bitrix24-cli/pull/150 в dev, milestone 0.3.0, label enhancement. Issue #149 содержит согласованное решение, путь change и ссылки на опубликованные артефакты; proposal содержит обратную ссылку. Все 8 требований и 13 сценариев имеют реализацию/контролируемые проверки. Change остаётся активным до доставки через review/merge.
+8/8 задач выполнены. Опубликован MR https://github.com/mesilov/bitrix24-cli/pull/150 в dev, milestone 0.3.0, label enhancement. Issue #149 содержит согласованное решение, путь change и ссылки на опубликованные артефакты; proposal содержит обратную ссылку. Все 8 требований и 14 сценариев имеют реализацию/контролируемые проверки. Change остаётся активным до доставки через review/merge.
 
 ## Correctness
 
@@ -25,7 +25,7 @@
 
 ## Локальная проверка
 
-- Полный unit suite: **846 tests, 13416 assertions**, pass (PHP 8.4.26, Linux container).
+- Полный unit suite после исправлений review: **847 tests, 13436 assertions**, pass (PHP 8.4.26, Linux container).
 - После уточнения обхода JSON object повторена целевая матрица: **21 tests, 185 assertions**, pass; PHPStan повторно pass.
 - Composer validate --strict, platform requirements, лицензии, PHP-CS-Fixer, PHPStan и Rector: pass.
 - Синтаксис 349 PHP-файлов src/config/tests и bin/b24cli/bin/console: pass.
@@ -43,3 +43,11 @@
 - Документация противоречива по task/tasks: консервативная группа описана в design и docs; код не утверждает эквивалентность и рекомендует task.
 - Проверка scope не доказывает объектные права/тариф; TTL сохраняет окно до суток. Manual check обновляет немедленно.
 - Найденных критических расхождений в проверенных требованиях нет; live/native checks остаются not verified. Архивирование, merge и релиз не выполнены. CI окончательного SHA отслеживается в MR отдельно от локальных результатов.
+
+## Исправления по review MR #150
+
+- [Changelog](https://github.com/mesilov/bitrix24-cli/pull/150#discussion_r4282370305): добавлена содержательная запись в Unreleased с issue #149; проверяется собственный diff относительно актуальной dev.
+- [Диагностика](https://github.com/mesilov/bitrix24-cli/pull/150#discussion_r4282370310): failure presenter сохраняет полный scope report в stderr human/plain; B24Application передаёт plain-режим. JSON error envelope сохранён. Регрессия проверяет точные grantedScopes, timestamp, manifest revision, potentiallyAffectedCommands, connection и пустой stdout при human/plain ошибке.
+- [Пример](https://github.com/mesilov/bitrix24-cli/pull/150#discussion_r4282370327): TaskUsage не добавляет dry-run к connection:check, карта сгенерирована повторно; parser/help tests проверяют реальный диагностический пример. Примеры остальных команд сохраняют прежний dry-run.
+- Повторные PHPStan, PHP-CS-Fixer и Rector: pass. Generated CLI reference: 57 команд, pass. OpenSpec --all --strict: 25 passed, 0 failed.
+- Закрытие threads, финальная проверка reviews и CI выполняются после публикации исправлений; статус подтверждается в GitHub.
