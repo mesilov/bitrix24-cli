@@ -16,7 +16,7 @@
 - Все маршруты REST 1.0, scope task (существующая группа task|tasks). strict-rest3 отклоняется до API, включая dry-run. Add/update dry-run полностью offline; delete dry-run читает целевой шаблон для проверки ID и отображения названия. Удаление в automation требует --force по общему контракту.
 - SDK оборачивает scalar result в массив: add должен вернуть положительный integer ID, update — boolean true. 0/false на add/update и некорректные ответы не считаются подтверждением записи; неопределённый результат не повторяется автоматически.
 - Delete предварительно читает шаблон. Документированный результат delete=false не доказывает удаление: возвращается partial (exit 3), operation.confirmed=false, complete=false. Последующее чтение показывает visibleAfter, но false у get также означает отсутствие прав. Нельзя заменять эту неоднозначность утверждением об удалении. Happy-path integration проверяет dry-run и реальное частичное подтверждение отдельно.
-- JSON: data.template / data.fields / data.operation {templateId, action, changedFields, confirmed}. Plain show/fields: field,value (поля отсортированы); mutations: templateId,action,changedFields,confirmed. План сохраняет общий формат и templateId в steps; taskId=null.
+- JSON: data.template / data.fields / data.operation {templateId, action, changedFields, confirmed}. Plain show/fields: field,value (поля отсортированы); mutations: templateId,action,changedFields,confirmed; delete добавляет visibleAfter (true/false/unknown, JSON сохраняет null). План сохраняет общий формат и templateId в steps; taskId=null.
 
 ## Official sources and verification boundary
 

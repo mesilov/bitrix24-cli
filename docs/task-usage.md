@@ -519,4 +519,6 @@ false; это не доказательство удаления. Проверь
 JSON содержит `data.template`, `data.fields` либо `data.operation` с `templateId`,
 `action`, `changedFields`, `confirmed`. Plain show/fields выводит отсортированные
 `field`, `value`; изменения — `templateId`, `action`, `changedFields`, `confirmed`.
+Только удаление добавляет столбец `visibleAfter` в human/plain: `true`, `false` или
+`unknown`, если проверочное чтение не удалось (в JSON это `null`).
 Tab/newline/backslash экранируются. План содержит `templateId`, а `taskId=null`.

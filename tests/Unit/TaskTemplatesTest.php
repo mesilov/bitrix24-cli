@@ -248,4 +248,38 @@ final class TaskTemplatesTest extends TestCase
             self::assertSame('api-error', $run->json()['error']['code']);
         }
     }
+
+    public function testDeleteVisibilityIsAlsoReportedInPlainAndHumanOutput(): void
+    {
+        foreach (['--plain', null] as $mode) {
+            foreach ([true, false, null] as $visible) {
+                $reads = 0;
+                $api = new FakeApiTransport(static function (string $method) use (&$reads, $visible): ApiResponse {
+                    if ($method === 'tasks.template.delete') {
+                        return new ApiResponse([false]);
+                    }
+
+                    if (++$reads === 1 || $visible === true) {
+                        return new ApiResponse(['ID' => '139', 'TITLE' => 'Target']);
+                    }
+
+                    if ($visible === null) {
+                        throw new Failure('transport-error', 'Read failed.');
+                    }
+
+                    return new ApiResponse([false]);
+                });
+                $app = (new ApplicationFactory())->create(dirname(__DIR__, 2), $api);
+                $run = ConsoleHarness::run($app, ['task:template:delete', '139', '--force', ...($mode === null ? [] : [$mode])]);
+                self::assertSame(3, $run->status);
+                $display = $visible === null ? 'unknown' : ($visible ? 'true' : 'false');
+                if ($mode === '--plain') {
+                    self::assertSame("139\tdelete\t[]\tfalse\t" . $display . "\n", $run->stdout);
+                } else {
+                    self::assertStringContainsString('visibleAfter', $run->stdout);
+                    self::assertMatchesRegularExpression('/false\s+\|\s+' . $display . '\s+\|/', $run->stdout);
+                }
+            }
+        }
+    }
 }

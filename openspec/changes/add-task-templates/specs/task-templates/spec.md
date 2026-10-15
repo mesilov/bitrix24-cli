@@ -68,7 +68,7 @@ CLI SHALL предоставлять task:template:delete TEMPLATE_ID, чита�
 
 #### Scenario: Stable machine output
 - **WHEN** пользователь выбирает JSON или plain
-- **THEN** JSON содержит data/meta/error; plain экранирует tab/newline/backslash и не содержит ANSI
+- **THEN** JSON содержит data/meta/error; plain экранирует tab/newline/backslash и не содержит ANSI; human/plain delete дополнительно показывают visibleAfter=true/false/unknown, не меняя столбцы add/update
 
 ### Requirement: Maintain recurring work templates JTBD
 JTBD PM-08 SHALL описывать сопровождение шаблонов типовых задач руководителем проекта: читать настройки, создавать, изменять и запрашивать удаление. Документация SHALL связывать пять команд с отдельными integration tests, сохранять границы реализации и live-проверки и не обещать создание задач по шаблону.
