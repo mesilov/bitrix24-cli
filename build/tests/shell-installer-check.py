@@ -226,7 +226,7 @@ esac
                     self.send_header('Location', '/tag/0.2.0')
                     self.end_headers()
                     return
-                body = b'release' if self.path == '/tag/0.2.0' else (assets / self.path.rsplit('/', 1)[-1]).read_bytes()
+                body = b'release index fixture' * 10 if self.path == '/tag/0.2.0' else (assets / self.path.rsplit('/', 1)[-1]).read_bytes()
                 self.send_response(200)
                 self.send_header('Content-Length', str(len(body)))
                 self.end_headers()
@@ -234,7 +234,7 @@ esac
                     if status == 'timeout':
                         self.wfile.write(body[:8])
                         self.wfile.flush()
-                        time.sleep(0.4)
+                        time.sleep(6)
                         self.wfile.write(body[8:])
                     else:
                         self.wfile.write(body)
@@ -271,8 +271,10 @@ endpoint = os.environ['FIXTURE_ENDPOINT']
 original = sys.argv[1:]
 args = [endpoint + arg[len(base):] if arg.startswith(base + '/') else arg for arg in original]
 args += ['--proto', '=http,https', '--proto-redir', '=http,https']
-if os.environ.get('FIXTURE_SHORT_TIMEOUT'):
-    args += ['--max-time', '0.1']
+if os.environ.get('FIXTURE_SCALE_TIMEOUTS'):
+    for option in ['--max-time', '--retry-max-time']:
+        index = args.index(option) + 1
+        args[index] = format(float(args[index]) / 60, 'g')
 process = subprocess.Popen([os.environ['FIXTURE_REAL_CURL'], *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 def forward_errors():
     for line in process.stderr:
@@ -305,11 +307,11 @@ sys.exit(status)
                 self.assertEqual(counts[path], 2)
 
     def test_partial_download_timeout_with_real_curl(self):
-        path = '/download/0.2.0/b24cli-linux-amd64.tar.gz'
-        self.env['FIXTURE_SHORT_TIMEOUT'] = '1'
-        with self.real_transport({path: ['timeout']}) as counts:
-            self.run_installer('--no-modify-path')
-            self.assertEqual(counts[path], 2)
+        self.env['FIXTURE_SCALE_TIMEOUTS'] = '1'
+        for path in ['/tag/0.2.0', '/download/0.2.0/b24cli-linux-amd64.tar.gz']:
+            with self.subTest(path=path), self.real_transport({path: ['timeout']}) as counts:
+                self.run_installer('--no-modify-path')
+                self.assertEqual(counts[path], 2)
 
     def test_refused_connection_with_real_curl(self):
         self.env['FIXTURE_REFUSED_MARKER'] = str(self.root / 'connection refused')

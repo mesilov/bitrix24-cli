@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Bounded installer network retries
-The Unix installer SHALL retry transient HTTP 408, 429, 500, 502, 503 and 504 responses, timeouts and refused connections during latest resolution and asset downloads. Each transfer MUST allow at most three retries with backoff and a 120-second retry-start budget, retain per-attempt timeouts and HTTPS verification, and report final failure without replacing the installation. Permanent HTTP errors and failed package validation MUST NOT be retried.
+The Unix installer SHALL retry transient HTTP 408, 429, 500, 502, 503 and 504 responses, timeouts and refused connections during latest resolution and asset downloads. Each transfer MUST allow at most three retries with backoff, a retry-start budget of 360 seconds for latest or 900 for assets, and per-attempt timeouts of 120 or 300 seconds, respectively. HTTPS verification MUST remain enabled. Permanent HTTP errors and failed package validation MUST NOT be retried.
 
 #### Scenario: Recover latest after a gateway timeout
 - **WHEN** latest resolution receives HTTP 504 and a subsequent attempt succeeds within the retry limits
@@ -12,8 +12,8 @@ The Unix installer SHALL retry transient HTTP 408, 429, 500, 502, 503 and 504 re
 - **THEN** installation continues using the complete successfully downloaded assets
 
 #### Scenario: Recover a transfer timeout
-- **WHEN** an asset transfer times out after receiving part of its body and the next attempt succeeds within the retry limits
-- **THEN** the complete asset passes checksum validation without retaining bytes from the failed attempt
+- **WHEN** latest resolution or an asset transfer reaches its full per-attempt timeout after receiving part of its body and the next attempt succeeds within the retry limits
+- **THEN** latest resolves successfully or the complete asset passes checksum validation without retaining bytes from the failed attempt
 
 #### Scenario: Recover a refused connection
 - **WHEN** a connection is refused and the endpoint becomes reachable within the retry limits
