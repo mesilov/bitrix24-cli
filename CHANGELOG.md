@@ -8,6 +8,7 @@
 
 ### Изменено
 
+- Требования проверки scope вебхука синхронизированы в актуальную спецификацию `connection-scope-validation`; завершённый OpenSpec change архивирован после доставки MR #150 в `dev` и устранения всех замечаний review. [#149](https://github.com/mesilov/bitrix24-cli/issues/149)
 - Финальные receipts выпуска 0.2.0 и завершённый OpenSpec релиза архивированы после production/native/public-install проверки ([#109](https://github.com/mesilov/bitrix24-cli/issues/109)).
 
 ## [0.2.0] — 2026-10-14

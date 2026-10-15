@@ -4,7 +4,7 @@
 
 ## Completeness
 
-8/8 задач выполнены. Опубликован MR https://github.com/mesilov/bitrix24-cli/pull/150 в dev, milestone 0.3.0, label enhancement. Issue #149 содержит согласованное решение, путь change и ссылки на опубликованные артефакты; proposal содержит обратную ссылку. Все 8 требований и 14 сценариев имеют реализацию/контролируемые проверки. Change остаётся активным до доставки через review/merge.
+8/8 задач выполнены. MR https://github.com/mesilov/bitrix24-cli/pull/150 доставлен в dev, milestone 0.3.0, label enhancement; issue #149 закрыто. Proposal содержит обратную ссылку на issue. Все 8 требований и 14 сценариев имеют реализацию/контролируемые проверки. Спецификация синхронизирована в openspec/specs/connection-scope-validation/spec.md; завершённый change архивируется после merge.
 
 ## Correctness
 
@@ -42,7 +42,7 @@
 - Нативные Windows ACL/rename и macOS execution нового state **не проверены** в этом запуске. Используется существующий FileProtection, но это не новое native acceptance.
 - Документация противоречива по task/tasks: консервативная группа описана в design и docs; код не утверждает эквивалентность и рекомендует task.
 - Проверка scope не доказывает объектные права/тариф; TTL сохраняет окно до суток. Manual check обновляет немедленно.
-- Найденных критических расхождений в проверенных требованиях нет; live/native checks остаются not verified. Архивирование, merge и релиз не выполнены. CI окончательного SHA отслеживается в MR отдельно от локальных результатов.
+- Найденных критических расхождений в проверенных требованиях нет; live/native checks остаются not verified. Реализация merged в dev; выпуск релиза не выполнялся. Доставка архива отслеживается отдельным MR.
 
 ## Исправления по review MR #150
 
@@ -51,4 +51,12 @@
 - [Пример](https://github.com/mesilov/bitrix24-cli/pull/150#discussion_r4282370327): TaskUsage не добавляет dry-run к connection:check, карта сгенерирована повторно; parser/help tests проверяют реальный диагностический пример. Примеры остальных команд сохраняют прежний dry-run.
 - В docs/task-jtbd.md актуализированы общие границы прав для существующих сценариев, ссылки на runtime/tests и отсутствие live-приёмки; состав 22 JTBD не изменён.
 - Повторные PHPStan, PHP-CS-Fixer и Rector: pass. Generated CLI reference: 57 команд, pass. OpenSpec --all --strict: 25 passed, 0 failed.
-- Закрытие threads, финальная проверка reviews и CI выполняются после публикации исправлений; статус подтверждается в GitHub.
+- После публикации исправлений все три threads закрыты. Непосредственно перед merge повторно проверены reviews, inline threads и обсуждение: активных CHANGES_REQUESTED и неснятых замечаний нет; со времени создания MR прошло более пяти минут.
+
+## Доставка в dev
+
+- Окончательный head реализации: `617a40d674349406a76b69a9219079ffa46b067b`; он содержит синхронизацию актуальной dev `3426ddc` и уточнение границ JTBD.
+- Перед merge: **13/13 CI check runs SUCCESS**. [Command tests](https://github.com/mesilov/bitrix24-cli/actions/runs/38766332949), [Worktree isolation](https://github.com/mesilov/bitrix24-cli/actions/runs/38766332564).
+- MR #150: **MERGED** в dev 2026-10-15T16:10:37Z, merge SHA `4e387e47ae9267bac1918dcf73a73b41b168aad5`. Issue #149: **CLOSED** 2026-10-15T16:10:40Z.
+- Собственная запись CHANGELOG.md проверена относительно актуальной dev перед merge. Архивный MR также содержит отдельную запись changelog.
+- Post-merge CI, фактическая доставка архива, окончательная трассировка issue и удаление worktree проверяются через GitHub/Git после архивного MR; эти действия не подтверждаются самим наличием локального архива.
