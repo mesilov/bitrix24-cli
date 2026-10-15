@@ -58,14 +58,6 @@ for utility in curl tar awk sed grep mktemp cp mv chmod mkdir rm ls "$checksum_t
     command -v "$utility" >/dev/null 2>&1 || fail "required utility missing: $utility"
 done
 release_base=https://github.com/mesilov/bitrix24-cli/releases
-if [ -z "$version" ]; then
-    resolved=$(curl -q --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
-        --retry 3 --retry-connrefused --retry-max-time 360 \
-        --connect-timeout 15 --max-time 120 --output /dev/null --write-out '%{url_effective}' "$release_base/latest") \
-        || fail 'cannot resolve latest stable public Release; choose an available --version tag'
-    case "$resolved" in "$release_base/tag/"*) version=${resolved#"$release_base/tag/"} ;; *) fail 'latest did not resolve to a public release tag' ;; esac
-    valid_tag "$version" || fail 'latest returned an invalid release tag'
-fi
 archive=b24cli-$target.tar.gz
 work=$(mktemp -d "${TMPDIR:-/tmp}/b24cli-install.XXXXXXXX") || fail 'cannot create temporary directory'
 binary_stage=
@@ -80,6 +72,14 @@ cleanup() {
 trap cleanup 0
 trap 'exit 130' INT
 trap 'exit 143' TERM HUP
+if [ -z "$version" ]; then
+    resolved=$(curl -q --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
+        --retry 3 --retry-connrefused --retry-max-time 360 \
+        --connect-timeout 15 --max-time 120 --output "$work/latest" --write-out '%{url_effective}' "$release_base/latest") \
+        || fail 'cannot resolve latest stable public Release; choose an available --version tag'
+    case "$resolved" in "$release_base/tag/"*) version=${resolved#"$release_base/tag/"} ;; *) fail 'latest did not resolve to a public release tag' ;; esac
+    valid_tag "$version" || fail 'latest returned an invalid release tag'
+fi
 fetch() {
     curl -q --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
         --retry 3 --retry-connrefused --retry-max-time 900 \

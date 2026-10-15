@@ -15,6 +15,7 @@
 ## Проверки после интеграции origin/dev
 
 - `sh -n install.sh` — passed.
+- Локальный Linux/curl 8.5 (Ubuntu, контейнер без внешней сети): **5/5** сетевых и защитных тестов, 38.726 seconds, включая полный timeout latest/архива после переноса output в work/latest.
 - `python3 -m py_compile build/tests/shell-installer-check.py` — passed.
 - `python3 build/tests/shell-installer-check.py --assets /private/tmp/issue-151-native-assets --version 0.2.0` — **12 tests, OK**, без skips. Среда: macOS arm64, Python 3.14, native curl 8.7.1, Bash и zsh.
 - `openspec validate retry-shell-installer-network --strict` — passed.
@@ -49,3 +50,7 @@ CI paths workflow `shell-installer.yml` включают README.md и docs/insta
 ## Проверка замечания ревью
 
 Замечание https://github.com/mesilov/bitrix24-cli/pull/155#discussion_r4285711502 подтверждено: budget 120 секунд не оставлял времени для retry после max-time 120/300 секунд. Budget увеличен до 360/900 секунд. Новый regression test на сохранённом прежнем install.sh дал два ожидаемых curl 28 failures (latest и archive), а на исправленном script оба сценария прошли. Масштабирование /60 применяется и к max-time, и к retry-max-time, поэтому исходное соотношение лимитов сохраняется.
+
+## Совместимость Linux curl 8.5
+
+Новый full-timeout сценарий latest воспроизвёл CI failure локально на Ubuntu/curl 8.5: output=/dev/null не позволял повтор после частичного тела страницы релиза. Контрольная проверка того же install.sh с обычным временным output прошла. Production installer создаёт work/cleanup до latest и записывает ответ в `$work/latest`, сохраняя исходную проверку конечного URL. Результаты локального Linux прогона и native CI фиксируются отдельно.

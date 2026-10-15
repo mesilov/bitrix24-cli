@@ -16,12 +16,16 @@
 
 В оба сетевых вызова добавить `--retry 3 --retry-connrefused`: `--retry-max-time 360` для latest и `--retry-max-time 900` для assets. Штатная задержка — 1, 2, 4 секунды; curl учитывает Retry-After. Сохраняются `--connect-timeout 15`, `--max-time 120` для latest и `--max-time 300` для assets. Бюджет старта повторов втрое больше max-time одной попытки: полный transfer timeout оставляет время для нового запроса. Бюджет запрещает старт новых повторов после его исчерпания, но уже начатая попытка ограничена своим max-time. Верхняя граница передачи с последней попыткой — 480 секунд для latest и 1200 секунд для asset; лимит количества — четыре попытки.
 
-HTTP 404, ошибки сертификатов и package validation не получают повторов. `--retry-all-errors` не используется: он повторял бы постоянные ошибки. Отдельный shell retry-loop добавил бы собственную классификацию ошибок и работу с частично записанными файлами. Native curl уже повторно записывает output-файл при retry. Кратковременные DNS/другие ошибки, не входящие в retry-политику curl, не расширяют согласованный набор HTTP/timeout/ECONNREFUSED.
+HTTP 404, ошибки сертификатов и package validation не получают повторов. `--retry-all-errors` не используется: он повторял бы постоянные ошибки. Отдельный shell retry-loop добавил бы собственную классификацию ошибок и работу с частично записанными файлами. Native curl уже повторно записывает output-файл при retry.
 
 Официальные источники (проверены через Context7 `/curl/curl`):
 - https://github.com/curl/curl/blob/master/docs/cmdline-opts/retry.md
 - https://github.com/curl/curl/blob/master/docs/cmdline-opts/retry-connrefused.md
 - https://github.com/curl/curl/blob/master/docs/cmdline-opts/retry-max-time.md
+
+### Временный файл для ответа latest
+
+Рабочий каталог и cleanup trap создаются до определения latest; его ответ записывается в обычный `$work/latest`. На Linux curl 8.5 частичный timeout с output=/dev/null не повторяется, а тот же тест с обычным файлом проходит. Curl может усечь output перед новой попыткой. При любой ошибке определения тега cleanup удаляет каталог, как при asset failures. Исходная семантика GET/redirect и проверка конечного публичного tag URL сохраняются.
 
 ### Условные шаги в Bash/zsh
 
