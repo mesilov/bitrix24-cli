@@ -123,6 +123,11 @@ b24cli.exe --profile work users:current --json
 ввод webhook в CI, переменные окружения и выбор источника credentials —
 в [руководстве по подключениям](docs/connection.md).
 
+CLI проверяет разрешения вебхука перед работой с порталом и кеширует результат на сутки
+в отдельном `state.json`. При нехватке прав блокируется только затронутая команда.
+После изменения разрешений выполните `b24cli connection:check work --json`.
+Подробности — в [руководстве по проверке разрешений](docs/connection-scopes.md).
+
 ## CLI-команды
 
 ID, имена профилей и тексты в примерах замените своими. Команды изменения задач
@@ -141,6 +146,7 @@ ID, имена профилей и тексты в примерах замени
 | Команда | Назначение | Пример |
 | --- | --- | --- |
 | `connection:add` | Сохранить локальное подключение | `b24cli connection:add work --group-id 7 --creator-id 1 --responsible-id 42` |
+| `connection:check` | Проверить разрешения вебхука и требования CLI | `b24cli connection:check work --json` |
 | `connection:list` | Показать сохранённые подключения | `b24cli connection:list` |
 | `connection:remove` | Удалить локальный профиль и его учётные данные | `b24cli connection:remove work` |
 | `connection:show` | Показать безопасные параметры выбранного подключения | `b24cli connection:show work` |

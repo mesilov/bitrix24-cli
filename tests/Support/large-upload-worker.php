@@ -29,6 +29,10 @@ $observedHash = '';
 $calls = [];
 $http = new MockHttpClient(static function (string $method, string $url, array $options) use (&$wireBytes, &$observedHash, &$calls, $encodedLength): MockResponse {
     $calls[] = $url;
+    if (basename(parse_url($url, PHP_URL_PATH)) === 'scope') {
+        return new MockResponse('{"result":["task","disk"]}');
+    }
+
     if (!str_contains(strtolower($url), 'disk.folder.uploadfile')) {
         return new MockResponse('{"result":true}');
     }
@@ -80,7 +84,7 @@ $http = new MockHttpClient(static function (string $method, string $url, array $
 });
 try {
     $app = (new ApplicationFactory())->create(dirname(__DIR__, 2), null, new SpyConnectionResolver(), false, $http);
-    $arguments = ['--json', 'task:file:attach', '123', '--file', $path, '--folder-id', '456'];
+    $arguments = ['--config-dir', $directory . '/config', '--json', 'task:file:attach', '123', '--file', $path, '--folder-id', '456'];
     if (($argv[2] ?? '') === 'config') {
         $config = $directory . '/runtime.json';
         $filesystem->dumpFile($config, json_encode(['maxUploadBytes' => $size], JSON_THROW_ON_ERROR));
@@ -88,11 +92,11 @@ try {
     }
 
     $run = ConsoleHarness::run($app, $arguments);
-    if ($run->status !== 0 || $observedHash !== $expectedHash || count($calls) !== 2) {
+    if ($run->status !== 0 || $observedHash !== $expectedHash || count($calls) !== 3) {
         throw new RuntimeException('Large upload failed: ' . $run->stdout . $run->stderr);
     }
 
-    echo json_encode(['sizeBytes' => $size, 'wireBytes' => $wireBytes, 'hashMatched' => true, 'memoryLimit' => ini_get('memory_limit'), 'peakMemoryBytes' => memory_get_peak_usage(true), 'apiCalls' => 2], JSON_THROW_ON_ERROR), "\n";
+    echo json_encode(['sizeBytes' => $size, 'wireBytes' => $wireBytes, 'hashMatched' => true, 'memoryLimit' => ini_get('memory_limit'), 'peakMemoryBytes' => memory_get_peak_usage(true), 'apiCalls' => 3], JSON_THROW_ON_ERROR), "\n";
 } finally {
     $filesystem->remove($directory);
 }

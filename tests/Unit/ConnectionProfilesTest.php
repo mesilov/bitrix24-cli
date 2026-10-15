@@ -195,7 +195,7 @@ final class ConnectionProfilesTest extends TestCase
     {
         $app = $this->app();
         $connectionNames = array_values(array_filter(array_keys(CommandCatalog::LOCAL_COMMANDS), static fn (string $name): bool => str_starts_with($name, 'connection:')));
-        self::assertSame($connectionNames, array_keys($app->all('connection')));
+        self::assertSame(['connection:check', ...$connectionNames], array_keys($app->all('connection')));
         foreach (['--json', '--plain', '--no-ansi'] as $mode) {
             $alias = 'profile' . substr($mode, 2);
             $run = ConsoleHarness::run($app, ['connection:add', $alias, '--webhook-stdin', '--group-id', '42', $mode], "https://fixture.invalid/rest/1/RecognizableFixtureSecret/\r\n");

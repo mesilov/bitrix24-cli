@@ -18,7 +18,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 final readonly class CommandRunner
 {
-    public function __construct(private ApiPolicyGuard $guard, private ResultPresenter $presenter, private RuntimeState $state, private InputSourceReader $reader, private \Bitrix24\CLI\Infrastructure\Connection\ConnectionManager $connections)
+    public function __construct(private ApiPolicyGuard $guard, private ResultPresenter $presenter, private RuntimeState $state, private InputSourceReader $reader, private \Bitrix24\CLI\Infrastructure\Connection\ConnectionManager $connections, private \Bitrix24\CLI\Infrastructure\Bitrix24\ApiTransport $transport)
     {
     }
 
@@ -54,6 +54,8 @@ final readonly class CommandRunner
         }
 
         try {
+            $scopeValidation = !$context->dryRun && $this->transport instanceof \Bitrix24\CLI\Infrastructure\Bitrix24\ScopeAwareTransport
+                ? $this->transport->beforeCommand($plan, $context->policy !== 'strict-rest3') : [];
             $operation = $prepare($request, $context);
             if ($context->dryRun) {
                 $result = new OperationResult('plan', ['plan' => ['command' => $command, 'target' => $operation->target, 'steps' => $operation->plan]], ['dryRun' => true, 'complete' => true]);
@@ -74,7 +76,7 @@ final readonly class CommandRunner
                 $result = new OperationResult($result->profile, $result->data, [...$result->meta, 'reason' => 'Interrupted; confirmed steps are retained.'], 130);
             }
 
-            $result = new OperationResult($result->profile, $result->data, [...$result->meta, 'connection' => $this->connections->metadata($context->dryRun), 'fieldSources' => $this->connections->fieldSources], $result->exitStatus);
+            $result = new OperationResult($result->profile, $result->data, [...$result->meta, ...($scopeValidation === [] ? [] : ['scopeValidation' => $scopeValidation]), 'connection' => $this->connections->metadata($context->dryRun), 'fieldSources' => $this->connections->fieldSources], $result->exitStatus);
             $this->presenter->success($result, $context->outputMode, $output, $command, $this->state->calls);
             return $result->exitStatus;
         } finally {

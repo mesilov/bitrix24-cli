@@ -295,14 +295,21 @@ final class TaskRoleFilterTest extends TestCase
     {
         $time = ['start' => 1, 'finish' => 2, 'duration' => 1, 'processing' => 0, 'date_start' => '2026-10-13T00:00:00+00:00', 'date_finish' => '2026-10-13T00:00:01+00:00'];
         $mockHttpClient = new MockHttpClient([
+            new MockResponse(json_encode(['result' => ['task']], JSON_THROW_ON_ERROR)),
             new MockResponse(json_encode(['result' => ['items' => [self::row(1)]], 'time' => $time], JSON_THROW_ON_ERROR)),
             new MockResponse(json_encode(['result' => ['task' => ['id' => '1', 'auditors' => ['1']]], 'time' => $time], JSON_THROW_ON_ERROR)),
         ]);
         $app = (new ApplicationFactory())->create(dirname(__DIR__, 2), resolver: new SpyConnectionResolver(), httpClient: $mockHttpClient);
-        $run = ConsoleHarness::run($app, ['--json', 'task:list', '--role', 'auditor']);
+        $directory = sys_get_temp_dir() . '/b24cli-role-scope-' . bin2hex(random_bytes(6));
+        try {
+            $run = ConsoleHarness::run($app, ['--config-dir', $directory, '--json', 'task:list', '--role', 'auditor']);
+        } finally {
+            (new \Symfony\Component\Filesystem\Filesystem())->remove($directory);
+        }
+
         self::assertSame(0, $run->status, $run->stdout . $run->stderr);
-        self::assertSame(['3.0', '1.0'], $run->json()['meta']['apiVersions']);
-        self::assertSame(['tasks.task.list', 'tasks.task.get'], array_column($run->json()['meta']['apiCalls'], 'method'));
-        self::assertSame(['read', 'read'], array_column($run->json()['meta']['apiCalls'], 'effect'));
+        self::assertSame(['1.0', '3.0'], $run->json()['meta']['apiVersions']);
+        self::assertSame(['scope', 'tasks.task.list', 'tasks.task.get'], array_column($run->json()['meta']['apiCalls'], 'method'));
+        self::assertSame(['read', 'read', 'read'], array_column($run->json()['meta']['apiCalls'], 'effect'));
     }
 }

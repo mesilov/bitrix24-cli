@@ -86,6 +86,10 @@ final readonly class ResultPresenter
             $this->diagnostic($output, 'Задача ожидает контроля постановщика (supposedly_completed).');
         }
 
+        if ($mode !== 'json' && isset($result->meta['scopeValidation']) && $result->meta['scopeValidation']['status'] !== 'fresh') {
+            $this->diagnostic($output, $result->meta['scopeValidation']['reason']);
+        }
+
         if ($mode === 'human' && in_array('1.0', $meta['apiVersions'], true)) {
             $this->diagnostic($output, 'This operation used an explicitly admitted REST 1.0 route.');
         }
@@ -100,6 +104,11 @@ final readonly class ResultPresenter
             ], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), OutputInterface::OUTPUT_RAW);
         } else {
             $this->diagnostic($output, $failure->errorCode . ': ' . $failure->getMessage());
+            if ($mode !== 'json' && isset($failure->details['scopeValidation'])) {
+                foreach ($failure->details['scopeValidation'] as $field => $value) {
+                    $this->diagnostic($output, $mode === 'plain' ? $this->escape($field) . "\t" . $this->escape($value) : $field . ': ' . $this->string($value));
+                }
+            }
         }
     }
 
@@ -123,6 +132,10 @@ final readonly class ResultPresenter
             }
 
             return [['field', 'value'], $rows];
+        }
+
+        if ($result->profile === 'scope-check') {
+            return [['field', 'value'], array_map(static fn (string $field, mixed $value): array => [$field, $value], array_keys($result->data), array_values($result->data))];
         }
 
         if (in_array($result->profile, ['task-card', 'time-context', 'task-access'], true)) {
