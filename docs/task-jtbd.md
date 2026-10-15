@@ -11,13 +11,15 @@
 
 Сверка [#136](https://github.com/mesilov/bitrix24-cli/issues/136) от 14.10.2026: runtime SHA `f8c380a4539d78556c97655f122a9ba52c1651c8`, база `dev` — `5330662`. Для PM-02/AM-03 длительности представлены в seconds/hours/days с исключением субботы и воскресенья по серверному offset; приёмка #121 подтверждена и завершена. Число сценариев и их ID сохранены.
 
-**22 существующих сценария:** 7 для руководителя отдела, 7 для аккаунт-менеджера проекта, 8 для рядового исполнителя. Ситуация, работа, цель и признак успеха взяты из [канонической спецификации task-workflows](../openspec/specs/task-workflows/spec.md); ID сохранены для трассировки на команды и тесты.
+**23 сценария:** 8 для руководителя отдела, 7 для аккаунт-менеджера проекта, 8 для рядового исполнителя. Исходные 22 сценария: ситуация, работа, цель и признак успеха взяты из [канонической спецификации task-workflows](../openspec/specs/task-workflows/spec.md); ID сохранены для трассировки на команды и тесты.
 
 Группировка «руководитель отдела» соответствует исходной роли «Руководитель проекта» (`PM-*`), «аккаунт-менеджер проекта» — «Аккаунт менеджер» (`AM-*`), «рядовой исполнитель» — «Сотрудник» (`EMP-*`). В группе PM приведены согласованные сценарии управления проектной работой; отдельные сценарии управления отделом пока не специфицированы. Эта группировка не меняет исходные требования и не предоставляет прав в Битрикс24: действия зависят от текущего подключения.
 
+Сверка [#72](https://github.com/mesilov/bitrix24-cli/issues/72) от 16.10.2026, база `dev` — `536131d9dbeb4a5c9e189f20e604e8c26c812e03`: добавлен PM-08 из [change task-templates](../openspec/changes/add-task-templates/specs/task-templates/spec.md). Статусы ниже означают наличие команд; live-приёмка шаблонов не подтверждена.
+
 ## Роли
 
-- **[Руководитель отдела](#role-manager)** — организует работу команды: планирует этапы, следит за рисками, снимает препятствия, пересогласует сроки и распределение работ, принимает результат внутри команды. Сценарии `PM-01`…`PM-07` описывают управление проектной работой и её координацию.
+- **[Руководитель отдела](#role-manager)** — организует работу команды: планирует этапы, следит за рисками, снимает препятствия, пересогласует сроки и распределение работ, принимает результат внутри команды. Сценарии `PM-01`…`PM-08` описывают управление проектной работой и её координацию.
 - **[Аккаунт-менеджер проекта](#role-account-manager)** — связывает клиента и команду: передаёт запросы, следит за обещаниями, сообщает о ходе работ, согласует изменения требований и передаёт результат с обратной связью клиента. Сценарии `AM-01`…`AM-07`.
 - **[Рядовой исполнитель](#role-executor)** — выполняет задачи: выбирает следующую работу, получает контекст, запрашивает помощь, учитывает актуальные ожидания, предъявляет результат и фиксирует трудозатраты. Сценарии `EMP-01`…`EMP-08`.
 
@@ -162,6 +164,25 @@
 | ✅ Готово | [`task:result:list`](../src/Console/Command/Task/ListTaskResultsCommand.php) | [`ListTaskResultsCommandTest.php`](../tests/Integration/Task/ListTaskResultsCommandTest.php) |
 
 **Границы:** Проверяется работа с native результатами; решение о внутренней приёмке остаётся отдельным процессом.
+
+<a id="pm-08"></a>
+
+### [PM-08](../openspec/changes/add-task-templates/specs/task-templates/spec.md) — Сопровождение шаблонов типовых задач
+
+- **Когда:** команда регулярно выполняет однотипные задачи.
+- **Хочу:** читать, создавать и обновлять шаблоны, запрашивать удаление устаревших.
+- **Чтобы:** поддерживать согласованные настройки типовой работы.
+- **Признак успеха:** нужный шаблон доступен по ID, создание/изменение подтверждено; неоднозначный ответ удаления показан явно.
+
+| Статус | Команда | Тест |
+| --- | --- | --- |
+| ✅ Готово | [`task:template:show`](../src/Console/Command/Task/ShowTaskTemplateCommand.php) | [`ShowTaskTemplateCommandTest.php`](../tests/Integration/Task/ShowTaskTemplateCommandTest.php) |
+| ✅ Готово | [`task:template:fields:list`](../src/Console/Command/Task/ListTaskTemplateFieldsCommand.php) | [`ListTaskTemplateFieldsCommandTest.php`](../tests/Integration/Task/ListTaskTemplateFieldsCommandTest.php) |
+| ✅ Готово | [`task:template:add`](../src/Console/Command/Task/AddTaskTemplateCommand.php) | [`AddTaskTemplateCommandTest.php`](../tests/Integration/Task/AddTaskTemplateCommandTest.php) |
+| ✅ Готово | [`task:template:update`](../src/Console/Command/Task/UpdateTaskTemplateCommand.php) | [`UpdateTaskTemplateCommandTest.php`](../tests/Integration/Task/UpdateTaskTemplateCommandTest.php) |
+| ✅ Готово | [`task:template:delete`](../src/Console/Command/Task/DeleteTaskTemplateCommand.php) | [`DeleteTaskTemplateCommandTest.php`](../tests/Integration/Task/DeleteTaskTemplateCommandTest.php) |
+
+**Границы:** операции REST 1.0 зависят от прав подключения и недоступны в strict-rest3. Delete=false даёт exit 3 и confirmed=false; последующее отсутствие видимости не доказывает удаление. Пять отдельных integration tests подготовлены; наличие файлов тестов не подтверждает live-приёмку. Список шаблонов, запуск задачи из шаблона, расписания и чек-листы не входят в поставку. [Ввод полей и форматы](task-usage.md#шаблоны-задач).
 
 <a id="role-account-manager"></a>
 

@@ -12,6 +12,7 @@ final class ScopeManifest
 {
     // See docs/connection-scopes.md for official sources and the task/tasks discrepancy.
     private const TASK_METHODS = [
+        'tasks.template.get', 'tasks.template.fields', 'tasks.template.add', 'tasks.template.update', 'tasks.template.delete',
         'tasks.task.add', 'tasks.task.get', 'tasks.task.list', 'tasks.task.update', 'tasks.task.delete',
         'tasks.task.getFields', 'tasks.task.field.list', 'tasks.task.field.get', 'tasks.task.access.get',
         'tasks.task.history.list', 'tasks.task.file.attach', 'tasks.task.chat.message.send',

@@ -7,6 +7,12 @@ namespace Bitrix24\CLI\Bootstrap;
 final class CommandCatalog
 {
     public const COMMANDS = [
+        'task:template:show' => ['class' => \Bitrix24\CLI\Console\Command\Task\ShowTaskTemplateCommand::class, 'effect' => 'read'],
+        'task:template:fields:list' => ['class' => \Bitrix24\CLI\Console\Command\Task\ListTaskTemplateFieldsCommand::class, 'effect' => 'read'],
+        'task:template:add' => ['class' => \Bitrix24\CLI\Console\Command\Task\AddTaskTemplateCommand::class, 'effect' => 'write'],
+        'task:template:update' => ['class' => \Bitrix24\CLI\Console\Command\Task\UpdateTaskTemplateCommand::class, 'effect' => 'write'],
+        'task:template:delete' => ['class' => \Bitrix24\CLI\Console\Command\Task\DeleteTaskTemplateCommand::class, 'effect' => 'delete'],
+
         'connection:check' => ['class' => \Bitrix24\CLI\Console\Command\Connection\CheckConnectionCommand::class, 'effect' => 'read'],
         'task:status:durations' => ['class' => \Bitrix24\CLI\Console\Command\Task\StatusDurationsTaskCommand::class, 'effect' => 'read'],
         'task:start' => ['class' => \Bitrix24\CLI\Console\Command\Task\StartTaskCommand::class, 'effect' => 'write'],
@@ -72,6 +78,12 @@ final class CommandCatalog
     }
 
     public const ROUTES = [
+        'task:template:show' => [['tasks.template.get', 1]],
+        'task:template:fields:list' => [['tasks.template.fields', 1]],
+        'task:template:add' => [['tasks.template.add', 1]],
+        'task:template:update' => [['tasks.template.update', 1]],
+        'task:template:delete' => [['tasks.template.get', 1], ['tasks.template.delete', 1]],
+
         'connection:check' => [['scope', 1]],
         'task:status:durations' => [['tasks.task.history.list', 1], ['tasks.task.get', 3], ['tasks.task.list', 3]],
         'task:start' => [['tasks.task.get', 3], ['tasks.task.access.get', 3], ['tasks.task.start', 1]],

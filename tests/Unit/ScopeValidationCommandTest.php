@@ -95,6 +95,23 @@ final class ScopeValidationCommandTest extends TestCase
         self::assertFileDoesNotExist($this->directory . '/config.json');
     }
 
+    public function testMissingTaskScopeBlocksEveryTemplateCommandBeforeBusinessApi(): void
+    {
+        $this->scopes = [];
+        foreach ([
+            ['task:template:show', '139'], ['task:template:fields:list'],
+            ['task:template:add', '--title', 'x', '--creator', '1', '--responsible', '2'],
+            ['task:template:update', '139', '--description', 'x'],
+            ['task:template:delete', '139', '--force'],
+        ] as $args) {
+            $run = ConsoleHarness::run($this->app, [...$args, '--json']);
+            self::assertSame(4, $run->status, $run->stdout);
+            self::assertSame('scope-missing', $run->json()['error']['code']);
+        }
+
+        self::assertSame(['scope'], $this->calls);
+    }
+
     public function testExplicitCheckForcesRefreshAndAllOutputModesExplainMissingScopes(): void
     {
         $report = null;
