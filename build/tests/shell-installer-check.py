@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
 """Offline installer contract; optional real native package through controlled curl."""
 import argparse
+import contextlib
 import hashlib
+import http.server
 import io
 import json
 import os
 from pathlib import Path
 import platform
+import re
 import shutil
 import subprocess
 import tarfile
 import tempfile
+import threading
+import time
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -47,7 +52,7 @@ url=
 while [ "$#" -gt 0 ]; do
     case "$1" in
       --output) out=$2; shift 2;;
-      --write-out|--proto|--proto-redir|--connect-timeout|--max-time) shift 2;;
+      --write-out|--proto|--proto-redir|--connect-timeout|--max-time|--retry|--retry-max-time) shift 2;;
       https:*) url=$1; shift;;
       *) shift;;
     esac
@@ -196,6 +201,197 @@ esac
         self.package(target='macos-arm64')
         self.run_installer('--no-modify-path')
         self.assertIn('b24cli-macos-arm64.tar.gz', self.log.read_text())
+
+    @contextlib.contextmanager
+    def real_transport(self, failures, refused=False):
+        """Run real curl retries; only the fixture URL/HTTPS transport is adapted."""
+        counts = {}
+        assets = self.assets
+
+        class Handler(http.server.BaseHTTPRequestHandler):
+            def log_message(self, *unused):
+                pass
+
+            def do_GET(self):
+                counts[self.path] = counts.get(self.path, 0) + 1
+                pending = failures.get(self.path, [])
+                status = pending.pop(0) if pending else 200
+                if isinstance(status, int) and status != 200:
+                    self.send_response(status)
+                    self.send_header('Content-Length', '0')
+                    self.end_headers()
+                    return
+                if self.path == '/latest':
+                    self.send_response(302)
+                    self.send_header('Location', '/tag/0.2.0')
+                    self.end_headers()
+                    return
+                body = b'release index fixture' * 10 if self.path == '/tag/0.2.0' else (assets / self.path.rsplit('/', 1)[-1]).read_bytes()
+                self.send_response(200)
+                self.send_header('Content-Length', str(len(body)))
+                self.end_headers()
+                try:
+                    if status == 'timeout':
+                        self.wfile.write(body[:8])
+                        self.wfile.flush()
+                        time.sleep(6)
+                        self.wfile.write(body[8:])
+                    else:
+                        self.wfile.write(body)
+                except (BrokenPipeError, ConnectionResetError):
+                    pass
+
+        server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), Handler, bind_and_activate=False)
+        server.server_bind()
+        endpoint = 'http://127.0.0.1:' + str(server.server_address[1])
+        if refused:
+            address = server.server_address
+            server.server_close()
+            server = http.server.ThreadingHTTPServer(address, Handler, bind_and_activate=False)
+
+        def serve():
+            if refused:
+                marker = Path(self.env['FIXTURE_REFUSED_MARKER'])
+                deadline = time.monotonic() + 10
+                while time.monotonic() < deadline:
+                    if marker.exists():
+                        counts['connection-refused-observed'] = True
+                        break
+                    time.sleep(0.01)
+                server.server_bind()
+            server.server_activate()
+            server.serve_forever(poll_interval=0.05)
+
+        thread = threading.Thread(target=serve, daemon=True)
+        thread.start()
+        self.env.update(FIXTURE_ENDPOINT=endpoint, FIXTURE_REAL_CURL=shutil.which('curl', path='/usr/bin:/bin'))
+        self.script('curl', '#!' + os.sys.executable + '\n' + '''import os, pathlib, subprocess, sys, threading
+base = 'https://github.com/mesilov/bitrix24-cli/releases'
+endpoint = os.environ['FIXTURE_ENDPOINT']
+original = sys.argv[1:]
+args = [endpoint + arg[len(base):] if arg.startswith(base + '/') else arg for arg in original]
+args += ['--proto', '=http,https', '--proto-redir', '=http,https']
+if os.environ.get('FIXTURE_SCALE_TIMEOUTS'):
+    for option in ['--max-time', '--retry-max-time']:
+        index = args.index(option) + 1
+        args[index] = format(float(args[index]) / 60, 'g')
+process = subprocess.Popen([os.environ['FIXTURE_REAL_CURL'], *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+def forward_errors():
+    for line in process.stderr:
+        sys.stderr.buffer.write(line)
+        sys.stderr.buffer.flush()
+        if b'curl: (7)' in line and os.environ.get('FIXTURE_REFUSED_MARKER'):
+            pathlib.Path(os.environ['FIXTURE_REFUSED_MARKER']).touch()
+errors = threading.Thread(target=forward_errors)
+errors.start()
+output = process.stdout.read()
+status = process.wait()
+errors.join()
+sys.stdout.buffer.write(output.replace(endpoint.encode(), base.encode()))
+sys.exit(status)
+''')
+        try:
+            yield counts
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+
+    def test_transient_http_recovery_with_real_curl(self):
+        for path, status in [('/latest', 504), ('/download/0.2.0/b24cli-linux-amd64.tar.gz', 503),
+                             ('/download/0.2.0/SHA256SUMS', 429), ('/latest', 408),
+                             ('/download/0.2.0/b24cli-linux-amd64.tar.gz', 500),
+                             ('/download/0.2.0/SHA256SUMS', 502)]:
+            with self.subTest(path=path, status=status), self.real_transport({path: [status]}) as counts:
+                self.run_installer('--no-modify-path')
+                self.assertEqual(counts[path], 2)
+
+    def test_partial_download_timeout_with_real_curl(self):
+        self.env['FIXTURE_SCALE_TIMEOUTS'] = '1'
+        for path in ['/tag/0.2.0', '/download/0.2.0/b24cli-linux-amd64.tar.gz']:
+            with self.subTest(path=path), self.real_transport({path: ['timeout']}) as counts:
+                self.run_installer('--no-modify-path')
+                self.assertEqual(counts[path], 2)
+
+    def test_refused_connection_with_real_curl(self):
+        self.env['FIXTURE_REFUSED_MARKER'] = str(self.root / 'connection refused')
+        with self.real_transport({}, refused=True) as counts:
+            self.run_installer('--no-modify-path')
+            self.assertEqual(counts['/latest'], 1)
+            self.assertTrue(counts.get('connection-refused-observed'))
+
+    def test_network_failures_preserve_install_with_real_curl(self):
+        for status, attempts in [(504, 4), (404, 1)]:
+            for path in ['/latest', '/download/0.2.0/b24cli-linux-amd64.tar.gz', '/download/0.2.0/SHA256SUMS']:
+                with self.subTest(path=path, status=status):
+                    before = self.sentinel()
+                    for name in ['.local/share/b24cli/env', '.bashrc', '.profile', 'zsh settings/.zshrc']:
+                        entry = self.home / name
+                        entry.parent.mkdir(parents=True, exist_ok=True)
+                        entry.write_text('previous ' + name)
+                        before[name] = entry.read_bytes()
+                    with self.real_transport({path: [status] * attempts}) as counts:
+                        self.run_installer(success=False)
+                        self.assertEqual(counts[path], attempts)
+                    self.unchanged(before)
+
+    def test_documented_shell_sequences(self):
+        blocks = []
+        for document in ['README.md', 'docs/install.md']:
+            for block in re.findall(r'```sh\n(.*?)\n```', (ROOT / document).read_text(), re.S):
+                if 'raw.githubusercontent.com/mesilov/bitrix24-cli/main/install.sh' in block or block.startswith('sh install.sh --install-dir'):
+                    blocks.append((document, block))
+        self.assertEqual(len(blocks), 5)
+        shells = [shutil.which('bash'), shutil.which('zsh')]
+        self.assertTrue(all(shells), 'Bash and zsh are required for documentation acceptance')
+        activated = self.root / 'activated'
+        invoked = self.root / 'invoked'
+        active_bin = self.root / 'activated bin'
+        active_bin.mkdir()
+        version_script = '#!/bin/sh\nprintf invoked > "$FIXTURE_INVOKED"\nprintf "b24cli fixture\\n"\n'
+        self.script('b24cli', version_script)
+        (active_bin / 'b24cli').write_text(version_script)
+        (active_bin / 'b24cli').chmod(0o755)
+        share = self.home / '.local/share/b24cli'
+        share.mkdir(parents=True)
+        (share / 'env').write_text('''printf activated > "$FIXTURE_ACTIVATED"
+[ "$FIXTURE_DOC_MODE" != activation ] || return 9
+export PATH="$FIXTURE_ACTIVE_BIN:$PATH"
+''')
+        self.script('less', '#!/bin/sh\nexit 0\n')
+        self.script('curl', '''#!/bin/sh
+out=
+while [ "$#" -gt 0 ]; do
+    case "$1" in -o|--output) out=$2; shift 2;; *) shift;; esac
+done
+[ "$FIXTURE_DOC_MODE" != download ] || { printf 'exit 0\\n'; exit 22; }
+if [ -n "$out" ]; then cp "$FIXTURE_DOC_SCRIPT" "$out"; else cat "$FIXTURE_DOC_SCRIPT"; fi
+''')
+        script = self.root / 'document fixture.sh'
+        script.write_text('[ "$FIXTURE_DOC_MODE" != install ] || exit 1\nexit 0\n')
+        self.env.update(FIXTURE_ACTIVATED=str(activated), FIXTURE_INVOKED=str(invoked),
+                        FIXTURE_ACTIVE_BIN=str(active_bin), FIXTURE_DOC_SCRIPT=str(script))
+        for document, block in blocks:
+            for shell in shells:
+                for mode in ['download', 'install', 'activation', 'success']:
+                    if mode == 'download' and 'curl ' not in block:
+                        continue
+                    with self.subTest(document=document, shell=shell, mode=mode, block=block.splitlines()[0]):
+                        activated.unlink(missing_ok=True)
+                        invoked.unlink(missing_ok=True)
+                        shutil.copyfile(script, self.root / 'install.sh')
+                        self.env['FIXTURE_DOC_MODE'] = mode
+                        command = block + '\ntask_status=$?\n[ "$task_status" -eq 0 ] || exit "$task_status"\ncommand -v b24cli\n'
+                        result = subprocess.run([shell, '-f', '-c', command], env=self.env, cwd=self.root,
+                                                text=True, capture_output=True)
+                        if mode == 'success':
+                            self.assertEqual(result.returncode, 0, result.stderr)
+                            self.assertTrue(activated.exists())
+                            self.assertEqual(result.stdout.strip().splitlines()[-1], str(active_bin / 'b24cli'))
+                        else:
+                            self.assertNotEqual(result.returncode, 0)
+                            self.assertEqual(activated.exists(), mode == 'activation')
+                            self.assertFalse(invoked.exists(), result.stdout + result.stderr)
 
     def test_failures_preserve_previous_install(self):
         for scenario in ['download', 'latest', 'checksum-download', 'missing', 'malformed', 'duplicate',

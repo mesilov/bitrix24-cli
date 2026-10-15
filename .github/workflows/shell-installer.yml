@@ -4,12 +4,16 @@ on:
   pull_request:
     paths:
       - install.sh
+      - README.md
+      - docs/install.md
       - build/tests/shell-installer-check.py
       - .github/workflows/shell-installer.yml
   push:
     branches: [dev, main]
     paths:
       - install.sh
+      - README.md
+      - docs/install.md
       - build/tests/shell-installer-check.py
       - .github/workflows/shell-installer.yml
   workflow_dispatch:
