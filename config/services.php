@@ -17,6 +17,10 @@ return static function (ContainerBuilder $container, string $root, bool $package
         Bitrix24\CLI\Infrastructure\Connection\FileProtection::class,
         Bitrix24\CLI\Infrastructure\Connection\FileCredentialStore::class,
         Bitrix24\CLI\Infrastructure\Connection\ProfileRepository::class,
+        Bitrix24\CLI\Infrastructure\Connection\ScopeStateStore::class,
+        Bitrix24\CLI\Infrastructure\Connection\ScopeValidator::class,
+        Bitrix24\CLI\Application\Connection\ScopeManifest::class,
+        Bitrix24\CLI\Infrastructure\Bitrix24\ScopeCheckingTransport::class,
         Bitrix24\CLI\Console\ConnectionCommandRunner::class,
         Bitrix24\CLI\Console\DoctorCommandRunner::class,
         Bitrix24\CLI\Infrastructure\Doctor\ProblemTrajectoryStore::class,
@@ -65,7 +69,7 @@ return static function (ContainerBuilder $container, string $root, bool $package
     $container->setAlias(Bitrix24\CLI\Infrastructure\Connection\CredentialStore::class, Bitrix24\CLI\Infrastructure\Connection\FileCredentialStore::class);
     $container->setAlias(Bitrix24\CLI\Infrastructure\Connection\ConnectionResolver::class, Bitrix24\CLI\Infrastructure\Connection\ConnectionManager::class);
     $container->setAlias(Bitrix24\CLI\Application\Task\Port\CurrentUserGateway::class, Bitrix24\CLI\Infrastructure\Connection\IncomingWebhookCurrentUserAdapter::class);
-    $container->setAlias(Bitrix24\CLI\Infrastructure\Bitrix24\ApiTransport::class, Bitrix24\CLI\Infrastructure\Bitrix24\SdkApiTransport::class);
+    $container->setAlias(Bitrix24\CLI\Infrastructure\Bitrix24\ApiTransport::class, Bitrix24\CLI\Infrastructure\Bitrix24\ScopeCheckingTransport::class);
     foreach ([
         'TaskLifecycleGateway' => 'Rest1TaskLifecycleAdapter',
         'DiskUploadGateway' => 'Rest1DiskUploadAdapter',

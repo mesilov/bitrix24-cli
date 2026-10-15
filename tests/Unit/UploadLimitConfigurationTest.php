@@ -99,7 +99,7 @@ final class UploadLimitConfigurationTest extends TestCase
             self::assertTrue($json['hashMatched']);
             self::assertSame('128M', $json['memoryLimit']);
             self::assertLessThan(128 * 1024 * 1024, $json['peakMemoryBytes']);
-            self::assertSame(2, $json['apiCalls']);
+            self::assertSame(3, $json['apiCalls']);
         }
     }
 
@@ -110,6 +110,10 @@ final class UploadLimitConfigurationTest extends TestCase
         $this->sparse($path, $size);
         $calls = 0;
         $mockHttpClient = new \Symfony\Component\HttpClient\MockHttpClient(function (string $method, string $url, array $options) use ($path, $size, &$calls): \Symfony\Component\HttpClient\Response\MockResponse {
+            if (basename(parse_url($url, PHP_URL_PATH)) === 'scope') {
+                return new \Symfony\Component\HttpClient\Response\MockResponse('{"result":["task","disk"]}');
+            }
+
             ++$calls;
             $body = $options['body'];
             self::assertNotEmpty($body(16372));
@@ -120,7 +124,7 @@ final class UploadLimitConfigurationTest extends TestCase
             self::fail('Changed upload was sent');
         });
         $app = (new ApplicationFactory())->create(dirname(__DIR__, 2), null, new SpyConnectionResolver(), false, $mockHttpClient);
-        $run = ConsoleHarness::run($app, ['--json', 'task:file:attach', '123', '--file', $path, '--folder-id', '456']);
+        $run = ConsoleHarness::run($app, ['--config-dir', $this->directory . '/config', '--json', 'task:file:attach', '123', '--file', $path, '--folder-id', '456']);
         self::assertSame(1, $run->status);
         self::assertSame('transport-error', $run->json()['error']['code']);
         self::assertTrue($run->json()['meta']['outcomeUnknown']);

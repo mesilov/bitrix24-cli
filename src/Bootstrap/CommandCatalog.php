@@ -7,6 +7,7 @@ namespace Bitrix24\CLI\Bootstrap;
 final class CommandCatalog
 {
     public const COMMANDS = [
+        'connection:check' => ['class' => \Bitrix24\CLI\Console\Command\Connection\CheckConnectionCommand::class, 'effect' => 'read'],
         'task:status:durations' => ['class' => \Bitrix24\CLI\Console\Command\Task\StatusDurationsTaskCommand::class, 'effect' => 'read'],
         'task:start' => ['class' => \Bitrix24\CLI\Console\Command\Task\StartTaskCommand::class, 'effect' => 'write'],
         'task:pause' => ['class' => \Bitrix24\CLI\Console\Command\Task\PauseTaskCommand::class, 'effect' => 'write'],
@@ -71,6 +72,7 @@ final class CommandCatalog
     }
 
     public const ROUTES = [
+        'connection:check' => [['scope', 1]],
         'task:status:durations' => [['tasks.task.history.list', 1], ['tasks.task.get', 3], ['tasks.task.list', 3]],
         'task:start' => [['tasks.task.get', 3], ['tasks.task.access.get', 3], ['tasks.task.start', 1]],
         'task:pause' => [['tasks.task.get', 3], ['tasks.task.access.get', 3], ['tasks.task.pause', 1]],

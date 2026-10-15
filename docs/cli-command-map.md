@@ -1,6 +1,6 @@
 # Карта CLI-вызовов
 
-Каталог содержит 56 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
+Каталог содержит 57 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
 
 `b24cli --help`/`-h` показывают назначение, список команд, глобальные опции и примеры задач. Вся справка — на русском; имена команд, флагов и API/JSON-полей сохраняются. Единый первый блок «Общие» содержит `completion`, `help` и `list`; далее пространства имён и команды внутри блоков упорядочены по имени. `b24cli --about` показывает назначение, версию, автора, лицензию и ссылки на [приложение](https://github.com/mesilov/bitrix24-cli) и [скилл](https://github.com/mesilov/bitrix24-cli-skill). Эти вызовы не требуют подключения и не обращаются к порталу. `list --help` описывает именно list; вызов без аргументов выводит список команд.
 
@@ -10,6 +10,7 @@
 | --- | --- | --- | --- |
 | `completion` | Вывести скрипт автодополнения для оболочки | offline | `b24cli completion bash` |
 | [`connection:add`](../src/Console/Command/Connection/AddConnectionCommand.php) | Сохранить локальное подключение | local | `b24cli connection:add work --group-id 7 --creator-id 1 --responsible-id 42` |
+| [`connection:check`](../src/Console/Command/Connection/CheckConnectionCommand.php) | Проверить разрешения выбранного вебхука и требования CLI | read | `b24cli connection:check work --json --dry-run` |
 | [`connection:list`](../src/Console/Command/Connection/ListConnectionsCommand.php) | Показать сохранённые подключения | local | `b24cli connection:list` |
 | [`connection:remove`](../src/Console/Command/Connection/RemoveConnectionCommand.php) | Удалить локальный профиль и его учётные данные | local | `b24cli connection:remove work` |
 | [`connection:show`](../src/Console/Command/Connection/ShowConnectionCommand.php) | Показать безопасные параметры выбранного подключения | local | `b24cli connection:show work` |

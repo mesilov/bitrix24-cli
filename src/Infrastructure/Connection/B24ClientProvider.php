@@ -63,4 +63,10 @@ final class B24ClientProvider
         $token = basename(rtrim($this->webhook, '/'));
         return str_replace(array_filter([$this->webhook, $token]), '[redacted]', $message);
     }
+
+    public function resolvedWebhook(): string
+    {
+        $this->get();
+        return $this->webhook;
+    }
 }

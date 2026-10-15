@@ -86,6 +86,10 @@ final readonly class ResultPresenter
             $this->diagnostic($output, 'Задача ожидает контроля постановщика (supposedly_completed).');
         }
 
+        if ($mode !== 'json' && isset($result->meta['scopeValidation']) && $result->meta['scopeValidation']['status'] !== 'fresh') {
+            $this->diagnostic($output, $result->meta['scopeValidation']['reason']);
+        }
+
         if ($mode === 'human' && in_array('1.0', $meta['apiVersions'], true)) {
             $this->diagnostic($output, 'This operation used an explicitly admitted REST 1.0 route.');
         }
@@ -123,6 +127,10 @@ final readonly class ResultPresenter
             }
 
             return [['field', 'value'], $rows];
+        }
+
+        if ($result->profile === 'scope-check') {
+            return [['field', 'value'], array_map(static fn (string $field, mixed $value): array => [$field, $value], array_keys($result->data), array_values($result->data))];
         }
 
         if (in_array($result->profile, ['task-card', 'time-context', 'task-access'], true)) {

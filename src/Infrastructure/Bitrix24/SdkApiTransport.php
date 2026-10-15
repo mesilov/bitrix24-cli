@@ -22,9 +22,22 @@ final readonly class SdkApiTransport implements ApiTransport
         $builder = $this->provider->get();
         $this->state->calls[] = ['method' => $method, 'apiVersion' => $version . '.0', 'effect' => $effect];
         try {
-            $data = $builder->core->call($method, $parameters, ApiVersion::from($version))->getResponseData();
+            $response = $builder->core->call($method, $parameters, ApiVersion::from($version));
+            $data = $response->getResponseData();
+            if ($method === 'scope' && $version === 1) {
+                // SDK normalizes scalars and empty objects to arrays; scope must be an actual JSON list.
+                $payload = json_decode($response->getHttpResponse()->getContent(), false, 32, JSON_THROW_ON_ERROR);
+                if (!$payload instanceof \stdClass || !is_array($payload->result ?? null) || !array_is_list($payload->result)) {
+                    throw new Failure('scope-check-unavailable', 'The scope method did not return a JSON list of permission codes.');
+                }
+            }
+
             return new ApiResponse($data->getResult(), $data->getPagination()->getNextItem(), $data->getPagination()->getTotal());
         } catch (\Throwable $exception) {
+            if ($exception instanceof Failure) {
+                throw $exception;
+            }
+
             if ($this->state->cancelled) {
                 throw new Failure('interrupted', 'Interrupted while awaiting the API response; inspect a sent write before retrying.', 130, [], $effect !== 'read');
             }
@@ -37,6 +50,10 @@ final readonly class SdkApiTransport implements ApiTransport
 
                 $name = $cause::class;
                 $message = strtolower($cause->getMessage());
+                if (str_contains($name, 'InsufficientScope') || str_starts_with($message, 'insufficient_scope -')) {
+                    throw new Failure('permission-denied', 'Bitrix24 denied the requested scope; update the incoming webhook permissions and run connection:check.', 1, ['apiErrorCode' => 'insufficient_scope']);
+                }
+
                 if (str_starts_with($message, 'internal_server_error -')) {
                     throw new Failure('api-error', 'Bitrix24 returned an internal server error; check the selected fields and portal API support.', 1, ['apiErrorCode' => 'INTERNAL_SERVER_ERROR'], $effect !== 'read');
                 }
