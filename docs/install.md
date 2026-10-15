@@ -32,8 +32,11 @@ gh workflow run package-static.yml --ref builds
 Для **macOS arm64 и Linux amd64** основной способ — пользовательский installer:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/mesilov/bitrix24-cli/main/install.sh | sh
-. "$HOME/.local/share/b24cli/env"
+(
+  set -o pipefail
+  curl -fsSL https://raw.githubusercontent.com/mesilov/bitrix24-cli/main/install.sh | sh
+) &&
+. "$HOME/.local/share/b24cli/env" &&
 b24cli --version
 ```
 
@@ -41,6 +44,21 @@ Installer скачивает архив и `SHA256SUMS` одного [публи
 проверяет SHA-256, notices и точную версию перед заменой executable.
 По умолчанию выбирается latest stable; для конкретного опубликованного тега
 (включая prerelease) передайте `sh -s -- --version 0.1.0` после pipe.
+При загрузке latest, архива и SHA256SUMS после HTTP 408, 429, 500, 502, 503, 504,
+таймаута или отказа соединения curl делает
+до трёх повторов с паузами 1, 2, 4 секунды и учитывает `Retry-After`.
+Повторы прекращаются, когда их число исчерпано или прошло 120 секунд с начала
+первой попытки. Уже начатая попытка имеет собственный лимит: 120 секунд для latest,
+300 секунд для asset; соединение ограничено 15 секундами. Постоянные HTTP-ошибки,
+например 404, и ошибки проверки пакета не повторяются. Окончательный сбой оставляет
+прежнюю установку и пользовательские данные на месте.
+
+В приведённом Bash/zsh блоке `pipefail` проверяет обе стороны pipeline, а `&&`
+запускает следующий шаг только после успеха предыдущего. При сбое скачивания или
+установки env не подключается и `b24cli --version` не выполняется. Успешная активация
+сохраняет PATH в текущем терминале. Явный тег обходит определение latest, но загрузка
+самих assets также требует доступной сети.
+
 Нужны системные `sh`, `curl`, `tar`, `awk`, `sed`, `grep`, `mktemp`, файловые utilities
 и `shasum` (macOS) либо `sha256sum` (Linux). `sudo`, PHP, Composer, Docker,
 Homebrew, Python и jq для установки не нужны. Неподдерживаемые targets отклоняются.
@@ -48,9 +66,9 @@ Homebrew, Python и jq для установки не нужны. Неподде
 Предварительно скачать и просмотреть скрипт:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/mesilov/bitrix24-cli/main/install.sh -o install.sh
-less install.sh
-sh install.sh --version 0.1.0
+curl -fsSL --retry 3 --retry-connrefused --retry-max-time 120 https://raw.githubusercontent.com/mesilov/bitrix24-cli/main/install.sh -o install.sh &&
+less install.sh &&
+sh install.sh --version 0.1.0 &&
 . "$HOME/.local/share/b24cli/env"
 ```
 
@@ -66,8 +84,8 @@ PATH родительского shell. Новые interactive zsh/bash и bash l
 Для собственного абсолютного каталога (поддерживаются пробелы) и CI:
 
 ```sh
-sh install.sh --install-dir "$HOME/tools/b24cli bin" --no-modify-path
-. "$HOME/.local/share/b24cli/env"
+sh install.sh --install-dir "$HOME/tools/b24cli bin" --no-modify-path &&
+. "$HOME/.local/share/b24cli/env" &&
 b24cli --version
 ```
 

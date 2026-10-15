@@ -27,16 +27,22 @@ PHP, Composer и Docker устанавливать не нужно. Выбери
 ### Linux amd64 (Bash)
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/mesilov/bitrix24-cli/main/install.sh | sh
-. "$HOME/.local/share/b24cli/env"
+(
+  set -o pipefail
+  curl -fsSL https://raw.githubusercontent.com/mesilov/bitrix24-cli/main/install.sh | sh
+) &&
+. "$HOME/.local/share/b24cli/env" &&
 b24cli --version
 ```
 
 ### macOS arm64 (zsh)
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/mesilov/bitrix24-cli/main/install.sh | sh
-. "$HOME/.local/share/b24cli/env"
+(
+  set -o pipefail
+  curl -fsSL https://raw.githubusercontent.com/mesilov/bitrix24-cli/main/install.sh | sh
+) &&
+. "$HOME/.local/share/b24cli/env" &&
 b24cli --version
 ```
 

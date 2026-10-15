@@ -60,6 +60,7 @@ done
 release_base=https://github.com/mesilov/bitrix24-cli/releases
 if [ -z "$version" ]; then
     resolved=$(curl -q --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
+        --retry 3 --retry-connrefused --retry-max-time 120 \
         --connect-timeout 15 --max-time 120 --output /dev/null --write-out '%{url_effective}' "$release_base/latest") \
         || fail 'cannot resolve latest stable public Release; choose an available --version tag'
     case "$resolved" in "$release_base/tag/"*) version=${resolved#"$release_base/tag/"} ;; *) fail 'latest did not resolve to a public release tag' ;; esac
@@ -81,6 +82,7 @@ trap 'exit 130' INT
 trap 'exit 143' TERM HUP
 fetch() {
     curl -q --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
+        --retry 3 --retry-connrefused --retry-max-time 120 \
         --connect-timeout 15 --max-time 300 --output "$work/$1" "$release_base/download/$version/$1" \
         || fail "cannot download public Release $version asset $1"
 }
