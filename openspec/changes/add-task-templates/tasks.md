@@ -13,7 +13,7 @@
 ## 3. Verification and delivery
 
 - [x] 3.1 Выполнить unit suite, quality linters, strict OpenSpec и verify requirement/scenario mapping; записать фактические результаты и ограничения.
-- [ ] 3.2 Проверить issue↔change, интегрировать свежую origin/dev, повторить затронутые проверки, опубликовать ветку и открыть MR в dev с changelog и CI evidence.
+- [x] 3.2 Проверить issue↔change, интегрировать свежую origin/dev, повторить затронутые проверки, опубликовать ветку и открыть MR в dev с changelog и CI evidence.
 
 ## Workflow follow-up
 
