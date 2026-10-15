@@ -10,7 +10,7 @@
 | Correctness | 2/2 requirements mapped to implementation; all 10 scenarios covered |
 | Coherence | Native curl policy and documented Bash/zsh control flow match design; package validation and HTTPS restrictions retained |
 
-Критических замечаний, предупреждений и предложений по локальной проверке нет. Реализация готова к MR. Архивирование следует после подтверждённого merge в dev по maintainer workflow.
+Критических замечаний, предупреждений и предложений по локальной проверке нет. Реализация доставлена MR #155 в dev. Post-merge проверка и подготовка архива описаны ниже.
 
 ## Проверки после интеграции origin/dev
 
@@ -54,3 +54,13 @@ CI paths workflow `shell-installer.yml` включают README.md и docs/insta
 ## Совместимость Linux curl 8.5
 
 Новый full-timeout сценарий latest воспроизвёл CI failure локально на Ubuntu/curl 8.5: output=/dev/null не позволял повтор после частичного тела страницы релиза. Контрольная проверка того же install.sh с обычным временным output прошла. Production installer создаёт work/cleanup до latest и записывает ответ в `$work/latest`, сохраняя исходную проверку конечного URL. Результаты локального Linux прогона и native CI фиксируются отдельно.
+
+## Доставка в dev и архивирование
+
+- [MR #155](https://github.com/mesilov/bitrix24-cli/pull/155) смержен 2026-10-15 в `dev`; merge SHA: `69c80b78e197c3e5af1aa8967d7c247c61b7bd57`.
+- [Issue #151](https://github.com/mesilov/bitrix24-cli/issues/151) закрыто как completed после проверки merge. Все review threads устранены; changelog входит в исходный MR.
+- На точном merge SHA завершились **7/7 workflows, 9/9 check runs**. В том числе [Shell installer Linux/macOS](https://github.com/mesilov/bitrix24-cli/actions/runs/38774085925), [Command tests](https://github.com/mesilov/bitrix24-cli/actions/runs/38774083202) и [Worktree isolation](https://github.com/mesilov/bitrix24-cli/actions/runs/38774082832). Остальные run IDs и terminal states сохранены в `post-merge-ci.json`.
+- Перед архивом проверены все четыре planning artifacts, **5/5 задач** и двусторонняя трассировка issue/change.
+- В `openspec/specs/binary-distribution/spec.md` синхронизированы два требования и десять сценариев; исходные 22 требования, title и Purpose сохранены. Strict-валидация всех актуальных спецификаций: **21/21**.
+- Архивный путь: `openspec/changes/archive/2026-10-15-retry-shell-installer-network/`. Доставка архива выполняется отдельным MR в dev; issue backlink обновляется после подтверждения этой доставки.
+- Эти изменения не выполняют promotion в main и не публикуют Release.

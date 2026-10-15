@@ -1,0 +1,120 @@
+{
+  "pullRequest": "https://github.com/mesilov/bitrix24-cli/pull/155",
+  "mergeCommit": "69c80b78e197c3e5af1aa8967d7c247c61b7bd57",
+  "target": "dev",
+  "issueState": "CLOSED",
+  "workflows": [
+    {
+      "databaseId": 38774085735,
+      "workflowName": "Rector lint checks",
+      "headSha": "69c80b78e197c3e5af1aa8967d7c247c61b7bd57",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38774085735"
+    },
+    {
+      "databaseId": 38774085925,
+      "workflowName": "Shell installer",
+      "headSha": "69c80b78e197c3e5af1aa8967d7c247c61b7bd57",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38774085925"
+    },
+    {
+      "databaseId": 38774083081,
+      "workflowName": "Allowed licenses checks",
+      "headSha": "69c80b78e197c3e5af1aa8967d7c247c61b7bd57",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38774083081"
+    },
+    {
+      "databaseId": 38774082625,
+      "workflowName": "PhpCsFixer lint checks",
+      "headSha": "69c80b78e197c3e5af1aa8967d7c247c61b7bd57",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38774082625"
+    },
+    {
+      "databaseId": 38774083202,
+      "workflowName": "Command tests",
+      "headSha": "69c80b78e197c3e5af1aa8967d7c247c61b7bd57",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38774083202"
+    },
+    {
+      "databaseId": 38774082575,
+      "workflowName": "PHPStan lint checks",
+      "headSha": "69c80b78e197c3e5af1aa8967d7c247c61b7bd57",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38774082575"
+    },
+    {
+      "databaseId": 38774082832,
+      "workflowName": "Worktree isolation",
+      "headSha": "69c80b78e197c3e5af1aa8967d7c247c61b7bd57",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38774082832"
+    }
+  ],
+  "checks": [
+    {
+      "name": "Installer macos-arm64",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38774085925/job/116557091961"
+    },
+    {
+      "name": "Installer linux-amd64",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38774085925/job/116557091384"
+    },
+    {
+      "name": "Rector",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38774085735/job/116557087853"
+    },
+    {
+      "name": "Configuration schema contract",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38774083202/job/116557080356"
+    },
+    {
+      "name": "unit-tests",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38774083202/job/116557079803"
+    },
+    {
+      "name": "composer-license-checker",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38774083081/job/116557078621"
+    },
+    {
+      "name": "linux",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38774082832/job/116557078569"
+    },
+    {
+      "name": "PHPStan",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38774082575/job/116557078001"
+    },
+    {
+      "name": "PhpCsFixer",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38774082625/job/116557077293"
+    }
+  ]
+}
