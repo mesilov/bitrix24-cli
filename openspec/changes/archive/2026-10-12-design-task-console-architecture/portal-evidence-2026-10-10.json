@@ -1,0 +1,1134 @@
+{
+  "verificationDate": "2026-10-10",
+  "auth": "incoming webhook; secret omitted",
+  "identity": {
+    "userId": 1,
+    "rolesTested": [
+      "fixture task creator and responsible",
+      "own chat message author",
+      "own time entry author"
+    ],
+    "adminStatus": "not asserted"
+  },
+  "offline": {
+    "tests": 160,
+    "assertions": 676
+  },
+  "live": {
+    "tests": 8,
+    "passed": 7,
+    "skipped": 1,
+    "assertions": 131,
+    "failures": 0,
+    "errors": 0
+  },
+  "commandsExecuted": [
+    "task:access:show",
+    "task:add",
+    "task:assign",
+    "task:chat:delete",
+    "task:chat:list",
+    "task:chat:send",
+    "task:chat:update",
+    "task:checklist:add",
+    "task:checklist:item:add",
+    "task:checklist:item:complete",
+    "task:checklist:item:delete",
+    "task:checklist:item:list",
+    "task:checklist:item:renew",
+    "task:checklist:item:update",
+    "task:checklist:list",
+    "task:deadline:set",
+    "task:delete",
+    "task:fields:list",
+    "task:file:attach",
+    "task:find",
+    "task:history:list",
+    "task:list",
+    "task:participants:set",
+    "task:show",
+    "task:time:add",
+    "task:time:delete",
+    "task:time:list",
+    "task:time:show",
+    "task:time:update",
+    "task:update"
+  ],
+  "tests": [
+    {
+      "test": "testTaskCardSchemaSearchAndSparseUpdates",
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        5338
+      ],
+      "ownedDiskFileIds": [],
+      "commands": [
+        {
+          "command": "task:add",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.add",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:update",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:show",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:show",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:update",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:show",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:assign",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:show",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:deadline:set",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:show",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:find",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:fields:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.field.list",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:fields:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.field.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:access:show",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.access.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:delete",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.delete",
+              "apiVersion": "3.0",
+              "effect": "delete"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "testStatus": "passed"
+    },
+    {
+      "test": "testTaskChatSendReadUpdateDeleteAndWrongTaskBinding",
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        5340,
+        5342
+      ],
+      "ownedDiskFileIds": [],
+      "commands": [
+        {
+          "command": "task:add",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.add",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:chat:send",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.chat.message.send",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:chat:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "im.dialog.messages.get",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:add",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.add",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:chat:update",
+          "status": 4,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "im.dialog.messages.get",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": "message-binding-unverified",
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:chat:update",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "im.dialog.messages.get",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "im.message.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:chat:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "im.dialog.messages.get",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:chat:delete",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "im.dialog.messages.get",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "im.message.delete",
+              "apiVersion": "1.0",
+              "effect": "delete"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:chat:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "im.dialog.messages.get",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "testStatus": "passed"
+    },
+    {
+      "test": "testOwnTimeEntriesReadBackSecondsAndKeepOmittedText",
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        5344,
+        5346
+      ],
+      "ownedDiskFileIds": [],
+      "commands": [
+        {
+          "command": "task:add",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.add",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:time:add",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "task.elapseditem.add",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:time:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "task.elapseditem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:add",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.add",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:time:update",
+          "status": 4,
+          "apiCalls": [
+            {
+              "method": "task.elapseditem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": "resource-binding-unverified",
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:time:update",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "task.elapseditem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "task.elapseditem.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:time:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "task.elapseditem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:time:show",
+          "status": 3,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": "partial-result",
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:time:delete",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "task.elapseditem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "task.elapseditem.delete",
+              "apiVersion": "1.0",
+              "effect": "delete"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:time:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "task.elapseditem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "testStatus": "passed"
+    },
+    {
+      "test": "testChecklistRootsNestedItemsAndStateDoNotChangeTaskStatus",
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        5348
+      ],
+      "ownedDiskFileIds": [],
+      "commands": [
+        {
+          "command": "task:add",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.add",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:show",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:checklist:add",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.add",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:checklist:add",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.add",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:checklist:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:checklist:item:add",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "task.checklistitem.add",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:checklist:item:add",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "task.checklistitem.add",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:checklist:item:add",
+          "status": 4,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": "resource-binding-unverified",
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:checklist:item:update",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "task.checklistitem.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:checklist:item:complete",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "task.checklistitem.complete",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:checklist:item:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:checklist:item:renew",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "task.checklistitem.renew",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:checklist:item:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:show",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:checklist:item:delete",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            },
+            {
+              "method": "task.checklistitem.delete",
+              "apiVersion": "1.0",
+              "effect": "delete"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:checklist:item:list",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "task.checklistitem.getlist",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "testStatus": "passed"
+    },
+    {
+      "test": "testParticipantsOmissionClearAndHistoryCompletenessBoundary",
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        5350
+      ],
+      "ownedDiskFileIds": [],
+      "commands": [
+        {
+          "command": "task:add",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.add",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:participants:set",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:participants:set",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:participants:set",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:show",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:update",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:history:list",
+          "status": 3,
+          "apiCalls": [
+            {
+              "method": "tasks.task.history.list",
+              "apiVersion": "1.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": "partial-result",
+          "apiErrorCode": null
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "testStatus": "passed"
+    },
+    {
+      "test": "testAttachExistingDiskFileWhenFixtureIsConfigured",
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        5352
+      ],
+      "ownedDiskFileIds": [
+        1368
+      ],
+      "commands": [
+        {
+          "command": "task:add",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.add",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:file:attach",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.file.attach",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:show",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "testStatus": "passed"
+    },
+    {
+      "test": "testFilledAuditorProjectionReportsPortalCapabilityWithoutFallback",
+      "actingUserId": 1,
+      "ownedTaskIds": [
+        5354
+      ],
+      "ownedDiskFileIds": [],
+      "commands": [
+        {
+          "command": "task:add",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.add",
+              "apiVersion": "3.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:participants:set",
+          "status": 0,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            },
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "1.0",
+              "effect": "write"
+            }
+          ],
+          "errorCode": null,
+          "apiErrorCode": null
+        },
+        {
+          "command": "task:show",
+          "status": 1,
+          "apiCalls": [
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read"
+            }
+          ],
+          "errorCode": "api-error",
+          "apiErrorCode": "INTERNAL_SERVER_ERROR"
+        }
+      ],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "testStatus": "passed"
+    },
+    {
+      "test": "testRestrictedRoleCannotEditFixtureTask",
+      "actingUserId": 1,
+      "ownedTaskIds": [],
+      "ownedDiskFileIds": [],
+      "commands": [],
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": []
+      },
+      "testStatus": "skipped"
+    }
+  ],
+  "limitations": [
+    "Restricted-role webhook not supplied; denied-role case skipped.",
+    "Filled REST3 auditors projections return INTERNAL_SERVER_ERROR; no production fallback.",
+    "History and elapsedTime context return partial; aggregate/navigation completeness not proven.",
+    "File attachment ACK confirmed; independent attachment membership not proven.",
+    "Assignment readback uses the same user; distinct-user reassignment not proven."
+  ]
+}

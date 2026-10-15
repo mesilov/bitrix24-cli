@@ -1,0 +1,22 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Bitrix24\CLI\Application\Task;
+
+final readonly class TaskQuery
+{
+    public function __construct(
+        public array $ids = [],
+        public array $where = [],
+        public ?string $dueBefore = null,
+        public array $select = [],
+        public array $order = ['id' => 'DESC'],
+        public ?int $limit = 50,
+        public int $maxScan = 10000,
+        public ?TaskRole $role = null,
+        public ?DeadlineWindow $deadlineWindow = null,
+        public bool $openOnly = false,
+    ) {
+    }
+}

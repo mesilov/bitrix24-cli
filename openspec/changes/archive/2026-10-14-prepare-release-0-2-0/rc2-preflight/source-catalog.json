@@ -1,0 +1,569 @@
+{
+    "version": "0.1.0",
+    "commands": [
+        {
+            "name": "completion",
+            "description": "Вывести скрипт автодополнения для оболочки",
+            "effect": "offline",
+            "examples": [
+                "b24cli completion bash"
+            ],
+            "source": null,
+            "integrationTest": null
+        },
+        {
+            "name": "connection:add",
+            "description": "Сохранить локальное подключение",
+            "effect": "local",
+            "examples": [
+                "b24cli connection:add work --group-id 7 --creator-id 1 --responsible-id 42"
+            ],
+            "source": "src/Console/Command/Connection/AddConnectionCommand.php",
+            "integrationTest": null
+        },
+        {
+            "name": "connection:list",
+            "description": "Показать сохранённые подключения",
+            "effect": "local",
+            "examples": [
+                "b24cli connection:list"
+            ],
+            "source": "src/Console/Command/Connection/ListConnectionsCommand.php",
+            "integrationTest": null
+        },
+        {
+            "name": "connection:remove",
+            "description": "Удалить локальный профиль и его учётные данные",
+            "effect": "local",
+            "examples": [
+                "b24cli connection:remove work"
+            ],
+            "source": "src/Console/Command/Connection/RemoveConnectionCommand.php",
+            "integrationTest": null
+        },
+        {
+            "name": "connection:show",
+            "description": "Показать безопасные параметры выбранного подключения",
+            "effect": "local",
+            "examples": [
+                "b24cli connection:show work"
+            ],
+            "source": "src/Console/Command/Connection/ShowConnectionCommand.php",
+            "integrationTest": null
+        },
+        {
+            "name": "connection:use",
+            "description": "Выбрать сохранённый профиль по умолчанию",
+            "effect": "local",
+            "examples": [
+                "b24cli connection:use work"
+            ],
+            "source": "src/Console/Command/Connection/UseConnectionCommand.php",
+            "integrationTest": null
+        },
+        {
+            "name": "doctor:problem-trajectory",
+            "description": "Сохранить и разобрать обезличенные карточки нехватки CLI",
+            "effect": "local",
+            "examples": [
+                "b24cli doctor:problem-trajectory --action status --json",
+                "b24cli doctor:problem-trajectory --report-file report.json --json"
+            ],
+            "source": "src/Console/Command/Doctor/ProblemTrajectoryCommand.php",
+            "integrationTest": null
+        },
+        {
+            "name": "help",
+            "description": "Показать справку команды",
+            "effect": "offline",
+            "examples": [
+                "b24cli help task:add"
+            ],
+            "source": null,
+            "integrationTest": null
+        },
+        {
+            "name": "list",
+            "description": "Показать список команд",
+            "effect": "offline",
+            "examples": [
+                "b24cli list task"
+            ],
+            "source": null,
+            "integrationTest": null
+        },
+        {
+            "name": "task:access:show",
+            "description": "Показать права текущего пользователя",
+            "effect": "read",
+            "examples": [
+                "b24cli task:access:show 123"
+            ],
+            "source": "src/Console/Command/Task/ShowTaskAccessCommand.php",
+            "integrationTest": "tests/Integration/Task/ShowTaskAccessCommandTest.php"
+        },
+        {
+            "name": "task:add",
+            "description": "Создать задачу",
+            "effect": "write",
+            "examples": [
+                "b24cli task:add --title \"Подготовить договор\" --creator 1 --responsible 42 --dry-run"
+            ],
+            "source": "src/Console/Command/Task/AddTaskCommand.php",
+            "integrationTest": "tests/Integration/Task/AddTaskCommandTest.php"
+        },
+        {
+            "name": "task:approve",
+            "description": "Принять результат задачи",
+            "effect": "write",
+            "examples": [
+                "b24cli task:approve 123 --dry-run"
+            ],
+            "source": "src/Console/Command/Task/ApproveTaskCommand.php",
+            "integrationTest": "tests/Integration/Task/ApproveTaskCommandTest.php"
+        },
+        {
+            "name": "task:assign",
+            "description": "Сменить ответственного",
+            "effect": "write",
+            "examples": [
+                "b24cli task:assign 123 --responsible 3 --dry-run"
+            ],
+            "source": "src/Console/Command/Task/AssignTaskCommand.php",
+            "integrationTest": "tests/Integration/Task/AssignTaskCommandTest.php"
+        },
+        {
+            "name": "task:chat:delete",
+            "description": "Удалить сообщение чата задачи",
+            "effect": "delete",
+            "examples": [
+                "b24cli task:chat:delete 123 --message 900 --force --dry-run"
+            ],
+            "source": "src/Console/Command/Task/DeleteTaskChatMessageCommand.php",
+            "integrationTest": "tests/Integration/Task/DeleteTaskChatMessageCommandTest.php"
+        },
+        {
+            "name": "task:chat:list",
+            "description": "Показать сообщения чата задачи",
+            "effect": "read",
+            "examples": [
+                "b24cli task:chat:list 123 --limit 20"
+            ],
+            "source": "src/Console/Command/Task/ListTaskChatCommand.php",
+            "integrationTest": "tests/Integration/Task/ListTaskChatCommandTest.php"
+        },
+        {
+            "name": "task:chat:send",
+            "description": "Отправить сообщение в чат задачи",
+            "effect": "write",
+            "examples": [
+                "b24cli task:chat:send 123 --text \"Договор готов\" --dry-run"
+            ],
+            "source": "src/Console/Command/Task/SendTaskChatMessageCommand.php",
+            "integrationTest": "tests/Integration/Task/SendTaskChatMessageCommandTest.php"
+        },
+        {
+            "name": "task:chat:update",
+            "description": "Изменить сообщение чата задачи",
+            "effect": "write",
+            "examples": [
+                "b24cli task:chat:update 123 --message 900 --text \"Договор согласован\" --dry-run"
+            ],
+            "source": "src/Console/Command/Task/UpdateTaskChatMessageCommand.php",
+            "integrationTest": "tests/Integration/Task/UpdateTaskChatMessageCommandTest.php"
+        },
+        {
+            "name": "task:checklist:add",
+            "description": "Создать чек-лист",
+            "effect": "write",
+            "examples": [
+                "b24cli task:checklist:add 123 --title \"Подготовка\" --dry-run"
+            ],
+            "source": "src/Console/Command/Task/AddTaskChecklistCommand.php",
+            "integrationTest": "tests/Integration/Task/AddTaskChecklistCommandTest.php"
+        },
+        {
+            "name": "task:checklist:item:add",
+            "description": "Добавить пункт чек-листа",
+            "effect": "write",
+            "examples": [
+                "b24cli task:checklist:item:add 123 --checklist 10 --title \"Проверить реквизиты\" --dry-run"
+            ],
+            "source": "src/Console/Command/Task/AddTaskChecklistItemCommand.php",
+            "integrationTest": "tests/Integration/Task/AddTaskChecklistItemCommandTest.php"
+        },
+        {
+            "name": "task:checklist:item:complete",
+            "description": "Выполнить пункт чек-листа",
+            "effect": "write",
+            "examples": [
+                "b24cli task:checklist:item:complete 123 --item 11 --dry-run"
+            ],
+            "source": "src/Console/Command/Task/CompleteTaskChecklistItemCommand.php",
+            "integrationTest": "tests/Integration/Task/CompleteTaskChecklistItemCommandTest.php"
+        },
+        {
+            "name": "task:checklist:item:delete",
+            "description": "Удалить пункт с дочерними пунктами",
+            "effect": "delete",
+            "examples": [
+                "b24cli task:checklist:item:delete 123 --item 11 --dry-run"
+            ],
+            "source": "src/Console/Command/Task/DeleteTaskChecklistItemCommand.php",
+            "integrationTest": "tests/Integration/Task/DeleteTaskChecklistItemCommandTest.php"
+        },
+        {
+            "name": "task:checklist:item:list",
+            "description": "Показать пункты чек-листа",
+            "effect": "read",
+            "examples": [
+                "b24cli task:checklist:item:list 123 --checklist 10"
+            ],
+            "source": "src/Console/Command/Task/ListTaskChecklistItemsCommand.php",
+            "integrationTest": "tests/Integration/Task/ListTaskChecklistItemsCommandTest.php"
+        },
+        {
+            "name": "task:checklist:item:renew",
+            "description": "Возобновить пункт чек-листа",
+            "effect": "write",
+            "examples": [
+                "b24cli task:checklist:item:renew 123 --item 11 --dry-run"
+            ],
+            "source": "src/Console/Command/Task/RenewTaskChecklistItemCommand.php",
+            "integrationTest": "tests/Integration/Task/RenewTaskChecklistItemCommandTest.php"
+        },
+        {
+            "name": "task:checklist:item:update",
+            "description": "Изменить заголовок пункта",
+            "effect": "write",
+            "examples": [
+                "b24cli task:checklist:item:update 123 --item 11 --title \"Уточнить реквизиты\" --dry-run"
+            ],
+            "source": "src/Console/Command/Task/UpdateTaskChecklistItemCommand.php",
+            "integrationTest": "tests/Integration/Task/UpdateTaskChecklistItemCommandTest.php"
+        },
+        {
+            "name": "task:checklist:list",
+            "description": "Показать чек-листы",
+            "effect": "read",
+            "examples": [
+                "b24cli task:checklist:list 123"
+            ],
+            "source": "src/Console/Command/Task/ListTaskChecklistsCommand.php",
+            "integrationTest": "tests/Integration/Task/ListTaskChecklistsCommandTest.php"
+        },
+        {
+            "name": "task:complete",
+            "description": "Завершить задачу или передать на контроль",
+            "effect": "write",
+            "examples": [
+                "b24cli task:complete 123 --dry-run"
+            ],
+            "source": "src/Console/Command/Task/CompleteTaskCommand.php",
+            "integrationTest": "tests/Integration/Task/CompleteTaskCommandTest.php"
+        },
+        {
+            "name": "task:deadline:set",
+            "description": "Изменить срок задачи",
+            "effect": "write",
+            "examples": [
+                "b24cli task:deadline:set 123 --at 2026-12-01T12:00:00+06:00 --dry-run"
+            ],
+            "source": "src/Console/Command/Task/SetTaskDeadlineCommand.php",
+            "integrationTest": "tests/Integration/Task/SetTaskDeadlineCommandTest.php"
+        },
+        {
+            "name": "task:defer",
+            "description": "Отложить задачу",
+            "effect": "write",
+            "examples": [
+                "b24cli task:defer 123 --dry-run"
+            ],
+            "source": "src/Console/Command/Task/DeferTaskCommand.php",
+            "integrationTest": "tests/Integration/Task/DeferTaskCommandTest.php"
+        },
+        {
+            "name": "task:delete",
+            "description": "Удалить задачу",
+            "effect": "delete",
+            "examples": [
+                "b24cli task:delete 123 --dry-run"
+            ],
+            "source": "src/Console/Command/Task/DeleteTaskCommand.php",
+            "integrationTest": "tests/Integration/Task/DeleteTaskCommandTest.php"
+        },
+        {
+            "name": "task:disapprove",
+            "description": "Вернуть задачу на доработку",
+            "effect": "write",
+            "examples": [
+                "b24cli task:disapprove 123 --dry-run"
+            ],
+            "source": "src/Console/Command/Task/DisapproveTaskCommand.php",
+            "integrationTest": "tests/Integration/Task/DisapproveTaskCommandTest.php"
+        },
+        {
+            "name": "task:fields:list",
+            "description": "Показать поля задачи",
+            "effect": "read",
+            "examples": [
+                "b24cli task:fields:list --name title"
+            ],
+            "source": "src/Console/Command/Task/ListTaskFieldsCommand.php",
+            "integrationTest": "tests/Integration/Task/ListTaskFieldsCommandTest.php"
+        },
+        {
+            "name": "task:file:attach",
+            "description": "Прикрепить файл Диска или загрузить локальный файл",
+            "effect": "write",
+            "examples": [
+                "b24cli task:file:attach 123 --file-id 50 --dry-run"
+            ],
+            "source": "src/Console/Command/Task/AttachTaskFilesCommand.php",
+            "integrationTest": "tests/Integration/Task/AttachTaskFilesCommandTest.php"
+        },
+        {
+            "name": "task:find",
+            "description": "Найти задачи по буквальной подстроке title",
+            "effect": "read",
+            "examples": [
+                "b24cli task:find --title \"договор\" --group-id 7 --responsible 42",
+                "b24cli task:find --title \"договор\" --role responsible --all --json"
+            ],
+            "source": "src/Console/Command/Task/FindTaskCommand.php",
+            "integrationTest": "tests/Integration/Task/FindTaskCommandTest.php"
+        },
+        {
+            "name": "task:history:list",
+            "description": "Показать историю изменений задачи",
+            "effect": "read",
+            "examples": [
+                "b24cli task:history:list 123 --json"
+            ],
+            "source": "src/Console/Command/Task/ListTaskHistoryCommand.php",
+            "integrationTest": "tests/Integration/Task/ListTaskHistoryCommandTest.php"
+        },
+        {
+            "name": "task:list",
+            "description": "Показать доступные задачи",
+            "effect": "read",
+            "examples": [
+                "b24cli task:list --group-id 7 --responsible 42"
+            ],
+            "source": "src/Console/Command/Task/ListTaskCommand.php",
+            "integrationTest": "tests/Integration/Task/ListTaskCommandTest.php"
+        },
+        {
+            "name": "task:my",
+            "description": "Показать задачи выбранного исполнителя",
+            "effect": "read",
+            "examples": [
+                "b24cli task:my --user 42 --open --json"
+            ],
+            "source": "src/Console/Command/Task/MyTaskCommand.php",
+            "integrationTest": "tests/Integration/Task/MyTaskCommandTest.php"
+        },
+        {
+            "name": "task:participants:set",
+            "description": "Заменить выбранные роли участников",
+            "effect": "write",
+            "examples": [
+                "b24cli task:participants:set 123 --auditor 4 --clear-accomplices --dry-run"
+            ],
+            "source": "src/Console/Command/Task/SetTaskParticipantsCommand.php",
+            "integrationTest": "tests/Integration/Task/SetTaskParticipantsCommandTest.php"
+        },
+        {
+            "name": "task:pause",
+            "description": "Приостановить выполнение задачи",
+            "effect": "write",
+            "examples": [
+                "b24cli task:pause 123 --dry-run"
+            ],
+            "source": "src/Console/Command/Task/PauseTaskCommand.php",
+            "integrationTest": "tests/Integration/Task/PauseTaskCommandTest.php"
+        },
+        {
+            "name": "task:renew",
+            "description": "Возобновить задачу",
+            "effect": "write",
+            "examples": [
+                "b24cli task:renew 123 --dry-run"
+            ],
+            "source": "src/Console/Command/Task/RenewTaskCommand.php",
+            "integrationTest": "tests/Integration/Task/RenewTaskCommandTest.php"
+        },
+        {
+            "name": "task:result:add",
+            "description": "Добавить результат задачи",
+            "effect": "write",
+            "examples": [
+                "b24cli task:result:add 123 --text \"Договор готов\" --dry-run"
+            ],
+            "source": "src/Console/Command/Task/AddTaskResultCommand.php",
+            "integrationTest": "tests/Integration/Task/AddTaskResultCommandTest.php"
+        },
+        {
+            "name": "task:result:delete",
+            "description": "Удалить результат задачи",
+            "effect": "delete",
+            "examples": [
+                "b24cli task:result:delete 123 --result 17 --force --dry-run"
+            ],
+            "source": "src/Console/Command/Task/DeleteTaskResultCommand.php",
+            "integrationTest": "tests/Integration/Task/DeleteTaskResultCommandTest.php"
+        },
+        {
+            "name": "task:result:list",
+            "description": "Показать результаты задачи",
+            "effect": "read",
+            "examples": [
+                "b24cli task:result:list 123 --all"
+            ],
+            "source": "src/Console/Command/Task/ListTaskResultsCommand.php",
+            "integrationTest": "tests/Integration/Task/ListTaskResultsCommandTest.php"
+        },
+        {
+            "name": "task:result:update",
+            "description": "Изменить текст результата задачи",
+            "effect": "write",
+            "examples": [
+                "b24cli task:result:update 123 --result 17 --text \"Договор проверен\" --dry-run"
+            ],
+            "source": "src/Console/Command/Task/UpdateTaskResultCommand.php",
+            "integrationTest": "tests/Integration/Task/UpdateTaskResultCommandTest.php"
+        },
+        {
+            "name": "task:show",
+            "description": "Показать карточку задачи",
+            "effect": "read",
+            "examples": [
+                "b24cli task:show 123"
+            ],
+            "source": "src/Console/Command/Task/ShowTaskCommand.php",
+            "integrationTest": "tests/Integration/Task/ShowTaskCommandTest.php"
+        },
+        {
+            "name": "task:start",
+            "description": "Начать работу над задачей",
+            "effect": "write",
+            "examples": [
+                "b24cli task:start 123 --dry-run"
+            ],
+            "source": "src/Console/Command/Task/StartTaskCommand.php",
+            "integrationTest": "tests/Integration/Task/StartTaskCommandTest.php"
+        },
+        {
+            "name": "task:status:durations",
+            "description": "Рассчитать календарное время задачи в статусах",
+            "effect": "read",
+            "examples": [
+                "b24cli task:status:durations 123 --as-of 2026-10-01T12:00:00+03:00 --json"
+            ],
+            "source": "src/Console/Command/Task/StatusDurationsTaskCommand.php",
+            "integrationTest": "tests/Integration/Task/StatusDurationsTaskCommandTest.php"
+        },
+        {
+            "name": "task:time:add",
+            "description": "Добавить запись времени",
+            "effect": "write",
+            "examples": [
+                "b24cli task:time:add 123 --seconds 3600 --text \"Подготовка договора\" --dry-run"
+            ],
+            "source": "src/Console/Command/Task/AddTaskTimeEntryCommand.php",
+            "integrationTest": "tests/Integration/Task/AddTaskTimeEntryCommandTest.php"
+        },
+        {
+            "name": "task:time:delete",
+            "description": "Удалить запись времени",
+            "effect": "delete",
+            "examples": [
+                "b24cli task:time:delete 123 --entry 30 --force --dry-run"
+            ],
+            "source": "src/Console/Command/Task/DeleteTaskTimeEntryCommand.php",
+            "integrationTest": "tests/Integration/Task/DeleteTaskTimeEntryCommandTest.php"
+        },
+        {
+            "name": "task:time:list",
+            "description": "Показать записи времени",
+            "effect": "read",
+            "examples": [
+                "b24cli task:time:list 123"
+            ],
+            "source": "src/Console/Command/Task/ListTaskTimeEntriesCommand.php",
+            "integrationTest": "tests/Integration/Task/ListTaskTimeEntriesCommandTest.php"
+        },
+        {
+            "name": "task:time:show",
+            "description": "Показать контекст учёта времени",
+            "effect": "read",
+            "examples": [
+                "b24cli task:time:show 123"
+            ],
+            "source": "src/Console/Command/Task/ShowTaskTimeCommand.php",
+            "integrationTest": "tests/Integration/Task/ShowTaskTimeCommandTest.php"
+        },
+        {
+            "name": "task:time:update",
+            "description": "Исправить запись времени",
+            "effect": "write",
+            "examples": [
+                "b24cli task:time:update 123 --entry 30 --seconds 1800 --dry-run"
+            ],
+            "source": "src/Console/Command/Task/UpdateTaskTimeEntryCommand.php",
+            "integrationTest": "tests/Integration/Task/UpdateTaskTimeEntryCommandTest.php"
+        },
+        {
+            "name": "task:update",
+            "description": "Изменить явные поля задачи",
+            "effect": "write",
+            "examples": [
+                "b24cli task:update 123 --title \"Договор для согласования\" --dry-run",
+                "b24cli task:update 123 --responsible 42 --dry-run",
+                "b24cli task:update 123 --description \"Проверить реквизиты\" --dry-run"
+            ],
+            "source": "src/Console/Command/Task/UpdateTaskCommand.php",
+            "integrationTest": "tests/Integration/Task/UpdateTaskCommandTest.php"
+        },
+        {
+            "name": "users:colleagues",
+            "description": "Коллеги текущего отдела по оргструктуре",
+            "effect": "read",
+            "examples": [
+                "b24cli users:colleagues --department-id 7 --json"
+            ],
+            "source": "src/Console/Command/Users/ListColleaguesCommand.php",
+            "integrationTest": "tests/Integration/Users/ListColleaguesCommandTest.php"
+        },
+        {
+            "name": "users:current",
+            "description": "Пользователь текущего подключения",
+            "effect": "read",
+            "examples": [
+                "b24cli users:current --json"
+            ],
+            "source": "src/Console/Command/Users/CurrentUserCommand.php",
+            "integrationTest": "tests/Integration/Users/CurrentUserCommandTest.php"
+        },
+        {
+            "name": "users:find",
+            "description": "Найти активных сотрудников по ФИО или email",
+            "effect": "read",
+            "examples": [
+                "b24cli users:find --name \"Иванов Иван\" --json"
+            ],
+            "source": "src/Console/Command/Users/FindUsersCommand.php",
+            "integrationTest": "tests/Integration/Users/FindUsersCommandTest.php"
+        },
+        {
+            "name": "users:manager",
+            "description": "Непосредственный или настроенный руководитель",
+            "effect": "read",
+            "examples": [
+                "b24cli users:manager --department-id 7 --json"
+            ],
+            "source": "src/Console/Command/Users/GetManagerCommand.php",
+            "integrationTest": "tests/Integration/Users/GetManagerCommandTest.php"
+        }
+    ]
+}

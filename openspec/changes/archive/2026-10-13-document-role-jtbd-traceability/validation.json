@@ -1,0 +1,22 @@
+{
+  "scenario_items": 22,
+  "command_tables": 22,
+  "role_navigation_links": 3,
+  "role_items": {
+    "PM": 7,
+    "AM": 7,
+    "EMP": 8
+  },
+  "format": "scenario-lists-with-combined-command-tables-and-role-navigation",
+  "command_refs": 41,
+  "test_file_refs": 41,
+  "unique_commands": 23,
+  "unique_test_files": 23,
+  "local_links": 114,
+  "no_runtime_mapping": [
+    "AM-02",
+    "AM-03"
+  ],
+  "canonical_texts": "matched",
+  "runtime_test_execution": "not_run_docs_only"
+}

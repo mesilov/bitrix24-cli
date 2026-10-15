@@ -1,0 +1,167 @@
+{
+  "apiVersions": [
+    "1.0",
+    "3.0"
+  ],
+  "role": "creator and responsible",
+  "initial": {
+    "status": "pending",
+    "statusChanged": null,
+    "changed": "2026-10-13T23:18:44+03:00"
+  },
+  "readbacks": [
+    {
+      "action": "start",
+      "card": {
+        "status": "in_progress",
+        "statusChanged": "2026-10-13T23:18:44+03:00",
+        "changed": "2026-10-13T23:18:44+03:00"
+      }
+    },
+    {
+      "action": "complete",
+      "card": {
+        "status": "completed",
+        "statusChanged": "2026-10-13T23:18:45+03:00",
+        "changed": "2026-10-13T23:18:45+03:00"
+      }
+    },
+    {
+      "action": "renew",
+      "card": {
+        "status": "pending",
+        "statusChanged": "2026-10-13T23:18:45+03:00",
+        "changed": "2026-10-13T23:18:45+03:00"
+      }
+    },
+    {
+      "action": "start",
+      "card": {
+        "status": "in_progress",
+        "statusChanged": "2026-10-13T23:18:46+03:00",
+        "changed": "2026-10-13T23:18:46+03:00"
+      }
+    },
+    {
+      "action": "complete",
+      "card": {
+        "status": "completed",
+        "statusChanged": "2026-10-13T23:18:47+03:00",
+        "changed": "2026-10-13T23:18:47+03:00"
+      }
+    },
+    {
+      "action": "renew",
+      "card": {
+        "status": "pending",
+        "statusChanged": "2026-10-13T23:18:48+03:00",
+        "changed": "2026-10-13T23:18:48+03:00"
+      }
+    },
+    {
+      "action": "complete",
+      "card": {
+        "status": "completed",
+        "statusChanged": "2026-10-13T23:18:49+03:00",
+        "changed": "2026-10-13T23:18:49+03:00"
+      }
+    }
+  ],
+  "history": {
+    "next": null,
+    "total": null,
+    "events": [
+      {
+        "id": 16356,
+        "createdDate": "2026-02-23T07:49:48+03:00",
+        "field": "NEW",
+        "value": {
+          "from": null,
+          "to": null
+        }
+      },
+      {
+        "id": 16476,
+        "createdDate": "2026-02-23T07:50:11+03:00",
+        "field": "DELETE",
+        "value": {
+          "from": null,
+          "to": null
+        }
+      },
+      {
+        "id": 23444,
+        "createdDate": "2026-10-13T23:18:44+03:00",
+        "field": "NEW",
+        "value": {
+          "from": null,
+          "to": null
+        }
+      },
+      {
+        "id": 23446,
+        "createdDate": "2026-10-13T23:18:44+03:00",
+        "field": "STATUS",
+        "value": {
+          "from": "2",
+          "to": "3"
+        }
+      },
+      {
+        "id": 23448,
+        "createdDate": "2026-10-13T23:18:45+03:00",
+        "field": "STATUS",
+        "value": {
+          "from": "3",
+          "to": "5"
+        }
+      },
+      {
+        "id": 23450,
+        "createdDate": "2026-10-13T23:18:45+03:00",
+        "field": "STATUS",
+        "value": {
+          "from": "5",
+          "to": "2"
+        }
+      },
+      {
+        "id": 23452,
+        "createdDate": "2026-10-13T23:18:46+03:00",
+        "field": "STATUS",
+        "value": {
+          "from": "2",
+          "to": "3"
+        }
+      },
+      {
+        "id": 23454,
+        "createdDate": "2026-10-13T23:18:47+03:00",
+        "field": "STATUS",
+        "value": {
+          "from": "3",
+          "to": "5"
+        }
+      },
+      {
+        "id": 23456,
+        "createdDate": "2026-10-13T23:18:48+03:00",
+        "field": "STATUS",
+        "value": {
+          "from": "5",
+          "to": "2"
+        }
+      },
+      {
+        "id": 23458,
+        "createdDate": "2026-10-13T23:18:49+03:00",
+        "field": "STATUS",
+        "value": {
+          "from": "2",
+          "to": "5"
+        }
+      }
+    ]
+  },
+  "cleanup": "deleted"
+}

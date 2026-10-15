@@ -1,0 +1,6 @@
+b24cli — CLI для работы с задачами, сотрудниками и подключениями Битрикс24.
+Версия: 0.1.0
+Автор: Maksim Mesilov
+Лицензия: bitrix24-cli-license (основана на BSD-3-Clause)
+Репозиторий: https://github.com/mesilov/bitrix24-cli
+Скилл: https://github.com/mesilov/bitrix24-cli-skill

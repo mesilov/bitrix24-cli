@@ -1,0 +1,44 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Bitrix24\CLI\Console\Command\Task;
+
+use Bitrix24\CLI\Application\Task\ChecklistItemService;
+use Bitrix24\CLI\Application\Task\Request\ListTaskChecklistItemsRequest;
+use Bitrix24\CLI\Console\CommandRunner;
+use Bitrix24\CLI\Console\TaskInputMapper;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+
+#[AsCommand(name: 'task:checklist:item:list', description: 'Показать пункты чек-листа')]
+final class ListTaskChecklistItemsCommand extends Command
+{
+    public function __construct(private readonly ChecklistItemService $service, private readonly TaskInputMapper $mapper, private readonly CommandRunner $runner)
+    {
+        parent::__construct();
+    }
+
+    protected function configure(): void
+    {
+        $this->addArgument('TASK_ID', InputArgument::REQUIRED, 'ID задачи.');
+        $this->addOption('checklist', null, InputOption::VALUE_REQUIRED, 'ID корневого чек-листа выбранной задачи.');
+        $this->setHelp('JSON: структура data/meta/error; столбцы TSV при --plain: id, parentId, title, isComplete. Дополнительный маршрут REST 1.0; strict-rest3 отклоняет вызов до подключения.  --checklist — CHECKLIST_ID корня; вывод включает все его вложенные пункты. Пример: b24cli task:checklist:item:list 123 --checklist 10');
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        return $this->runner->run(
+            $this,
+            $input,
+            $output,
+            fn (): ListTaskChecklistItemsRequest => $this->mapper->listTaskChecklistItems($input),
+            fn (ListTaskChecklistItemsRequest $request): array => $this->service->listRoutes(),
+            fn (ListTaskChecklistItemsRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->service->list($request),
+        );
+    }
+}

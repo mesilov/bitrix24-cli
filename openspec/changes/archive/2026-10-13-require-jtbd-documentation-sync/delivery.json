@@ -1,0 +1,101 @@
+{
+  "pull_request": "https://github.com/mesilov/bitrix24-cli/pull/106",
+  "base": "dev",
+  "verified_head": "555bca765e7d56de0f90642cd2e7d8c8a7b6e3bd",
+  "merge_commit": "e1f1f6836291c69bf40aaf9419d9bd9eea37e342",
+  "merged_at_utc": "2026-10-13T17:45:44Z",
+  "checks": [
+    {
+      "name": "composer-license-checker",
+      "workflowName": "Allowed licenses checks",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38423450976/job/115386521415"
+    },
+    {
+      "name": "composer-license-checker",
+      "workflowName": "Allowed licenses checks",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38423439686/job/115386482424"
+    },
+    {
+      "name": "Configuration schema contract",
+      "workflowName": "Command tests",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38423450881/job/115386521781"
+    },
+    {
+      "name": "Configuration schema contract",
+      "workflowName": "Command tests",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38423439787/job/115386483283"
+    },
+    {
+      "name": "PHPStan",
+      "workflowName": "PHPStan lint checks",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38423450895/job/115386521432"
+    },
+    {
+      "name": "PHPStan",
+      "workflowName": "PHPStan lint checks",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38423439761/job/115386483115"
+    },
+    {
+      "name": "PhpCsFixer",
+      "workflowName": "PhpCsFixer lint checks",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38423450989/job/115386521839"
+    },
+    {
+      "name": "PhpCsFixer",
+      "workflowName": "PhpCsFixer lint checks",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38423439905/job/115386487441"
+    },
+    {
+      "name": "Rector",
+      "workflowName": "Rector lint checks",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38423451225/job/115386523041"
+    },
+    {
+      "name": "Rector",
+      "workflowName": "Rector lint checks",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38423439766/job/115386482288"
+    },
+    {
+      "name": "linux",
+      "workflowName": "Worktree isolation",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38423450904/job/115386522063"
+    },
+    {
+      "name": "unit-tests",
+      "workflowName": "Command tests",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38423450881/job/115386521199"
+    },
+    {
+      "name": "unit-tests",
+      "workflowName": "Command tests",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38423439787/job/115386483698"
+    }
+  ],
+  "issue_105": "CLOSED after verified merge"
+}

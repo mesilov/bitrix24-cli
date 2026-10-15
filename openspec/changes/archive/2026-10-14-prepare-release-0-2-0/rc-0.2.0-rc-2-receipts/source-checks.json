@@ -1,0 +1,135 @@
+[
+  {
+    "name": "PhpCsFixer",
+    "status": "completed",
+    "conclusion": "success",
+    "details_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38545765744/job/115791299679",
+    "head_sha": "6931fd0440143878f6a19601bd87bbcfd51cbe70"
+  },
+  {
+    "name": "composer-license-checker",
+    "status": "completed",
+    "conclusion": "success",
+    "details_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38545765755/job/115791299655",
+    "head_sha": "6931fd0440143878f6a19601bd87bbcfd51cbe70"
+  },
+  {
+    "name": "Rector",
+    "status": "completed",
+    "conclusion": "success",
+    "details_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38545765720/job/115791299268",
+    "head_sha": "6931fd0440143878f6a19601bd87bbcfd51cbe70"
+  },
+  {
+    "name": "unit-tests",
+    "status": "completed",
+    "conclusion": "success",
+    "details_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38545765741/job/115791298965",
+    "head_sha": "6931fd0440143878f6a19601bd87bbcfd51cbe70"
+  },
+  {
+    "name": "Configuration schema contract",
+    "status": "completed",
+    "conclusion": "success",
+    "details_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38545765741/job/115791298952",
+    "head_sha": "6931fd0440143878f6a19601bd87bbcfd51cbe70"
+  },
+  {
+    "name": "PHPStan",
+    "status": "completed",
+    "conclusion": "success",
+    "details_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38545765676/job/115791298640",
+    "head_sha": "6931fd0440143878f6a19601bd87bbcfd51cbe70"
+  },
+  {
+    "name": "unit-tests",
+    "status": "completed",
+    "conclusion": "success",
+    "details_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38544589278/job/115787394463",
+    "head_sha": "6931fd0440143878f6a19601bd87bbcfd51cbe70"
+  },
+  {
+    "name": "Configuration schema contract",
+    "status": "completed",
+    "conclusion": "success",
+    "details_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38544589278/job/115787394199",
+    "head_sha": "6931fd0440143878f6a19601bd87bbcfd51cbe70"
+  },
+  {
+    "name": "PHPStan",
+    "status": "completed",
+    "conclusion": "success",
+    "details_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38544589294/job/115787394108",
+    "head_sha": "6931fd0440143878f6a19601bd87bbcfd51cbe70"
+  },
+  {
+    "name": "composer-license-checker",
+    "status": "completed",
+    "conclusion": "success",
+    "details_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38544589336/job/115787393964",
+    "head_sha": "6931fd0440143878f6a19601bd87bbcfd51cbe70"
+  },
+  {
+    "name": "PhpCsFixer",
+    "status": "completed",
+    "conclusion": "success",
+    "details_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38544589268/job/115787393860",
+    "head_sha": "6931fd0440143878f6a19601bd87bbcfd51cbe70"
+  },
+  {
+    "name": "Rector",
+    "status": "completed",
+    "conclusion": "success",
+    "details_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38544589160/job/115787393332",
+    "head_sha": "6931fd0440143878f6a19601bd87bbcfd51cbe70"
+  },
+  {
+    "name": "Configuration schema contract",
+    "status": "completed",
+    "conclusion": "success",
+    "details_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38543720003/job/115784495539",
+    "head_sha": "6931fd0440143878f6a19601bd87bbcfd51cbe70"
+  },
+  {
+    "name": "unit-tests",
+    "status": "completed",
+    "conclusion": "success",
+    "details_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38543720003/job/115784495115",
+    "head_sha": "6931fd0440143878f6a19601bd87bbcfd51cbe70"
+  },
+  {
+    "name": "composer-license-checker",
+    "status": "completed",
+    "conclusion": "success",
+    "details_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38543719958/job/115784495074",
+    "head_sha": "6931fd0440143878f6a19601bd87bbcfd51cbe70"
+  },
+  {
+    "name": "PhpCsFixer",
+    "status": "completed",
+    "conclusion": "success",
+    "details_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38543719841/job/115784494791",
+    "head_sha": "6931fd0440143878f6a19601bd87bbcfd51cbe70"
+  },
+  {
+    "name": "Rector",
+    "status": "completed",
+    "conclusion": "success",
+    "details_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38543719974/job/115784494574",
+    "head_sha": "6931fd0440143878f6a19601bd87bbcfd51cbe70"
+  },
+  {
+    "name": "PHPStan",
+    "status": "completed",
+    "conclusion": "success",
+    "details_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38543719794/job/115784494514",
+    "head_sha": "6931fd0440143878f6a19601bd87bbcfd51cbe70"
+  },
+  {
+    "name": "linux",
+    "status": "completed",
+    "conclusion": "success",
+    "details_url": "https://github.com/mesilov/bitrix24-cli/actions/runs/38543719899/job/115784494410",
+    "head_sha": "6931fd0440143878f6a19601bd87bbcfd51cbe70"
+  }
+]

@@ -1,0 +1,251 @@
+{
+  "checked_on": "2026-10-09",
+  "repository": "bitrix24/templates-mcp",
+  "commit": "1f825befd6bfcb620324bd87858977062fabf9ec",
+  "evidence": "Static source inspection; live tools/list not called",
+  "tools": [
+    {
+      "name": "b24_task_checklist_item_add",
+      "path": "server/mcp/tools/tasks/add-checklist-item.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/add-checklist-item.ts",
+      "methods": [
+        "task.checklistitem.add"
+      ],
+      "description": "Добавить пункт/заголовок чек-листа"
+    },
+    {
+      "name": "b24_task_elapsed_time_add",
+      "path": "server/mcp/tools/tasks/add-elapsed-time.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/add-elapsed-time.ts",
+      "methods": [
+        "task.elapseditem.add"
+      ],
+      "description": "Записать затраченное время"
+    },
+    {
+      "name": "b24_task_comment_add",
+      "path": "server/mcp/tools/tasks/add-task-comment.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/add-task-comment.ts",
+      "methods": [
+        "task.commentitem.add"
+      ],
+      "description": "Добавить legacy-комментарий"
+    },
+    {
+      "name": "b24_task_dependency_add",
+      "path": "server/mcp/tools/tasks/add-task-dependency.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/add-task-dependency.ts",
+      "methods": [
+        "task.dependence.add"
+      ],
+      "description": "Добавить зависимость"
+    },
+    {
+      "name": "b24_task_result_add",
+      "path": "server/mcp/tools/tasks/add-task-result.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/add-task-result.ts",
+      "methods": [
+        "tasks.task.result.add"
+      ],
+      "description": "Добавить результат"
+    },
+    {
+      "name": "b24_task_approve",
+      "path": "server/mcp/tools/tasks/approve-task.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/approve-task.ts",
+      "methods": [
+        "tasks.task.approve"
+      ],
+      "description": "Принять результат"
+    },
+    {
+      "name": "b24_task_checklist_item_complete",
+      "path": "server/mcp/tools/tasks/complete-checklist-item.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/complete-checklist-item.ts",
+      "methods": [
+        "task.checklistitem.complete"
+      ],
+      "description": "Отметить пункт выполненным"
+    },
+    {
+      "name": "b24_task_complete",
+      "path": "server/mcp/tools/tasks/complete-task.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/complete-task.ts",
+      "methods": [
+        "tasks.task.complete"
+      ],
+      "description": "Завершить / передать на контроль"
+    },
+    {
+      "name": "b24_task_create",
+      "path": "server/mcp/tools/tasks/create-task.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/create-task.ts",
+      "methods": [
+        "tasks.task.add"
+      ],
+      "description": "Создать задачу"
+    },
+    {
+      "name": "b24_task_defer",
+      "path": "server/mcp/tools/tasks/defer-task.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/defer-task.ts",
+      "methods": [
+        "tasks.task.defer"
+      ],
+      "description": "Отложить"
+    },
+    {
+      "name": "b24_task_checklist_item_delete",
+      "path": "server/mcp/tools/tasks/delete-checklist-item.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/delete-checklist-item.ts",
+      "methods": [
+        "task.checklistitem.delete"
+      ],
+      "description": "Удалить пункт/чек-лист"
+    },
+    {
+      "name": "b24_task_elapsed_time_delete",
+      "path": "server/mcp/tools/tasks/delete-elapsed-time.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/delete-elapsed-time.ts",
+      "methods": [
+        "task.elapseditem.delete"
+      ],
+      "description": "Удалить запись времени"
+    },
+    {
+      "name": "b24_task_result_delete",
+      "path": "server/mcp/tools/tasks/delete-task-result.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/delete-task-result.ts",
+      "methods": [
+        "tasks.task.result.delete"
+      ],
+      "description": "Удалить результат"
+    },
+    {
+      "name": "b24_task_disapprove",
+      "path": "server/mcp/tools/tasks/disapprove-task.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/disapprove-task.ts",
+      "methods": [
+        "tasks.task.disapprove"
+      ],
+      "description": "Вернуть на доработку"
+    },
+    {
+      "name": "b24_task_checklist_item_list",
+      "path": "server/mcp/tools/tasks/list-checklist-items.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/list-checklist-items.ts",
+      "methods": [
+        "task.checklistitem.getlist"
+      ],
+      "description": "Получить пункты чек-листа"
+    },
+    {
+      "name": "b24_task_elapsed_time_list",
+      "path": "server/mcp/tools/tasks/list-elapsed-time.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/list-elapsed-time.ts",
+      "methods": [
+        "task.elapseditem.getlist"
+      ],
+      "description": "Получить записи времени"
+    },
+    {
+      "name": "b24_task_result_list",
+      "path": "server/mcp/tools/tasks/list-task-results.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/list-task-results.ts",
+      "methods": [
+        "tasks.task.result.list"
+      ],
+      "description": "Получить результаты"
+    },
+    {
+      "name": "b24_task_list",
+      "path": "server/mcp/tools/tasks/list-tasks.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/list-tasks.ts",
+      "methods": [
+        "tasks.task.list"
+      ],
+      "description": "Получить список задач"
+    },
+    {
+      "name": "b24_task_pause",
+      "path": "server/mcp/tools/tasks/pause-task.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/pause-task.ts",
+      "methods": [
+        "tasks.task.pause"
+      ],
+      "description": "Приостановить"
+    },
+    {
+      "name": "b24_task_rate",
+      "path": "server/mcp/tools/tasks/rate-task.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/rate-task.ts",
+      "methods": [
+        "tasks.task.update"
+      ],
+      "description": "Поставить или убрать оценку"
+    },
+    {
+      "name": "b24_task_dependency_remove",
+      "path": "server/mcp/tools/tasks/remove-task-dependency.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/remove-task-dependency.ts",
+      "methods": [
+        "task.dependence.delete"
+      ],
+      "description": "Удалить зависимость"
+    },
+    {
+      "name": "b24_task_checklist_item_renew",
+      "path": "server/mcp/tools/tasks/renew-checklist-item.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/renew-checklist-item.ts",
+      "methods": [
+        "task.checklistitem.renew"
+      ],
+      "description": "Снять отметку выполнения"
+    },
+    {
+      "name": "b24_task_renew",
+      "path": "server/mcp/tools/tasks/renew-task.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/renew-task.ts",
+      "methods": [
+        "tasks.task.renew"
+      ],
+      "description": "Возобновить"
+    },
+    {
+      "name": "b24_task_start",
+      "path": "server/mcp/tools/tasks/start-task.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/start-task.ts",
+      "methods": [
+        "tasks.task.start"
+      ],
+      "description": "Начать выполнение"
+    },
+    {
+      "name": "b24_task_elapsed_time_update",
+      "path": "server/mcp/tools/tasks/update-elapsed-time.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/update-elapsed-time.ts",
+      "methods": [
+        "task.elapseditem.update"
+      ],
+      "description": "Исправить запись времени"
+    },
+    {
+      "name": "b24_task_result_update",
+      "path": "server/mcp/tools/tasks/update-task-result.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/update-task-result.ts",
+      "methods": [
+        "tasks.task.result.update"
+      ],
+      "description": "Изменить результат"
+    },
+    {
+      "name": "b24_task_update",
+      "path": "server/mcp/tools/tasks/update-task.ts",
+      "source": "https://github.com/bitrix24/templates-mcp/blob/1f825befd6bfcb620324bd87858977062fabf9ec/server/mcp/tools/tasks/update-task.ts",
+      "methods": [
+        "tasks.task.update"
+      ],
+      "description": "Изменить поля задачи"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+name: Verify existing RC binaries
+
+on:
+  workflow_dispatch:
+    inputs:
+      package_run_id:
+        description: Successful package-static RC run containing b24cli-release-assets
+        required: true
+        type: string
+      expected_version:
+        description: Exact version in the selected archive set
+        required: true
+        type: string
+      source_sha:
+        description: Exact source commit in build-info.json
+        required: true
+        type: string
+      expected_commands:
+        description: Expected public command count
+        required: true
+        type: number
+        default: 56
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  verify:
+    name: Verify ${{ matrix.target }} RC archive
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            target: linux-amd64
+          - os: macos-15
+            target: macos-arm64
+          - os: windows-2022
+            target: windows-amd64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.13'
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: b24cli-release-assets
+          path: rc-assets
+          run-id: ${{ inputs.package_run_id }}
+          github-token: ${{ github.token }}
+      - name: Verify copied native binary without credentials or build tools
+        env:
+          RC_VERSION: ${{ inputs.expected_version }}
+          RC_SOURCE_SHA: ${{ inputs.source_sha }}
+          RC_COMMAND_COUNT: ${{ inputs.expected_commands }}
+        run: python build/tests/rc-artifact-acceptance.py rc-assets --target ${{ matrix.target }} --expected-version "$RC_VERSION" --source-sha "$RC_SOURCE_SHA" --expected-commands "$RC_COMMAND_COUNT" --output rc-results/${{ matrix.target }}.json
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: rc-acceptance-${{ matrix.target }}
+          path: rc-results/${{ matrix.target }}.json
+          if-no-files-found: error
+          retention-days: 30
