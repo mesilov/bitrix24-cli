@@ -49,5 +49,6 @@
 - [Changelog](https://github.com/mesilov/bitrix24-cli/pull/150#discussion_r4282370305): добавлена содержательная запись в Unreleased с issue #149; проверяется собственный diff относительно актуальной dev.
 - [Диагностика](https://github.com/mesilov/bitrix24-cli/pull/150#discussion_r4282370310): failure presenter сохраняет полный scope report в stderr human/plain; B24Application передаёт plain-режим. JSON error envelope сохранён. Регрессия проверяет точные grantedScopes, timestamp, manifest revision, potentiallyAffectedCommands, connection и пустой stdout при human/plain ошибке.
 - [Пример](https://github.com/mesilov/bitrix24-cli/pull/150#discussion_r4282370327): TaskUsage не добавляет dry-run к connection:check, карта сгенерирована повторно; parser/help tests проверяют реальный диагностический пример. Примеры остальных команд сохраняют прежний dry-run.
+- В docs/task-jtbd.md актуализированы общие границы прав для существующих сценариев, ссылки на runtime/tests и отсутствие live-приёмки; состав 22 JTBD не изменён.
 - Повторные PHPStan, PHP-CS-Fixer и Rector: pass. Generated CLI reference: 57 команд, pass. OpenSpec --all --strict: 25 passed, 0 failed.
 - Закрытие threads, финальная проверка reviews и CI выполняются после публикации исправлений; статус подтверждается в GitHub.
