@@ -173,6 +173,7 @@ ID, имена профилей и тексты в примерах замени
 | --- | --- | --- |
 | `task:add` | Создать задачу | `b24cli task:add --title "Подготовить договор" --creator 1 --responsible 42 --dry-run` |
 | `task:assign` | Сменить ответственного | `b24cli task:assign 123 --responsible 3 --dry-run` |
+| [`task:handover`](docs/task-handover.md) | Передать все незавершённые задачи проекта; `--from` для руководителя | `b24cli task:handover --group-id 234 --from 14 --responsible 16 --dry-run` |
 | `task:deadline:set` | Изменить срок задачи | `b24cli task:deadline:set 123 --at 2026-12-01T12:00:00+06:00 --dry-run` |
 | `task:delete` | Удалить задачу | `b24cli task:delete 123 --dry-run` |
 | `task:participants:set` | Заменить выбранные роли участников | `b24cli task:participants:set 123 --auditor 4 --clear-accomplices --dry-run` |

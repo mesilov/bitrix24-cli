@@ -1,6 +1,6 @@
 # Карта CLI-вызовов
 
-Каталог содержит 62 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
+Каталог содержит 63 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
 
 `b24cli --help`/`-h` показывают назначение, список команд, глобальные опции и примеры задач. Вся справка — на русском; имена команд, флагов и API/JSON-полей сохраняются. Единый первый блок «Общие» содержит `completion`, `help` и `list`; далее пространства имён и команды внутри блоков упорядочены по имени. `b24cli --about` показывает назначение, версию, автора, лицензию и ссылки на [приложение](https://github.com/mesilov/bitrix24-cli) и [скилл](https://github.com/mesilov/bitrix24-cli-skill). Эти вызовы не требуют подключения и не обращаются к порталу. `list --help` описывает именно list; вызов без аргументов выводит список команд.
 
@@ -42,6 +42,7 @@
 | [`task:fields:list`](../src/Console/Command/Task/ListTaskFieldsCommand.php) | Показать поля задачи | read | `b24cli task:fields:list --name title` |
 | [`task:file:attach`](../src/Console/Command/Task/AttachTaskFilesCommand.php) | Прикрепить файл Диска или загрузить локальный файл | write | `b24cli task:file:attach 123 --file-id 50 --dry-run` |
 | [`task:find`](../src/Console/Command/Task/FindTaskCommand.php) | Найти задачи по буквальной подстроке title | read | `b24cli task:find --title "договор" --group-id 7 --responsible 42` |
+| [`task:handover`](../src/Console/Command/Task/HandoverTasksCommand.php) | Передать незавершённые задачи проекта другому участнику | write | `b24cli task:handover --group-id 234 --responsible 14 --dry-run` |
 | [`task:history:list`](../src/Console/Command/Task/ListTaskHistoryCommand.php) | Показать историю изменений задачи | read | `b24cli task:history:list 123 --json` |
 | [`task:list`](../src/Console/Command/Task/ListTaskCommand.php) | Показать доступные задачи | read | `b24cli task:list --group-id 7 --responsible 42` |
 | [`task:my`](../src/Console/Command/Task/MyTaskCommand.php) | Показать задачи выбранного исполнителя | read | `b24cli task:my --user 42 --open --json` |

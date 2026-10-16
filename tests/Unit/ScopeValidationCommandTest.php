@@ -139,7 +139,7 @@ final class ScopeValidationCommandTest extends TestCase
         }
 
         self::assertCount(3, $this->calls);
-        $this->scopes = ['task', 'im', 'disk', 'department', 'user'];
+        $this->scopes = ['task', 'im', 'disk', 'department', 'user', 'sonet'];
         $run = ConsoleHarness::run($this->app, ['connection:check', '--json']);
         self::assertSame(0, $run->status, $run->stdout);
         self::assertSame([], $run->json()['data']['potentiallyAffectedCommands']);

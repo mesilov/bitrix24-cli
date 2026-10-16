@@ -58,3 +58,7 @@ Help/version/list/completion, локальные `connection:add/list/show/use/r
 используют только `tasks.template.get/fields/add/update/delete` (REST 1.0),
 документированный scope `task`; группа `task|tasks` сохранена по общему правилу
 выше. Отдельных user/IM/disk разрешений эти команды не запрашивают.
+
+## Передача задач проекта
+
+`task:handover` требует группу `task|tasks` и `sonet`: [sonet_group.user.get](https://apidocs.bitrix24.ru/api-reference/sonet-group/members/sonet-group-user-get.html) проверяет активное членство обоих сотрудников. Отсутствие `sonet` блокирует только эту зависимость и не добавляет требование к `task:assign` или `task:list`. `strict-rest3` отклоняет handover до API, включая dry-run. Членство само по себе не предоставляет право переназначить задачу.

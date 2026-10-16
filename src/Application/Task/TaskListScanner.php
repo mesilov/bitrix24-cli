@@ -221,6 +221,25 @@ final readonly class TaskListScanner
 
             $offset = $next ?? 0;
             if ($next !== null && $scanned >= $query->maxScan) {
+                if ($query->verifyExhaustionAtBudget && !$deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow) {
+                    $this->state->checkCancellation();
+                    try {
+                        $probe = $this->tasks->page($filter, $fields, $query->order, $next, 1);
+                        if ($probe->items === [] && $probe->next === null) {
+                            $next = null;
+                            continue;
+                        }
+                    } catch (Failure $failure) {
+                        if ($failure->exitStatus === 130) {
+                            throw $failure;
+                        }
+
+                        $reason = 'page-error';
+                        $complete = false;
+                        break;
+                    }
+                }
+
                 $reason = 'scan-budget-exhausted';
                 $complete = false;
                 break;
