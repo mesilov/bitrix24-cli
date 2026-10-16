@@ -12,6 +12,8 @@
 
 ### Добавлено
 
+- **План недельного отчёта:** добавлен JTBD PM-09 и OpenSpec `add-weekly-task-report` для четырёх показателей по всему выбранному проекту с optional фильтром ответственного. Определены календарная неделя, текущие контроль/работа, REST1 read route и partial results; команда ещё не реализована. [#168](https://github.com/mesilov/bitrix24-cli/issues/168).
+
 - **Передача задач проекта:** `task:handover --group-id ID --responsible ID` передаёт все доступные незавершённые задачи текущего пользователя другому участнику; `--from ID` позволяет руководителю передать работу между двумя сотрудниками. Проверяются членство, полная выборка (включая точную границу бюджета) и результат каждого назначения; dry-run и отчёт сохраняют частичные/неизвестные исходы без автоматического повтора. Добавлен EMP-09, уточнён PM-04. [#162](https://github.com/mesilov/bitrix24-cli/issues/162)
 
 - **Шаблоны задач:** `task:template:show`, `task:template:fields:list`, `task:template:add/update/delete` через REST 1.0 с нативными полями, JSON/plain и dry-run. Добавлен JTBD PM-08; неоднозначное подтверждение удаления отражается как partial (exit 3), доступность после запроса видна в JSON/human/plain. [#72](https://github.com/mesilov/bitrix24-cli/issues/72)
