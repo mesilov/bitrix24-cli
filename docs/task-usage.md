@@ -464,3 +464,61 @@ b24cli task:add \
 Custom-only update выполняет один REST1 update. Смешанный update сначала меняет ordinary поля через REST3, затем custom через REST1, затем явно заданные теги. При частичном результате CLI сохраняет TASK_ID и подтверждённые шаги; проверьте значения существующей задачи перед повторением `task:update`. Создание и записи автоматически не повторяются и не откатываются.
 
 Custom dry-run читает схему и показывает версии API и native поля без записи. `strict-rest3` отклоняет весь custom план до credentials/API. Теги и default observer сохраняют свои отдельные объявленные шаги; ошибка прекращает последующие записи.
+
+## Шаблоны задач
+
+```sh
+b24cli task:template:show 139 --json
+b24cli task:template:fields:list --json
+b24cli task:template:add --title "Типовая задача" --creator 1 --responsible 42 --dry-run
+b24cli task:template:update 139 --description "Новый порядок проверки" --dry-run
+b24cli task:template:delete 139 --dry-run
+```
+
+Шаблоны используют REST 1.0 и scope `task` (также принимается `tasks` по общему
+контракту проверки scope). `--api-policy strict-rest3` запрещает все пять команд,
+включая dry-run. ID берётся из портала либо ответа создания; список и поиск
+шаблонов, создание задачи по шаблону, изменение чек-листов и расписаний повторения
+в CLI пока не предоставляются. Методы и права проверены по
+[официальной документации](https://apidocs.bitrix24.ru/api-reference/tasks/template/index.html),
+доступность на конкретном портале зависит от его настроек и прав подключения.
+
+Создание требует `TITLE`, `CREATED_BY`, `RESPONSIBLE_ID`. Флаги `--title`,
+`--description`, `--creator`, `--responsible`, `--group-id` соответствуют нативным
+`TITLE`, `DESCRIPTION`, `CREATED_BY`, `RESPONSIBLE_ID`, `GROUP_ID`. Значения профиля
+`default.task` не применяются к шаблонам. Update отправляет только явные поля;
+`--description=""` очищает описание.
+
+Можно передать `--fields JSON` или `--fields-file PATH` (либо `-` для stdin):
+
+```sh
+b24cli task:template:add --fields '{"TITLE":"Проверка договора","CREATED_BY":1,"RESPONSIBLE_ID":42,"GROUP_ID":7,"TASK_CONTROL":"Y"}' --dry-run --json
+b24cli task:template:update 139 --fields-file template-fields.json --dry-run
+```
+
+Набор полей записи: `TITLE`, `DESCRIPTION`, `CREATED_BY`, `RESPONSIBLE_ID`,
+`GROUP_ID`, `PARENT_ID`, `ACCOMPLICES`, `AUDITORS`, `ALLOW_CHANGE_DEADLINE`,
+`ALLOW_TIME_TRACKING`, `TASK_CONTROL`, `ADD_IN_REPORT`. Нативные имена сохраняются.
+ID в JSON — целые числа; `GROUP_ID` и `PARENT_ID` допускают 0, остальные ID положительны.
+`ACCOMPLICES`/`AUDITORS` — списки положительных целых чисел, `[]` очищает список.
+Переключатели принимают строки `Y`/`N`. Алиасы REST3 (`creatorId` и другие),
+неизвестные поля, дубли JSON-ключей и одного поля из JSON/флагов отклоняются до API.
+`PRIORITY`, относительные сроки, повторения, `UF_*` и другие поля не входят в набор
+записи; `fields:list` позволяет прочитать metadata портала без обещания поддержки записи.
+Значения прочитанного шаблона сохраняются, включая сериализованные сервером строки.
+
+Add/update dry-run полностью offline. Delete dry-run читает выбранный шаблон,
+показывает название и план, не выполняет запись. Настоящее удаление в automation
+требует `--force`, в терминале — подтверждение. Удаление может вернуть `false`
+и при успехе, и при отсутствии подтверждения, поэтому CLI возвращает exit 3,
+`operation.confirmed=false`, `meta.complete=false`, `meta.outcomeUnknown=true`.
+Повторное чтение записывается в `operation.visibleAfter`: true — шаблон ещё виден,
+false — больше не виден, null — чтение не удалось. Отсутствие доступа также даёт
+false; это не доказательство удаления. Проверьте портал и права перед повтором.
+
+JSON содержит `data.template`, `data.fields` либо `data.operation` с `templateId`,
+`action`, `changedFields`, `confirmed`. Plain show/fields выводит отсортированные
+`field`, `value`; изменения — `templateId`, `action`, `changedFields`, `confirmed`.
+Только удаление добавляет столбец `visibleAfter` в human/plain: `true`, `false` или
+`unknown`, если проверочное чтение не удалось (в JSON это `null`).
+Tab/newline/backslash экранируются. План содержит `templateId`, а `taskId=null`.

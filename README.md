@@ -178,6 +178,20 @@ ID, имена профилей и тексты в примерах замени
 | `task:participants:set` | Заменить выбранные роли участников | `b24cli task:participants:set 123 --auditor 4 --clear-accomplices --dry-run` |
 | `task:update` | Изменить явные поля задачи | `b24cli task:update 123 --title "Договор для согласования" --dry-run` |
 
+### Шаблоны задач
+
+| Команда | Назначение | Пример |
+| --- | --- | --- |
+| `task:template:show` | Прочитать шаблон по ID | `b24cli task:template:show 139 --json` |
+| `task:template:fields:list` | Получить описание полей | `b24cli task:template:fields:list --json` |
+| `task:template:add` | Создать шаблон | `b24cli task:template:add --title "Типовая задача" --creator 1 --responsible 42 --dry-run` |
+| `task:template:update` | Изменить явные поля шаблона | `b24cli task:template:update 139 --description "Проверить реквизиты" --dry-run` |
+| `task:template:delete` | Запросить удаление шаблона | `b24cli task:template:delete 139 --dry-run` |
+
+Все пять команд используют REST 1.0 и scope `task`; `strict-rest3` запрещает их.
+Удаление возвращает частичное подтверждение (exit 3), поскольку API не подтверждает
+результат. Поля, JSON/stdin и ограничения — в [руководстве](docs/task-usage.md#шаблоны-задач).
+
 ### Просмотр и поиск задач
 
 | Команда | Назначение | Пример |

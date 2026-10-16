@@ -8,6 +8,8 @@
 
 ### Добавлено
 
+- **Шаблоны задач:** `task:template:show`, `task:template:fields:list`, `task:template:add/update/delete` через REST 1.0 с нативными полями, JSON/plain и dry-run. Добавлен JTBD PM-08; неоднозначное подтверждение удаления отражается как partial (exit 3), доступность после запроса видна в JSON/human/plain. [#72](https://github.com/mesilov/bitrix24-cli/issues/72)
+
 - **Проверка прав вебхука:** требования выбранной команды сверяются с разрешениями подключения; отдельный защищённый `state.json` хранит снимок на сутки. Смена credentials/манифеста обновляет проверку, нехватка scope блокирует только затронутую команду, а `connection:check` принудительно обновляет права и показывает диагностику в human/plain/JSON. При сбое сохраняется последний успешный снимок и применяется backoff 300 секунд. [#149](https://github.com/mesilov/bitrix24-cli/issues/149)
 
 ### Изменено

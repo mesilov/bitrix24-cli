@@ -53,3 +53,8 @@ Help/version/list/completion, локальные `connection:add/list/show/use/r
 Точный ответ API `insufficient_scope` инвалидирует снимок и ограничивает последующую перепроверку интервалом backoff. Другие отказы доступа сохраняют свою причину. Ни один изменяющий запрос автоматически не повторяется.
 
 Для сохранения state в подключённом Docker-каталоге нужен доступ на запись. Используйте существующий параметр `B24CLI_CONFIG_WRITE=1` вместе с `B24CLI_CONFIG_DIR` при запуске через Make. При read-only mount автоматическая проверка сообщает unknown и не перезаписывает конфигурацию.
+
+Шаблоны: `task:template:show`, `task:template:fields:list`, `task:template:add/update/delete`
+используют только `tasks.template.get/fields/add/update/delete` (REST 1.0),
+документированный scope `task`; группа `task|tasks` сохранена по общему правилу
+выше. Отдельных user/IM/disk разрешений эти команды не запрашивают.

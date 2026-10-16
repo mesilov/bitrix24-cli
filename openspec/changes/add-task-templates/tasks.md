@@ -1,13 +1,20 @@
 # Tasks
 
-Реализация отложена пользователем. В рамках #61 задачи ниже не выполнять.
+## 1. Contract
 
-## 1. Future contract
+- [x] 1.1 Обновить согласованные proposal/design/spec/tasks со ссылками MCP, milestone 0.3.0 и границами проверки; проверить openspec validate add-task-templates --strict.
 
-- [ ] 1.1 После отдельного старта исследовать официальный API через MCP и согласовать полезные сценарии; сохранить ссылки и границы проверки.
-- [ ] 1.2 Обновить design/spec/tasks с точными командами, полями и acceptance; проверить strict OpenSpec.
+## 2. Runtime and command contract
 
-## 2. Future implementation
+- [x] 2.1 Реализовать port/REST1 adapter и пять команд с точным вводом, scalar response validation и JSON/plain; подтвердить TaskTemplatesTest для payload, типов, отрицательных ответов, файлов/stdin и sparse update.
+- [x] 2.2 Подключить catalog/DI/scope/policy, offline add/update dry-run и read-only delete dry-run, force и неоднозначное удаление; подтвердить unit-тесты guard, scope и no-write/no-retry.
+- [x] 2.3 Добавить пять отдельных portal integration classes и PM-08 JTBD, руководство, CLI map и changelog; проверить IntegrationCommandCoverageTest и cli-reference --check. Live tests запускать при наличии разрешённого подключения, иначе зафиксировать skip.
 
-- [ ] 2.1 Реализовать согласованные команды и JTBD, проверить unit/integration и общий CLI contract.
-- [ ] 2.2 Доставить отдельным PR в dev с #72 и проверенной issue/change трассировкой.
+## 3. Verification and delivery
+
+- [x] 3.1 Выполнить unit suite, quality linters, strict OpenSpec и verify requirement/scenario mapping; записать фактические результаты и ограничения.
+- [x] 3.2 Проверить issue↔change, интегрировать свежую origin/dev, повторить затронутые проверки, опубликовать ветку и открыть MR в dev с changelog и CI evidence.
+
+## Workflow follow-up
+
+- После разрешённого merge в dev и закрытия #72 синхронизировать specs, архивировать change, доставить архив отдельным MR и удалить worktree после сохранения результатов.

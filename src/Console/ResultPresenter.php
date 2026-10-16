@@ -26,6 +26,7 @@ final readonly class ResultPresenter
         'checklist-items' => ['id', 'parentId', 'title', 'isComplete'],
         'task-history' => ['id', 'createdDate', 'userId', 'field', 'from', 'to'],
         'task-lifecycle' => ['taskId', 'action', 'confirmed', 'status', 'needsControl', 'requireResult'],
+        'template-mutation' => ['templateId', 'action', 'changedFields', 'confirmed'],
         'mutation' => ['taskId', 'resourceId', 'action', 'changedFields'],
         'plan' => ['taskId', 'step', 'method', 'apiVersion', 'effect', 'fields'],
     ];
@@ -134,6 +135,12 @@ final readonly class ResultPresenter
             return [['field', 'value'], $rows];
         }
 
+        if (in_array($result->profile, ['template-card', 'template-fields'], true)) {
+            $object = $result->data[$result->profile === 'template-card' ? 'template' : 'fields'];
+            ksort($object);
+            return [['field', 'value'], array_map(static fn (string $field, mixed $value): array => [$field, $value], array_keys($object), array_values($object))];
+        }
+
         if ($result->profile === 'scope-check') {
             return [['field', 'value'], array_map(static fn (string $field, mixed $value): array => [$field, $value], array_keys($result->data), array_values($result->data))];
         }
@@ -161,12 +168,20 @@ final readonly class ResultPresenter
         }
 
         $columns = self::COLUMNS[$result->profile] ?? ['field', 'value'];
+        if ($result->profile === 'template-mutation' && array_key_exists('visibleAfter', $result->data['operation'] ?? [])) {
+            $columns[] = 'visibleAfter';
+        }
+
         if ($result->profile === 'plan' && array_any($result->data['plan']['steps'] ?? [], static fn (array $step): bool => isset($step['taskIdFromStep']))) {
             $columns[] = 'taskIdFromStep';
         }
 
+        if ($result->profile === 'plan' && array_any($result->data['plan']['steps'] ?? [], static fn (array $step): bool => array_key_exists('templateId', $step))) {
+            $columns[] = 'templateId';
+        }
+
         $items = $result->profile === 'plan' ? ($result->data['plan']['steps'] ?? []) : ($result->data['items'] ?? [$result->data['operation'] ?? []]);
-        return [$columns, array_map(static fn (array $item): array => array_map(static fn (string $field): mixed => $item[$field] ?? null, $columns), $items)];
+        return [$columns, array_map(static fn (array $item): array => array_map(static fn (string $field): mixed => $item[$field] ?? ($field === 'visibleAfter' ? 'unknown' : null), $columns), $items)];
     }
 
     private function string(mixed $value): string

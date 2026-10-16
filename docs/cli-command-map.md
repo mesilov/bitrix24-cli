@@ -1,6 +1,6 @@
 # Карта CLI-вызовов
 
-Каталог содержит 57 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
+Каталог содержит 62 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
 
 `b24cli --help`/`-h` показывают назначение, список команд, глобальные опции и примеры задач. Вся справка — на русском; имена команд, флагов и API/JSON-полей сохраняются. Единый первый блок «Общие» содержит `completion`, `help` и `list`; далее пространства имён и команды внутри блоков упорядочены по имени. `b24cli --about` показывает назначение, версию, автора, лицензию и ссылки на [приложение](https://github.com/mesilov/bitrix24-cli) и [скилл](https://github.com/mesilov/bitrix24-cli-skill). Эти вызовы не требуют подключения и не обращаются к порталу. `list --help` описывает именно list; вызов без аргументов выводит список команд.
 
@@ -55,6 +55,11 @@
 | [`task:show`](../src/Console/Command/Task/ShowTaskCommand.php) | Показать карточку задачи | read | `b24cli task:show 123` |
 | [`task:start`](../src/Console/Command/Task/StartTaskCommand.php) | Начать работу над задачей | write | `b24cli task:start 123 --dry-run` |
 | [`task:status:durations`](../src/Console/Command/Task/StatusDurationsTaskCommand.php) | Рассчитать календарное время задачи в статусах | read | `b24cli task:status:durations 123 --as-of 2026-10-01T12:00:00+03:00 --json` |
+| [`task:template:add`](../src/Console/Command/Task/AddTaskTemplateCommand.php) | Создать шаблон задачи | write | `b24cli task:template:add --title "Типовая задача" --creator 1 --responsible 42 --dry-run` |
+| [`task:template:delete`](../src/Console/Command/Task/DeleteTaskTemplateCommand.php) | Запросить удаление шаблона задачи | delete | `b24cli task:template:delete 139 --dry-run` |
+| [`task:template:fields:list`](../src/Console/Command/Task/ListTaskTemplateFieldsCommand.php) | Показать поля шаблона задачи | read | `b24cli task:template:fields:list` |
+| [`task:template:show`](../src/Console/Command/Task/ShowTaskTemplateCommand.php) | Показать шаблон задачи по ID | read | `b24cli task:template:show 139` |
+| [`task:template:update`](../src/Console/Command/Task/UpdateTaskTemplateCommand.php) | Изменить шаблон задачи | write | `b24cli task:template:update 139 --description "Проверить реквизиты" --dry-run` |
 | [`task:time:add`](../src/Console/Command/Task/AddTaskTimeEntryCommand.php) | Добавить запись времени | write | `b24cli task:time:add 123 --seconds 3600 --text "Подготовка договора" --dry-run` |
 | [`task:time:delete`](../src/Console/Command/Task/DeleteTaskTimeEntryCommand.php) | Удалить запись времени | delete | `b24cli task:time:delete 123 --entry 30 --force --dry-run` |
 | [`task:time:list`](../src/Console/Command/Task/ListTaskTimeEntriesCommand.php) | Показать записи времени | read | `b24cli task:time:list 123` |
