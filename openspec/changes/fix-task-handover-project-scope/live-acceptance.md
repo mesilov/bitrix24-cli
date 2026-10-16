@@ -11,7 +11,7 @@
 
 ## Финальная матрица
 
-| Сценарий | Проверка | Exit CLI | Native actions | Actual status |
+| Сценарий | Проверка | Exit CLI | Шаги lifecycle | Actual status |
 |---|---|---:|---|---|
 | deferred-filter-and-ID-exclusions | PASS | 0 | defer | deferred |
 | source-filter-pending | PASS | 0 | — | pending |
@@ -25,9 +25,9 @@
 | target-supposedly_completed | PASS | 0 | complete | supposedly_completed |
 | controlled-review-to-completed | PASS | 0 | complete | completed |
 | controlled-completion-and-approval | PASS | 0 | complete, approve | completed |
-| required-result-missing-partial | PASS | 3 | complete | pending |
+| required-result-missing-partial | PASS | 3 | complete отклонён до отправки | pending |
 | required-result-present-completed | PASS | 0 | complete | completed |
-| review-without-control-rejected-before-assignment | PASS | 3 | — | None |
+| review-without-control-rejected-before-assignment | PASS | 3 | — | null |
 | creator-cannot-force-review-through-native-complete | PASS | 3 | complete | completed |
 | employee-self-mode | PASS | 0 | defer | deferred |
 | manager-third-party-transfer | PASS | 0 | defer | deferred |
@@ -44,7 +44,7 @@
 
 ## Очистка и границы
 
-Собственный проект 238 удалён; повторный sonet_group.get по ID вернул пустой список. Все 45 задач обеих custom-попыток удалены с ACK. Все integration fixtures удалены, cleanup failures отсутствуют. Вебхуки, private env/config и полный журнал хранятся только во временном локальном evidence bundle.
+Собственный проект 238 удалён; повторный sonet_group.get по ID вернул пустой список. Все 45 задач обеих custom-попыток удалены с ACK. Все integration fixtures удалены, cleanup failures отсутствуют. Обезличенный полный журнал сохранён во временном локальном evidence bundle. Вебхуки и private env/config в него не включены.
 
 Эта приёмка подтверждает поведение для фактических прав этих пользователей на этом портале. Отдельный live отказ ограниченному non-admin пользователю, сетевые потери ответа, конкурентные изменения и побочные эффекты на подзадачи не моделировались; для них сохранены unit-контракты и границы руководства. Наличие scope не заменяет action-specific права.
 
