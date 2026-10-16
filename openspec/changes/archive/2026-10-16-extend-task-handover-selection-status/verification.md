@@ -4,7 +4,7 @@
 
 ## Completeness
 
-Все 6 задач реализованы и проверены. Delta охватывает task-project-handover и task-workflows (EMP-09, PM-04). Актуальные спецификации синхронизируются при архивировании после merge по правилам мейнтейнера.
+Все 6 задач реализованы и проверены. Delta охватывает task-project-handover и task-workflows (EMP-09, PM-04). После merge MR #166 актуальные спецификации синхронизированы и проверены при архивировании по правилам мейнтейнера.
 
 ## Correctness
 
@@ -37,3 +37,13 @@
 P2 автоматического review MR #166 исправлен: human/plain сводка считает переданные задачи по assigned и отдельно показывает полностью выполненные операции по confirmed. `testPartialSummaryShowsAssignmentEvenWhenTransitionFails` проверяет частичную передачу в обоих режимах; после исправления полный suite и все линтеры проходят.
 
 CRITICAL: 0. WARNING: live-приёмка и выпуск standalone-бинарников не выполнялись. CI, reviews и merge проверяются отдельно на опубликованном SHA.
+
+## Delivery receipt
+
+- Issue: [#165](https://github.com/mesilov/bitrix24-cli/issues/165), milestone 0.3.0, closed после подтверждённого merge.
+- Реализация: [MR #166](https://github.com/mesilov/bitrix24-cli/pull/166), target dev, merged 16.10.2026.
+- Проверенный head: `7657fc696814401e03b0d3f3485f7ccf976293d3`; 15/15 CI checks SUCCESS.
+- Merge: `2e0e7afbfa501de2f9e85d2dc790b9f4f8f74022`.
+- Review получен после обязательных пяти минут; одно P2 исправлено коммитом `7657fc6`, thread закрыт; CHANGES_REQUESTED нет.
+- Синхронизированы 9 requirement blocks / 29 сценариев в двух delta; Purpose существующих спецификаций сохранены, незатронутые требования не изменены. После архива strict OpenSpec: 26/26, 0 failed.
+- Архив: `openspec/changes/archive/2026-10-16-extend-task-handover-selection-status/`. Поставка архива выполняется отдельным MR в dev; CI merge-коммитов проверяется отдельно.
