@@ -4,6 +4,8 @@
 
 ### Исправлено
 
+- Архивирован OpenSpec change исправления native connection fixture: сохранены причина общего сбоя packaging, ограниченный scope/list контракт и результаты проверки PHAR; повторная native-сборка и live-приёмка отслеживаются отдельно. [#174](https://github.com/mesilov/bitrix24-cli/issues/174)
+
 - Native connection acceptance учитывает проверку scope: fixture обслуживает ограниченную readonly последовательность `scope` → `tasks.task.list`, а smoke проверяет свежий и кэшированный scope для profiles/env/process credentials. Исправлен общий блокер intermediate macOS/Windows/Linux packaging. [#174](https://github.com/mesilov/bitrix24-cli/issues/174)
 
 - Синхронизирована основная спецификация EMP-09 (scope проекта и восстановление статуса); OpenSpec change архивирован с итогами 18 live-проверок, 4 integration tests и cleanup. [#170](https://github.com/mesilov/bitrix24-cli/issues/170)
