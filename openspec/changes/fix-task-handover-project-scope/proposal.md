@@ -17,10 +17,10 @@ Live EMP-09 на dev 0caf9db блокируется ошибкой scope: manife
 Нет.
 
 ### Modified Capabilities
-- `task-project-handover`: фактическое разрешение проверки состава проекта.
+- `task-project-handover`: фактическое разрешение состава проекта и обработка серверного сброса статуса после назначения.
 
 ## Impact
-ScopeManifest, unit tests, help/docs/JTBD, live evidence. Новых API и зависимостей нет.
+ScopeManifest, TaskHandoverService (routes/preview/verification), unit и integration tests, help/docs/JTBD, live evidence. Новых API и зависимостей нет.
 
 ## GitHub issues
 - [#170](https://github.com/mesilov/bitrix24-cli/issues/170), milestone 0.3.0; исправление блокера приёмки #165.

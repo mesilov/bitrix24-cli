@@ -56,4 +56,3 @@ CLI SHALL принимать --target-status pending, in_progress, deferred, sup
 #### Scenario: Некорректные параметры
 - **WHEN** source-status не является открытым логическим статусом, exclude-id не является положительным ID либо target-status содержит declined, числовой код или неизвестное значение
 - **THEN** usage-error/exit 2 возвращается до credentials/API; повторные exclude-id дедуплицируются
-

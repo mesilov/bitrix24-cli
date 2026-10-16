@@ -16,7 +16,7 @@
 16.10.2026 effective config bitrix24_dev проверен, MCP отвечал на поиск и детали. [sonet_group.user.get](https://apidocs.bitrix24.ru/api-reference/sonet-group/members/sonet-group-user-get.html) документирует ID integer и ROLE A/E/K; MCP называет scope sonet. Это расходится с live scope и каталогом scopes установленного b24phpsdk, где присутствует sonet_group. Исправление опирается на фактический разрешённый вызов и каталог SDK; документационное расхождение сохраняется явно.
 
 ## Risks / Trade-offs
-Успешный scope gate не гарантирует права записи; membership, action permissions, required result и итоговое чтение остаются обязательными. При невозможности конкретного перехода фиксируется live failure, а не успешная приёмка.
+Успешный scope gate не гарантирует права записи; membership, action permissions, required result и итоговое чтение остаются обязательными. При невозможности конкретного перехода фиксируется явный отказ/partial, который не подменяется успешной передачей.
 
 ## Assignment status reset
 Live project 238, owned task 6390: после update только responsibleId deferred сменился на pending; задача 6400 показала in_progress → pending. После подтверждения нового ответственного и проекта CLI допускает исходный статус либо pending. Иное изменение остаётся конфликтом. Из фактического pending выполняется ограниченный штатный план к item.targetStatus — явной цели либо исходному статусу. Проверка перед назначением остаётся точной. Preview и routes включают условное восстановление даже без target-status и при равенстве source/target. Контроль/result/права проверяются тем же lifecycle service, без повторов и скрытого отката.

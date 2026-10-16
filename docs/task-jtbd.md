@@ -21,7 +21,7 @@
 
 Сверка [#165](https://github.com/mesilov/bitrix24-cli/issues/165) от 16.10.2026, база `dev` — `2e83e8b634baab3fd2bbeec6ec51c3cdbf20f403`: EMP-09/PM-04 поддерживают фильтр исходного статуса, исключения ID и пять целей, включая завершение/контроль. Итог назначения и перехода проверяется отдельно. Состав каталога сохранён: 24 JTBD, 49 task-команд, 63 публичных команды. Новые unit-контракты и opt-in integration cases не подтверждают live-приёмку.
 
-Сверка [#170](https://github.com/mesilov/bitrix24-cli/issues/170) от 16.10.2026, база dev `0caf9db`: проверка состава EMP-09/PM-04 использует фактический scope `sonet_group`. Серверный сброс статуса в `pending` после назначения обрабатывается достижением явной цели либо восстановлением исходного статуса штатными действиями. Повторная live-матрица: 17/17 проверок PASS, включая ожидаемые partial/отказы. [Evidence и ограничения](../openspec/changes/fix-task-handover-project-scope/live-acceptance.md). Существующие 24 JTBD и ID сохранены.
+Сверка [#170](https://github.com/mesilov/bitrix24-cli/issues/170) от 16.10.2026, база dev `0caf9db`: проверка состава EMP-09/PM-04 использует фактический scope `sonet_group`. Серверный сброс статуса в `pending` после назначения обрабатывается достижением явной цели либо восстановлением исходного статуса штатными действиями. Повторная live-матрица: 18/18 проверок PASS; 4/4 integration tests PASS, включая ожидаемые partial/отказы. [Evidence и ограничения](../openspec/changes/fix-task-handover-project-scope/live-acceptance.md). Существующие 24 JTBD и ID сохранены.
 
 ## Роли
 
