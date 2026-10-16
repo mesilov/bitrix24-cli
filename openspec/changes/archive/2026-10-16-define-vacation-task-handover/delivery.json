@@ -1,0 +1,131 @@
+{
+  "issue": "https://github.com/mesilov/bitrix24-cli/issues/162",
+  "issueState": "CLOSED",
+  "milestone": "0.3.0",
+  "implementationPullRequest": {
+    "baseRefName": "dev",
+    "headRefOid": "c8f2a1893d0ef4322e438f4b71d19877280e0956",
+    "mergeCommit": {
+      "oid": "250125a69622303bf00147877f95dd79b81dc2df"
+    },
+    "mergedAt": "2026-10-16T11:47:09Z",
+    "state": "MERGED",
+    "url": "https://github.com/mesilov/bitrix24-cli/pull/163"
+  },
+  "ci": {
+    "baseRefName": "dev",
+    "checks": [
+      {
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38895570693/job/116955102633",
+        "name": "composer-license-checker",
+        "status": "COMPLETED"
+      },
+      {
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38895563286/job/116955078061",
+        "name": "composer-license-checker",
+        "status": "COMPLETED"
+      },
+      {
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38895570733/job/116955103226",
+        "name": "Configuration schema contract",
+        "status": "COMPLETED"
+      },
+      {
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38895563132/job/116955078124",
+        "name": "Configuration schema contract",
+        "status": "COMPLETED"
+      },
+      {
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38895570778/job/116955103187",
+        "name": "PHPStan",
+        "status": "COMPLETED"
+      },
+      {
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38895563190/job/116955077771",
+        "name": "PHPStan",
+        "status": "COMPLETED"
+      },
+      {
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38895570705/job/116955102532",
+        "name": "PhpCsFixer",
+        "status": "COMPLETED"
+      },
+      {
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38895563157/job/116955077530",
+        "name": "PhpCsFixer",
+        "status": "COMPLETED"
+      },
+      {
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38895570717/job/116955102582",
+        "name": "Rector",
+        "status": "COMPLETED"
+      },
+      {
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38895563161/job/116955077752",
+        "name": "Rector",
+        "status": "COMPLETED"
+      },
+      {
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38895570700/job/116955102573",
+        "name": "Installer linux-amd64",
+        "status": "COMPLETED"
+      },
+      {
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38895570736/job/116955103227",
+        "name": "linux",
+        "status": "COMPLETED"
+      },
+      {
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38895570700/job/116955102953",
+        "name": "Installer macos-arm64",
+        "status": "COMPLETED"
+      },
+      {
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38895570733/job/116955103019",
+        "name": "unit-tests",
+        "status": "COMPLETED"
+      },
+      {
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/mesilov/bitrix24-cli/actions/runs/38895563132/job/116955078417",
+        "name": "unit-tests",
+        "status": "COMPLETED"
+      }
+    ],
+    "headRefOid": "c8f2a1893d0ef4322e438f4b71d19877280e0956",
+    "mergeStateStatus": "CLEAN"
+  },
+  "review": {
+    "reviewedHead": "c8f2a1893d0ef4322e438f4b71d19877280e0956",
+    "threads": [
+      {
+        "id": "PRRT_kwDOVACKOM6tMAP_",
+        "isResolved": true,
+        "isOutdated": true
+      }
+    ],
+    "activeChangesRequested": false
+  },
+  "localChecks": {
+    "unitTests": 877,
+    "assertions": 16384,
+    "targetedTests": 16,
+    "targetedAssertions": 2075,
+    "integrationSkipped": 2,
+    "portalAcceptance": false
+  }
+}

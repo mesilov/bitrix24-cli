@@ -16,6 +16,8 @@
 
 ### Изменено
 
+- Завершённый change передачи задач проекта архивирован после merge MR #163 в `dev`, исправления P2 review и 15 успешных CI checks на проверенном head. Актуальные EMP-09, PM-04 и task-project-handover сохранены в `openspec/specs/`; receipt и границы portal-приёмки находятся в архиве. [#162](https://github.com/mesilov/bitrix24-cli/issues/162)
+
 - Требования пяти команд шаблонов задач и JTBD PM-08 синхронизированы в `task-templates`; завершённый change архивирован после merge MR #160 в `dev`, ссылки JTBD переведены на актуальную спецификацию. [#72](https://github.com/mesilov/bitrix24-cli/issues/72)
 
 - Завершённый OpenSpec change правил мейнтейнера архивирован после merge MR #157 в `dev`, проверки changelog, успешного CI текущего head и снятия замечания review. [#156](https://github.com/mesilov/bitrix24-cli/issues/156)
