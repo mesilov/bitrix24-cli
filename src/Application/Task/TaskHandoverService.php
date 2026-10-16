@@ -35,7 +35,7 @@ final readonly class TaskHandoverService
         }
 
         $this->assertMembers($request, $from);
-        $selection = $this->scanner->scan(new TaskQuery(where: ['responsibleId' => $from, 'groupId' => $request->groupId], limit: null, maxScan: $request->maxScan, openOnly: true));
+        $selection = $this->scanner->scan(new TaskQuery(where: ['responsibleId' => $from, 'groupId' => $request->groupId], limit: null, maxScan: $request->maxScan, openOnly: true, verifyExhaustionAtBudget: true));
         if (($selection->meta['complete'] ?? false) !== true || ($selection->meta['limitApplied'] ?? true)) {
             throw new Failure('partial-result', 'No tasks were changed: the task selection is incomplete. Increase --max-scan or verify access and predicate fields.', 3, ['selection' => $selection->meta]);
         }

@@ -304,4 +304,28 @@ final class TaskHandoverCommandTest extends TestCase
         self::assertNotNull($run->json()['data']['items'][1]['reason']);
         self::assertCount(1, $this->writes($api));
     }
+
+    public function testBudgetBoundaryIsVerifiedWithAnEmptyTailProbe(): void
+    {
+        foreach ([50, 100] as $budget) {
+            foreach ([false, true] as $extra) {
+                $rows = [];
+                foreach (range(1, $budget + ($extra ? 1 : 0)) as $id) {
+                    $rows[$id] = self::row($id);
+                }
+
+                [$run, $api] = $this->invoke(['--group-id', '42', '--responsible', '2', '--max-scan', (string) $budget], $this->portal($rows));
+                self::assertSame($extra ? 3 : 0, $run->status, $run->stdout);
+                self::assertCount($extra ? 0 : $budget, $this->writes($api));
+                $pages = array_values(array_filter($api->calls, static fn (array $call): bool => $call['method'] === 'tasks.task.list'));
+                self::assertSame(['offset' => $budget, 'limit' => 1], $pages[array_key_last($pages)]['parameters']['pagination']);
+                if ($extra) {
+                    self::assertFalse($run->json()['error']['details']['selection']['complete']);
+                    self::assertSame($budget, $run->json()['error']['details']['selection']['scanned']);
+                } else {
+                    self::assertSame($budget, $run->json()['meta']['confirmed']);
+                }
+            }
+        }
+    }
 }
