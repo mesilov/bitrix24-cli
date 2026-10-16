@@ -14,6 +14,8 @@
 
 ### Изменено
 
+- Требования пяти команд шаблонов задач и JTBD PM-08 синхронизированы в `task-templates`; завершённый change архивирован после merge MR #160 в `dev`, ссылки JTBD переведены на актуальную спецификацию. [#72](https://github.com/mesilov/bitrix24-cli/issues/72)
+
 - Завершённый OpenSpec change правил мейнтейнера архивирован после merge MR #157 в `dev`, проверки changelog, успешного CI текущего head и снятия замечания review. [#156](https://github.com/mesilov/bitrix24-cli/issues/156)
 - **Правила мейнтейнера:** каждый MR требует собственной содержательной записи changelog со ссылкой на issue. Через пять минут после открытия проверяются reviews, inline threads и обсуждение; перед merge все замечания должны быть сняты, активные запросы изменений отсутствовать, а обязательные GitHub CI checks — завершиться SUCCESS на текущем head SHA. [#156](https://github.com/mesilov/bitrix24-cli/issues/156)
 - Требования сетевых повторов установщика и условных команд установки синхронизированы в `binary-distribution`; завершённый OpenSpec change архивирован после merge #155 и успешных post-merge проверок. [#151](https://github.com/mesilov/bitrix24-cli/issues/151)

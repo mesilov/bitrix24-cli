@@ -44,15 +44,26 @@
 
 ## Delivery
 
-- MR: https://github.com/mesilov/bitrix24-cli/pull/160, base dev, OPEN.
+- MR: https://github.com/mesilov/bitrix24-cli/pull/160, base dev, MERGED (`0edc6f919e1b7b1984a0627be08cc4336f0091cc`).
 - Первый implementation commit: `3866850c9f3357d7c4c8e8b9473d69fd40bedf83`.
 - Непосредственно перед MR выполнены git fetch origin и git merge --no-edit origin/dev (already up to date); changelog проверен относительно свежей origin/dev.
 - Issue #72 обновлено согласованным объёмом и обратной ссылкой на change; milestone 0.3.0 и label enhancement проверены через GitHub.
 - Локальные ссылки README/JTBD/CLI map/руководства проверены: 0 отсутствующих файлов.
 - CI и review должны проверяться на последнем head после публикации этого отчёта; runtime не менялся после локальных проверок.
 
-Критических расхождений реализации, требований и design не обнаружено. Все применимые локальные проверки выполнены. Live-приёмка и native binaries остаются явно не проверены; их отсутствие не представлено как успешный результат. Merge и архивирование ещё не выполнены.
+Критических расхождений реализации, требований и design не обнаружено. Все применимые локальные проверки выполнены. Live-приёмка и native binaries остаются явно не проверены; их отсутствие не представлено как успешный результат. Реализация слита MR #160 в dev; результаты архивирования приведены ниже.
 
 ## Review correction
 
 Замечание https://github.com/mesilov/bitrix24-cli/pull/160#discussion_r4287792305 подтверждено: human/plain скрывали visibleAfter. Добавлен столбец только для delete; true/false сохраняются, неудавшееся чтение показывает unknown (JSON — null). Add/update сохранили четыре столбца. Новый regression test проверяет оба режима и три результата чтения. После исправления полный unit suite: 861 tests / 14 191 assertions; PHP CS Fixer, PHPStan, Rector, CLI reference и strict OpenSpec прошли.
+
+## Archive receipt — 16.10.2026
+
+- MR #160 merged в dev: `0edc6f919e1b7b1984a0627be08cc4336f0091cc`, issue #72 CLOSED (completed).
+- Перед merge повторно проверены head `c0d3fe10e717cb6f01bfd2f6d68b420c22701f0e`, 15/15 CI checks SUCCESS, changelog и закрытый review thread; активных CHANGES_REQUESTED нет.
+- Все артефакты done и 6/6 задач завершены.
+- `openspec/specs/task-templates/spec.md`: 5 требований и 14 сценариев, Purpose и все requirement blocks перенесены без изменения содержания.
+- Archive: `openspec/changes/archive/2026-10-16-add-task-templates/`, включая `.openspec.yaml`.
+- Ссылки PM-08 переведены на канонический spec. Локальная strict-валидация всех main specs: 22 passed / 0 failed.
+- Архив доставляется отдельным MR в dev. Проверка CI и merge архивного MR обязательна до удаления worktree; финальное состояние подтверждается GitHub.
+- Границы live-приёмки сохранены: 5 portal tests были skipped без webhook; это не подтверждает работу на портале.
