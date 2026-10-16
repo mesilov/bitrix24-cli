@@ -37,11 +37,22 @@ final readonly class TaskInputMapper
         $responsibleId = $this->id($input->getOption('responsible'), '--responsible');
         $from = $input->getOption('from') === null ? null : $this->id($input->getOption('from'), '--from');
         $maxScan = $input->getOption('max-scan') === null ? 10000 : $this->id($input->getOption('max-scan'), '--max-scan');
+        $sourceStatus = $input->getOption('source-status');
+        if ($sourceStatus !== null && !in_array($sourceStatus, \Bitrix24\CLI\Application\Task\DeadlineWindow::OPEN_STATUSES, true)) {
+            throw Failure::usage('--source-status must be pending, in_progress, supposedly_completed or deferred.');
+        }
+
+        $targetStatus = $input->getOption('target-status');
+        if ($targetStatus !== null && !in_array($targetStatus, \Bitrix24\CLI\Application\Task\HandoverStatusPlan::TARGETS, true)) {
+            throw Failure::usage('--target-status must be ' . implode(', ', \Bitrix24\CLI\Application\Task\HandoverStatusPlan::TARGETS) . '.');
+        }
+
+        $excludeIds = array_values(array_unique(array_map(fn (mixed $id): int => $this->id($id, '--exclude-id'), $input->getOption('exclude-id'))));
         if ($from === $responsibleId) {
             throw Failure::usage('Source and responsible user must be different.');
         }
 
-        return new Request\HandoverTasksRequest($groupId, $responsibleId, $from, $maxScan);
+        return new Request\HandoverTasksRequest($groupId, $responsibleId, $from, $maxScan, $sourceStatus, $excludeIds, $targetStatus);
     }
 
     public function text(InputInterface $input, string $name, bool $required = true, bool $allowEmpty = false): ?string

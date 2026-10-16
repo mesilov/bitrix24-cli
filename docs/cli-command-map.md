@@ -42,7 +42,7 @@
 | [`task:fields:list`](../src/Console/Command/Task/ListTaskFieldsCommand.php) | Показать поля задачи | read | `b24cli task:fields:list --name title` |
 | [`task:file:attach`](../src/Console/Command/Task/AttachTaskFilesCommand.php) | Прикрепить файл Диска или загрузить локальный файл | write | `b24cli task:file:attach 123 --file-id 50 --dry-run` |
 | [`task:find`](../src/Console/Command/Task/FindTaskCommand.php) | Найти задачи по буквальной подстроке title | read | `b24cli task:find --title "договор" --group-id 7 --responsible 42` |
-| [`task:handover`](../src/Console/Command/Task/HandoverTasksCommand.php) | Передать незавершённые задачи проекта другому участнику | write | `b24cli task:handover --group-id 234 --responsible 14 --dry-run` |
+| [`task:handover`](../src/Console/Command/Task/HandoverTasksCommand.php) | Передать незавершённые задачи проекта другому участнику | write | `b24cli task:handover --group-id 234 --responsible 14 --source-status deferred --exclude-id 92888 --target-status deferred --dry-run` |
 | [`task:history:list`](../src/Console/Command/Task/ListTaskHistoryCommand.php) | Показать историю изменений задачи | read | `b24cli task:history:list 123 --json` |
 | [`task:list`](../src/Console/Command/Task/ListTaskCommand.php) | Показать доступные задачи | read | `b24cli task:list --group-id 7 --responsible 42` |
 | [`task:my`](../src/Console/Command/Task/MyTaskCommand.php) | Показать задачи выбранного исполнителя | read | `b24cli task:my --user 42 --open --json` |

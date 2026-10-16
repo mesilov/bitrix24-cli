@@ -28,7 +28,17 @@ final class HandoverTasksCommandTest extends LiveTaskCommandTestCase
         $this->transferFixtures(true);
     }
 
-    private function transferFixtures(bool $manager): void
+    public function testDeferredSelectionExcludesOwnedFixtureAndPreservesStatus(): void
+    {
+        $this->transferFixtures(false, 'deferred', true);
+    }
+
+    public function testExplicitDeferredTargetAfterAssignment(): void
+    {
+        $this->transferFixtures(false, 'deferred');
+    }
+
+    private function transferFixtures(bool $manager, ?string $targetStatus = null, bool $selective = false): void
     {
         $groupId = filter_var($this->setting('B24CLI_TEST_HANDOVER_GROUP_ID'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
         if ($groupId === false) {
@@ -58,29 +68,40 @@ final class HandoverTasksCommandTest extends LiveTaskCommandTestCase
         }
 
         $owned = [$this->createTask(fields: ['groupId' => $groupId, 'responsibleId' => $source]), $this->createTask(fields: ['groupId' => $groupId, 'responsibleId' => $source])];
+        if ($selective) {
+            foreach ($owned as $id) {
+                $this->invoke(['task:defer', $id]);
+            }
+
+            $owned[] = $this->createTask(fields: ['groupId' => $groupId, 'responsibleId' => $source]);
+        }
+
+        $expected = $selective ? [$owned[0]] : $owned;
         $before = [];
         foreach ($owned as $id) {
             $before[$id] = $this->card($id, ['description', 'status', 'deadline']);
         }
 
-        $args = ['task:handover', '--group-id', $groupId, '--responsible', $target, ...($manager ? ['--from', $source] : [])];
+        $args = ['task:handover', '--group-id', $groupId, '--responsible', $target, ...($manager ? ['--from', $source] : []), ...($targetStatus === null ? [] : ['--target-status', $targetStatus]), ...($selective ? ['--source-status', 'deferred', '--exclude-id', $owned[1]] : [])];
         $plan = $this->invoke([...$args, '--dry-run']);
-        $planned = array_column(array_filter($plan['data']['plan']['steps'], static fn (array $step): bool => $step['effect'] === 'write'), 'taskId');
+        $planned = array_values(array_unique(array_column(array_filter($plan['data']['plan']['steps'], static fn (array $step): bool => $step['effect'] === 'write'), 'taskId')));
         sort($planned);
-        sort($owned);
-        self::assertSame($owned, $planned, 'The dry run must contain only the disposable fixtures.');
+        sort($expected);
+        self::assertSame($expected, $planned, 'The dry run must contain only the disposable fixtures.');
         $result = $this->invoke($args);
-        self::assertSame(2, $result['meta']['confirmed']);
+        self::assertSame(count($expected), $result['meta']['confirmed']);
         foreach ($owned as $id) {
             $card = $this->card($id, ['responsible.id', 'group.id', 'description', 'status', 'deadline']);
-            self::assertSame($target, $card['responsibleId']);
+            $selected = in_array($id, $expected, true);
+            self::assertSame($selected ? $target : $source, $card['responsibleId']);
             self::assertSame($groupId, $card['groupId']);
-            foreach (['description', 'status', 'deadline'] as $field) {
+            self::assertSame($selected && $targetStatus !== null ? $targetStatus : $before[$id]['status'], $card['status']);
+            foreach (['description', 'deadline'] as $field) {
                 self::assertSame($before[$id][$field], $card[$field]);
             }
 
             $independent = (new Rest3TaskAdapter($secondApi))->get($id, ['responsible.id']);
-            self::assertSame($target, $independent['responsibleId']);
+            self::assertSame($selected ? $target : $source, $independent['responsibleId']);
         }
     }
 }

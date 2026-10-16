@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 final readonly class ResultPresenter
 {
     private const COLUMNS = [
-        'task-handover' => ['taskId', 'title', 'fromUserId', 'responsibleId', 'status', 'reason'],
+        'task-handover' => ['taskId', 'title', 'fromUserId', 'responsibleId', 'status', 'reason', 'sourceStatus', 'targetStatus', 'actualStatus', 'assignmentStatus', 'transitionStatus', 'verificationStatus'],
         'doctor-cards' => ['cardId', 'state', 'sanitizedScenario', 'missingCapability', 'createdAt', 'analysisRef'],
         'user-card' => ['ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'EMAIL', 'UF_DEPARTMENT'],
         'user-list' => ['ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'EMAIL', 'UF_DEPARTMENT'],
@@ -74,7 +74,7 @@ final readonly class ResultPresenter
         }
 
         if ($mode !== 'json' && $result->profile === 'task-handover') {
-            $this->diagnostic($output, 'Проект #' . $result->meta['groupId'] . ': передано ' . $result->meta['confirmed'] . ' из ' . $result->meta['selected'] . '; complete=' . ($result->meta['complete'] ? 'true' : 'false') . '. Область: задачи, доступные подключению.');
+            $this->diagnostic($output, 'Проект #' . $result->meta['groupId'] . ': передано ' . $result->meta['assigned'] . ' из ' . $result->meta['selected'] . '; полностью выполнено ' . $result->meta['confirmed'] . '; complete=' . ($result->meta['complete'] ? 'true' : 'false') . '. Область: задачи, доступные подключению.');
         }
 
         if ($mode === 'plain' && $result->profile === 'task-status-durations') {
