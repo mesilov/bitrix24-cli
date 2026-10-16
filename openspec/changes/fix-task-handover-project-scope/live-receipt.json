@@ -1,0 +1,1507 @@
+{
+  "date": "2026-10-16T15:27:23.105956+00:00",
+  "baseSha": "0caf9db62fce3f91852aafc77fd9b25cb3f9bde2",
+  "runtimeFilesSha256": {
+    "src/Application/Connection/ScopeManifest.php": "3e2f311ba9d71f4b1fc38be16d1cac9126901526d0837b2bc1e506291a77bf2c",
+    "src/Application/Task/TaskHandoverService.php": "37bc24553cf4088e6c020d7aa555f439a7e89de53705981f26cf32db4f578842",
+    "src/Console/Command/Task/HandoverTasksCommand.php": "0918710606e2474dfa0ade8a1e3fb42002e4b45e2409ffbe3f71b413057ba8fd"
+  },
+  "portal": "bitrix24-php-sdk-playground.bitrix24.ru",
+  "projectId": 238,
+  "projectDeleted": true,
+  "matrixTasksDeleted": 45,
+  "cases": [
+    {
+      "name": "deferred-filter-and-ID-exclusions",
+      "result": "PASS",
+      "taskIds": [
+        6432,
+        6434,
+        6436
+      ],
+      "exit": 0,
+      "items": [
+        {
+          "taskId": 6432,
+          "title": "emp09-live-20261016-151108-72a520bf-deferred-selected",
+          "fromUserId": 16,
+          "responsibleId": 1,
+          "sourceStatus": "deferred",
+          "targetStatus": "deferred",
+          "actualStatus": "deferred",
+          "assignmentStatus": "confirmed",
+          "transitionStatus": "confirmed",
+          "verificationStatus": "confirmed",
+          "transitionActions": [
+            {
+              "action": "defer",
+              "status": "confirmed",
+              "actualStatus": "deferred"
+            }
+          ],
+          "status": "confirmed",
+          "reason": null
+        }
+      ],
+      "error": null,
+      "meta": {
+        "groupId": 238,
+        "fromUserId": 16,
+        "responsibleId": 1,
+        "sourceStatus": "deferred",
+        "excludedIds": [
+          6434,
+          92888
+        ],
+        "targetStatus": "deferred",
+        "selected": 1,
+        "assigned": 1,
+        "confirmed": 1,
+        "complete": true,
+        "outcomeUnknown": false
+      },
+      "scopeValidation": {
+        "status": "fresh",
+        "missingScopes": [],
+        "requiredScopeGroups": [
+          [
+            "sonet_group"
+          ],
+          [
+            "task",
+            "tasks"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "source-filter-pending",
+      "result": "PASS",
+      "taskIds": [
+        6438,
+        6440
+      ],
+      "exit": 0,
+      "items": [
+        {
+          "taskId": 6438,
+          "title": "emp09-live-20261016-151108-72a520bf-source-pending",
+          "fromUserId": 16,
+          "responsibleId": 1,
+          "sourceStatus": "pending",
+          "targetStatus": "pending",
+          "actualStatus": "pending",
+          "assignmentStatus": "confirmed",
+          "transitionStatus": "not_requested",
+          "verificationStatus": "confirmed",
+          "transitionActions": [],
+          "status": "confirmed",
+          "reason": null
+        }
+      ],
+      "error": null,
+      "meta": {
+        "groupId": 238,
+        "fromUserId": 16,
+        "responsibleId": 1,
+        "sourceStatus": "pending",
+        "excludedIds": [],
+        "targetStatus": null,
+        "selected": 1,
+        "assigned": 1,
+        "confirmed": 1,
+        "complete": true,
+        "outcomeUnknown": false
+      },
+      "scopeValidation": {
+        "status": "fresh",
+        "missingScopes": [],
+        "requiredScopeGroups": [
+          [
+            "sonet_group"
+          ],
+          [
+            "task",
+            "tasks"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "source-filter-in_progress",
+      "result": "PASS",
+      "taskIds": [
+        6442,
+        6444
+      ],
+      "exit": 0,
+      "items": [
+        {
+          "taskId": 6442,
+          "title": "emp09-live-20261016-151108-72a520bf-source-in_progress",
+          "fromUserId": 16,
+          "responsibleId": 1,
+          "sourceStatus": "in_progress",
+          "targetStatus": "in_progress",
+          "actualStatus": "in_progress",
+          "assignmentStatus": "confirmed",
+          "transitionStatus": "confirmed",
+          "verificationStatus": "confirmed",
+          "transitionActions": [
+            {
+              "action": "start",
+              "status": "confirmed",
+              "actualStatus": "in_progress"
+            }
+          ],
+          "status": "confirmed",
+          "reason": null
+        }
+      ],
+      "error": null,
+      "meta": {
+        "groupId": 238,
+        "fromUserId": 16,
+        "responsibleId": 1,
+        "sourceStatus": "in_progress",
+        "excludedIds": [],
+        "targetStatus": null,
+        "selected": 1,
+        "assigned": 1,
+        "confirmed": 1,
+        "complete": true,
+        "outcomeUnknown": false
+      },
+      "scopeValidation": {
+        "status": "fresh",
+        "missingScopes": [],
+        "requiredScopeGroups": [
+          [
+            "sonet_group"
+          ],
+          [
+            "task",
+            "tasks"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "source-filter-deferred",
+      "result": "PASS",
+      "taskIds": [
+        6446,
+        6448
+      ],
+      "exit": 0,
+      "items": [
+        {
+          "taskId": 6446,
+          "title": "emp09-live-20261016-151108-72a520bf-source-deferred",
+          "fromUserId": 16,
+          "responsibleId": 1,
+          "sourceStatus": "deferred",
+          "targetStatus": "deferred",
+          "actualStatus": "deferred",
+          "assignmentStatus": "confirmed",
+          "transitionStatus": "confirmed",
+          "verificationStatus": "confirmed",
+          "transitionActions": [
+            {
+              "action": "defer",
+              "status": "confirmed",
+              "actualStatus": "deferred"
+            }
+          ],
+          "status": "confirmed",
+          "reason": null
+        }
+      ],
+      "error": null,
+      "meta": {
+        "groupId": 238,
+        "fromUserId": 16,
+        "responsibleId": 1,
+        "sourceStatus": "deferred",
+        "excludedIds": [],
+        "targetStatus": null,
+        "selected": 1,
+        "assigned": 1,
+        "confirmed": 1,
+        "complete": true,
+        "outcomeUnknown": false
+      },
+      "scopeValidation": {
+        "status": "fresh",
+        "missingScopes": [],
+        "requiredScopeGroups": [
+          [
+            "sonet_group"
+          ],
+          [
+            "task",
+            "tasks"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "source-filter-supposedly_completed",
+      "result": "PASS",
+      "taskIds": [
+        6450,
+        6452
+      ],
+      "exit": 0,
+      "items": [
+        {
+          "taskId": 6450,
+          "title": "emp09-live-20261016-151108-72a520bf-source-supposedly_completed",
+          "fromUserId": 16,
+          "responsibleId": 1,
+          "sourceStatus": "supposedly_completed",
+          "targetStatus": "supposedly_completed",
+          "actualStatus": "supposedly_completed",
+          "assignmentStatus": "confirmed",
+          "transitionStatus": "confirmed",
+          "verificationStatus": "confirmed",
+          "transitionActions": [
+            {
+              "action": "complete",
+              "status": "confirmed",
+              "actualStatus": "supposedly_completed"
+            }
+          ],
+          "status": "confirmed",
+          "reason": null
+        }
+      ],
+      "error": null,
+      "meta": {
+        "groupId": 238,
+        "fromUserId": 16,
+        "responsibleId": 1,
+        "sourceStatus": "supposedly_completed",
+        "excludedIds": [],
+        "targetStatus": null,
+        "selected": 1,
+        "assigned": 1,
+        "confirmed": 1,
+        "complete": true,
+        "outcomeUnknown": false
+      },
+      "scopeValidation": {
+        "status": "fresh",
+        "missingScopes": [],
+        "requiredScopeGroups": [
+          [
+            "sonet_group"
+          ],
+          [
+            "task",
+            "tasks"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "target-pending",
+      "result": "PASS",
+      "taskIds": [
+        6454
+      ],
+      "exit": 0,
+      "items": [
+        {
+          "taskId": 6454,
+          "title": "emp09-live-20261016-151108-72a520bf-target-pending",
+          "fromUserId": 16,
+          "responsibleId": 1,
+          "sourceStatus": "deferred",
+          "targetStatus": "pending",
+          "actualStatus": "pending",
+          "assignmentStatus": "confirmed",
+          "transitionStatus": "not_needed",
+          "verificationStatus": "confirmed",
+          "transitionActions": [],
+          "status": "confirmed",
+          "reason": null
+        }
+      ],
+      "error": null,
+      "meta": {
+        "groupId": 238,
+        "fromUserId": 16,
+        "responsibleId": 1,
+        "sourceStatus": null,
+        "excludedIds": [],
+        "targetStatus": "pending",
+        "selected": 1,
+        "assigned": 1,
+        "confirmed": 1,
+        "complete": true,
+        "outcomeUnknown": false
+      },
+      "scopeValidation": {
+        "status": "fresh",
+        "missingScopes": [],
+        "requiredScopeGroups": [
+          [
+            "sonet_group"
+          ],
+          [
+            "task",
+            "tasks"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "target-in_progress",
+      "result": "PASS",
+      "taskIds": [
+        6456
+      ],
+      "exit": 0,
+      "items": [
+        {
+          "taskId": 6456,
+          "title": "emp09-live-20261016-151108-72a520bf-target-in_progress",
+          "fromUserId": 16,
+          "responsibleId": 1,
+          "sourceStatus": "pending",
+          "targetStatus": "in_progress",
+          "actualStatus": "in_progress",
+          "assignmentStatus": "confirmed",
+          "transitionStatus": "confirmed",
+          "verificationStatus": "confirmed",
+          "transitionActions": [
+            {
+              "action": "start",
+              "status": "confirmed",
+              "actualStatus": "in_progress"
+            }
+          ],
+          "status": "confirmed",
+          "reason": null
+        }
+      ],
+      "error": null,
+      "meta": {
+        "groupId": 238,
+        "fromUserId": 16,
+        "responsibleId": 1,
+        "sourceStatus": null,
+        "excludedIds": [],
+        "targetStatus": "in_progress",
+        "selected": 1,
+        "assigned": 1,
+        "confirmed": 1,
+        "complete": true,
+        "outcomeUnknown": false
+      },
+      "scopeValidation": {
+        "status": "fresh",
+        "missingScopes": [],
+        "requiredScopeGroups": [
+          [
+            "sonet_group"
+          ],
+          [
+            "task",
+            "tasks"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "target-deferred",
+      "result": "PASS",
+      "taskIds": [
+        6458
+      ],
+      "exit": 0,
+      "items": [
+        {
+          "taskId": 6458,
+          "title": "emp09-live-20261016-151108-72a520bf-target-deferred",
+          "fromUserId": 16,
+          "responsibleId": 1,
+          "sourceStatus": "pending",
+          "targetStatus": "deferred",
+          "actualStatus": "deferred",
+          "assignmentStatus": "confirmed",
+          "transitionStatus": "confirmed",
+          "verificationStatus": "confirmed",
+          "transitionActions": [
+            {
+              "action": "defer",
+              "status": "confirmed",
+              "actualStatus": "deferred"
+            }
+          ],
+          "status": "confirmed",
+          "reason": null
+        }
+      ],
+      "error": null,
+      "meta": {
+        "groupId": 238,
+        "fromUserId": 16,
+        "responsibleId": 1,
+        "sourceStatus": null,
+        "excludedIds": [],
+        "targetStatus": "deferred",
+        "selected": 1,
+        "assigned": 1,
+        "confirmed": 1,
+        "complete": true,
+        "outcomeUnknown": false
+      },
+      "scopeValidation": {
+        "status": "fresh",
+        "missingScopes": [],
+        "requiredScopeGroups": [
+          [
+            "sonet_group"
+          ],
+          [
+            "task",
+            "tasks"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "target-completed",
+      "result": "PASS",
+      "taskIds": [
+        6460
+      ],
+      "exit": 0,
+      "items": [
+        {
+          "taskId": 6460,
+          "title": "emp09-live-20261016-151108-72a520bf-target-completed",
+          "fromUserId": 16,
+          "responsibleId": 1,
+          "sourceStatus": "pending",
+          "targetStatus": "completed",
+          "actualStatus": "completed",
+          "assignmentStatus": "confirmed",
+          "transitionStatus": "confirmed",
+          "verificationStatus": "confirmed",
+          "transitionActions": [
+            {
+              "action": "complete",
+              "status": "confirmed",
+              "actualStatus": "completed"
+            }
+          ],
+          "status": "confirmed",
+          "reason": null
+        }
+      ],
+      "error": null,
+      "meta": {
+        "groupId": 238,
+        "fromUserId": 16,
+        "responsibleId": 1,
+        "sourceStatus": null,
+        "excludedIds": [],
+        "targetStatus": "completed",
+        "selected": 1,
+        "assigned": 1,
+        "confirmed": 1,
+        "complete": true,
+        "outcomeUnknown": false
+      },
+      "scopeValidation": {
+        "status": "fresh",
+        "missingScopes": [],
+        "requiredScopeGroups": [
+          [
+            "sonet_group"
+          ],
+          [
+            "task",
+            "tasks"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "target-supposedly_completed",
+      "result": "PASS",
+      "taskIds": [
+        6462
+      ],
+      "exit": 0,
+      "items": [
+        {
+          "taskId": 6462,
+          "title": "emp09-live-20261016-151108-72a520bf-target-supposedly_completed",
+          "fromUserId": 16,
+          "responsibleId": 1,
+          "sourceStatus": "pending",
+          "targetStatus": "supposedly_completed",
+          "actualStatus": "supposedly_completed",
+          "assignmentStatus": "confirmed",
+          "transitionStatus": "confirmed",
+          "verificationStatus": "confirmed",
+          "transitionActions": [
+            {
+              "action": "complete",
+              "status": "confirmed",
+              "actualStatus": "supposedly_completed"
+            }
+          ],
+          "status": "confirmed",
+          "reason": null
+        }
+      ],
+      "error": null,
+      "meta": {
+        "groupId": 238,
+        "fromUserId": 16,
+        "responsibleId": 1,
+        "sourceStatus": null,
+        "excludedIds": [],
+        "targetStatus": "supposedly_completed",
+        "selected": 1,
+        "assigned": 1,
+        "confirmed": 1,
+        "complete": true,
+        "outcomeUnknown": false
+      },
+      "scopeValidation": {
+        "status": "fresh",
+        "missingScopes": [],
+        "requiredScopeGroups": [
+          [
+            "sonet_group"
+          ],
+          [
+            "task",
+            "tasks"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "controlled-review-to-completed",
+      "result": "PASS",
+      "taskIds": [
+        6464
+      ],
+      "exit": 0,
+      "items": [
+        {
+          "taskId": 6464,
+          "title": "emp09-live-20261016-151108-72a520bf-approve",
+          "fromUserId": 16,
+          "responsibleId": 1,
+          "sourceStatus": "supposedly_completed",
+          "targetStatus": "completed",
+          "actualStatus": "completed",
+          "assignmentStatus": "confirmed",
+          "transitionStatus": "confirmed",
+          "verificationStatus": "confirmed",
+          "transitionActions": [
+            {
+              "action": "complete",
+              "status": "confirmed",
+              "actualStatus": "completed"
+            }
+          ],
+          "status": "confirmed",
+          "reason": null
+        }
+      ],
+      "error": null,
+      "meta": {
+        "groupId": 238,
+        "fromUserId": 16,
+        "responsibleId": 1,
+        "sourceStatus": null,
+        "excludedIds": [],
+        "targetStatus": "completed",
+        "selected": 1,
+        "assigned": 1,
+        "confirmed": 1,
+        "complete": true,
+        "outcomeUnknown": false
+      },
+      "scopeValidation": {
+        "status": "fresh",
+        "missingScopes": [],
+        "requiredScopeGroups": [
+          [
+            "sonet_group"
+          ],
+          [
+            "task",
+            "tasks"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "controlled-completion-and-approval",
+      "result": "PASS",
+      "taskIds": [
+        6466
+      ],
+      "exit": 0,
+      "items": [
+        {
+          "taskId": 6466,
+          "title": "emp09-live-20261016-151108-72a520bf-complete-approve",
+          "fromUserId": 16,
+          "responsibleId": 1,
+          "sourceStatus": "pending",
+          "targetStatus": "completed",
+          "actualStatus": "completed",
+          "assignmentStatus": "confirmed",
+          "transitionStatus": "confirmed",
+          "verificationStatus": "confirmed",
+          "transitionActions": [
+            {
+              "action": "complete",
+              "status": "confirmed",
+              "actualStatus": "supposedly_completed"
+            },
+            {
+              "action": "approve",
+              "status": "confirmed",
+              "actualStatus": "completed"
+            }
+          ],
+          "status": "confirmed",
+          "reason": null
+        }
+      ],
+      "error": null,
+      "meta": {
+        "groupId": 238,
+        "fromUserId": 16,
+        "responsibleId": 1,
+        "sourceStatus": null,
+        "excludedIds": [],
+        "targetStatus": "completed",
+        "selected": 1,
+        "assigned": 1,
+        "confirmed": 1,
+        "complete": true,
+        "outcomeUnknown": false
+      },
+      "scopeValidation": {
+        "status": "fresh",
+        "missingScopes": [],
+        "requiredScopeGroups": [
+          [
+            "sonet_group"
+          ],
+          [
+            "task",
+            "tasks"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "required-result-missing-partial",
+      "result": "PASS",
+      "taskIds": [
+        6468
+      ],
+      "exit": 3,
+      "items": [
+        {
+          "taskId": 6468,
+          "title": "emp09-live-20261016-151108-72a520bf-missing-result",
+          "fromUserId": 16,
+          "responsibleId": 1,
+          "sourceStatus": "pending",
+          "targetStatus": "completed",
+          "actualStatus": "pending",
+          "assignmentStatus": "confirmed",
+          "transitionStatus": "failed",
+          "verificationStatus": "unverified",
+          "transitionActions": [
+            {
+              "action": "complete",
+              "status": "failed",
+              "actualStatus": null
+            }
+          ],
+          "status": "partial",
+          "reason": "required-result-unverified: This task requires an existing native result before completion."
+        }
+      ],
+      "error": {
+        "code": "partial-result",
+        "message": "Stopped. Inspect task:show 6468 before deciding whether to retry. This task requires an existing native result before completion."
+      },
+      "meta": {
+        "groupId": 238,
+        "fromUserId": 16,
+        "responsibleId": 1,
+        "sourceStatus": null,
+        "excludedIds": [],
+        "targetStatus": "completed",
+        "selected": 1,
+        "assigned": 1,
+        "confirmed": 0,
+        "complete": false,
+        "outcomeUnknown": false
+      },
+      "scopeValidation": {
+        "status": "fresh",
+        "missingScopes": [],
+        "requiredScopeGroups": [
+          [
+            "sonet_group"
+          ],
+          [
+            "task",
+            "tasks"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "required-result-present-completed",
+      "result": "PASS",
+      "taskIds": [
+        6470
+      ],
+      "exit": 0,
+      "items": [
+        {
+          "taskId": 6470,
+          "title": "emp09-live-20261016-151108-72a520bf-with-result",
+          "fromUserId": 16,
+          "responsibleId": 1,
+          "sourceStatus": "pending",
+          "targetStatus": "completed",
+          "actualStatus": "completed",
+          "assignmentStatus": "confirmed",
+          "transitionStatus": "confirmed",
+          "verificationStatus": "confirmed",
+          "transitionActions": [
+            {
+              "action": "complete",
+              "status": "confirmed",
+              "actualStatus": "completed"
+            }
+          ],
+          "status": "confirmed",
+          "reason": null
+        }
+      ],
+      "error": null,
+      "meta": {
+        "groupId": 238,
+        "fromUserId": 16,
+        "responsibleId": 1,
+        "sourceStatus": null,
+        "excludedIds": [],
+        "targetStatus": "completed",
+        "selected": 1,
+        "assigned": 1,
+        "confirmed": 1,
+        "complete": true,
+        "outcomeUnknown": false
+      },
+      "scopeValidation": {
+        "status": "fresh",
+        "missingScopes": [],
+        "requiredScopeGroups": [
+          [
+            "sonet_group"
+          ],
+          [
+            "task",
+            "tasks"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "review-without-control-rejected-before-assignment",
+      "result": "PASS",
+      "taskIds": [
+        6472
+      ],
+      "exit": 3,
+      "items": [
+        {
+          "taskId": 6472,
+          "title": "emp09-live-20261016-151108-72a520bf-no-control",
+          "fromUserId": 16,
+          "responsibleId": 1,
+          "sourceStatus": "pending",
+          "targetStatus": "supposedly_completed",
+          "actualStatus": null,
+          "assignmentStatus": "failed",
+          "transitionStatus": "skipped",
+          "verificationStatus": "unverified",
+          "transitionActions": [],
+          "status": "failed",
+          "reason": "target-status-unavailable: Waiting for review requires needsControl=true."
+        }
+      ],
+      "error": {
+        "code": "partial-result",
+        "message": "Stopped. Inspect task:show 6472 before deciding whether to retry. Waiting for review requires needsControl=true."
+      },
+      "meta": {
+        "groupId": 238,
+        "fromUserId": 16,
+        "responsibleId": 1,
+        "sourceStatus": null,
+        "excludedIds": [],
+        "targetStatus": "supposedly_completed",
+        "selected": 1,
+        "assigned": 0,
+        "confirmed": 0,
+        "complete": false,
+        "outcomeUnknown": false
+      },
+      "scopeValidation": {
+        "status": "fresh",
+        "missingScopes": [],
+        "requiredScopeGroups": [
+          [
+            "sonet_group"
+          ],
+          [
+            "task",
+            "tasks"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "creator-cannot-force-review-through-native-complete",
+      "result": "PASS",
+      "taskIds": [
+        6474
+      ],
+      "exit": 3,
+      "items": [
+        {
+          "taskId": 6474,
+          "title": "emp09-live-20261016-151108-72a520bf-creator-review",
+          "fromUserId": 16,
+          "responsibleId": 1,
+          "sourceStatus": "pending",
+          "targetStatus": "supposedly_completed",
+          "actualStatus": "completed",
+          "assignmentStatus": "confirmed",
+          "transitionStatus": "failed",
+          "verificationStatus": "unverified",
+          "transitionActions": [
+            {
+              "action": "complete",
+              "status": "confirmed",
+              "actualStatus": "completed"
+            }
+          ],
+          "status": "partial",
+          "reason": "target-status-unavailable: The actual task status cannot reach the requested target through this plan."
+        }
+      ],
+      "error": {
+        "code": "partial-result",
+        "message": "Stopped. Inspect task:show 6474 before deciding whether to retry. The actual task status cannot reach the requested target through this plan."
+      },
+      "meta": {
+        "groupId": 238,
+        "fromUserId": 16,
+        "responsibleId": 1,
+        "sourceStatus": null,
+        "excludedIds": [],
+        "targetStatus": "supposedly_completed",
+        "selected": 1,
+        "assigned": 1,
+        "confirmed": 0,
+        "complete": false,
+        "outcomeUnknown": false
+      },
+      "scopeValidation": {
+        "status": "fresh",
+        "missingScopes": [],
+        "requiredScopeGroups": [
+          [
+            "sonet_group"
+          ],
+          [
+            "task",
+            "tasks"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "employee-self-mode",
+      "result": "PASS",
+      "taskIds": [
+        6476
+      ],
+      "exit": 0,
+      "items": [
+        {
+          "taskId": 6476,
+          "title": "emp09-live-20261016-151108-72a520bf-self",
+          "fromUserId": 16,
+          "responsibleId": 1,
+          "sourceStatus": "pending",
+          "targetStatus": "deferred",
+          "actualStatus": "deferred",
+          "assignmentStatus": "confirmed",
+          "transitionStatus": "confirmed",
+          "verificationStatus": "confirmed",
+          "transitionActions": [
+            {
+              "action": "defer",
+              "status": "confirmed",
+              "actualStatus": "deferred"
+            }
+          ],
+          "status": "confirmed",
+          "reason": null
+        }
+      ],
+      "error": null,
+      "meta": {
+        "groupId": 238,
+        "fromUserId": 16,
+        "responsibleId": 1,
+        "sourceStatus": null,
+        "excludedIds": [],
+        "targetStatus": "deferred",
+        "selected": 1,
+        "assigned": 1,
+        "confirmed": 1,
+        "complete": true,
+        "outcomeUnknown": false
+      },
+      "scopeValidation": {
+        "status": "fresh",
+        "missingScopes": [],
+        "requiredScopeGroups": [
+          [
+            "sonet_group"
+          ],
+          [
+            "task",
+            "tasks"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "manager-third-party-transfer",
+      "result": "PASS",
+      "taskIds": [
+        6496
+      ],
+      "exit": 0,
+      "items": [
+        {
+          "taskId": 6496,
+          "title": "emp09-live-20261016-151108-72a520bf-manager-16-to-14",
+          "fromUserId": 16,
+          "responsibleId": 14,
+          "sourceStatus": "deferred",
+          "targetStatus": "deferred",
+          "actualStatus": "deferred",
+          "assignmentStatus": "confirmed",
+          "transitionStatus": "confirmed",
+          "verificationStatus": "confirmed",
+          "transitionActions": [
+            {
+              "action": "defer",
+              "status": "confirmed",
+              "actualStatus": "deferred"
+            }
+          ],
+          "status": "confirmed",
+          "reason": null
+        }
+      ],
+      "error": null,
+      "meta": {
+        "groupId": 238,
+        "fromUserId": 16,
+        "responsibleId": 14,
+        "sourceStatus": "deferred",
+        "excludedIds": [
+          92888
+        ],
+        "targetStatus": "deferred",
+        "selected": 1,
+        "assigned": 1,
+        "confirmed": 1,
+        "complete": true,
+        "outcomeUnknown": false
+      },
+      "scopeValidation": {
+        "status": "fresh",
+        "missingScopes": [],
+        "requiredScopeGroups": [
+          [
+            "sonet_group"
+          ],
+          [
+            "task",
+            "tasks"
+          ]
+        ]
+      }
+    }
+  ],
+  "integration": [
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\HandoverTasksCommandTest",
+      "test": "testHappyPathTransfersOnlyOwnedFixturesInAnOptInIsolatedProject",
+      "actingUserId": 16,
+      "ownedTaskIds": [
+        6478,
+        6480
+      ],
+      "passed": true,
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": [],
+        "diskFolderIds": []
+      },
+      "commands": [
+        {
+          "command": "task:handover",
+          "status": 0,
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": null,
+          "outcomeUnknown": null,
+          "actingUserId": 16,
+          "target": [
+            238,
+            1
+          ],
+          "expectedExitStatuses": [
+            0
+          ],
+          "apiCallCounts": [
+            {
+              "method": "sonet_group.user.get",
+              "apiVersion": "1.0",
+              "effect": "read",
+              "count": 1
+            },
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read",
+              "count": 2
+            },
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "3.0",
+              "effect": "read",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "command": "task:handover",
+          "status": 0,
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": null,
+          "outcomeUnknown": false,
+          "actingUserId": 16,
+          "target": [
+            238,
+            1
+          ],
+          "expectedExitStatuses": [
+            0
+          ],
+          "apiCallCounts": [
+            {
+              "method": "scope",
+              "apiVersion": "1.0",
+              "effect": "read",
+              "count": 1
+            },
+            {
+              "method": "sonet_group.user.get",
+              "apiVersion": "1.0",
+              "effect": "read",
+              "count": 3
+            },
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read",
+              "count": 6
+            },
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "3.0",
+              "effect": "read",
+              "count": 3
+            },
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "3.0",
+              "effect": "write",
+              "count": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\HandoverTasksCommandTest",
+      "test": "testManagerTransfersBetweenTwoProjectMembers",
+      "actingUserId": 16,
+      "ownedTaskIds": [
+        6482,
+        6484
+      ],
+      "passed": true,
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": [],
+        "diskFolderIds": []
+      },
+      "commands": [
+        {
+          "command": "task:handover",
+          "status": 0,
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": null,
+          "outcomeUnknown": null,
+          "actingUserId": 16,
+          "target": [
+            238,
+            16,
+            1
+          ],
+          "expectedExitStatuses": [
+            0
+          ],
+          "apiCallCounts": [
+            {
+              "method": "sonet_group.user.get",
+              "apiVersion": "1.0",
+              "effect": "read",
+              "count": 1
+            },
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read",
+              "count": 142
+            },
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "3.0",
+              "effect": "read",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "command": "task:handover",
+          "status": 0,
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": null,
+          "outcomeUnknown": false,
+          "actingUserId": 16,
+          "target": [
+            238,
+            16,
+            1
+          ],
+          "expectedExitStatuses": [
+            0
+          ],
+          "apiCallCounts": [
+            {
+              "method": "sonet_group.user.get",
+              "apiVersion": "1.0",
+              "effect": "read",
+              "count": 3
+            },
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read",
+              "count": 146
+            },
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "3.0",
+              "effect": "read",
+              "count": 3
+            },
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "3.0",
+              "effect": "write",
+              "count": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\HandoverTasksCommandTest",
+      "test": "testDeferredSelectionExcludesOwnedFixtureAndPreservesStatus",
+      "actingUserId": 16,
+      "ownedTaskIds": [
+        6486,
+        6488,
+        6490
+      ],
+      "passed": true,
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": [],
+        "diskFolderIds": []
+      },
+      "commands": [
+        {
+          "command": "task:handover",
+          "status": 0,
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": null,
+          "outcomeUnknown": null,
+          "actingUserId": 16,
+          "target": [
+            238,
+            1,
+            6488
+          ],
+          "expectedExitStatuses": [
+            0
+          ],
+          "apiCallCounts": [
+            {
+              "method": "sonet_group.user.get",
+              "apiVersion": "1.0",
+              "effect": "read",
+              "count": 1
+            },
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read",
+              "count": 2
+            },
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "3.0",
+              "effect": "read",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "command": "task:handover",
+          "status": 0,
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": null,
+          "outcomeUnknown": false,
+          "actingUserId": 16,
+          "target": [
+            238,
+            1,
+            6488
+          ],
+          "expectedExitStatuses": [
+            0
+          ],
+          "apiCallCounts": [
+            {
+              "method": "sonet_group.user.get",
+              "apiVersion": "1.0",
+              "effect": "read",
+              "count": 2
+            },
+            {
+              "method": "tasks.task.access.get",
+              "apiVersion": "3.0",
+              "effect": "read",
+              "count": 1
+            },
+            {
+              "method": "tasks.task.defer",
+              "apiVersion": "1.0",
+              "effect": "write",
+              "count": 1
+            },
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read",
+              "count": 9
+            },
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "3.0",
+              "effect": "read",
+              "count": 3
+            },
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "3.0",
+              "effect": "write",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "class": "Bitrix24\\CLI\\Tests\\Integration\\Task\\HandoverTasksCommandTest",
+      "test": "testExplicitDeferredTargetAfterAssignment",
+      "actingUserId": 16,
+      "ownedTaskIds": [
+        6492,
+        6494
+      ],
+      "passed": true,
+      "cleanupFailures": {
+        "taskIds": [],
+        "diskFileIds": [],
+        "diskFolderIds": []
+      },
+      "commands": [
+        {
+          "command": "task:handover",
+          "status": 0,
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": null,
+          "outcomeUnknown": null,
+          "actingUserId": 16,
+          "target": [
+            238,
+            1
+          ],
+          "expectedExitStatuses": [
+            0
+          ],
+          "apiCallCounts": [
+            {
+              "method": "sonet_group.user.get",
+              "apiVersion": "1.0",
+              "effect": "read",
+              "count": 1
+            },
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read",
+              "count": 2
+            },
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "3.0",
+              "effect": "read",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "command": "task:handover",
+          "status": 0,
+          "complete": true,
+          "reason": null,
+          "errorCode": null,
+          "apiErrorCode": null,
+          "taskStatus": null,
+          "confirmed": null,
+          "outcomeUnknown": false,
+          "actingUserId": 16,
+          "target": [
+            238,
+            1
+          ],
+          "expectedExitStatuses": [
+            0
+          ],
+          "apiCallCounts": [
+            {
+              "method": "sonet_group.user.get",
+              "apiVersion": "1.0",
+              "effect": "read",
+              "count": 3
+            },
+            {
+              "method": "tasks.task.access.get",
+              "apiVersion": "3.0",
+              "effect": "read",
+              "count": 2
+            },
+            {
+              "method": "tasks.task.defer",
+              "apiVersion": "1.0",
+              "effect": "write",
+              "count": 2
+            },
+            {
+              "method": "tasks.task.get",
+              "apiVersion": "3.0",
+              "effect": "read",
+              "count": 16
+            },
+            {
+              "method": "tasks.task.list",
+              "apiVersion": "3.0",
+              "effect": "read",
+              "count": 3
+            },
+            {
+              "method": "tasks.task.update",
+              "apiVersion": "3.0",
+              "effect": "write",
+              "count": 2
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

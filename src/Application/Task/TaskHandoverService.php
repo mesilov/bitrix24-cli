@@ -26,15 +26,21 @@ final readonly class TaskHandoverService
     public function routes(?HandoverTasksRequest $request = null): array
     {
         $routes = [new Route('sonet_group.user.get', 1), new Route('tasks.task.list', 3), new Route('tasks.task.get', 3), new Route('tasks.task.update', 3, 'write')];
-        if ($request?->targetStatus !== null) {
-            $routes[] = new Route('tasks.task.access.get', 3);
-            foreach (HandoverStatusPlan::actions($request->targetStatus) as $action) {
-                $routes[] = new Route($action->method(), 1, 'write');
+        $targets = $request?->targetStatus === null ? DeadlineWindow::OPEN_STATUSES : [$request->targetStatus];
+        $routes[] = new Route('tasks.task.access.get', 3);
+        $actions = [];
+        foreach ($targets as $target) {
+            foreach (HandoverStatusPlan::actions($target) as $action) {
+                $actions[$action->value] = $action;
             }
+        }
 
-            if (in_array($request->targetStatus, ['completed', 'supposedly_completed'], true)) {
-                $routes[] = new Route('tasks.task.result.list', 3);
-            }
+        foreach ($actions as $action) {
+            $routes[] = new Route($action->method(), 1, 'write');
+        }
+
+        if (array_intersect($targets, ['completed', 'supposedly_completed']) !== []) {
+            $routes[] = new Route('tasks.task.result.list', 3);
         }
 
         return $routes;
@@ -70,10 +76,10 @@ final readonly class TaskHandoverService
             $plan[] = Plan::step($item['taskId'], 'sonet_group.user.get', 1, 'read', ['ID' => $request->groupId], count($plan) + 1);
             $plan[] = Plan::step($item['taskId'], 'tasks.task.get', 3, 'read', ['select' => self::SELECT], count($plan) + 1);
             $plan[] = Plan::step($item['taskId'], 'tasks.task.update', 3, 'write', ['responsibleId' => $request->responsibleId], count($plan) + 1);
-            $plan[] = Plan::step($item['taskId'], 'tasks.task.get', 3, 'read', ['select' => self::SELECT, 'expectedStatus' => $item['sourceStatus']], count($plan) + 1);
-            if ($request->targetStatus !== null && $request->targetStatus !== $item['sourceStatus']) {
-                foreach (HandoverStatusPlan::actions($request->targetStatus) as $action) {
-                    $condition = ['conditional' => true, 'targetStatus' => $request->targetStatus, 'action' => $action->value, 'rightsAfterAssignment' => 'unverified'];
+            $plan[] = Plan::step($item['taskId'], 'tasks.task.get', 3, 'read', ['select' => self::SELECT, 'expectedStatuses' => array_values(array_unique([$item['sourceStatus'], 'pending']))], count($plan) + 1);
+            if (in_array($item['targetStatus'], HandoverStatusPlan::TARGETS, true)) {
+                foreach (HandoverStatusPlan::actions($item['targetStatus']) as $action) {
+                    $condition = ['conditional' => true, 'targetStatus' => $item['targetStatus'], 'action' => $action->value, 'rightsAfterAssignment' => 'unverified'];
                     $plan[] = Plan::step($item['taskId'], 'tasks.task.get', 3, 'read', $condition, count($plan) + 1);
                     $plan[] = Plan::step($item['taskId'], 'tasks.task.access.get', 3, 'read', $condition, count($plan) + 1);
                     if ($action === LifecycleAction::Complete) {
@@ -84,7 +90,7 @@ final readonly class TaskHandoverService
                     $plan[] = Plan::step($item['taskId'], 'tasks.task.get', 3, 'read', $condition, count($plan) + 1);
                 }
 
-                $plan[] = Plan::step($item['taskId'], 'tasks.task.get', 3, 'read', ['select' => self::SELECT, 'expectedStatus' => $request->targetStatus], count($plan) + 1);
+                $plan[] = Plan::step($item['taskId'], 'tasks.task.get', 3, 'read', ['select' => self::SELECT, 'expectedStatus' => $item['targetStatus']], count($plan) + 1);
             }
         }
 
@@ -103,10 +109,10 @@ final readonly class TaskHandoverService
             try {
                 $this->state->checkCancellation();
                 $this->assertMembers($request, $from);
-                $before = $this->tasks->get($item['taskId'], [...self::SELECT, ...($request->targetStatus === 'supposedly_completed' ? ['needsControl'] : [])]);
+                $before = $this->tasks->get($item['taskId'], [...self::SELECT, ...($item['targetStatus'] === 'supposedly_completed' ? ['needsControl'] : [])]);
                 $this->assertCard($before, $request, $from);
                 $this->assertStatus($before, $item['sourceStatus']);
-                if ($request->targetStatus === 'supposedly_completed' && ($before['needsControl'] ?? null) !== true) {
+                if ($item['targetStatus'] === 'supposedly_completed' && ($before['needsControl'] ?? null) !== true) {
                     throw new Failure('target-status-unavailable', 'Waiting for review requires needsControl=true.', 4);
                 }
 
@@ -122,8 +128,11 @@ final readonly class TaskHandoverService
                 $item['assignmentStatus'] = 'confirmed';
                 $item['actualStatus'] = $card['status'] ?? null;
                 $phase = 'verification';
-                $this->assertStatus($card, $item['sourceStatus']);
-                if ($request->targetStatus !== null && $card['status'] !== $request->targetStatus) {
+                if (!in_array($card['status'] ?? null, [$item['sourceStatus'], 'pending'], true)) {
+                    $this->assertStatus($card, $item['sourceStatus']);
+                }
+
+                if ($card['status'] !== $item['targetStatus']) {
                     $phase = 'transition';
                     $this->changeStatus($request, $item, $card, $writing);
                     $phase = 'verification';
@@ -179,9 +188,9 @@ final readonly class TaskHandoverService
     private function changeStatus(HandoverTasksRequest $request, array &$item, array $card, bool &$writing): void
     {
         $performed = [];
-        while ($card['status'] !== $request->targetStatus) {
+        while ($card['status'] !== $item['targetStatus']) {
             $this->state->checkCancellation();
-            $action = HandoverStatusPlan::next($card['status'], $request->targetStatus);
+            $action = HandoverStatusPlan::next($card['status'], $item['targetStatus']);
             if (in_array($action, $performed, true) || count($performed) >= 3) {
                 throw new Failure('target-status-unavailable', 'The requested target was not reached; no lifecycle action will be repeated.', 4);
             }

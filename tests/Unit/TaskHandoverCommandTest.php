@@ -16,7 +16,7 @@ final class TaskHandoverCommandTest extends TestCase
 {
     private static function row(int $id, int $user = 1, int $group = 42, string $status = 'pending'): array
     {
-        return ['id' => $id, 'title' => 'Договор ' . $id, 'responsibleId' => $user, 'groupId' => $group, 'status' => $status, 'deadline' => null, 'description' => 'keep'];
+        return ['id' => $id, 'title' => 'Договор ' . $id, 'responsibleId' => $user, 'groupId' => $group, 'status' => $status, 'deadline' => null, 'description' => 'keep', 'needsControl' => true];
     }
 
     private function invoke(array $options, \Closure $response, string $mode = '--json'): array
@@ -130,7 +130,7 @@ final class TaskHandoverCommandTest extends TestCase
             $listIndexes = array_keys(array_filter($api->calls, static fn (array $call): bool => $call['method'] === 'tasks.task.list'));
             self::assertCount(2, $listIndexes);
             if ($dry) {
-                $writes = array_filter($run->json()['data']['plan']['steps'], static fn (array $step): bool => $step['effect'] === 'write');
+                $writes = array_filter($run->json()['data']['plan']['steps'], static fn (array $step): bool => $step['method'] === 'tasks.task.update');
                 self::assertCount(51, $writes);
                 self::assertSame(range(1, 51), array_column($writes, 'taskId'));
             } else {
@@ -289,7 +289,7 @@ final class TaskHandoverCommandTest extends TestCase
     {
         $scopeManifest = new \Bitrix24\CLI\Application\Connection\ScopeManifest();
         $affected = $scopeManifest->affectedCommands(['task', 'user', 'department', 'disk', 'im']);
-        self::assertSame(['sonet'], $affected['task:handover']);
+        self::assertSame(['sonet_group'], $affected['task:handover']);
         self::assertArrayNotHasKey('task:assign', $affected);
         self::assertArrayNotHasKey('task:list', $affected);
     }
