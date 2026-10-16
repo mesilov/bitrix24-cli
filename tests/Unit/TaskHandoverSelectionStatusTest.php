@@ -88,7 +88,7 @@ final class TaskHandoverSelectionStatusTest extends TestCase
             self::assertSame(1, $rows[3]['responsibleId']);
             if ($dry) {
                 self::assertSame([], $this->writes($api));
-                self::assertSame([1], array_column(array_filter($run->json()['data']['plan']['steps'], static fn (array $s): bool => $s['effect'] === 'write'), 'taskId'));
+                self::assertSame([1], array_column(array_filter($run->json()['data']['plan']['steps'], static fn (array $s): bool => $s['method'] === 'tasks.task.update'), 'taskId'));
                 self::assertStringContainsString('92888', $run->json()['data']['plan']['target']);
             } else {
                 self::assertSame([92888], $run->json()['meta']['excludedIds']);
@@ -98,6 +98,68 @@ final class TaskHandoverSelectionStatusTest extends TestCase
                 self::assertCount(1, $this->writes($api));
             }
         }
+    }
+
+    public function testServerAssignmentResetUsesActualStatusAndRestoresImplicitOrExplicitTarget(): void
+    {
+        foreach (['pending', 'in_progress', 'deferred', 'supposedly_completed'] as $source) {
+            foreach ([false, true] as $explicit) {
+                $rows = [1 => $this->row(status: $source)];
+                [$run, $api] = $this->invoke($explicit ? ['--target-status', $source] : [], $rows, static function (string $method) use (&$rows): ?ApiResponse {
+                    if ($method === 'tasks.task.update') {
+                        $rows[1]['status'] = 'pending';
+                    }
+
+                    return null;
+                });
+                self::assertSame(0, $run->status, $run->stdout);
+                self::assertSame($source, $rows[1]['status']);
+                self::assertSame('confirmed', $run->json()['data']['items'][0]['status']);
+                $actions = match ($source) {
+                    'pending' => [], 'in_progress' => ['start'], 'deferred' => ['defer'], default => ['complete'],
+                };
+                self::assertSame($actions, array_column($run->json()['data']['items'][0]['transitionActions'], 'action'));
+                self::assertCount(1 + count($actions), $this->writes($api));
+            }
+        }
+
+        $rows = [1 => $this->row(status: 'deferred')];
+        [$run, $api] = $this->invoke(['--target-status', 'in_progress'], $rows, static function (string $method) use (&$rows): ?ApiResponse {
+            if ($method === 'tasks.task.update') {
+                $rows[1]['status'] = 'pending';
+            }
+
+            return null;
+        });
+        self::assertSame(0, $run->status, $run->stdout);
+        self::assertSame('in_progress', $rows[1]['status']);
+        self::assertSame(['tasks.task.update', 'tasks.task.start'], array_column($this->writes($api), 'method'));
+    }
+
+    public function testUnexpectedAssignmentStatusStillStopsBeforeLifecycleEvenWhenItMatchesTarget(): void
+    {
+        $rows = [1 => $this->row(status: 'deferred'), 2 => $this->row(2)];
+        [$run, $api] = $this->invoke(['--target-status', 'completed'], $rows, static function (string $method) use (&$rows): ?ApiResponse {
+            if ($method === 'tasks.task.update') {
+                $rows[1]['status'] = 'completed';
+            }
+
+            return null;
+        });
+        self::assertSame(3, $run->status, $run->stdout);
+        self::assertSame('unverified', $run->json()['data']['items'][0]['status']);
+        self::assertSame('skipped', $run->json()['data']['items'][1]['status']);
+        self::assertCount(1, $this->writes($api));
+    }
+
+    public function testImplicitPreservationDryRunIncludesConditionalRestoration(): void
+    {
+        $rows = [1 => $this->row(status: 'deferred')];
+        [$run, $api] = $this->invoke(['--dry-run'], $rows);
+        self::assertSame(0, $run->status, $run->stdout);
+        $steps = $run->json()['data']['plan']['steps'];
+        self::assertContains('tasks.task.defer', array_column($steps, 'method'));
+        self::assertSame([], $this->writes($api));
     }
 
     public function testEveryReachableTargetUsesBoundedNativeActionsAndChecksFinalState(): void

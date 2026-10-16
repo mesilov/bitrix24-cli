@@ -25,7 +25,7 @@ final class ScopeManifest
     ];
 
     private const OTHER_METHODS = [
-        'sonet_group.user.get' => [['sonet']],
+        'sonet_group.user.get' => [['sonet_group']],
         'scope' => [],
         'user.current' => [['user', 'user_basic', 'user_brief']],
         'user.get' => [['user', 'user_basic', 'user_brief']],

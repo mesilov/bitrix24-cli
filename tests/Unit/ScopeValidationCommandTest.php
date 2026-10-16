@@ -57,6 +57,7 @@ final class ScopeValidationCommandTest extends TestCase
             }
 
             return $this->response(['result' => match ($method) {
+                'sonet_group.user.get' => [['USER_ID' => 1, 'ROLE' => 'A'], ['USER_ID' => 2, 'ROLE' => 'K']],
                 'tasks.task.list' => ['items' => []],
                 'tasks.task.get' => ['item' => ['id' => 1, 'title' => 'Fixture', 'chat' => ['id' => 3, 'entityId' => 1, 'entityType' => 'TASKS_TASK']]],
                 'im.dialog.messages.get' => ['chat_id' => 3, 'messages' => []],
@@ -93,6 +94,24 @@ final class ScopeValidationCommandTest extends TestCase
         self::assertSame('fresh', $run->json()['meta']['scopeValidation']['status']);
         self::assertStringNotContainsString('ScopeFixtureSecret', file_get_contents($this->directory . '/state.json'));
         self::assertFileDoesNotExist($this->directory . '/config.json');
+    }
+
+    public function testHandoverUsesActualPortalProjectScopeAndNeverSubstitutesSonet(): void
+    {
+        $this->scopes = ['task', 'sonet'];
+        $args = ['task:handover', '--group-id', '42', '--from', '1', '--responsible', '2', '--json'];
+        $run = ConsoleHarness::run($this->app, $args);
+        self::assertSame(4, $run->status, $run->stdout);
+        self::assertSame(['sonet_group'], $run->json()['error']['details']['scopeValidation']['missingScopes']);
+        self::assertSame(['scope'], $this->calls);
+
+        $this->scopes = ['task', 'sonet_group'];
+        $this->clock->time = $this->clock->time->modify('+1 day');
+        $run = ConsoleHarness::run($this->app, $args);
+        self::assertSame(0, $run->status, $run->stdout);
+        self::assertSame('fresh', $run->json()['meta']['scopeValidation']['status']);
+        self::assertSame([], $run->json()['data']['items']);
+        self::assertSame(['scope', 'scope', 'sonet_group.user.get', 'tasks.task.list'], $this->calls);
     }
 
     public function testMissingTaskScopeBlocksEveryTemplateCommandBeforeBusinessApi(): void
@@ -139,7 +158,7 @@ final class ScopeValidationCommandTest extends TestCase
         }
 
         self::assertCount(3, $this->calls);
-        $this->scopes = ['task', 'im', 'disk', 'department', 'user', 'sonet'];
+        $this->scopes = ['task', 'im', 'disk', 'department', 'user', 'sonet_group'];
         $run = ConsoleHarness::run($this->app, ['connection:check', '--json']);
         self::assertSame(0, $run->status, $run->stdout);
         self::assertSame([], $run->json()['data']['potentiallyAffectedCommands']);
