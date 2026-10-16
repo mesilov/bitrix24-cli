@@ -55,7 +55,7 @@ JSON возвращает `data.items` и `meta`. В строке доступн
 | `unverified` | Есть ACK, но итоговая карточка не подтверждена. |
 | `skipped` | Запись не выполнялась, в том числе после остановки. |
 
-`assignmentStatus` принимает skipped/failed/unknown/unverified/confirmed. `transitionStatus` дополнительно использует `not_requested` (сохранение исходного статуса) и `not_needed` (цель уже достигнута). `verificationStatus` — skipped/failed/unverified/confirmed. Plain TSV и human показывают колонки `taskId, title, fromUserId, responsibleId, status, reason, sourceStatus, targetStatus, actualStatus, assignmentStatus, transitionStatus, verificationStatus`. Сводка plain идёт в stderr.
+`assignmentStatus` принимает skipped/failed/unknown/unverified/confirmed. `transitionStatus` дополнительно использует `not_requested` (сохранение исходного статуса) и `not_needed` (цель уже достигнута). `verificationStatus` — skipped/failed/unverified/confirmed. Plain TSV и human показывают колонки `taskId, title, fromUserId, responsibleId, status, reason, sourceStatus, targetStatus, actualStatus, assignmentStatus, transitionStatus, verificationStatus`. Сводка plain идёт в stderr: «передано» считает подтверждённые назначения, «полностью выполнено» — операции с подтверждённым ожидаемым статусом.
 
 Успех — exit 0, частичный результат — 3, отмена — 130. Некорректные параметры отклоняются до API с exit 2. При unknown/unverified сначала проверьте `b24cli task:show TASK_ID --json`; автоматического повтора нет.
 

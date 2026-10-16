@@ -20,7 +20,7 @@ final class TaskHandoverSelectionStatusTest extends TestCase
         return [...['id' => $id, 'title' => 'Задача ' . $id, 'responsibleId' => 1, 'groupId' => 42, 'status' => $status, 'needsControl' => true, 'requireResult' => false, 'containsResults' => false, 'autocompleteSubTasks' => false], ...$patch];
     }
 
-    private function invoke(array $options, array &$rows, ?\Closure $intercept = null): array
+    private function invoke(array $options, array &$rows, ?\Closure $intercept = null, string $mode = '--json'): array
     {
         $fakeApiTransport = new FakeApiTransport(static function (string $method, int $version, array $params, string $effect) use (&$rows, $intercept): ApiResponse {
             $response = $intercept instanceof \Closure ? $intercept($method, $params, $effect) : null;
@@ -70,7 +70,7 @@ final class TaskHandoverSelectionStatusTest extends TestCase
         });
         $spyConnectionResolver = new SpyConnectionResolver();
         $app = (new ApplicationFactory())->create(dirname(__DIR__, 2), $fakeApiTransport, $spyConnectionResolver);
-        return [ConsoleHarness::run($app, ['--json', 'task:handover', '--group-id', '42', '--responsible', '2', ...$options]), $fakeApiTransport, $spyConnectionResolver];
+        return [ConsoleHarness::run($app, [$mode, 'task:handover', '--group-id', '42', '--responsible', '2', ...$options]), $fakeApiTransport, $spyConnectionResolver];
     }
 
     private function writes(FakeApiTransport $api): array
@@ -306,6 +306,18 @@ final class TaskHandoverSelectionStatusTest extends TestCase
                 self::assertContains('tasks.task.approve', array_column($steps, 'method'));
                 self::assertContains('tasks.task.result.list', array_column($steps, 'method'));
             }
+        }
+    }
+
+    public function testPartialSummaryShowsAssignmentEvenWhenTransitionFails(): void
+    {
+        foreach (['--plain', '--no-ansi'] as $mode) {
+            $rows = [1 => $this->row(), 2 => $this->row(2)];
+            [$run] = $this->invoke(['--target-status', 'deferred'], $rows, static fn (string $method): ?ApiResponse => $method === 'tasks.task.access.get' ? new ApiResponse(['defer' => false]) : null, $mode);
+            self::assertSame(3, $run->status, $run->stdout);
+            self::assertSame(2, $rows[1]['responsibleId']);
+            self::assertStringContainsString('передано 1 из 2; полностью выполнено 0', $run->stderr);
+            self::assertStringNotContainsString('передано 0', $run->stderr);
         }
     }
 }

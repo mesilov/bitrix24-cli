@@ -74,7 +74,7 @@ final readonly class ResultPresenter
         }
 
         if ($mode !== 'json' && $result->profile === 'task-handover') {
-            $this->diagnostic($output, 'Проект #' . $result->meta['groupId'] . ': передано ' . $result->meta['confirmed'] . ' из ' . $result->meta['selected'] . '; complete=' . ($result->meta['complete'] ? 'true' : 'false') . '. Область: задачи, доступные подключению.');
+            $this->diagnostic($output, 'Проект #' . $result->meta['groupId'] . ': передано ' . $result->meta['assigned'] . ' из ' . $result->meta['selected'] . '; полностью выполнено ' . $result->meta['confirmed'] . '; complete=' . ($result->meta['complete'] ? 'true' : 'false') . '. Область: задачи, доступные подключению.');
         }
 
         if ($mode === 'plain' && $result->profile === 'task-status-durations') {

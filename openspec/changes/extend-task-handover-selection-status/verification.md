@@ -21,7 +21,7 @@
 
 ## Checks
 
-- Полный unit suite: **888 tests / 16722 assertions**, PASS (PHP 8.4.26). После правок Rector и дополнительной проверки выхода из контроля/сбоя scope-readback целевая перепроверка: **27 tests / 2442 assertions**, PASS.
+- Полный unit suite: **889 tests / 16771 assertions**, PASS (PHP 8.4.26). После правок Rector и дополнительной проверки выхода из контроля/сбоя scope-readback целевая перепроверка: **28 tests / 2456 assertions**, PASS.
 - `make check`: PASS; `make lint-all`: PASS (licenses, PHP CS Fixer, PHPStan, Rector). Первые замечания стиля исправлены, повторные проверки чистые.
 - `make cli-reference-check`: PASS, 63 публичных команды; task-команд 49.
 - `openspec validate --all --strict --no-interactive`: **27 passed / 0 failed**. Информационные предупреждения архивирования относятся к прежнему активному define-task-jtbd, не к этому change.
@@ -33,5 +33,7 @@
 Реализация переиспользует ports/adapters и TaskLifecycleService, не отправляет status в update, не создаёт native result, не меняет настройки контроля и не повторяет mutations. Проверка итоговой карточки подтверждает состояние в момент чтения; атомарность и rollback не обещаются. Dry-run содержит условные шаги и не подтверждает будущие права после назначения. Возможные серверные эффекты autocompleteSubTasks обозначены в help и руководстве.
 
 Обязательный MCP документации ответил; API evidence и ссылки находятся в design.md. В локальном Docker исчерпан автоматический пул сетей; для этого worktree создана только собственная сеть в свободной 10.254.165.0/24, чужие ресурсы не удалялись. Сеть удаляется вместе с окружением после поставки.
+
+P2 автоматического review MR #166 исправлен: human/plain сводка считает переданные задачи по assigned и отдельно показывает полностью выполненные операции по confirmed. `testPartialSummaryShowsAssignmentEvenWhenTransitionFails` проверяет частичную передачу в обоих режимах; после исправления полный suite и все линтеры проходят.
 
 CRITICAL: 0. WARNING: live-приёмка и выпуск standalone-бинарников не выполнялись. CI, reviews и merge проверяются отдельно на опубликованном SHA.
