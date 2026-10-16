@@ -31,6 +31,36 @@ final readonly class TaskInputMapper
         return $this->id($input->getArgument('TASK_ID'));
     }
 
+    public function reportTasks(InputInterface $input, \Bitrix24\CLI\Application\Task\ReportWeekResolver $weeks): Request\ReportTasksRequest
+    {
+        $options = [];
+        foreach (['group-id', 'responsible', 'week', 'timezone', 'max-scan'] as $name) {
+            $occurrences = 0;
+            foreach ($input instanceof \Symfony\Component\Console\Input\ArgvInput ? $input->getRawTokens() : [] as $token) {
+                if ($token === '--') {
+                    break;
+                }
+
+                if ($token === '--' . $name || str_starts_with($token, '--' . $name . '=')) {
+                    $occurrences++;
+                }
+            }
+
+            if ($occurrences > 1) {
+                throw Failure::usage('Provide --' . $name . ' only once.');
+            }
+
+            $options[$name] = $input->getOption($name);
+        }
+
+        return new Request\ReportTasksRequest(
+            $this->id($options['group-id'], '--group-id'),
+            $options['responsible'] === null ? null : $this->id($options['responsible'], '--responsible'),
+            $weeks->resolve($options['week'] ?? 'last-week', $options['timezone']),
+            $options['max-scan'] === null ? 10000 : $this->id($options['max-scan'], '--max-scan'),
+        );
+    }
+
     public function handoverTasks(InputInterface $input): Request\HandoverTasksRequest
     {
         $groupId = $this->id($input->getOption('group-id'), '--group-id');

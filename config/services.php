@@ -30,6 +30,8 @@ return static function (ContainerBuilder $container, string $root, bool $package
         Bitrix24\CLI\Console\InputSourceReader::class,
         Bitrix24\CLI\Console\TaskInputMapper::class,
         Bitrix24\CLI\Application\Task\DeadlineWindowResolver::class,
+        Bitrix24\CLI\Application\Task\ReportWeekResolver::class,
+        Bitrix24\CLI\Application\Task\WeeklyTaskReport::class,
         Bitrix24\CLI\Console\UserInputMapper::class,
         Bitrix24\CLI\Console\TaskTemplateInputMapper::class,
         Bitrix24\CLI\Application\Task\TaskTemplateService::class,
@@ -37,6 +39,7 @@ return static function (ContainerBuilder $container, string $root, bool $package
         Bitrix24\CLI\Application\User\UserDirectoryService::class,
         Bitrix24\CLI\Console\ApiPolicyGuard::class,
         Bitrix24\CLI\Console\TaskHumanRenderer::class,
+        Bitrix24\CLI\Console\WeeklyReportRenderer::class,
         Bitrix24\CLI\Console\ResultPresenter::class,
         Bitrix24\CLI\Console\CommandRunner::class,
         Bitrix24\CLI\Infrastructure\Connection\B24ClientProvider::class,
@@ -78,6 +81,7 @@ return static function (ContainerBuilder $container, string $root, bool $package
         'ProjectMemberGateway' => 'Rest1ProjectMemberAdapter',
         'DiskUploadGateway' => 'Rest1DiskUploadAdapter',
         'DeadlineTaskGateway' => 'Rest1TaskListAdapter',
+        'WeeklyReportTaskGateway' => 'Rest1TaskListAdapter',
         'TaskTemplateGateway' => 'Rest1TaskTemplateAdapter',
         'TaskResultGateway' => 'Rest3TaskResultAdapter',
         'TaskUserFieldGateway' => 'Rest1TaskUserFieldAdapter',
@@ -90,7 +94,7 @@ return static function (ContainerBuilder $container, string $root, bool $package
     }
 
     foreach ([
-        'AddTask', 'ShowTask', 'ListTasks', 'FindTasks', 'UpdateTask', 'DeleteTask', 'AttachTaskFiles',
+        'ReportTasks', 'AddTask', 'ShowTask', 'ListTasks', 'FindTasks', 'UpdateTask', 'DeleteTask', 'AttachTaskFiles',
         'AddTaskChecklist', 'ListTaskChecklists', 'SetTaskParticipants', 'ListTaskHistory', 'StatusDurationsTask',
     ] as $handler) {
         $container->register('Bitrix24\\CLI\\Application\\Task\\Handler\\' . $handler . 'Handler')->setAutowired(true);

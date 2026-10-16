@@ -8,7 +8,7 @@ use Bitrix24\CLI\Application\Failure;
 use Bitrix24\CLI\Application\Task\Page;
 use Bitrix24\CLI\Application\Task\Port\DeadlineTaskGateway;
 
-final readonly class Rest1TaskListAdapter implements DeadlineTaskGateway
+final readonly class Rest1TaskListAdapter implements DeadlineTaskGateway, \Bitrix24\CLI\Application\Task\Port\WeeklyReportTaskGateway
 {
     private const FIELDS = [
         'id' => 'ID', 'title' => 'TITLE', 'description' => 'DESCRIPTION', 'creatorId' => 'CREATED_BY',
@@ -52,16 +52,43 @@ final readonly class Rest1TaskListAdapter implements DeadlineTaskGateway
             $sort[$field === 'status' ? 'REAL_STATUS' : self::FIELDS[$field]] = $direction;
         }
 
+        $page = $this->read($filter, array_values(array_unique(array_map(static fn (string $field): string => self::FIELDS[$field], $select))), $sort, $offset);
+        return new Page(array_map(fn (array $row): array => $this->normalize($row, $select), $page->items), $page->next, $page->complete);
+    }
+
+    public function reportPage(array $filter, int $offset): Page
+    {
+        $select = ['id', 'title', 'responsibleId', 'groupId', 'status', 'created', 'closed'];
+        $page = $this->read($filter, array_map(static fn (string $field): string => self::FIELDS[$field], $select), ['ID' => 'ASC'], $offset);
+        $items = [];
+        foreach ($page->items as $row) {
+            $item = $this->normalize($row, $select);
+            foreach (['created' => 'createdDate', 'closed' => 'closedDate'] as $internal => $native) {
+                if (array_key_exists($internal, $item)) {
+                    $item[$native] = $item[$internal];
+                    unset($item[$internal]);
+                }
+            }
+
+            $items[] = $item;
+        }
+
+        return new Page($items, $page->next, $page->complete);
+    }
+
+    private function read(array $filter, array $select, array $order, int $offset): Page
+    {
         $response = $this->api->call('tasks.task.list', 1, [
-            'filter' => (object) $filter, 'select' => array_values(array_unique(array_map(static fn (string $field): string => self::FIELDS[$field], $select))),
-            'order' => (object) $sort, 'start' => $offset,
+            'filter' => (object) $filter, 'select' => $select, 'order' => (object) $order, 'start' => $offset,
         ]);
         $rows = $response->result['tasks'] ?? null;
         if (!is_array($rows) || !array_is_list($rows) || array_any($rows, static fn ($row): bool => !is_array($row))) {
             throw new Failure('api-error', 'The REST 1.0 task list response has an unsupported shape.');
         }
 
-        return new Page(array_map(fn (array $row): array => $this->normalize($row, $select), $rows), $response->next);
+        $returned = $offset + count($rows);
+        $consistent = $response->total === null || ($response->next === null ? $returned === $response->total : $returned < $response->total);
+        return new Page($rows, $response->next, $consistent);
     }
 
     private function normalize(array $row, array $select): array

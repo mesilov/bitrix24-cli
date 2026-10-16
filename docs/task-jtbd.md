@@ -11,7 +11,7 @@
 
 Сверка [#136](https://github.com/mesilov/bitrix24-cli/issues/136) от 14.10.2026: runtime SHA `f8c380a4539d78556c97655f122a9ba52c1651c8`, база `dev` — `5330662`. Для PM-02/AM-03 длительности представлены в seconds/hours/days с исключением субботы и воскресенья по серверному offset; приёмка #121 подтверждена и завершена. Число сценариев и их ID сохранены.
 
-**25 сценариев:** 9 для руководителя отдела, 7 для аккаунт-менеджера проекта, 9 для рядового исполнителя. Исходные 22 сценария: ситуация, работа, цель и признак успеха взяты из [канонической спецификации task-workflows](../openspec/specs/task-workflows/spec.md); ID сохранены для трассировки на команды и тесты. Новый PM-09 пока задан в delta [add-weekly-task-report](../openspec/changes/add-weekly-task-report/specs/task-workflows/spec.md) и имеет статус «План».
+**25 сценариев:** 9 для руководителя отдела, 7 для аккаунт-менеджера проекта, 9 для рядового исполнителя. Исходные 22 сценария: ситуация, работа, цель и признак успеха взяты из [канонической спецификации task-workflows](../openspec/specs/task-workflows/spec.md); ID сохранены для трассировки на команды и тесты. Новый PM-09 пока задан в delta [add-weekly-task-report](../openspec/changes/add-weekly-task-report/specs/task-workflows/spec.md); команда реализована в этой ветке, live-приёмка пока не подтверждена.
 
 Группировка «руководитель отдела» соответствует исходной роли «Руководитель проекта» (`PM-*`), «аккаунт-менеджер проекта» — «Аккаунт менеджер» (`AM-*`), «рядовой исполнитель» — «Сотрудник» (`EMP-*`). В группе PM приведены согласованные сценарии управления проектной работой; отдельные сценарии управления отделом пока не специфицированы. Эта группировка не меняет исходные требования и не предоставляет прав в Битрикс24: действия зависят от текущего подключения.
 
@@ -23,7 +23,7 @@
 
 Сверка [#170](https://github.com/mesilov/bitrix24-cli/issues/170) от 16.10.2026, база dev `0caf9db`: проверка состава EMP-09/PM-04 использует фактический scope `sonet_group`. Серверный сброс статуса в `pending` после назначения обрабатывается достижением явной цели либо восстановлением исходного статуса штатными действиями. Повторная live-матрица: 18/18 проверок PASS; 4/4 integration tests PASS, включая ожидаемые partial/отказы. [Evidence и ограничения](../openspec/changes/archive/2026-10-16-fix-task-handover-project-scope/live-acceptance.md). Существующие 24 JTBD и ID сохранены.
 
-Сверка планирования от 16.10.2026, база `dev` — `0caf9db62fce3f91852aafc77fd9b25cb3f9bde2`: добавлен PM-09 «Недельный отчёт». По умолчанию выбранный проект целиком, optional `--responsible` сужает все четыре показателя. Команда `task:report` не реализована; каталог сохраняет 49 task-команд / 63 публичных. [Постановка и состояние GitHub issue](../openspec/changes/add-weekly-task-report/proposal.md#github-issues).
+Сверка реализации от 17.10.2026, база `dev` — `c6295051a61d48b8821a00d6766c4585bf8ccb08`: добавлен PM-09 «Недельный отчёт». По умолчанию выбранный проект целиком, optional `--responsible` сужает все четыре показателя. Команда `task:report` реализована в этой ветке; текущий каталог содержит 50 task-команд / 64 публичных. Live-приёмка не подтверждена. [Постановка и состояние GitHub issue](../openspec/changes/add-weekly-task-report/proposal.md#github-issues).
 
 ## Роли
 
@@ -206,11 +206,11 @@
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
-| 🕓 План | `task:report --group-id ID [--responsible ID] [--week this-week\|last-week\|YYYY-MM-DD] [--timezone IANA]` | Нет; будущие проверки перечислены в [tasks.md](../openspec/changes/add-weekly-task-report/tasks.md) |
+| ✅ Готово | [`task:report --group-id ID [--responsible ID]`](../src/Console/Command/Task/ReportTasksCommand.php) | [`ReportTasksCommandTest.php`](../tests/Integration/Task/ReportTasksCommandTest.php) |
 
 **Состав:** закрытые имеют текущий completed и фактическую closedDate в выбранной неделе; новые считаются по createdDate за неделю. Контроль — текущий supposedly_completed, работа — текущее количество in_progress независимо от недели создания. Неделя с понедельника, по умолчанию last-week; --responsible означает текущего ответственного, а не автора задачи.
 
-**Границы:** это постановка для 0.3.0, команда отсутствует в runtime. Два текущих показателя относятся к чтению при формировании отчёта, даже для прошлой недели; исторический/атомарный snapshot не обещается. Повторно открытая задача не входит в закрытые. Доступная выборка отделена от всего проекта; partial требует неизвестного точного count и exit 3. Подробности — в [спецификации отчёта](../openspec/changes/add-weekly-task-report/specs/task-weekly-report/spec.md). Unit/integration/live-приёмка команды ещё не выполнена.
+**Границы:** команда реализована для 0.3.0 в этой ветке; отдельный интеграционный сценарий подготовлен, live-приёмка не запускалась. Два текущих показателя относятся к чтению при формировании отчёта, даже для прошлой недели; исторический/атомарный snapshot не обещается. Повторно открытая задача не входит в закрытые. Доступная выборка отделена от всего проекта; partial требует неизвестного точного count и exit 3. Подробности — в [спецификации отчёта](../openspec/changes/add-weekly-task-report/specs/task-weekly-report/spec.md). Целевые offline unit/command проверки выполнены; наличие integration class не означает live-приёмку. [Руководство](task-weekly-report.md).
 
 <a id="role-account-manager"></a>
 
@@ -250,10 +250,10 @@
 | --- | --- | --- |
 | ✅ Готово | [`task:list`](../src/Console/Command/Task/ListTaskCommand.php) | [`ListTaskCommandTest.php`](../tests/Integration/Task/ListTaskCommandTest.php) |
 | 🕓 План | `task:risks` | Нет |
-| 🕓 План | `task:report` | Нет |
+| ✅ Готово | [`task:report`](../src/Console/Command/Task/ReportTasksCommand.php) (недельный срез PM-09) | [`ReportTasksCommandTest.php`](../tests/Integration/Task/ReportTasksCommandTest.php) |
 | 🕓 План | `task:context:set` | Нет |
 
-**Границы:** Выборка другого исполнителя через --responsible ID со статусом и необязательным --group-id проверена на портале (userId=14/groupId=234). Учитывается только доступная подключению выборка; risks/report/context остаются планом, клиентские обязательства отдельно не доказаны.
+**Границы:** Выборка другого исполнителя через --responsible ID со статусом и необязательным --group-id проверена на портале (userId=14/groupId=234). Учитывается только доступная подключению выборка; risks/context остаются планом; report даёт только недельные показатели PM-09, клиентские обязательства отдельно не доказаны.
 
 <a id="am-03"></a>
 
@@ -264,17 +264,17 @@
 - **Чтобы:** дать обоснованный ответ без опроса каждого исполнителя.
 - **Признак успеха:** Есть проверяемая сводка: сделано, осталось, что мешает, когда следующее обновление.
 
-Планируемый недельный срез с четырьмя показателями определён в [PM-09](#pm-09). Он не подтверждает готовность всей клиентской сводки AM-03.
+Недельный срез с четырьмя показателями определён в [PM-09](#pm-09). Он не подтверждает готовность всей клиентской сводки AM-03.
 
 **Команды и интеграционные тесты**
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
 | ✅ Готово | [`task:status:durations`](../src/Console/Command/Task/StatusDurationsTaskCommand.php) | [`StatusDurationsTaskCommandTest.php`](../tests/Integration/Task/StatusDurationsTaskCommandTest.php) |
-| 🕓 План | `task:report` | Нет |
+| ✅ Готово | [`task:report`](../src/Console/Command/Task/ReportTasksCommand.php) (недельный срез PM-09) | [`ReportTasksCommandTest.php`](../tests/Integration/Task/ReportTasksCommandTest.php) |
 | 🕓 План | `task:brief` | Нет |
 
-**Границы:** Для status:durations offline-арифметика и live partial-result проверены; отдельный SDK-сценарий подтвердил возврат с контроля и повторное принятие, код 4 означает supposedly_completed; граница текущей жизни проверяется по REST3 list.created, старые события сохранены отдельно, положительные STATUS 2/3/4/5 подтверждены. Обычный CLI проверяет точные суммы с двумя повторными открытиями и длинным циклом; REST1 next exhaustion/optional total подтверждены официальным протоколом. Race/page/budget/counter нарушения остаются partial. Для #136 totals каждого статуса содержат seconds (целые), hours/days (до двух знаков), без precision; день равен 24 часам. Суббота и воскресенье исключены по offset серверного created, исходные даты сохранены. Формат подтверждён 3 live-тестами; длинная удалённая задача 6372 проверена воспроизведением сохранённых API ответов, а не новым запросом к ней.  Календарные интервалы помогают объяснять ход работ; полная клиентская сводка report/brief остаётся планом.
+**Границы:** Для status:durations offline-арифметика и live partial-result проверены; отдельный SDK-сценарий подтвердил возврат с контроля и повторное принятие, код 4 означает supposedly_completed; граница текущей жизни проверяется по REST3 list.created, старые события сохранены отдельно, положительные STATUS 2/3/4/5 подтверждены. Обычный CLI проверяет точные суммы с двумя повторными открытиями и длинным циклом; REST1 next exhaustion/optional total подтверждены официальным протоколом. Race/page/budget/counter нарушения остаются partial. Для #136 totals каждого статуса содержат seconds (целые), hours/days (до двух знаков), без precision; день равен 24 часам. Суббота и воскресенье исключены по offset серверного created, исходные даты сохранены. Формат подтверждён 3 live-тестами; длинная удалённая задача 6372 проверена воспроизведением сохранённых API ответов, а не новым запросом к ней.  Календарные интервалы помогают объяснять ход работ; task:report даёт недельные показатели PM-09; полная клиентская сводка и brief остаются планом.
 
 <a id="am-04"></a>
 
@@ -312,7 +312,7 @@
 | 🕓 План | `task:delivery:record` | Нет |
 | 🕓 План | `task:feedback:record` | Нет |
 | 🕓 План | `task:acceptance:record` | Нет |
-| 🕓 План | `task:report` | Нет |
+| ✅ Готово | [`task:report`](../src/Console/Command/Task/ReportTasksCommand.php) (недельный срез PM-09) | [`ReportTasksCommandTest.php`](../tests/Integration/Task/ReportTasksCommandTest.php) |
 
 **Границы:** Чтение результатов доступно и имеет командный тест; передача клиенту и его приёмка не автоматизированы.
 

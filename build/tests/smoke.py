@@ -89,8 +89,13 @@ def main():
         check(unknown["error"]["code"] == "usage-error" and unknown["meta"]["apiCalls"] == [],
               "Unknown command did not preserve the usage contract")
         commands = [line.split()[0] for line in invoke("b24cli", ["list", "task", "--raw", "--no-ansi"]).splitlines()]
-        check(len(commands) == 49 and all(name.startswith("task:") for name in commands),
+        check(len(commands) == 50 and all(name.startswith("task:") for name in commands),
               "Task command registration differs: " + repr(commands))
+        check("task:report" in commands, "Weekly report missing from packaged CLI")
+        report_usage = json.loads(invoke("b24cli", ["task:report", "--json"], 2))
+        check(report_usage["meta"]["apiCalls"] == [], "Weekly report scope must validate locally")
+        report_policy = json.loads(invoke("b24cli", ["task:report", "--group-id", "234", "--api-policy", "strict-rest3", "--json"], 4))
+        check(report_policy["error"]["code"] == "policy-denied" and report_policy["meta"]["apiCalls"] == [], "Weekly REST1 report must respect policy")
         check("task:my" in commands, "Personal task view missing from packaged CLI")
         check("task:handover" in commands, "Project handover missing from packaged CLI")
         handover_usage = json.loads(invoke("b24cli", ["task:handover", "--json"], 2))
@@ -212,7 +217,7 @@ def main():
         check(all(path.name in allowed_phars for path in clean.glob("*.phar")),
               "Temporary application PHAR was not removed")
         print(json.dumps({"status": "passed", "version": args.expected_version, "runtime": probe,
-                          "checks": ["version", "help", "list", "usage-exit", "49-task-commands", "status-durations-local-validation", "task-my-local-validation", "task-dry-run", "local-upload-dry-run", "local-upload-strict-policy", "local-upload-config-limit",
+                          "checks": ["version", "help", "list", "usage-exit", "50-task-commands", "status-durations-local-validation", "task-my-local-validation", "task-dry-run", "local-upload-dry-run", "local-upload-strict-policy", "local-upload-config-limit",
                                      "missing-connection", *( ["task-SIGINT"] if os.name != 'nt' else [] ),
                                      "autoload", "extensions", "unicode",
                                      "trusted-https", "rejected-certificate", "clean-PATH", "temporary-phar-cleanup"]}, ensure_ascii=False))

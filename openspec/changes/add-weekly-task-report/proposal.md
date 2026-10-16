@@ -2,16 +2,16 @@
 
 ## Why
 
-При подведении итогов недели руководителю нужен один отчёт с выполненной работой, очередью приёмки и текущей нагрузкой проекта. AM-03 описывает общую сводку, но не определяет недельный период и четыре показателя; `task:report` отсутствует в runtime.
+При подведении итогов недели руководителю нужен один отчёт с выполненной работой, очередью приёмки и текущей нагрузкой проекта. AM-03 описывает общую сводку, но не определяет недельный период и четыре показателя. До этого change `task:report` отсутствовала в runtime.
 
 ## What Changes
 
-- Добавить JTBD **PM-09 — Недельный отчёт** и его запись в `docs/task-jtbd.md` со статусом «План».
-- Спроектировать read-only `task:report --group-id ID [--responsible ID] [--week this-week|last-week|YYYY-MM-DD] [--timezone IANA] [--max-scan N]`: по умолчанию весь выбранный проект за прошлую календарную неделю; исполнитель только сужает проект.
+- Добавить JTBD **PM-09 — Недельный отчёт** и его запись в `docs/task-jtbd.md` с раздельными статусами реализации и live-приёмки.
+- Реализовать read-only `task:report --group-id ID [--responsible ID] [--week this-week|last-week|YYYY-MM-DD] [--timezone IANA] [--max-scan N]`: по умолчанию весь выбранный проект за прошлую календарную неделю; исполнитель только сужает проект.
 - Вывести четыре показателя: список закрытых за неделю, текущий список ожидающих контроля, количество созданных за неделю, текущее количество задач в работе.
 - Различать период создания/закрытия и текущие наблюдаемые статусы. Повторно открытые задачи не включать в закрытые; события закрытия и историческое состояние на конец недели не восстанавливать.
 - Сохранять область доступных задач, полноту каждой секции, неизвестные точные количества и partial/exit 3; использовать явно объявленный REST1 list без записей и fallback.
-- Подготовить постановку для milestone **0.3.0**. Этот этап изменяет требования и документацию; runtime-команда будет реализована отдельно.
+- Поставить функцию в milestone **0.3.0**. Постановка влита отдельно в MR #169; реализация ведётся отдельной веткой и MR по тому же change.
 
 ## Capabilities
 
@@ -27,13 +27,14 @@
 
 ## Impact
 
-Будущая реализация затронет `Console/TaskInputMapper`, новый `ReportTasksCommand`, request/handler, порт чтения отчёта и REST1 adapter, calendar resolver, presenter, `CommandCatalog`, API policy/scope manifest и тесты. Обнаружены существующие `DeadlineWindowResolver`, `Clock`, `Rest1TaskListAdapter`, `DeadlineTaskGateway`, `TaskListScanner`, `TaskStatus`; дизайн определяет границы их повторного использования.
+Реализация затрагивает `Console/TaskInputMapper`, новый `ReportTasksCommand`, request/handler, порт чтения отчёта и REST1 adapter, calendar resolver, presenter, `CommandCatalog`, API policy/scope manifest и тесты. Обнаружены существующие `DeadlineWindowResolver`, `Clock`, `Rest1TaskListAdapter`, `DeadlineTaskGateway`, `TaskListScanner`, `TaskStatus`; дизайн определяет границы их повторного использования.
 
-Текущий снимок `dev`: `0caf9db62fce3f91852aafc77fd9b25cb3f9bde2`, 49 task-команд / 63 публичных. Планируемая команда увеличит каталог до 50 / 64; сейчас каталог не изменяется. Нужны только чтения `tasks.task.list` REST1 и scope `task`. Смежный [#141](https://github.com/mesilov/bitrix24-cli/issues/141) расширяет общие фильтры дат, но не определяет этот отчёт; зависимость от его реализации не вводится.
+Исходный снимок планирования `dev`: `0caf9db62fce3f91852aafc77fd9b25cb3f9bde2`, 49 task-команд / 63 публичных. Реализация синхронизирована с `dev` после MR #169 (`c6295051a61d48b8821a00d6766c4585bf8ccb08`) и увеличивает каталог до 50 / 64. Нужны только чтения `tasks.task.list` REST1 и scope `task`. Смежный [#141](https://github.com/mesilov/bitrix24-cli/issues/141) расширяет общие фильтры дат, но не определяет этот отчёт; зависимость от его реализации не вводится.
 
 ## GitHub issues
 
 - [#168 — Недельный отчёт по проекту с четырьмя показателями (PM-09)](https://github.com/mesilov/bitrix24-cli/issues/168). Покрывает PM-09, четыре показателя, проект по умолчанию и optional responsible, период/полноту и read-only API-контракт.
+- Постановка: [MR #169](https://github.com/mesilov/bitrix24-cli/pull/169), влит в dev (`c629505`). Реализация: [MR #173](https://github.com/mesilov/bitrix24-cli/pull/173), отдельная ветка `feature/168-weekly-task-report`.
 - Milestone: `0.3.0`; label: `enhancement`. GitHub API возвращает `repository.issueTypes=null`; тип issue недоступен для этого репозитория.
 - Обратная ссылка проверена в разделе `## OpenSpec` issue: `add-weekly-task-report`, путь `openspec/changes/add-weekly-task-report/`. Текст постановки сохранён также в [issue-draft.md](issue-draft.md).
 
