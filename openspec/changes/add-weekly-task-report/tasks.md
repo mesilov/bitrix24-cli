@@ -28,7 +28,7 @@
 - [x] 4.2 Обновить docs/task-jtbd.md: PM-09, AM-03, дату/SHA, статус команды, ссылку на реальный integration class и границы приёмки; сверить 25 JTBD (9/7/9), CLI map, help/completion, README/navigation и содержательный CHANGELOG со ссылкой на issue.
 - [x] 4.3 Запустить относящиеся unit/formatter/API payload тесты, общие обязательные offline checks и `openspec validate add-weekly-task-report --strict`; сохранить команды, числа и exit codes в verification.md, не считать skipped integration tests live-приёмкой.
 - [ ] 4.4 На разрешённом тестовом подключении проверить весь проект и responsible subset, все четыре показателя, native payload/пагинацию, созданную/закрытую задачу и повторное открытие; сохранить sanitized evidence, очистить owned fixtures. Если живые проверки не разрешены или неполны, явно зафиксировать конкретные границы.
-- [ ] 4.5 Выполнить openspec-verify-change, свежий fetch/merge dev и проверку issue↔change/JTBD/API-field/changelog связности перед MR; повторить затронутые проверки и проверить exact head mandatory CI и review requirements перед merge.
+- [x] 4.5 Выполнить openspec-verify-change, свежий fetch/merge dev и проверку issue↔change/JTBD/API-field/changelog связности перед MR; повторить затронутые проверки и проверить exact head mandatory CI и review requirements перед merge.
 
 ## Workflow follow-up
 

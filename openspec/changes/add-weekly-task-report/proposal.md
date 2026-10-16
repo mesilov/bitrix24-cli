@@ -34,6 +34,7 @@
 ## GitHub issues
 
 - [#168 — Недельный отчёт по проекту с четырьмя показателями (PM-09)](https://github.com/mesilov/bitrix24-cli/issues/168). Покрывает PM-09, четыре показателя, проект по умолчанию и optional responsible, период/полноту и read-only API-контракт.
+- Постановка: [MR #169](https://github.com/mesilov/bitrix24-cli/pull/169), влит в dev (`c629505`). Реализация: [MR #173](https://github.com/mesilov/bitrix24-cli/pull/173), отдельная ветка `feature/168-weekly-task-report`.
 - Milestone: `0.3.0`; label: `enhancement`. GitHub API возвращает `repository.issueTypes=null`; тип issue недоступен для этого репозитория.
 - Обратная ссылка проверена в разделе `## OpenSpec` issue: `add-weekly-task-report`, путь `openspec/changes/add-weekly-task-report/`. Текст постановки сохранён также в [issue-draft.md](issue-draft.md).
 

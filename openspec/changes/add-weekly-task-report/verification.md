@@ -6,7 +6,7 @@
 
 | Измерение | Проверенный результат |
 | --- | --- |
-| Completeness | 14/16 задач после фиксации этих проверок; 13 требований сопоставлены коду, 31 сценарий прочитан |
+| Completeness | 15/16 задач после фиксации этих проверок; 13 требований сопоставлены коду, 31 сценарий прочитан; остаётся live-приёмка |
 | Correctness | Offline календарь, фильтры и четыре показателя, partial, native payload, policy/scope, форматы и регистрация проверены; portal-поведение не проверено |
 | Coherence | Существующие CommandRunner, Clock, API policy, scope manifest и классический list adapter сохранены; отдельный report port и общий read primitive |
 
@@ -61,10 +61,13 @@ Compose image собран для конкретного worktree; `make docker-
 
 Добавлены восемь command-level cases: отсутствующий next на первой/следующей странице, total меньше количества строк, пустая страница с положительным total, лишнее продолжение, корректные несколько страниц, необязательный total и точная пустая выборка. До исправления пять cases FAIL, после — все PASS. Adapter сверяет offset + rows с optional total/next и передаёт Page.complete через нормализацию. Целевая suite с deadline-регрессией: 46 tests / 575 assertions, exit 0; PHPStan, CS-Fixer и Rector повторно успешны.
 
+Исправление опубликовано в `34be4e6ce016722df6e62e7586ca12c5e465cfae`: полная suite 926 tests / 17328 assertions и 15/15 CI checks SUCCESS на этом head. P2 thread `PRRT_kwDOVACKOM6tU3NU` закрыт после исправления и проверок. Повторный Codex review этого commit завершён 16.10.2026 18:29:55 UTC без findings; открытых threads и активных CHANGES_REQUESTED нет. Это evidence проверенного runtime; последующие правки proposal/tasks/этого отчёта меняют только документацию, их финальный head также требует свежего зелёного CI.
+
+Задача 4.5 выполнена: спецификация сверена, актуальная dev объединена, issue ↔ change ↔ MR #173 связаны, changelog/JTBD/API fields проверены; CI/review runtime подтверждены. MR реализации оставлен открытым согласно поручению; merge, закрытие issue и архивирование change ещё не выполнены.
+
 ## Незавершённое и ограничения
 
 1. **CRITICAL для завершения change: задача 4.4.** Live-приёмка не выполнена: нет предоставленного для этой сессии тестового подключения в worktree. Не проверены реальные права/пагинация REST1, создание/закрытие/повторное открытие fixtures и их cleanup. Отдельный integration happy-path подготовлен и явно skipped; запустить на разрешённом портале с B24CLI_TEST_GROUP_ID и сохранить sanitized evidence.
-2. **CRITICAL для завершения change: задача 4.5.** Свежая dev с MR #169 объединена, issue/change/JTBD/changelog и каталог 50/64 сверены. MR #173 открыт, исходные CI/review проверены; исправление P2 должно пройти CI и повторное review на актуальном head. Слияние MR реализации не входит в текущее поручение открыть MR и довести CI/review.
-3. **WARNING / Not verified:** native binary smoke для нового runtime не запускался; изменённый harness проверен только по синтаксису и source CLI-контрактам. Проверить реальные artifacts в рамках последующей поставки.
+2. **WARNING / Not verified:** native binary smoke для нового runtime не запускался; изменённый harness проверен только по синтаксису и source CLI-контрактам. Installer checks Linux/macOS проверяют установщик, не доказывают native smoke нового runtime. Проверить реальные artifacts в рамках последующей поставки.
 
-Остальных spec/design расхождений в выполненных offline проверках не найдено. Не архивировать change и не закрывать issue по этим результатам; задачи 4.4/4.5 остаются незавершёнными. Основной checkout и несвязанные worktrees сохранены.
+Остальных spec/design расхождений в выполненных offline проверках не найдено. Не архивировать change и не закрывать issue по этим результатам; задача 4.4 остаётся незавершённой. Основной checkout и несвязанные worktrees сохранены.
