@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Bitrix24\CLI\Tests\Integration\Task;
 
 use Bitrix24\CLI\Application\RuntimeState;
+use Bitrix24\CLI\Application\Task\LifecycleAction;
 use Bitrix24\CLI\Application\Task\Port\CurrentUserGateway;
 use Bitrix24\CLI\Application\Task\TaskListScanner;
 use Bitrix24\CLI\Application\Task\TaskQuery;
 use Bitrix24\CLI\Infrastructure\Bitrix24\Rest1ProjectMemberAdapter;
+use Bitrix24\CLI\Infrastructure\Bitrix24\Rest1TaskLifecycleAdapter;
 use Bitrix24\CLI\Infrastructure\Bitrix24\Rest1TaskListAdapter;
 use Bitrix24\CLI\Infrastructure\Bitrix24\Rest3TaskAdapter;
 use Bitrix24\CLI\Tests\Support\LiveTaskCommandTestCase;
@@ -70,7 +72,7 @@ final class HandoverTasksCommandTest extends LiveTaskCommandTestCase
         $owned = [$this->createTask(fields: ['groupId' => $groupId, 'responsibleId' => $source]), $this->createTask(fields: ['groupId' => $groupId, 'responsibleId' => $source])];
         if ($selective) {
             foreach ($owned as $id) {
-                $this->invoke(['task:defer', $id]);
+                (new Rest1TaskLifecycleAdapter($this->api))->transition($id, LifecycleAction::Defer);
             }
 
             $owned[] = $this->createTask(fields: ['groupId' => $groupId, 'responsibleId' => $source]);

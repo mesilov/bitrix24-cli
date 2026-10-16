@@ -61,4 +61,6 @@ Help/version/list/completion, локальные `connection:add/list/show/use/r
 
 ## Передача задач проекта
 
-`task:handover` требует группу `task|tasks` и `sonet`: [sonet_group.user.get](https://apidocs.bitrix24.ru/api-reference/sonet-group/members/sonet-group-user-get.html) проверяет активное членство обоих сотрудников. Отсутствие `sonet` блокирует только эту зависимость и не добавляет требование к `task:assign` или `task:list`. `strict-rest3` отклоняет handover до API, включая dry-run. Членство само по себе не предоставляет право переназначить задачу.
+`task:handover` требует группу `task|tasks` и `sonet_group`: [sonet_group.user.get](https://apidocs.bitrix24.ru/api-reference/sonet-group/members/sonet-group-user-get.html) проверяет активное членство обоих сотрудников. Отсутствие `sonet_group` блокирует только эту зависимость и не добавляет требование к `task:assign` или `task:list`. `strict-rest3` отклоняет handover до API, включая dry-run. Членство само по себе не предоставляет право переназначить задачу.
+
+Live-приёмка EMP-09 (#170) подтвердила код `sonet_group` в реальном ответе scope и успешный sonet_group.user.get с этим подключением. MCP-описание метода называет sonet; CLI использует фактический grant code и сохраняет это документационное расхождение явно.
