@@ -2,7 +2,7 @@
 
 ## Результат
 
-Реализация сохранена отдельно от постановки: worktree `/private/tmp/bitrix24-cli-issue-168`, ветка `feature/168-weekly-task-report`, исходный baseline dev `0caf9db62fce3f91852aafc77fd9b25cb3f9bde2`. Issue [#168](https://github.com/mesilov/bitrix24-cli/issues/168); MR постановки [#169](https://github.com/mesilov/bitrix24-cli/pull/169) влит в dev commit `c6295051a61d48b8821a00d6766c4585bf8ccb08` после 13 SUCCESS checks на head `1badbd4942d966964b0d8411a968b5cf225d17a2`, без открытых review threads. Runtime-ветка объединена с этой dev; runtime-код в MR #169 не входит.
+Реализация сохранена отдельно от постановки: worktree `/private/tmp/bitrix24-cli-issue-168`, ветка `feature/168-weekly-task-report`, исходный baseline dev `0caf9db62fce3f91852aafc77fd9b25cb3f9bde2`. Issue [#168](https://github.com/mesilov/bitrix24-cli/issues/168); MR постановки [#169](https://github.com/mesilov/bitrix24-cli/pull/169) влит в dev commit `c6295051a61d48b8821a00d6766c4585bf8ccb08` после 13 SUCCESS checks на head `1badbd4942d966964b0d8411a968b5cf225d17a2`, без открытых review threads. Все шесть post-merge workflows этого commit также SUCCESS. Runtime-ветка объединена с этой dev и опубликована отдельно в [MR #173](https://github.com/mesilov/bitrix24-cli/pull/173); runtime-код в MR #169 не входит.
 
 | Измерение | Проверенный результат |
 | --- | --- |
@@ -18,9 +18,9 @@ Compose image собран для конкретного worktree; `make docker-
 
 | Проверка в контейнере worktree | Результат |
 | --- | --- |
-| vendor/bin/phpunit --testsuite unit-tests | exit 0 после sync dev с #170; 918 tests / 17280 assertions |
+| vendor/bin/phpunit --testsuite unit-tests | exit 0 после исправления P2 review; 926 tests / 17328 assertions |
 | ReportWeekTest + WeeklyTaskReportTest + TaskDeadlineFilterTest | exit 0; 46 tests / 402 assertions |
-| ReportTasksCommandTest (Unit) | exit 0; 4 tests / 175 assertions |
+| ReportTasksCommandTest + WeeklyTaskReportTest + TaskDeadlineFilterTest | exit 0 после P2 fix; 46 tests / 575 assertions, включая восемь pagination cases |
 | vendor/bin/phpstan analyse --memory-limit=2G | exit 0; 390 файлов, 0 ошибок |
 | vendor/bin/php-cs-fixer check | exit 0; 0/390 файлов требуют исправления |
 | vendor/bin/rector process --dry-run | exit 0 |
@@ -55,10 +55,16 @@ Compose image собран для конкретного worktree; `make docker-
 
 Все 13 ADDED/MODIFIED requirements имеют соответствующий код или документацию. Сценарии прочитаны и сопоставлены с проверками; это не утверждение о выполнении всех бизнес-сценариев на портале.
 
+## CI и review MR #173
+
+Исходный head `cb8f78967332402123505fda30528819cbf94874` прошёл 15/15 CI checks. Reviews, inline threads и discussion проверены спустя пять минут после открытия. Найдено одно P2: общий REST1 adapter терял total и признак неполноты страницы, из-за чего отсутствие next при total больше количества строк превращалось в точный count.
+
+Добавлены восемь command-level cases: отсутствующий next на первой/следующей странице, total меньше количества строк, пустая страница с положительным total, лишнее продолжение, корректные несколько страниц, необязательный total и точная пустая выборка. До исправления пять cases FAIL, после — все PASS. Adapter сверяет offset + rows с optional total/next и передаёт Page.complete через нормализацию. Целевая suite с deadline-регрессией: 46 tests / 575 assertions, exit 0; PHPStan, CS-Fixer и Rector повторно успешны.
+
 ## Незавершённое и ограничения
 
 1. **CRITICAL для завершения change: задача 4.4.** Live-приёмка не выполнена: нет предоставленного для этой сессии тестового подключения в worktree. Не проверены реальные права/пагинация REST1, создание/закрытие/повторное открытие fixtures и их cleanup. Отдельный integration happy-path подготовлен и явно skipped; запустить на разрешённом портале с B24CLI_TEST_GROUP_ID и сохранить sanitized evidence.
-2. **CRITICAL для завершения change: задача 4.5.** Свежая dev с MR #169 объединена, issue/change/JTBD/changelog и каталог 50/64 сверены. Собственные MR/CI/review runtime-ветки ещё предстоят; их результат должен быть проверен на актуальном head. Слияние MR реализации не входит в текущее поручение открыть MR и довести CI/review.
+2. **CRITICAL для завершения change: задача 4.5.** Свежая dev с MR #169 объединена, issue/change/JTBD/changelog и каталог 50/64 сверены. MR #173 открыт, исходные CI/review проверены; исправление P2 должно пройти CI и повторное review на актуальном head. Слияние MR реализации не входит в текущее поручение открыть MR и довести CI/review.
 3. **WARNING / Not verified:** native binary smoke для нового runtime не запускался; изменённый harness проверен только по синтаксису и source CLI-контрактам. Проверить реальные artifacts в рамках последующей поставки.
 
 Остальных spec/design расхождений в выполненных offline проверках не найдено. Не архивировать change и не закрывать issue по этим результатам; задачи 4.4/4.5 остаются незавершёнными. Основной checkout и несвязанные worktrees сохранены.

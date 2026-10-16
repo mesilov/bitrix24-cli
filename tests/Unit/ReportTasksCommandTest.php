@@ -10,6 +10,7 @@ use Bitrix24\CLI\Application\Route;
 use Bitrix24\CLI\Bootstrap\ApplicationFactory;
 use Bitrix24\CLI\Infrastructure\Bitrix24\ApiResponse;
 use Bitrix24\CLI\Tests\Support\{ConsoleHarness, FakeApiTransport, SpyConnectionResolver};
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class ReportTasksCommandTest extends TestCase
@@ -65,6 +66,41 @@ final class ReportTasksCommandTest extends TestCase
             self::assertSame('completed', $run->json()['data']['closedTasks']['items'][0]['status']);
             self::assertArrayHasKey('closedDate', $run->json()['data']['closedTasks']['items'][0]);
         }
+    }
+
+    public static function paginationCases(): iterable
+    {
+        // Each page: returned rows, next offset, total (optional in REST1).
+        yield 'missing next with remaining rows' => [[50, null, 51], [0, null, 51], 3, 50];
+        yield 'total below returned rows' => [[1, null, 0], [0, null, 0], 3, 1];
+        yield 'empty terminal page with positive total' => [[0, null, 1], [0, null, 1], 3, 0];
+        yield 'next after advertised end' => [[50, 50, 50], [0, null, 50], 3, 50];
+        yield 'missing next on later page' => [[50, 50, 52], [1, null, 52], 3, 51];
+        yield 'consistent multiple pages' => [[50, 50, 51], [1, null, 51], 0, 51];
+        yield 'optional total absent' => [[50, null, null], [0, null, null], 0, 50];
+        yield 'consistent empty selection' => [[0, null, 0], [0, null, 0], 0, 0];
+    }
+
+    #[DataProvider('paginationCases')]
+    public function testRestPaginationCompleteness(array $first, array $second, int $exit, int $observed): void
+    {
+        [$run] = $this->invoke(['--group-id', '42', '--timezone', 'UTC'], static function (string $method, int $version, array $params) use ($first, $second): ApiResponse {
+            if ((((array) $params['filter'])['REAL_STATUS'] ?? null) !== 3) {
+                return new ApiResponse(['tasks' => []], total: 0);
+            }
+
+            $offset = $params['start'];
+            [$size, $next, $total] = $offset === 0 ? $first : $second;
+            $rows = array_map(static fn (int $index): array => self::raw($offset + $index + 1, '3'), $size === 0 ? [] : range(0, $size - 1));
+            return new ApiResponse(['tasks' => $rows], $next, $total);
+        });
+        self::assertSame($exit, $run->status, $run->stdout);
+        $section = $run->json()['data']['inProgressTasks'];
+        self::assertSame($observed, $section['observedCount']);
+        self::assertSame($exit === 0 ? $observed : null, $section['count']);
+        self::assertSame($exit === 0, $section['complete']);
+        self::assertSame($exit === 0 ? [] : ['page-incomplete'], $section['reasons']);
+        self::assertSame([0, 0, 0], array_slice(array_column($run->json()['data'], 'count'), 0, 3));
     }
 
     public function testUsageAndStrictPolicyBeforeCredentialsOrApi(): void

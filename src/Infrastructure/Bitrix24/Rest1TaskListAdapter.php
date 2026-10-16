@@ -53,7 +53,7 @@ final readonly class Rest1TaskListAdapter implements DeadlineTaskGateway, \Bitri
         }
 
         $page = $this->read($filter, array_values(array_unique(array_map(static fn (string $field): string => self::FIELDS[$field], $select))), $sort, $offset);
-        return new Page(array_map(fn (array $row): array => $this->normalize($row, $select), $page->items), $page->next);
+        return new Page(array_map(fn (array $row): array => $this->normalize($row, $select), $page->items), $page->next, $page->complete);
     }
 
     public function reportPage(array $filter, int $offset): Page
@@ -73,7 +73,7 @@ final readonly class Rest1TaskListAdapter implements DeadlineTaskGateway, \Bitri
             $items[] = $item;
         }
 
-        return new Page($items, $page->next);
+        return new Page($items, $page->next, $page->complete);
     }
 
     private function read(array $filter, array $select, array $order, int $offset): Page
@@ -86,7 +86,9 @@ final readonly class Rest1TaskListAdapter implements DeadlineTaskGateway, \Bitri
             throw new Failure('api-error', 'The REST 1.0 task list response has an unsupported shape.');
         }
 
-        return new Page($rows, $response->next);
+        $returned = $offset + count($rows);
+        $consistent = $response->total === null || ($response->next === null ? $returned === $response->total : $returned < $response->total);
+        return new Page($rows, $response->next, $consistent);
     }
 
     private function normalize(array $row, array $select): array
