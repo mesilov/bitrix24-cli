@@ -1,0 +1,64 @@
+# Проверка реализации add-weekly-task-report — 16.10.2026
+
+## Результат
+
+Реализация сохранена отдельно от постановки: worktree `/private/tmp/bitrix24-cli-issue-168`, ветка `feature/168-weekly-task-report`, baseline dev `0caf9db62fce3f91852aafc77fd9b25cb3f9bde2` и план `60db219`. Issue [#168](https://github.com/mesilov/bitrix24-cli/issues/168); MR постановки [#169](https://github.com/mesilov/bitrix24-cli/pull/169) в dev остаётся открытым. Runtime-код в этот MR не входит.
+
+| Измерение | Проверенный результат |
+| --- | --- |
+| Completeness | 14/16 задач после фиксации этих проверок; 13 требований сопоставлены коду, 31 сценарий прочитан |
+| Correctness | Offline календарь, фильтры и четыре показателя, partial, native payload, policy/scope, форматы и регистрация проверены; portal-поведение не проверено |
+| Coherence | Существующие CommandRunner, Clock, API policy, scope manifest и классический list adapter сохранены; отдельный report port и общий read primitive |
+
+Это промежуточный результат реализации, не готовность к архивированию или portal acceptance.
+
+## Команды и evidence
+
+Compose image собран для конкретного worktree; `make docker-init` не смог создать новую сеть из-за исчерпания Docker address pools. Чужие сети не удалялись. Locked зависимости установлены в vendor этого checkout через существующую bridge-сеть. Все offline проверки затем выполнены тем же собранным PHP 8.4.26 image с bind mount только этого worktree и `--network none`, user 501:20.
+
+| Проверка в контейнере worktree | Результат |
+| --- | --- |
+| vendor/bin/phpunit --testsuite unit-tests | exit 0; 914 tests / 17170 assertions |
+| ReportWeekTest + WeeklyTaskReportTest + TaskDeadlineFilterTest | exit 0; 46 tests / 402 assertions |
+| ReportTasksCommandTest (Unit) | exit 0; 4 tests / 175 assertions |
+| vendor/bin/phpstan analyse --memory-limit=2G | exit 0; 390 файлов, 0 ошибок |
+| vendor/bin/php-cs-fixer check | exit 0; 0/390 файлов требуют исправления |
+| vendor/bin/rector process --dry-run | exit 0 |
+| vendor/bin/composer-license-checker | exit 0; allowed licenses |
+| composer validate --strict | exit 0 |
+| composer check-platform-reqs | exit 0 |
+| PHP syntax src/config/tests и два CLI entrypoints | exit 0; 388 PHP файлов плюс bin/console и bin/b24cli |
+| php scripts/cli-reference.php --check | exit 0; 64 публичных команды |
+| openspec validate add-weekly-task-report --strict | exit 0 |
+| git diff --check | exit 0 |
+| Изменённые локальные ссылки/JTBD | 0 отсутствующих файлов; 25 уникальных ID (9 PM / 7 AM / 9 EMP) |
+| build/tests/smoke.py syntax | Python AST parse: OK; native packaged smoke не запускался |
+| Integration: --group command:task:report | 1 test, 0 assertions, 1 skipped без webhook; это не live-приёмка |
+
+Первая полная проверка выявила два расхождения (старое ожидаемое число Command-классов и англоязычное описание timezone). Они устранены; приведённые 914/17170 относятся к повторному успешному запуску. Первые style/Rector замечания применены только к новым файлам, обязательные проверки повторены.
+
+## Сопоставление требований
+
+| Контракт | Реализация | Evidence |
+| --- | --- | --- |
+| Проект обязателен, optional responsible, без default.task | TaskInputMapper::reportTasks, ReportTasksRequest | ReportTasksCommandTest::testNativePayloadWholeProjectAndOptionalResponsible / testUsageAndStrictPolicyBeforeCredentialsOrApi |
+| Календарная неделя, IANA/DST, один reportAt, effectiveTo | ReportWeekResolver / ReportWeek | ReportWeekTest (границы, несуществующие/будущие даты, DST, новый год, microseconds) |
+| Закрытые за период и повторное открытие | WeeklyTaskReport::collect / invalid | WeeklyTaskReportTest: четыре показателя, creation boundary, reopened; server filter REAL_STATUS=5 + CLOSED_DATE |
+| Текущий контроль и текущая работа | WeeklyTaskReport: REAL_STATUS=4/3 | Старый awaiting-control fixture и исключение pending; current snapshot metadata |
+| Новые независимо от текущего статуса | WeeklyTaskReport: CREATED_DATE | Одна задача участвует в new и closed; границы и отсутствующие/неверные даты |
+| Текущие наблюдения отделены от прошлого периода | reportAt / observedUntil / snapshotAtomic=false | Unit metadata assertions, human/plain подписи и docs/task-weekly-report.md |
+| REST1 native fields, read policy и scope | Rest1TaskListAdapter::reportPage / read, ReportTasksHandler, CommandCatalog | Command unit payload, strict-rest3 до credentials/API, manifest task/tasks; общая scope validation suite |
+| Pagination/budget/dedup/partial | WeeklyTaskReport::collect | 51 rows, точная граница, общий budget, page error, missing fields, conflicts, unverified next, cancellation |
+| Human/plain/JSON | WeeklyReportRenderer / ResultPresenter | Согласованные counts, literal null, TSV escape, текущие подписи; RussianHelpTest |
+| PM-09 и post-MVP admission | docs/task-jtbd.md и delta specs | Статусы runtime/acceptance разделены; linked issue/change и 25 anchors |
+| Точный runtime-каталог | CommandCatalog + task-console-runtime delta | ContainerRegistrationTest, IntegrationCommandCoverageTest, CLI map: 50 task / 64 public |
+
+Все 13 ADDED/MODIFIED requirements имеют соответствующий код или документацию. Сценарии прочитаны и сопоставлены с проверками; это не утверждение о выполнении всех бизнес-сценариев на портале.
+
+## Незавершённое и ограничения
+
+1. **CRITICAL для завершения change: задача 4.4.** Live-приёмка не выполнена: нет предоставленного для этой сессии тестового подключения в worktree. Не проверены реальные права/пагинация REST1, создание/закрытие/повторное открытие fixtures и их cleanup. Отдельный integration happy-path подготовлен и явно skipped; запустить на разрешённом портале с B24CLI_TEST_GROUP_ID и сохранить sanitized evidence.
+2. **CRITICAL для завершения change: задача 4.5.** Runtime-ветка пока локальная; её собственные MR/CI/review/merge не выполнены. MR #169 поставляет только план. Перед MR кода синхронизировать актуальную dev, повторить проверки связности/changelog и выполнить обязательный review/CI workflow.
+3. **WARNING / Not verified:** native binary smoke для нового runtime не запускался; изменённый harness проверен только по синтаксису и source CLI-контрактам. Проверить реальные artifacts в рамках последующей поставки.
+
+Остальных spec/design расхождений в выполненных offline проверках не найдено. Не архивировать change и не закрывать issue по этим результатам; задачи 4.4/4.5 остаются незавершёнными. Основной checkout и несвязанные worktrees сохранены.

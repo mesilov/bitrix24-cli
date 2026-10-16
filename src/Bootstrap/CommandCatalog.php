@@ -7,6 +7,7 @@ namespace Bitrix24\CLI\Bootstrap;
 final class CommandCatalog
 {
     public const COMMANDS = [
+        'task:report' => ['class' => \Bitrix24\CLI\Console\Command\Task\ReportTasksCommand::class, 'effect' => 'read'],
         'task:handover' => ['class' => \Bitrix24\CLI\Console\Command\Task\HandoverTasksCommand::class, 'effect' => 'write'],
         'task:template:show' => ['class' => \Bitrix24\CLI\Console\Command\Task\ShowTaskTemplateCommand::class, 'effect' => 'read'],
         'task:template:fields:list' => ['class' => \Bitrix24\CLI\Console\Command\Task\ListTaskTemplateFieldsCommand::class, 'effect' => 'read'],
@@ -79,6 +80,7 @@ final class CommandCatalog
     }
 
     public const ROUTES = [
+        'task:report' => [['tasks.task.list', 1]],
         'task:handover' => [['sonet_group.user.get', 1], ['tasks.task.list', 3], ['tasks.task.get', 3], ['tasks.task.update', 3], ['tasks.task.access.get', 3], ['tasks.task.result.list', 3], ['tasks.task.start', 1], ['tasks.task.pause', 1], ['tasks.task.defer', 1], ['tasks.task.complete', 1], ['tasks.task.approve', 1], ['tasks.task.disapprove', 1]],
         'task:template:show' => [['tasks.template.get', 1]],
         'task:template:fields:list' => [['tasks.template.fields', 1]],

@@ -1,6 +1,6 @@
 # Карта CLI-вызовов
 
-Каталог содержит 63 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
+Каталог содержит 64 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
 
 `b24cli --help`/`-h` показывают назначение, список команд, глобальные опции и примеры задач. Вся справка — на русском; имена команд, флагов и API/JSON-полей сохраняются. Единый первый блок «Общие» содержит `completion`, `help` и `list`; далее пространства имён и команды внутри блоков упорядочены по имени. `b24cli --about` показывает назначение, версию, автора, лицензию и ссылки на [приложение](https://github.com/mesilov/bitrix24-cli) и [скилл](https://github.com/mesilov/bitrix24-cli-skill). Эти вызовы не требуют подключения и не обращаются к порталу. `list --help` описывает именно list; вызов без аргументов выводит список команд.
 
@@ -49,6 +49,7 @@
 | [`task:participants:set`](../src/Console/Command/Task/SetTaskParticipantsCommand.php) | Заменить выбранные роли участников | write | `b24cli task:participants:set 123 --auditor 4 --clear-accomplices --dry-run` |
 | [`task:pause`](../src/Console/Command/Task/PauseTaskCommand.php) | Приостановить выполнение задачи | write | `b24cli task:pause 123 --dry-run` |
 | [`task:renew`](../src/Console/Command/Task/RenewTaskCommand.php) | Возобновить задачу | write | `b24cli task:renew 123 --dry-run` |
+| [`task:report`](../src/Console/Command/Task/ReportTasksCommand.php) | Показать недельный отчёт по проекту | read | `b24cli task:report --group-id 234 --responsible 14 --week last-week --timezone Asia/Bishkek --json` |
 | [`task:result:add`](../src/Console/Command/Task/AddTaskResultCommand.php) | Добавить результат задачи | write | `b24cli task:result:add 123 --text "Договор готов" --dry-run` |
 | [`task:result:delete`](../src/Console/Command/Task/DeleteTaskResultCommand.php) | Удалить результат задачи | delete | `b24cli task:result:delete 123 --result 17 --force --dry-run` |
 | [`task:result:list`](../src/Console/Command/Task/ListTaskResultsCommand.php) | Показать результаты задачи | read | `b24cli task:result:list 123 --all` |

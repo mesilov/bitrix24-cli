@@ -56,7 +56,7 @@ b24cli task:report --group-id 234 --responsible 14 --week 2026-10-12 --timezone 
 
 - Change: `add-weekly-task-report`
 - Путь: `openspec/changes/add-weekly-task-report/`
-- Артефакты: proposal.md, design.md, tasks.md, delta specs task-weekly-report, task-workflows (PM-09), task-mvp-scope.
+- Артефакты: proposal.md, design.md, tasks.md, delta specs task-weekly-report, task-workflows (PM-09), task-mvp-scope и task-console-runtime (50 task-команд).
 - Подготовка JTBD/плана не является реализацией команды; runtime-каталог пока не меняется.
 - При архивировании обновить этот путь на фактический архив и проверить обратную ссылку из proposal.
 

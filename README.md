@@ -286,6 +286,7 @@ b24cli --about
 ```
 
 Рабочие сценарии: [задачи, поиск и форматы вывода](docs/task-usage.md),
+[недельный отчёт проекта](docs/task-weekly-report.md),
 [сотрудники и оргструктура](docs/users.md), [JTBD по ролям](docs/task-jtbd.md),
 [проблемные сценарии агента](docs/problem-trajectories.md).
 
