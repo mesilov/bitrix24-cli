@@ -32,7 +32,7 @@ b24cli task:handover --group-id 234 --from 14 --responsible 16 \
 
 | Цель | Возможные действия |
 | --- | --- |
-| `deferred` | `defer`; если уже deferred, переход не нужен. |
+| `deferred` | `defer`; из ожидания контроля сначала `disapprove`; если уже deferred, переход не нужен. |
 | `in_progress` | `start`; из ожидания контроля сначала `disapprove`. |
 | `pending` | `pause`; из deferred — `start` → `pause`; из ожидания контроля — `disapprove` и при необходимости `pause`. |
 | `supposedly_completed` | `complete` при `needsControl=true`; если сервер завершил задачу, цель не достигнута. |

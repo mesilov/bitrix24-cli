@@ -151,7 +151,7 @@ final readonly class TaskHandoverService
                 }
 
                 $item['verificationStatus'] = $failure->errorCode === 'handover-status-conflict' ? 'failed' : 'unverified';
-                $item['status'] = $unknown ? 'unknown' : ($ack ? ($phase === 'transition' ? 'partial' : 'unverified') : ($failure->exitStatus === 130 ? 'skipped' : 'failed'));
+                $item['status'] = $unknown ? 'unknown' : ($ack ? ($phase === 'transition' && $item['transitionStatus'] !== 'unverified' ? 'partial' : 'unverified') : ($failure->exitStatus === 130 ? 'skipped' : 'failed'));
                 $item['reason'] = $failure->errorCode . ': ' . $failure->getMessage();
                 foreach (array_keys($items) as $remaining) {
                     if ($remaining > $index) {
@@ -206,13 +206,17 @@ final readonly class TaskHandoverService
                 throw new Failure('handover-state-unverified', $result->meta['reason'] ?? 'The transition state could not be verified.', $result->exitStatus);
             }
 
+            $item['transitionStatus'] = 'unverified';
             $this->state->checkCancellation();
+            $item['actualStatus'] = null;
             $card = $this->tasks->get($item['taskId'], self::SELECT);
             $item['actualStatus'] = $card['status'] ?? null;
             $this->assertCard($card, $request, $request->responsibleId);
             if (!is_string($card['status'] ?? null) || TaskStatus::tryFrom($card['status']) === null) {
                 throw new Failure('handover-status-conflict', 'The actual task status could not be verified.', 4);
             }
+
+            $item['transitionStatus'] = 'skipped';
         }
 
         $item['transitionStatus'] = 'confirmed';

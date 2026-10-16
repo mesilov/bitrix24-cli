@@ -21,7 +21,7 @@
 
 ## Checks
 
-- Полный unit suite: **888 tests / 16722 assertions**, PASS (PHP 8.4.26). После автоматических правок Rector целевая перепроверка: **27 tests / 2407 assertions**, PASS.
+- Полный unit suite: **888 tests / 16722 assertions**, PASS (PHP 8.4.26). После правок Rector и дополнительной проверки выхода из контроля/сбоя scope-readback целевая перепроверка: **27 tests / 2442 assertions**, PASS.
 - `make check`: PASS; `make lint-all`: PASS (licenses, PHP CS Fixer, PHPStan, Rector). Первые замечания стиля исправлены, повторные проверки чистые.
 - `make cli-reference-check`: PASS, 63 публичных команды; task-команд 49.
 - `openspec validate --all --strict --no-interactive`: **27 passed / 0 failed**. Информационные предупреждения архивирования относятся к прежнему активному define-task-jtbd, не к этому change.

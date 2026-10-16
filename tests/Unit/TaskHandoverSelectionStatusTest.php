@@ -103,7 +103,7 @@ final class TaskHandoverSelectionStatusTest extends TestCase
     public function testEveryReachableTargetUsesBoundedNativeActionsAndChecksFinalState(): void
     {
         $cases = [
-            ['pending', 'deferred', ['defer']], ['in_progress', 'pending', ['pause']],
+            ['pending', 'deferred', ['defer']], ['supposedly_completed', 'deferred', ['disapprove', 'defer']], ['in_progress', 'pending', ['pause']],
             ['deferred', 'pending', ['start', 'pause']], ['supposedly_completed', 'pending', ['disapprove', 'pause']],
             ['pending', 'in_progress', ['start']], ['supposedly_completed', 'in_progress', ['disapprove']],
             ['pending', 'supposedly_completed', ['complete']], ['pending', 'completed', ['complete', 'approve']],
@@ -156,10 +156,11 @@ final class TaskHandoverSelectionStatusTest extends TestCase
 
     public function testDeniedOrUnknownTransitionRetainsConfirmedAssignmentAndNeverRetries(): void
     {
-        foreach (['denied', 'lost', 'malformed', 'readback'] as $mode) {
+        foreach (['denied', 'lost', 'malformed', 'readback', 'scope-readback'] as $mode) {
             $rows = [1 => $this->row(), 2 => $this->row(2)];
             $transitioned = false;
-            [$run, $api] = $this->invoke(['--target-status', 'deferred'], $rows, static function (string $method) use ($mode, &$transitioned): ?ApiResponse {
+            $postReads = 0;
+            [$run, $api] = $this->invoke(['--target-status', 'deferred'], $rows, static function (string $method) use ($mode, &$transitioned, &$postReads): ?ApiResponse {
                 if ($method === 'tasks.task.access.get' && $mode === 'denied') {
                     return new ApiResponse(['defer' => false]);
                 }
@@ -175,7 +176,7 @@ final class TaskHandoverSelectionStatusTest extends TestCase
                     }
                 }
 
-                if ($method === 'tasks.task.get' && $transitioned && $mode === 'readback') {
+                if ($method === 'tasks.task.get' && $transitioned && ($mode === 'readback' || ($mode === 'scope-readback' && ++$postReads === 2))) {
                     throw new Failure('api-error', 'Readback unavailable.');
                 }
 
@@ -185,9 +186,14 @@ final class TaskHandoverSelectionStatusTest extends TestCase
             $item = $run->json()['data']['items'][0];
             self::assertSame('confirmed', $item['assignmentStatus']);
             self::assertSame(match ($mode) {
-                'denied' => 'failed', 'readback' => 'unverified', default => 'unknown'
+                'denied' => 'failed', 'readback', 'scope-readback' => 'unverified', default => 'unknown'
             }, $item['transitionStatus']);
             self::assertSame(in_array($mode, ['lost', 'malformed'], true), $run->json()['meta']['outcomeUnknown']);
+            if (in_array($mode, ['readback', 'scope-readback'], true)) {
+                self::assertSame('unverified', $item['status']);
+                self::assertSame([$mode === 'readback' ? 'unverified' : 'confirmed'], array_column($item['transitionActions'], 'status'));
+            }
+
             self::assertSame('skipped', $run->json()['data']['items'][1]['status']);
             self::assertCount($mode === 'denied' ? 1 : 2, $this->writes($api));
             if ($mode !== 'denied') {

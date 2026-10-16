@@ -17,7 +17,7 @@ final class HandoverStatusPlan
             'in_progress' => [LifecycleAction::Disapprove, LifecycleAction::Start],
             'completed' => [LifecycleAction::Complete, LifecycleAction::Approve],
             'supposedly_completed' => [LifecycleAction::Complete],
-            'deferred' => [LifecycleAction::Defer],
+            'deferred' => [LifecycleAction::Disapprove, LifecycleAction::Defer],
             default => throw Failure::usage('Unsupported handover target status.'),
         };
     }
@@ -37,7 +37,7 @@ final class HandoverStatusPlan
             'in_progress' => $current === 'supposedly_completed' ? LifecycleAction::Disapprove : LifecycleAction::Start,
             'completed' => $current === 'supposedly_completed' ? LifecycleAction::Approve : LifecycleAction::Complete,
             'supposedly_completed' => LifecycleAction::Complete,
-            'deferred' => LifecycleAction::Defer,
+            'deferred' => $current === 'supposedly_completed' ? LifecycleAction::Disapprove : LifecycleAction::Defer,
             default => throw Failure::usage('Unsupported handover target status.'),
         };
     }
