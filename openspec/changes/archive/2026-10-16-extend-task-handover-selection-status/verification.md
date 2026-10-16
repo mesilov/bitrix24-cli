@@ -43,7 +43,7 @@ CRITICAL: 0. WARNING: live-приёмка и выпуск standalone-бинар�
 - Issue: [#165](https://github.com/mesilov/bitrix24-cli/issues/165), milestone 0.3.0, closed после подтверждённого merge.
 - Реализация: [MR #166](https://github.com/mesilov/bitrix24-cli/pull/166), target dev, merged 16.10.2026.
 - Проверенный head: `7657fc696814401e03b0d3f3485f7ccf976293d3`; 15/15 CI checks SUCCESS.
-- Merge: `2e0e7afbfa501de2f9e85d2dc790b9f4f8f74022`.
+- Merge: `2e0e7afbfa501de2f9e85d2dc790b9f4f8f74022`; все 7 post-merge workflows SUCCESS, включая [Command tests](https://github.com/mesilov/bitrix24-cli/actions/runs/38901442290), [Shell installer](https://github.com/mesilov/bitrix24-cli/actions/runs/38901442484), [Worktree isolation](https://github.com/mesilov/bitrix24-cli/actions/runs/38901442501), licenses и три PHP линтера.
 - Review получен после обязательных пяти минут; одно P2 исправлено коммитом `7657fc6`, thread закрыт; CHANGES_REQUESTED нет.
 - Синхронизированы 9 requirement blocks / 29 сценариев в двух delta; Purpose существующих спецификаций сохранены, незатронутые требования не изменены. После архива strict OpenSpec: 26/26, 0 failed.
 - Архив: `openspec/changes/archive/2026-10-16-extend-task-handover-selection-status/`. Поставка архива выполняется отдельным MR в dev; CI merge-коммитов проверяется отдельно.
