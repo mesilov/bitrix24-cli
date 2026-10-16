@@ -21,7 +21,7 @@ def check_scope_calls(result, cold):
     methods = (['scope'] if cold else []) + ['tasks.task.list']
     expected = [{'method': method, 'apiVersion': '1.0' if method == 'scope' else '3.0',
                  'effect': 'read'} for method in methods]
-    assert result['meta']['apiCalls'] == expected, 'Cold/warm scope API sequence differs'
+    assert result['meta']['apiCalls'] == expected, 'Cold/warm scope API sequence differs: ' + repr(result['meta']['apiCalls'])
     scope = result['meta']['scopeValidation']
     assert scope['status'] == 'fresh' and scope['missingScopes'] == [], 'Scope fixture did not verify grants'
     assert scope['requiredScopeGroups'] == [['task', 'tasks']], 'Task scope requirements differ'
@@ -183,14 +183,15 @@ def main():
                 assert result['data']['items'][0]['id'] == 123
             external = root / 'Внешний файл space.env'
             external.write_bytes(('BITRIX24_WEBHOOK=' + webhook.replace('fixture.invalid', 'file.invalid') + '\r\n').encode())
-            for selector, extra, source, cold in [(['--env-file', str(external)], {}, 'explicit-file', True),
-                    ([], {'B24CLI_ENV_FILE': str(external)}, 'environment-file', False),
-                    ([], {'BITRIX24_WEBHOOK': webhook.replace('fixture.invalid', 'process.invalid')}, 'process-env', True)]:
+            for selector, extra, source in [(['--env-file', str(external)], {}, 'explicit-file'),
+                    ([], {'B24CLI_ENV_FILE': str(external)}, 'environment-file'),
+                    ([], {'BITRIX24_WEBHOOK': webhook.replace('fixture.invalid', 'process.invalid')}, 'process-env')]:
                 host = 'process.invalid' if source == 'process-env' else 'file.invalid'
-                result = json.loads(run(['task:list', '--json', *selector], fixture=True,
-                                        extra={**extra, 'B24CLI_FIXTURE_EXPECTED_HOST': host}))
-                assert result['meta']['connection']['source'] == source
-                check_scope_calls(result, cold)
+                for cold in [True, False]:
+                    result = json.loads(run(['task:list', '--json', *selector], fixture=True,
+                                            extra={**extra, 'B24CLI_FIXTURE_EXPECTED_HOST': host}))
+                    assert result['meta']['connection']['source'] == source
+                    check_scope_calls(result, cold)
             # Readers and dry-run may inspect metadata with a missing credential.
             credential.unlink()
             run(['task:add', '--profile', 'work', '--title', 'No secret read', '--dry-run', '--json'])
