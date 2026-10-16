@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 final readonly class ResultPresenter
 {
     private const COLUMNS = [
-        'task-handover' => ['taskId', 'title', 'fromUserId', 'responsibleId', 'status', 'reason'],
+        'task-handover' => ['taskId', 'title', 'fromUserId', 'responsibleId', 'status', 'reason', 'sourceStatus', 'targetStatus', 'actualStatus', 'assignmentStatus', 'transitionStatus', 'verificationStatus'],
         'doctor-cards' => ['cardId', 'state', 'sanitizedScenario', 'missingCapability', 'createdAt', 'analysisRef'],
         'user-card' => ['ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'EMAIL', 'UF_DEPARTMENT'],
         'user-list' => ['ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'EMAIL', 'UF_DEPARTMENT'],

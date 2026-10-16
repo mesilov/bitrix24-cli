@@ -240,7 +240,7 @@ final class TaskHandoverCommandTest extends TestCase
             self::assertStringContainsString('confirmed', $run->stdout);
             self::assertStringContainsString('передано 1 из 1', $run->stderr);
             if ($mode === '--plain') {
-                self::assertSame("1\tДоговор 1\t1\t2\tconfirmed\t\n", $run->stdout);
+                self::assertSame("1\tДоговор 1\t1\t2\tconfirmed\t\tpending\tpending\tpending\tconfirmed\tnot_requested\tconfirmed\n", $run->stdout);
             }
         }
     }

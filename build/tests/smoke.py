@@ -100,6 +100,12 @@ def main():
                                                          "--responsible", "16", "--api-policy", "strict-rest3", "--dry-run", "--json"], 4))
         check(handover_policy["error"]["code"] == "policy-denied" and handover_policy["meta"]["apiCalls"] == [],
               "Handover must reject REST1 membership before API under strict-rest3")
+        handover_help = invoke("b24cli", ["task:handover", "--help"])
+        check(all(flag in handover_help for flag in ["--source-status", "--exclude-id", "--target-status"]),
+              "Selective handover options missing from help")
+        invalid_target = json.loads(invoke("b24cli", ["task:handover", "--group-id", "234", "--responsible", "16",
+                                                    "--target-status", "declined", "--json"], 2))
+        check(invalid_target["meta"]["apiCalls"] == [], "Unsupported target must fail before API")
         check("task:status:durations" in commands, "Status durations missing from packaged CLI")
         durations_usage = json.loads(invoke("b24cli", ["task:status:durations", "--json", "--no-ansi"], 2))
         check(durations_usage["error"]["code"] == "usage-error" and durations_usage["meta"]["apiCalls"] == [],

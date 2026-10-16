@@ -79,7 +79,7 @@ final class CommandCatalog
     }
 
     public const ROUTES = [
-        'task:handover' => [['sonet_group.user.get', 1], ['tasks.task.list', 3], ['tasks.task.get', 3], ['tasks.task.update', 3]],
+        'task:handover' => [['sonet_group.user.get', 1], ['tasks.task.list', 3], ['tasks.task.get', 3], ['tasks.task.update', 3], ['tasks.task.access.get', 3], ['tasks.task.result.list', 3], ['tasks.task.start', 1], ['tasks.task.pause', 1], ['tasks.task.defer', 1], ['tasks.task.complete', 1], ['tasks.task.approve', 1], ['tasks.task.disapprove', 1]],
         'task:template:show' => [['tasks.template.get', 1]],
         'task:template:fields:list' => [['tasks.template.fields', 1]],
         'task:template:add' => [['tasks.template.add', 1]],
