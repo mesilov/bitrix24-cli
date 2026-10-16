@@ -17,6 +17,16 @@ import tempfile
 import time
 
 
+def check_scope_calls(result, cold):
+    methods = (['scope'] if cold else []) + ['tasks.task.list']
+    expected = [{'method': method, 'apiVersion': '1.0' if method == 'scope' else '3.0',
+                 'effect': 'read'} for method in methods]
+    assert result['meta']['apiCalls'] == expected, 'Cold/warm scope API sequence differs'
+    scope = result['meta']['scopeValidation']
+    assert scope['status'] == 'fresh' and scope['missingScopes'] == [], 'Scope fixture did not verify grants'
+    assert scope['requiredScopeGroups'] == [['task', 'tasks']], 'Task scope requirements differ'
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('dist', type=Path)
@@ -164,21 +174,23 @@ def main():
             assert credential.read_bytes() == initial
             plan = json.loads(run(['task:add', '--profile', 'work', '--title', 'Native defaults', '--dry-run', '--json']))
             assert plan['data']['plan']['steps'][0]['fields']['groupId'] == 42
-            for selector, extra in [(['--profile', 'work'], {'BITRIX24_WEBHOOK': 'https://ambient.invalid/rest/1/AmbientSecret/'}),
-                                    ([], {})]:
+            for selector, extra, cold in [(['--profile', 'work'], {'BITRIX24_WEBHOOK': 'https://ambient.invalid/rest/1/AmbientSecret/'}, True),
+                                         ([], {}, False)]:
                 result = json.loads(run(['task:list', '--json', *selector], fixture=True,
                                         extra={**extra, 'B24CLI_FIXTURE_EXPECTED_HOST': 'fixture.invalid'}))
                 assert result['meta']['connection']['source'] == 'profile'
-                assert len(result['meta']['apiCalls']) == 1 and result['data']['items'][0]['id'] == 123
+                check_scope_calls(result, cold)
+                assert result['data']['items'][0]['id'] == 123
             external = root / 'Внешний файл space.env'
             external.write_bytes(('BITRIX24_WEBHOOK=' + webhook.replace('fixture.invalid', 'file.invalid') + '\r\n').encode())
-            for selector, extra, source in [(['--env-file', str(external)], {}, 'explicit-file'),
-                    ([], {'B24CLI_ENV_FILE': str(external)}, 'environment-file'),
-                    ([], {'BITRIX24_WEBHOOK': webhook.replace('fixture.invalid', 'process.invalid')}, 'process-env')]:
+            for selector, extra, source, cold in [(['--env-file', str(external)], {}, 'explicit-file', True),
+                    ([], {'B24CLI_ENV_FILE': str(external)}, 'environment-file', False),
+                    ([], {'BITRIX24_WEBHOOK': webhook.replace('fixture.invalid', 'process.invalid')}, 'process-env', True)]:
                 host = 'process.invalid' if source == 'process-env' else 'file.invalid'
                 result = json.loads(run(['task:list', '--json', *selector], fixture=True,
                                         extra={**extra, 'B24CLI_FIXTURE_EXPECTED_HOST': host}))
-                assert result['meta']['connection']['source'] == source and len(result['meta']['apiCalls']) == 1
+                assert result['meta']['connection']['source'] == source
+                check_scope_calls(result, cold)
             # Readers and dry-run may inspect metadata with a missing credential.
             credential.unlink()
             run(['task:add', '--profile', 'work', '--title', 'No secret read', '--dry-run', '--json'])
