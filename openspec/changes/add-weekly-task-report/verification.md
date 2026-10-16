@@ -1,8 +1,8 @@
-# Проверка реализации add-weekly-task-report — 16.10.2026
+# Проверка реализации add-weekly-task-report — 17.10.2026
 
 ## Результат
 
-Реализация сохранена отдельно от постановки: worktree `/private/tmp/bitrix24-cli-issue-168`, ветка `feature/168-weekly-task-report`, baseline dev `0caf9db62fce3f91852aafc77fd9b25cb3f9bde2` и план `60db219`. Issue [#168](https://github.com/mesilov/bitrix24-cli/issues/168); MR постановки [#169](https://github.com/mesilov/bitrix24-cli/pull/169) в dev остаётся открытым. Runtime-код в этот MR не входит.
+Реализация сохранена отдельно от постановки: worktree `/private/tmp/bitrix24-cli-issue-168`, ветка `feature/168-weekly-task-report`, исходный baseline dev `0caf9db62fce3f91852aafc77fd9b25cb3f9bde2`. Issue [#168](https://github.com/mesilov/bitrix24-cli/issues/168); MR постановки [#169](https://github.com/mesilov/bitrix24-cli/pull/169) влит в dev commit `c6295051a61d48b8821a00d6766c4585bf8ccb08` после 13 SUCCESS checks на head `1badbd4942d966964b0d8411a968b5cf225d17a2`, без открытых review threads. Runtime-ветка объединена с этой dev; runtime-код в MR #169 не входит.
 
 | Измерение | Проверенный результат |
 | --- | --- |
@@ -18,7 +18,7 @@ Compose image собран для конкретного worktree; `make docker-
 
 | Проверка в контейнере worktree | Результат |
 | --- | --- |
-| vendor/bin/phpunit --testsuite unit-tests | exit 0; 914 tests / 17170 assertions |
+| vendor/bin/phpunit --testsuite unit-tests | exit 0 после sync dev с #170; 918 tests / 17280 assertions |
 | ReportWeekTest + WeeklyTaskReportTest + TaskDeadlineFilterTest | exit 0; 46 tests / 402 assertions |
 | ReportTasksCommandTest (Unit) | exit 0; 4 tests / 175 assertions |
 | vendor/bin/phpstan analyse --memory-limit=2G | exit 0; 390 файлов, 0 ошибок |
@@ -35,7 +35,7 @@ Compose image собран для конкретного worktree; `make docker-
 | build/tests/smoke.py syntax | Python AST parse: OK; native packaged smoke не запускался |
 | Integration: --group command:task:report | 1 test, 0 assertions, 1 skipped без webhook; это не live-приёмка |
 
-Первая полная проверка выявила два расхождения (старое ожидаемое число Command-классов и англоязычное описание timezone). Они устранены; приведённые 914/17170 относятся к повторному успешному запуску. Первые style/Rector замечания применены только к новым файлам, обязательные проверки повторены.
+Первая полная проверка выявила два расхождения (старое ожидаемое число Command-классов и англоязычное описание timezone). Они устранены; исходная suite прошла 914 tests / 17170 assertions, после sync dev с исправлениями #170 — 918 / 17280 на `3bbffbd`. Последующее объединение постановки #169 (`e699cbf`) изменило только документацию; `openspec validate` и CLI map check повторно успешны. Первые style/Rector замечания применены только к новым файлам, обязательные проверки повторены.
 
 ## Сопоставление требований
 
@@ -58,7 +58,7 @@ Compose image собран для конкретного worktree; `make docker-
 ## Незавершённое и ограничения
 
 1. **CRITICAL для завершения change: задача 4.4.** Live-приёмка не выполнена: нет предоставленного для этой сессии тестового подключения в worktree. Не проверены реальные права/пагинация REST1, создание/закрытие/повторное открытие fixtures и их cleanup. Отдельный integration happy-path подготовлен и явно skipped; запустить на разрешённом портале с B24CLI_TEST_GROUP_ID и сохранить sanitized evidence.
-2. **CRITICAL для завершения change: задача 4.5.** Runtime-ветка пока локальная; её собственные MR/CI/review/merge не выполнены. MR #169 поставляет только план. Перед MR кода синхронизировать актуальную dev, повторить проверки связности/changelog и выполнить обязательный review/CI workflow.
+2. **CRITICAL для завершения change: задача 4.5.** Свежая dev с MR #169 объединена, issue/change/JTBD/changelog и каталог 50/64 сверены. Собственные MR/CI/review runtime-ветки ещё предстоят; их результат должен быть проверен на актуальном head. Слияние MR реализации не входит в текущее поручение открыть MR и довести CI/review.
 3. **WARNING / Not verified:** native binary smoke для нового runtime не запускался; изменённый harness проверен только по синтаксису и source CLI-контрактам. Проверить реальные artifacts в рамках последующей поставки.
 
 Остальных spec/design расхождений в выполненных offline проверках не найдено. Не архивировать change и не закрывать issue по этим результатам; задачи 4.4/4.5 остаются незавершёнными. Основной checkout и несвязанные worktrees сохранены.
