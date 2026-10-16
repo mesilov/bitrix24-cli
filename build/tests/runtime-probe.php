@@ -21,14 +21,25 @@ if (($argv[1] ?? '') === 'task-signal') {
 }
 
 if (($argv[1] ?? '') === 'connection-fixture') {
-    $requests = 0;
-    $client = new Symfony\Component\HttpClient\MockHttpClient(static function ($method, $url) use (&$requests): Symfony\Component\HttpClient\Response\MockResponse {
-        $requests++;
+    $requests = [];
+    $client = new Symfony\Component\HttpClient\MockHttpClient(static function ($verb, $url) use (&$requests): Symfony\Component\HttpClient\Response\MockResponse {
+        $path = rtrim(preg_replace('~/+~', '/', (string) parse_url($url, PHP_URL_PATH)), '/') . '/';
+        $method = basename(rtrim($path, '/'));
+        $requests[] = $method;
+        $sequence = match ($method) {
+            'scope' => ['scope'],
+            'tasks.task.list' => in_array('scope', $requests, true) ? ['scope', 'tasks.task.list'] : ['tasks.task.list'],
+            default => [],
+        };
+        $expectedPath = $method === 'scope'
+            ? '/rest/1/RecognizableFixtureSecret/scope/'
+            : '/rest/api/1/RecognizableFixtureSecret/tasks.task.list/';
         $expected = getenv('B24CLI_FIXTURE_EXPECTED_HOST');
-        if ($requests > 1 || parse_url($url, PHP_URL_HOST) !== $expected || parse_url($url, PHP_URL_SCHEME) !== 'https' || !str_contains($url, '/RecognizableFixtureSecret/')) {
+        if ($requests !== $sequence || $verb !== 'POST' || $path !== $expectedPath || parse_url($url, PHP_URL_HOST) !== $expected || parse_url($url, PHP_URL_SCHEME) !== 'https') {
             throw new RuntimeException('Selected transport fixture mismatch.');
         }
-        return new Symfony\Component\HttpClient\Response\MockResponse('{"result":{"items":[{"id":123,"title":"Fixture"}]},"time":{}}');
+        $result = $method === 'scope' ? ['task'] : ['items' => [['id' => 123, 'title' => 'Fixture']]];
+        return new Symfony\Component\HttpClient\Response\MockResponse(json_encode(['result' => $result, 'time' => (object) []], JSON_THROW_ON_ERROR));
     });
     $application = (new Bitrix24\CLI\Bootstrap\ApplicationFactory())->create(dirname(__DIR__), packaged: true, httpClient: $client);
     $status = $application->run(new Symfony\Component\Console\Input\ArgvInput(['b24cli', ...array_slice($argv, 2)]));
