@@ -30,7 +30,7 @@ final class ContainerRegistrationTest extends TestCase
             $classes[] = $command::class;
         }
 
-        self::assertCount(53, array_unique($classes));
+        self::assertCount(54, array_unique($classes));
         foreach (CommandCatalog::LOCAL_COMMANDS as $name => $definition) {
             $attribute = (new \ReflectionClass($definition['class']))->getAttributes(AsCommand::class)[0]->newInstance();
             self::assertSame($name, $attribute->name);

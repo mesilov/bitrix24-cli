@@ -31,6 +31,19 @@ final readonly class TaskInputMapper
         return $this->id($input->getArgument('TASK_ID'));
     }
 
+    public function handoverTasks(InputInterface $input): Request\HandoverTasksRequest
+    {
+        $groupId = $this->id($input->getOption('group-id'), '--group-id');
+        $responsibleId = $this->id($input->getOption('responsible'), '--responsible');
+        $from = $input->getOption('from') === null ? null : $this->id($input->getOption('from'), '--from');
+        $maxScan = $input->getOption('max-scan') === null ? 10000 : $this->id($input->getOption('max-scan'), '--max-scan');
+        if ($from === $responsibleId) {
+            throw Failure::usage('Source and responsible user must be different.');
+        }
+
+        return new Request\HandoverTasksRequest($groupId, $responsibleId, $from, $maxScan);
+    }
+
     public function text(InputInterface $input, string $name, bool $required = true, bool $allowEmpty = false): ?string
     {
         $inline = $input->getOption($name);

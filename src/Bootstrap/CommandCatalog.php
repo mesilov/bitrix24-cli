@@ -7,6 +7,7 @@ namespace Bitrix24\CLI\Bootstrap;
 final class CommandCatalog
 {
     public const COMMANDS = [
+        'task:handover' => ['class' => \Bitrix24\CLI\Console\Command\Task\HandoverTasksCommand::class, 'effect' => 'write'],
         'task:template:show' => ['class' => \Bitrix24\CLI\Console\Command\Task\ShowTaskTemplateCommand::class, 'effect' => 'read'],
         'task:template:fields:list' => ['class' => \Bitrix24\CLI\Console\Command\Task\ListTaskTemplateFieldsCommand::class, 'effect' => 'read'],
         'task:template:add' => ['class' => \Bitrix24\CLI\Console\Command\Task\AddTaskTemplateCommand::class, 'effect' => 'write'],
@@ -78,6 +79,7 @@ final class CommandCatalog
     }
 
     public const ROUTES = [
+        'task:handover' => [['sonet_group.user.get', 1], ['tasks.task.list', 3], ['tasks.task.get', 3], ['tasks.task.update', 3]],
         'task:template:show' => [['tasks.template.get', 1]],
         'task:template:fields:list' => [['tasks.template.fields', 1]],
         'task:template:add' => [['tasks.template.add', 1]],

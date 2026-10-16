@@ -89,9 +89,17 @@ def main():
         check(unknown["error"]["code"] == "usage-error" and unknown["meta"]["apiCalls"] == [],
               "Unknown command did not preserve the usage contract")
         commands = [line.split()[0] for line in invoke("b24cli", ["list", "task", "--raw", "--no-ansi"]).splitlines()]
-        check(len(commands) == 43 and all(name.startswith("task:") for name in commands),
+        check(len(commands) == 49 and all(name.startswith("task:") for name in commands),
               "Task command registration differs: " + repr(commands))
         check("task:my" in commands, "Personal task view missing from packaged CLI")
+        check("task:handover" in commands, "Project handover missing from packaged CLI")
+        handover_usage = json.loads(invoke("b24cli", ["task:handover", "--json"], 2))
+        check(handover_usage["error"]["code"] == "usage-error" and handover_usage["meta"]["apiCalls"] == [],
+              "Handover must validate project and target before credentials/API")
+        handover_policy = json.loads(invoke("b24cli", ["task:handover", "--group-id", "234", "--from", "14",
+                                                         "--responsible", "16", "--api-policy", "strict-rest3", "--dry-run", "--json"], 4))
+        check(handover_policy["error"]["code"] == "policy-denied" and handover_policy["meta"]["apiCalls"] == [],
+              "Handover must reject REST1 membership before API under strict-rest3")
         check("task:status:durations" in commands, "Status durations missing from packaged CLI")
         durations_usage = json.loads(invoke("b24cli", ["task:status:durations", "--json", "--no-ansi"], 2))
         check(durations_usage["error"]["code"] == "usage-error" and durations_usage["meta"]["apiCalls"] == [],
@@ -198,7 +206,7 @@ def main():
         check(all(path.name in allowed_phars for path in clean.glob("*.phar")),
               "Temporary application PHAR was not removed")
         print(json.dumps({"status": "passed", "version": args.expected_version, "runtime": probe,
-                          "checks": ["version", "help", "list", "usage-exit", "43-task-commands", "status-durations-local-validation", "task-my-local-validation", "task-dry-run", "local-upload-dry-run", "local-upload-strict-policy", "local-upload-config-limit",
+                          "checks": ["version", "help", "list", "usage-exit", "49-task-commands", "status-durations-local-validation", "task-my-local-validation", "task-dry-run", "local-upload-dry-run", "local-upload-strict-policy", "local-upload-config-limit",
                                      "missing-connection", *( ["task-SIGINT"] if os.name != 'nt' else [] ),
                                      "autoload", "extensions", "unicode",
                                      "trusted-https", "rejected-certificate", "clean-PATH", "temporary-phar-cleanup"]}, ensure_ascii=False))
