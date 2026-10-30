@@ -36,7 +36,9 @@
 
 ## Общие сценарии чатов — план #180
 
-Сверка 30.10.2026 по dev `787770ee3c1b596df8ccde4bf6e984cee46c34ef`: к 25 ролевым сценариям добавлены **два общих планируемых CHAT-01/CHAT-02** (всего 27 описанных сценариев). Они применимы ко всем трём ролям и не меняют нумерацию PM/AM/EMP. [Issue #180](https://github.com/mesilov/bitrix24-cli/issues/180), [OpenSpec chat-access](../openspec/changes/add-unified-chat-access/specs/chat-access/spec.md). Текущий runtime остаётся 50 task-команд / 64 публичных; новых chat-команд пока нет.
+Сверка 30.10.2026 по dev `787770ee3c1b596df8ccde4bf6e984cee46c34ef`: к 25 ролевым сценариям добавлены **два общих планируемых CHAT-01/CHAT-02** (всего 27 описанных сценариев). Они применимы ко всем трём ролям и не меняют нумерацию PM/AM/EMP. [Issue #180](https://github.com/mesilov/bitrix24-cli/issues/180), [OpenSpec chat-access](../openspec/changes/add-unified-chat-access/specs/chat-access/spec.md). Текущий runtime остаётся 50 task-команд / 64 публичных; новых chats-команд пока нет.
+
+Самостоятельный namespace **`chats:*`** работает с обычным доступным групповым чатом без обязательного TASK_ID/GROUP_ID. Ссылки на задачу и проект дополнительно разрешают адресат; существующий `task:chat:*` сохраняется.
 
 ### CHAT-01 — Получить контекст за период
 
@@ -54,10 +56,10 @@
 
 | Статус | Предлагаемая команда | Сценарий | Тест |
 | --- | --- | --- | --- |
-| 🕓 План | chat:resolve | URL/типизированный ID для CHAT-01/02 | Нет |
-| 🕓 План | chat:find | Поиск адресата CHAT-02 | Нет |
-| 🕓 План | chat:messages:list | История периода CHAT-01 | Нет |
-| 🕓 План | chat:send | Отправка CHAT-02 | Нет |
+| 🕓 План | chats:resolve | URL/типизированный ID для CHAT-01/02 | Нет |
+| 🕓 План | chats:find | Поиск адресата CHAT-02 | Нет |
+| 🕓 План | chats:messages:list | История периода CHAT-01 | Нет |
+| 🕓 План | chats:send | Отправка CHAT-02 | Нет |
 
 **Текущее покрытие:** PM-06, AM-06 и EMP-07 уже используют task:chat:list/send по TASK_ID; PM-03/EMP-03 — отправку сообщения о препятствии. Эти команды не принимают URL, название или календарный период. Общий чат проекта не равен чатам его задач. AM-03 частично поддержан отчётами по задачам; PM-09/task:report не делает саммари переписки. Состояние unread вынесено в [#148](https://github.com/mesilov/bitrix24-cli/issues/148), права — в [#178](https://github.com/mesilov/bitrix24-cli/issues/178).
 

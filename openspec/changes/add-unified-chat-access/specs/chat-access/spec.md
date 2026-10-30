@@ -6,6 +6,14 @@
 
 ## ADDED Requirements
 
+### Requirement: Standalone chats namespace
+CLI SHALL предоставлять `chats:resolve`, `chats:find`, `chats:messages:list` и `chats:send` как самостоятельный namespace. Работа с обычным групповым чатом SHALL не требовать TASK_ID/GROUP_ID. Существующий `task:chat:*` SHALL сохраняться; общий namespace `chat:*` не вводится.
+
+#### Scenario: Чат без проекта и задачи
+- **WHEN** пользователь передаёт URL обычного группового чата либо chat123 в chats:messages:list или chats:send
+- **THEN** CLI работает с этим доступным чатом без поиска обязательной задачи или проекта
+- **AND** новые команды зарегистрированы под chats:*, а task:chat:* сохраняет собственный вход через TASK_ID
+
 ### Requirement: CHAT-01 — Получить контекст за период
 CLI SHALL предоставлять сообщения выбранного чата за заданный календарный период с авторами, временем, ID и полнотой. Вызывающий агент составляет саммари; CLI не требует встроенного LLM.
 

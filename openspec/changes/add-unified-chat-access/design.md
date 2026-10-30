@@ -2,7 +2,7 @@
 
 ## Context
 
-Снимок `dev`: `787770ee3c1b596df8ccde4bf6e984cee46c34ef`, проверка 30.10.2026. Мотивация — [proposal.md](proposal.md). В CommandCatalog есть task:chat:list/send/update/delete, общих chat-команд нет. ListTaskChatCommand принимает TASK_ID, before/after как ID сообщений, limit/all/max-messages; date/timezone-фильтра нет.
+Снимок `dev`: `787770ee3c1b596df8ccde4bf6e984cee46c34ef`, проверка 30.10.2026. Мотивация — [proposal.md](proposal.md). В CommandCatalog есть task:chat:list/send/update/delete, общих chats-команд нет. ListTaskChatCommand принимает TASK_ID, before/after как ID сообщений, limit/all/max-messages; date/timezone-фильтра нет.
 
 ChatSupport получает задачу через tasks.task.get REST3 и проверяет chat.id/entityId/entityType; TaskChatAdapter читает im.dialog.messages.get REST1. Отправка задачи использует tasks.task.chat.message.send REST3. Эти ветви сохраняются. DeadlineWindowResolver и календарная логика task:report — точки для переиспользования календарных границ, но фильтры дедлайнов нельзя применять к датам сообщений.
 
@@ -16,22 +16,24 @@ ChatSupport получает задачу через tasks.task.get REST3 и п�
 
 ## Decisions
 
-### 1. Отдельный chat namespace и типизированный адресат
+### 1. Отдельный chats namespace и типизированный адресат
 
-Предлагаемый публичный интерфейс, пока отсутствующий в runtime:
+Зафиксированный публичный namespace — `chats:*`; команды пока отсутствуют в runtime:
 
 ```sh
-b24cli chat:resolve 'https://portal.example/online/?IM_DIALOG=chat123' --json
-b24cli chat:find --name 'Команда проекта' --json
-b24cli chat:messages:list 'group:234' --period yesterday --timezone Asia/Bishkek --json
-b24cli chat:messages:list 'task:123' --from 2026-10-29T00:00:00+06:00 --to 2026-10-30T00:00:00+06:00 --timezone Asia/Bishkek --json
-b24cli chat:send 'chat123' --text 'Сегодня отсутствую' --dry-run
-b24cli chat:send --name 'Команда проекта' --text-file -
+b24cli chats:resolve 'https://portal.example/online/?IM_DIALOG=chat123' --json
+b24cli chats:find --name 'Команда проекта' --json
+b24cli chats:messages:list 'group:234' --period yesterday --timezone Asia/Bishkek --json
+b24cli chats:messages:list 'task:123' --from 2026-10-29T00:00:00+06:00 --to 2026-10-30T00:00:00+06:00 --timezone Asia/Bishkek --json
+b24cli chats:send 'chat123' --text 'Сегодня отсутствую' --dry-run
+b24cli chats:send --name 'Команда проекта' --text-file -
 ```
+
+Самостоятельный namespace `chats:*` работает с доступным групповым чатом без обязательного TASK_ID или GROUP_ID. Ссылки на проект и задачу — дополнительные способы разрешить адресат. Существующий `task:chat:*` сохраняет вход через ID задачи; общий namespace `chat:*` не вводится.
 
 Ввод — один TARGET либо --name там, где поддержан поиск. TARGET: URL, chatN, sgN, task:N, group:N. Положительные ID обязательны; bare N отклоняется. group:N нормализуется к sgN. Task:N сохраняет taskId и проверенную связь с чатом через существующий task lookup. Новый namespace использует IM отправку с ID результата, task:chat:send сохраняет свой существующий REST3 ACK.
 
-chat:resolve получает metadata через im.dialog.get и сохраняет логический адресат (например sg234) отдельно от физического chat ID из ответа. Проверять возвращённую связь с задачей и выбранным диалогом, не принимать null/неполный ответ как успех. Имена полей metadata закрепить по полному методу и fixtures до реализации. Отклонять неподтверждённую связь, не создавать чат как fallback.
+chats:resolve получает metadata через im.dialog.get и сохраняет логический адресат (например sg234) отдельно от физического chat ID из ответа. Проверять возвращённую связь с задачей и выбранным диалогом, не принимать null/неполный ответ как успех. Имена полей metadata закрепить по полному методу и fixtures до реализации. Отклонять неподтверждённую связь, не создавать чат как fallback.
 
 Отдельный namespace выбран, потому что расширять TASK_ID до произвольного ID означало бы смешать контексты и нарушить существующий binding. Новые команды добавляются в явный каталог и route map; task-count остаётся 50 в этом снимке, public-count увеличивается только при реализации.
 
@@ -48,7 +50,7 @@ chat:resolve получает metadata через im.dialog.get и сохран�
 
 ### 3. Полный поиск до выбора по названию
 
-Использовать im.search.chat.list с FIND, OFFSET, LIMIT; LIMIT не выше 50, конечный max-chats (предлагаемый default 1000). Учитывать next/total, дубликаты, отсутствие прогресса и ошибки страниц. API ищет также по участникам, поэтому после поиска отдельно сравнивать возвращённое название с запрошенным после trim, без молчаливого выбора похожего названия. Ноль, одно, несколько точных совпадений и неполная выдача — разные исходы. chat:find показывает кандидатов; --name для send разрешает запись только при одном точном совпадении в полной выдаче. Пользователь может явно выбрать chatN из кандидатов.
+Использовать im.search.chat.list с FIND, OFFSET, LIMIT; LIMIT не выше 50, конечный max-chats (предлагаемый default 1000). Учитывать next/total, дубликаты, отсутствие прогресса и ошибки страниц. API ищет также по участникам, поэтому после поиска отдельно сравнивать возвращённое название с запрошенным после trim, без молчаливого выбора похожего названия. Ноль, одно, несколько точных совпадений и неполная выдача — разные исходы. chats:find показывает кандидатов; --name для send разрешает запись только при одном точном совпадении в полной выдаче. Пользователь может явно выбрать chatN из кандидатов.
 
 ### 4. Календарный период поверх bounded ID pagination
 
