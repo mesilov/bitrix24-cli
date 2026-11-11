@@ -237,6 +237,31 @@ final class FileLoggingTest extends TestCase
         }
     }
 
+    public function testExistingDailyFileSymlinkIsNeverFollowed(): void
+    {
+        if (PHP_OS_FAMILY === 'Windows') {
+            self::markTestSkipped('Symbolic links need extra privileges on Windows.');
+        }
+
+        $this->protection->directory($this->directory . '/logs');
+        $target = $this->directory . '/victim.txt';
+        file_put_contents($target, 'original');
+        symlink($target, $this->directory . '/logs/b24cli-20261112.log');
+        symlink($this->directory . '/missing.txt', $this->directory . '/logs/b24cli-20261113.log');
+
+        foreach (['2026-11-12T10:00:00+00:00', '2026-11-13T10:00:00+00:00'] as $datetime) {
+            $warnings = [];
+            $handler = $this->handler($this->directory . '/logs', 7, $warnings);
+            $handler->handle($this->record($datetime));
+            $handler->handle($this->record($datetime));
+            $handler->close();
+            self::assertCount(1, $warnings);
+        }
+
+        self::assertSame('original', file_get_contents($target));
+        self::assertFileDoesNotExist($this->directory . '/missing.txt');
+    }
+
     public function testRetentionByDaysKeepsForeignFiles(): void
     {
         $this->protection->directory($this->directory . '/logs');

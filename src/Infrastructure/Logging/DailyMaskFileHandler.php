@@ -99,7 +99,8 @@ final class DailyMaskFileHandler extends AbstractProcessingHandler
         }
 
         $stream = null;
-        if (!file_exists($path)) {
+        clearstatcache(true, $path);
+        if (!file_exists($path) && !is_link($path)) {
             try {
                 $stream = $this->protection->create($path);
             } catch (\Throwable) {
@@ -114,9 +115,23 @@ final class DailyMaskFileHandler extends AbstractProcessingHandler
             fclose($stream);
         }
 
+        // A daily file in a shared directory may be replaced by a link to another file; never follow it.
+        clearstatcache(true, $path);
+        $expected = @lstat($path);
+        if ($expected === false || is_link($path) || ($expected['mode'] & 0170000) !== 0100000) {
+            throw new \RuntimeException('not a regular file');
+        }
+
         $stream = @fopen($path, 'ab');
         if ($stream === false) {
             throw new \RuntimeException('open');
+        }
+
+        // The path may change between the check and fopen(); the opened file must be the checked one.
+        $opened = fstat($stream);
+        if ($opened === false || $opened['dev'] !== $expected['dev'] || $opened['ino'] !== $expected['ino']) {
+            fclose($stream);
+            throw new \RuntimeException('replaced');
         }
 
         $this->stream = $stream;
