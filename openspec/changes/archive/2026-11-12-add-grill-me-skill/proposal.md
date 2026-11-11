@@ -6,7 +6,7 @@
 
 ## What Changes
 
-- Добавить в `.agents/skills/` скилл `grill-me` и его обязательную зависимость `grilling` из mattpocock/skills без изменений.
+- Добавить в `.agents/skills/` скилл `grill-me` и его обязательную зависимость `grilling` из mattpocock/skills. Единственное отличие от upstream — запасной путь в `grill-me` для агентов без инструмента `Skill`.
 - Зафиксировать происхождение (репозиторий, путь, commit) и приложить текст лицензии MIT.
 
 ## Capabilities

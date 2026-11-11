@@ -18,7 +18,7 @@
 
 ### Добавлено
 
-- **Скилл grill-me:** в `.agents/skills/` добавлены `grill-me` и обязательный для него `grilling` из mattpocock/skills (MIT, commit `fcf0071`) без изменений. Скилл проводит интервью по плану раундами перед подготовкой OpenSpec change; происхождение и лицензия лежат рядом со скиллами, требования — в `openspec/specs/agent-skills/`. [#190](https://github.com/mesilov/bitrix24-cli/issues/190)
+- **Скилл grill-me:** в `.agents/skills/` добавлены `grill-me` и обязательный для него `grilling` из mattpocock/skills (MIT, commit `fcf0071`). В `grill-me` добавлен запасной путь для агентов без инструмента `Skill` (Codex): прочитать `../grilling/SKILL.md`; остальное совпадает с upstream. Скилл проводит интервью по плану раундами перед подготовкой OpenSpec change; происхождение и лицензия лежат рядом со скиллами, требования — в `openspec/specs/agent-skills/`. [#190](https://github.com/mesilov/bitrix24-cli/issues/190)
 
 - **Недельный отчёт (PM-09):** `task:report --group-id ID` показывает закрытые и новые за неделю, текущие задачи на контроле и количество в работе. По умолчанию весь проект и прошлая календарная неделя; `--responsible` сужает область. Период учитывает timezone/DST, неполные секции сохраняют строки и observedCount с неизвестным точным count. [#168](https://github.com/mesilov/bitrix24-cli/issues/168)
 
