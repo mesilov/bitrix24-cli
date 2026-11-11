@@ -4,26 +4,27 @@ Planning завершён; ниже только будущие implementation/v
 
 ## 1. Разрешение адресата
 
-- [ ] 1.1 Подтвердить предложенные URL-формы и permalink сообщения обезличенными примерами интерфейса; сохранить allowlist/fixtures и проверить таблицу URL → task/group/chat/message, конфликтующие ID и другой портал.
+- [ ] 1.1 Подтвердить предложенные URL-формы и permalink сообщения обезличенными примерами интерфейса (через entity_link уже подтверждены `/workgroups/group/G/` и `/company/personal/user/U/tasks/task/view/T/`; `/online/?IM_DIALOG=` и permalink сообщения — нет); сохранить allowlist/fixtures и проверить таблицу URL → task/group/chat/message, конфликтующие ID и другой портал.
 - [ ] 1.2 Добавить типизированный resolver и chats:resolve с metadata и task → chat binding; проверить положительные/пустые/denied ответы, отсутствие переходов по URL и сохранение task:chat:*.
 - [ ] 1.3 Зарегистрировать chats:resolve и его routes/scope/help, добавить command integration case и документацию адресатов; проверить offline policy/strict-rest3 до credentials, регистрацию только `chats:*` для новых команд и самостоятельный чат без task/group ID.
 
 ## 2. Поиск чата
 
 - [ ] 2.1 Реализовать bounded im.search.chat.list обход и chats:find с native FIND/OFFSET/LIMIT; проверить страницы, next/total, дубликаты, бюджет, no-progress и ошибки доступа offline fixtures.
+- [ ] 2.0 Решить, как искать по названию чаты проектов и задач (im.search.chat.list их не возвращает): sonet_group.get `%NAME` → sgN и поиск задач → task:N либо только обычные чаты; обновить design/spec и проверить отсутствие ложного «не найдено».
 - [ ] 2.2 Зафиксировать точное сравнение названия и distinct no-match/ambiguous/partial; проверить, что participant-only совпадения не выбирают адресат, добавить help, CLI map и integration case поиска.
 
 ## 3. История за период
 
 - [ ] 3.1 Добавить календарный yesterday и точные from/to, один now и IANA timezone; проверить [from,to), DST, границы года/месяца и ошибочный ввод в unit cases и документировать варианты.
-- [ ] 3.2 Добавить chats:messages:list с bounded ID pagination, binding, дедупликацией, порядком и complete/reason; проверить >50 сообщений, exact page/budget boundary, пустой день, conflicting rows, page error и no-progress.
+- [ ] 3.2 Добавить chats:messages:list с bounded ID pagination от `LAST_ID = last_message_id + 1`, binding, дедупликацией, порядком и complete/reason; проверить старт при непрочитанных, >50 сообщений и фактический предел LIMIT, exact page/budget boundary, пустой день, conflicting rows, page error и no-progress.
 - [ ] 3.3 Проверить допустимость timestamp stop на документации/fixtures; при отсутствии доказанной монотонности реализовать исчерпание доступной истории или partial, подтвердив отсутствие пропущенных сообщений тестом немонотонных дат.
 - [ ] 3.4 Добавить human/plain/JSON, help, CLI map и отдельный integration case истории; проверить наличие адресата, авторов/времени/ID, периода/timezone и сохранение partial при ограничении вывода.
 
 ## 4. Отправка
 
 - [ ] 4.1 Добавить chats:send с TARGET или --name, text/file/stdin, IM result ID и dry-run; проверить выбор ровно одного полного exact-title результата, mutual exclusions и отсутствие записи при dry-run/ambiguous/denied.
-- [ ] 4.2 Сохранить confirmed/outcomeUnknown без повтора записи; проверить timeout после возможного принятия, ID результата и readback в command integration case; обновить help/CLI map.
+- [ ] 4.2 Сохранить confirmed/outcomeUnknown без повтора записи; проверить timeout после возможного принятия, ID результата и readback со сверкой chat_id в command integration case; обновить help/CLI map.
 - [ ] 4.3 Обновить полные route plans, ScopeManifest и scope docs совместно с областью #178; проверить изоляцию команд, strict-rest3 и native REST1 payload, отсутствие read/join мутаций.
 
 ## 5. Сквозная приёмка
