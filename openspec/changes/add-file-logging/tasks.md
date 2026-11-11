@@ -23,8 +23,8 @@
 - [x] 3.3 Реализовать обработку ошибок: одно предупреждение через `ResultPresenter::diagnostic()`, дальше записи отбрасываются. Проверить тестом с каталогом без прав записи и с неверным `logging`: stdout и код выхода команды не меняются, предупреждение одно.
 - [x] 3.4 Реализовать `SdkSummaryProcessor`. Проверить тестом на `info`: в файле нет `parameters`, `responseInfo`, `url` и текста описания задачи, есть метод, `requestId`, статус и длительность.
 - [x] 3.5 Реализовать `SizeLimitProcessor` (4096 байт на строку, base64 и бинарные значения как длина, 64 KiB на запись). Проверить тестом загрузки большого файла на `debug`: запись не больше 64 KiB и не содержит данных файла.
-- [x] 3.6 Реализовать `SecretRedactingProcessor` (webhook и токен всех поколений `RuntimeState`, ключи с `auth`, `password`, `secret`, `token`, `webhook` без учёта регистра) и `RunIdProcessor`. Проверить тестами: полного webhook и токена в файле нет после debug-вызова и смены поколения; `access_token` и `refreshToken` замаскированы; `runId` одинаков в процессе.
-- [x] 3.7 Добавить фабрику логгера: `NullLogger` или Monolog без handler при выключенном логировании, иначе `JsonFormatter`, фильтр уровня и processors в порядке из design. Проверить тестом, что при `enabled=false` каталог не создаётся, а `level=warning` отсекает `info`.
+- [x] 3.6 Реализовать `SecretRedactingProcessor` (webhook и токен всех поколений `RuntimeState`, ключи с `auth`, `password`, `secret`, `token`, `webhook` без учёта регистра) и `runId` в `JsonLinesFormatter`. Проверить тестами: полного webhook и токена в файле нет после debug-вызова и смены поколения; `access_token` и `refreshToken` замаскированы; `runId` одинаков в процессе.
+- [x] 3.7 Добавить фабрику логгера: `NullLogger` или Monolog без handler при выключенном логировании, иначе `JsonLinesFormatter`, фильтр уровня и processors в порядке из design. Проверить тестом, что при `enabled=false` каталог не создаётся, а `level=warning` отсекает `info`.
 
 ## 4. Подключение к CLI и SDK
 
@@ -36,7 +36,7 @@
 ## 5. Интеграционные проверки
 
 - [x] 5.1 Запустить `make lint-all` и `make unit` без ошибок.
-- [ ] 5.2 Проверить запись лога в PHAR или native-сборке с временным `--config-dir` через `make test-package` или эквивалентный smoke.
+- [x] 5.2 Проверить запись лога в PHAR или native-сборке с временным `--config-dir` через `make test-package` или эквивалентный smoke.
 - [x] 5.3 Добавить запись в `CHANGELOG.md` (раздел «Добавлено») со ссылкой на #189 и предупреждением, что прежние версии CLI отклоняют `config.json` с `logging`.
 
 ## Workflow follow-up
