@@ -4,6 +4,8 @@
 
 ### Исправлено
 
+- Устранены 8 security advisories `composer audit`: `symfony/filesystem` 8.1.11 (GHSA-6prc-h956-hxjq), `symfony/http-client` 8.1.11 (CVE-2026-121971, CVE-2026-123119), `symfony/http-foundation` 8.1.11 (CVE-2026-118514 и три GHSA), `symfony/mime` 8.1.10 (CVE-2026-45070). Обновлён только `composer.lock`; ограничения `composer.json` и поведение CLI не менялись. [#196](https://github.com/mesilov/bitrix24-cli/issues/196)
+
 - Linux native packaging явно устанавливает Bash и zsh перед приёмкой документированных shell-последовательностей и проверяет их наличие; обязательные проверки `shell-installer-check.py` не ослаблены. Устранён блокер трёхплатформенной intermediate-сборки. [#177](https://github.com/mesilov/bitrix24-cli/issues/177)
 
 - Архивирован OpenSpec change исправления native connection fixture: сохранены причина общего сбоя packaging, ограниченный scope/list контракт и результаты проверки PHAR; повторная native-сборка и live-приёмка отслеживаются отдельно. [#174](https://github.com/mesilov/bitrix24-cli/issues/174)
