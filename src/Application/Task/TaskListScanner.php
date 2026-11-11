@@ -103,7 +103,8 @@ final readonly class TaskListScanner
                     continue;
                 }
 
-                if ($rest1 && array_any(array_keys($query->where), static fn (string $field): bool => $row[$field] === null)) {
+                // An undated task has deadline=null on REST1; that is a value for local equality, not missing data.
+                if ($rest1 && array_any(array_diff(array_keys($query->where), ['deadline']), static fn (string $field): bool => $row[$field] === null)) {
                     $reason = 'missing-predicate-field';
                     $complete = false;
                     continue;

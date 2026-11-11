@@ -121,6 +121,20 @@ final class TaskServerListFilterTest extends TestCase
         self::assertSame([5], array_column($run->json()['data']['items'], 'id'));
     }
 
+    public function testNullDeadlineIsAValueForLocalEqualityOnTheServerRoute(): void
+    {
+        $respond = static fn ($method, $version, array $params): ApiResponse => new ApiResponse(['tasks' => [self::row(6), [...self::row(5), 'deadline' => '2026-11-19T19:00:00+06:00']]], null, 2);
+        [$undated] = $this->invoke('task:list', ['--where', '{"groupId":42,"deadline":""}'], $respond);
+        self::assertSame(0, $undated->status, $undated->stdout . $undated->stderr);
+        self::assertSame([6], array_column($undated->json()['data']['items'], 'id'));
+        self::assertTrue($undated->json()['meta']['complete']);
+
+        [$dated] = $this->invoke('task:list', ['--where', '{"groupId":42,"deadline":"2026-11-19T19:00:00+06:00"}'], $respond);
+        self::assertSame(0, $dated->status, $dated->stdout . $dated->stderr);
+        self::assertSame([5], array_column($dated->json()['data']['items'], 'id'));
+        self::assertTrue($dated->json()['meta']['complete']);
+    }
+
     public function testParticipantRoleReadsMembersOnlyForGroupCandidates(): void
     {
         [$run, $api] = $this->invoke('task:list', ['--role', 'auditor', '--group-id', '42'], static function ($method, $version, array $params): ApiResponse {
