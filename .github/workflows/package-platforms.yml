@@ -47,6 +47,15 @@ jobs:
           build-args: |
             B24CLI_SOURCE_SHA=${{ inputs.source_sha }}
             B24CLI_RELEASE_VERSION=${{ inputs.release_version }}
+      - name: Prepare Bash and zsh acceptance
+        run: |
+          # Documentation acceptance in shell-installer-check.py requires both shells;
+          # ubuntu-24.04 runners do not ship zsh.
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends bash zsh
+          command -v bash
+          command -v zsh
+          zsh --version
       - name: Test without PHP or checkout dependencies
         env:
           SOURCE_SHA: ${{ inputs.source_sha }}
