@@ -6,6 +6,8 @@
 
 - `task:list` и `task:find` без временных флагов передают `--group-id`, `--responsible`, `--role responsible|creator` и одноимённые поля `--where` в серверный фильтр REST 1.0 `tasks.task.list`. Выборка небольшого проекта на портале с десятками тысяч задач стала полной и быстрой, вместо `scan-budget-exhausted` после 10 000 задач. `meta.listRoute` показывает маршрут и серверные условия; `--api-policy strict-rest3` сохраняет прежнюю локальную фильтрацию REST 3.0. Подсказка неполного обхода `task:list` больше не упоминает дубли. [#183](https://github.com/mesilov/bitrix24-cli/issues/183)
 
+- Linux native packaging явно устанавливает Bash и zsh перед приёмкой документированных shell-последовательностей и проверяет их наличие; обязательные проверки `shell-installer-check.py` не ослаблены. Устранён блокер трёхплатформенной intermediate-сборки. [#177](https://github.com/mesilov/bitrix24-cli/issues/177)
+
 - Архивирован OpenSpec change исправления native connection fixture: сохранены причина общего сбоя packaging, ограниченный scope/list контракт и результаты проверки PHAR; повторная native-сборка и live-приёмка отслеживаются отдельно. [#174](https://github.com/mesilov/bitrix24-cli/issues/174)
 
 - Native connection acceptance учитывает проверку scope: fixture обслуживает ограниченную readonly последовательность `scope` → `tasks.task.list`, а smoke проверяет свежий и кэшированный scope для profiles/env/process credentials. Исправлен общий блокер intermediate macOS/Windows/Linux packaging. [#174](https://github.com/mesilov/bitrix24-cli/issues/174)
