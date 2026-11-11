@@ -59,6 +59,11 @@ final readonly class ProfileRepository
             }
 
             $config = json_decode($raw, true, 64, JSON_THROW_ON_ERROR);
+            if (property_exists($object, 'logging')) {
+                // Logging is validated separately and kept as decoded JSON, so invalid values survive profile writes unchanged.
+                $config['logging'] = $object->logging;
+            }
+
             $this->validate($config);
             return $config;
         } catch (\Throwable) {
@@ -151,7 +156,7 @@ final readonly class ProfileRepository
 
     private function validate(array $config): void
     {
-        if (array_diff(array_keys($config), ['version', 'defaultProfile', 'profiles', 'telemetry']) !== [] || ($config['version'] ?? null) !== 1 || !array_key_exists('defaultProfile', $config) || !is_array($config['profiles'] ?? null)) {
+        if (array_diff(array_keys($config), ['version', 'defaultProfile', 'profiles', 'telemetry', 'logging']) !== [] || ($config['version'] ?? null) !== 1 || !array_key_exists('defaultProfile', $config) || !is_array($config['profiles'] ?? null)) {
             throw new \RuntimeException();
         }
 

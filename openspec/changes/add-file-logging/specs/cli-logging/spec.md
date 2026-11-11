@@ -132,15 +132,15 @@ CLI SHALL записывать на уровне `info` начало и заве
 - **THEN** запись о вызове содержит длину содержимого файла, но не само содержимое, и её размер не больше 64 KiB
 
 ### Requirement: Secrets never logged
-CLI MUST маскировать в сообщениях и контексте любого уровня: полный webhook, его токен, значения ключей, имя которых без учёта регистра содержит `auth`, `password`, `secret`, `token` или `webhook`, и содержимое credential files.
+CLI MUST маскировать в сообщениях и контексте любого уровня: полный webhook, его токен, токен в пути `/rest/{userId}/{token}/`, содержимое credential files и значения ключей, имя которых после разбиения на слова (camelCase, snake_case, kebab-case) без учёта регистра содержит слово `auth`, `password`, `secret`, `token` или `webhook`.
 
 #### Scenario: Webhook in SDK response info
 - **WHEN** уровень `debug` и SDK пишет URL запроса с токеном вебхука
 - **THEN** файл содержит `[redacted]` вместо токена, а полный webhook и токен в файле не встречаются
 
 #### Scenario: Token-like key
-- **WHEN** контекст записи содержит ключи `access_token` и `refreshToken`
-- **THEN** их значения заменены на `[redacted]`
+- **WHEN** контекст записи содержит ключи `access_token`, `refreshToken` и `authorId`
+- **THEN** значения `access_token` и `refreshToken` заменены на `[redacted]`, а `authorId` сохраняется
 
 ### Requirement: Logging does not change command output
 Лог MUST NOT выводиться в stdout. Ошибка создания каталога, записи или удаления файла MUST NOT менять результат, stdout и код выхода команды. В stderr допускается не больше одного предупреждения о логировании за запуск.

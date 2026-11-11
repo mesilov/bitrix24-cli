@@ -184,6 +184,10 @@ final readonly class ResultPresenter
         }
 
         $columns = self::COLUMNS[$result->profile] ?? ['field', 'value'];
+        if ($result->profile === 'connections' && array_any($result->data['items'] ?? [], static fn (array $item): bool => array_key_exists('logging', $item))) {
+            $columns[] = 'logging';
+        }
+
         if ($result->profile === 'template-mutation' && array_key_exists('visibleAfter', $result->data['operation'] ?? [])) {
             $columns[] = 'visibleAfter';
         }

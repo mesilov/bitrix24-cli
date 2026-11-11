@@ -46,9 +46,9 @@
 
 Новый `LoggingSettingsReader` берёт каталог через `ConnectionManager::directory()` и читает только `config.json` этого каталога: без lock, без credentials и без изменения выбора подключения. Ошибка чтения или JSON даёт статус `invalid`. Отсутствие файла даёт `disabled`. Профильные defaults не применяются.
 
-### Логгер создаётся после разбора глобальных опций
+### Логгер включается в `B24Application::run()`
 
-Подписчик `ConsoleEvents::COMMAND` получает уже разобранные `--config-dir` и включает реальный handler в общем логгере. До этого момента общий логгер — Monolog без handler, записи отбрасываются. Команды `help`, `list`, `--version` и completion исключаются по имени команды, поэтому файлы не создаются. Ошибки `Launcher` до создания приложения в лог не попадают.
+`B24Application` не использует диспетчер событий Symfony и сам перехватывает исключения в `run()`, поэтому жизненный цикл пишется там, а не подписчиком `ConsoleEvents`. Так покрываются все команды, включая `connection:*` и `doctor:*`, и все пути отказа. `run()` определяет имя известной команды, берёт `--config-dir` из сырого ввода и вызывает `LoggingRuntime::activate()`. До этого `LoggingRuntime` — два Monolog-логгера (`cli` и `sdk`) без handler, записи отбрасываются. SDK получает отдельный экземпляр `sdk`, а не `withName()`: клон не увидел бы handler, добавленный позже. Команды `help`, `list`, completion и запуски с `--help`, `--version`, `--about` не включают логирование. Неизвестное имя команды не пишется: оно может содержать данные пользователя. Ошибки `Launcher` до создания приложения в лог не попадают.
 
 ### Суточный handler по маске и хранение по дням
 
@@ -62,16 +62,15 @@
 
 Processors применяются в таком порядке:
 
-1. `SdkSummaryProcessor` на уровнях выше `debug` заменяет контекст записей `getResponse.start` и `getResponse.end` сводкой `apiMethod`, `requestId`, HTTP-статус, длительность. Решение о сокращении зависит от настроенного `logging.level`, а не от уровня записи: при `level=info` запись `getResponse.start` уровня `info` теряет `parameters`.
-2. `SizeLimitProcessor` обрезает строки длиннее 4096 байт с пометкой `…[truncated N bytes]`, заменяет base64-подобные значения длиннее 256 байт и бинарные строки на `[binary N bytes]`, ограничивает глубину и запись 64 KiB.
-3. `SecretRedactingProcessor` заменяет webhook и токен текущего и всех прежних поколений `RuntimeState` и значения ключей, содержащих `auth`, `password`, `secret`, `token`, `webhook` без учёта регистра, на `[redacted]`.
-4. `RunIdProcessor` добавляет `runId` (UUID v4 на процесс).
+1. `SdkSummaryProcessor` (только канал `sdk`, только при `logging.level` выше `debug`) заменяет контекст `getResponse.start` и `getResponse.end` сводкой: `apiMethod`, `apiVersion`, `requestId`, HTTP-статус и длительность, измеренная между start и end. У остальных записей SDK удаляются ключи с параметрами, телами, заголовками, `responseInfo`, `url` и `trace`, а составные значения заменяются на `[omitted]`. Решение зависит от настроенного уровня, а не от уровня записи: при `level=info` запись `getResponse.start` уровня `info` теряет `parameters`.
+2. `SecretRedactingProcessor` заменяет на `[redacted]` все webhook и токены, которые `B24ClientProvider` зарегистрировал за процесс, токен в любом пути `/rest/{userId}/{token}/` и значения ключей, в имени которых есть слово `auth`, `password`, `secret`, `token` или `webhook`. Имя разбивается на слова по camelCase, snake_case и kebab-case, поэтому `authorId` не маскируется. Маскирование идёт до обрезки, чтобы обрезка не оставила часть токена.
+3. `SizeLimitProcessor` обрезает строки длиннее 4096 байт с пометкой `…[truncated N bytes]`, заменяет base64-подобные значения от 256 байт на `[base64 N bytes]`, бинарные строки на `[binary N bytes]`, ограничивает глубину 8 уровнями и 200 элементами.
 
-Формат — Monolog `JsonFormatter` в режиме одной строки.
+Формат — собственный `JsonLinesFormatter`: одна строка с полями `datetime`, `level`, `channel`, `message`, `context`, `runId` (UUID v4 на процесс). Если строка больше 64 KiB, контекст заменяется на `{truncated, originalBytes}`. Monolog `JsonFormatter` не подошёл: у него другой набор полей.
 
 ### Жизненный цикл команды
 
-Подписчик на `ConsoleEvents::COMMAND`, `TERMINATE` и `ERROR` пишет начало, завершение с кодом выхода и длительностью и необработанные ошибки. Пишется только имя команды. Сообщение исключения проходит через те же processors.
+`B24Application::run()` пишет `command.start`, `command.finish` с кодом выхода и длительностью и `command.error` для исключений. Пишется только имя команды. Для ошибки пишутся код ошибки CLI, класс исключения и публичное сообщение `Failure`, но не исходное сообщение исключения: оно может содержать аргументы или данные портала.
 
 ### Ошибки записи и предупреждения
 
@@ -79,7 +78,7 @@ Handler и reader перехватывают все исключения. Пер
 
 ### `connection:show`
 
-Команда добавляет блок `logging` с эффективными значениями, абсолютными путями каталога и файла текущих суток и статусом из `LoggingSettings::effective()`. Блок вычисляется без создания каталога.
+Команда добавляет блок `logging` с эффективными значениями, абсолютными путями каталога и файла текущих суток и статусом из `LoggingSettings::effective()`. Блок вычисляется через `LoggingSettingsReader` без создания каталога. В human и plain режимах колонка `logging` появляется только у `connection:show`, вывод `connection:list` не меняется.
 
 ### Права доступа
 

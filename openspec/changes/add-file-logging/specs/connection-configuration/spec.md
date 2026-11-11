@@ -46,7 +46,7 @@ Profile mutations и doctor telemetry updates MUST сохранять сущес
 - **THEN** logging после записи совпадает с исходным
 
 ### Requirement: Effective logging in connection:show
-connection:show SHALL показывать блок logging: эффективные значения пяти полей, абсолютный путь каталога и файла текущих суток и статус `ok`, `disabled` или `invalid` с причиной. Команда MUST оставаться локальной и MUST NOT создавать каталог логов.
+connection:show SHALL показывать блок logging: эффективные значения пяти полей, абсолютный путь каталога и файла текущих суток и статус `ok`, `disabled` или `invalid` с причиной. Команда MUST оставаться локальной; вычисление блока MUST NOT создавать каталог логов. При enabled=true команда пишет свои записи жизненного цикла, как любая другая.
 
 #### Scenario: Enabled logging shown
 - **WHEN** logging.enabled=true и выполняется `connection:show --json`

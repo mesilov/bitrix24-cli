@@ -31,6 +31,8 @@ def main() -> int:
             additional_runtime_checks += 1
             if not case.get("reason"):
                 failures.append(f"{name}: unexplained schema/runtime difference")
+        if "loggingValid" in case and case["loggingValid"] != case["schemaValid"]:
+            failures.append(f"{name}: logging runtime validity must match the schema")
         config = json.loads(case["json"])
         errors = list(validator.iter_errors(config))
         if (not errors) != case["schemaValid"]:

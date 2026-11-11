@@ -21,7 +21,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 final class B24Application extends Application
 {
-    public function __construct(private readonly ResultPresenter $presenter, private readonly RuntimeState $state)
+    private const UNLOGGED_COMMANDS = ['list', 'help', 'completion', '_complete'];
+
+    public function __construct(private readonly ResultPresenter $presenter, private readonly RuntimeState $state, private readonly ?\Bitrix24\CLI\Infrastructure\Logging\LoggingRuntime $logging = null)
     {
         parent::__construct('b24cli', BuildVersion::version());
         $this->setAutoExit(false);
@@ -158,6 +160,52 @@ final class B24Application extends Application
             }
         }
 
+        $logged = $this->loggedCommand($input);
+        $started = hrtime(true);
+        if ($logged !== null && $this->logging instanceof \Bitrix24\CLI\Infrastructure\Logging\LoggingRuntime) {
+            $configDirectory = $input->getParameterOption('--config-dir', null, true);
+            $this->logging->activate(is_string($configDirectory) ? $configDirectory : null, fn (string $message) => $this->presenter->diagnostic($output, $message));
+            $this->logging->logger()->info('command.start', ['command' => $logged]);
+        }
+
+        $status = $this->execute($input, $output, $logged);
+        if ($logged !== null) {
+            $this->logging?->logger()->info('command.finish', ['command' => $logged, 'exitCode' => $status, 'durationMs' => intdiv(hrtime(true) - $started, 1_000_000)]);
+            $this->logging?->close();
+        }
+
+        return $status;
+    }
+
+    /**
+     * Name of a known command whose lifecycle is logged; help, list, version and completion never read configuration for logging.
+     * Unknown input is never logged, because it may contain user data.
+     */
+    private function loggedCommand(InputInterface $input): ?string
+    {
+        if ($input->hasParameterOption(['--help', '-h', '--version', '-V', '--about'], true)) {
+            return null;
+        }
+
+        try {
+            $probe = clone $input;
+            try {
+                $probe->bind($this->getDefinition());
+            } catch (\Throwable) {
+                // Command-specific options are unknown to the application definition; the bound part still finds the name.
+            }
+
+            $name = $probe->getFirstArgument();
+            $command = $name === null ? null : parent::find($name)->getName();
+        } catch (\Throwable) {
+            return null;
+        }
+
+        return $command === null || in_array($command, self::UNLOGGED_COMMANDS, true) ? null : $command;
+    }
+
+    private function execute(InputInterface $input, OutputInterface $output, ?string $logged): int
+    {
         try {
             return parent::run($input, $output);
         } catch (\Throwable $exception) {
@@ -174,6 +222,11 @@ final class B24Application extends Application
                 : new Failure('configuration-error', 'The CLI could not complete this operation; check configuration.'));
             if ($exception instanceof Failure && $exception->errorCode === 'usage-error' && $command instanceof \Symfony\Component\Console\Command\Command) {
                 $failure = new Failure($exception->errorCode, $exception->getMessage() . ' ' . TaskUsage::advice($command), $exception->exitStatus, $exception->details, $exception->outcomeUnknown);
+            }
+
+            if ($logged !== null) {
+                // Only the public failure is logged; raw exception messages may contain arguments or portal data.
+                $this->logging?->logger()->error('command.error', ['command' => $logged, 'errorCode' => $failure->errorCode, 'exception' => $exception::class, 'message' => $failure->getMessage()]);
             }
 
             $mode = $input->hasParameterOption('--json', true) ? 'json' : ($input->hasParameterOption('--plain', true) ? 'plain' : 'human');
