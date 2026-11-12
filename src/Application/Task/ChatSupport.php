@@ -46,6 +46,12 @@ final readonly class ChatSupport
         $reason = null;
         $complete = true;
         $hasMore = false;
+        if ($before === null && $after === null) {
+            // Without LAST_ID im.dialog.messages.get returns the window of the first unread
+            // message, not the latest messages; start from the latest message instead.
+            $before = $this->chat->lastMessageId($chatId) + 1;
+        }
+
         do {
             $pageLimit = min(50, $budget - $scanned, $limit === null ? 50 : max(1, $limit - count($items)));
             try {
