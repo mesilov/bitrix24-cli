@@ -44,6 +44,8 @@
 
 ### Изменено
 
+- Архивирован OpenSpec change серверных фильтров `task:list` после merge MR #210 в `dev`: требования о серверном `REAL_STATUS`, окнах `--created-window`/`--changed-window` и сообщениях локального обхода в stderr перенесены в `openspec/specs/cli-experience/`, `task-deadline-windows/` и `task-console-runtime/`; change лежит в `openspec/changes/archive/2026-11-12-extend-task-list-server-filters/`. Перевод новых окон в skill задач остаётся открытой задачей 6.4 до выпуска флагов. [#186](https://github.com/mesilov/bitrix24-cli/issues/186)
+
 - Архивирован OpenSpec change исправления окна непрочитанных в `task:chat:list` после merge MR #203 в `dev`: требование «Task chat history starts from the latest message» перенесено в `openspec/specs/task-console-runtime/`, change лежит в `openspec/changes/archive/2026-11-12-fix-task-chat-unread-window/`. [#202](https://github.com/mesilov/bitrix24-cli/issues/202)
 
 - Архивирован OpenSpec change обязательной метки типа при назначении issue в milestone после merge MR #206 в `dev`; delta specs нет, актуальные спецификации не менялись. [#205](https://github.com/mesilov/bitrix24-cli/issues/205)
