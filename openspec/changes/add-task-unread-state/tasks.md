@@ -1,0 +1,41 @@
+# Tasks
+
+Результаты уже выполненного исследования находятся в [research.md](research.md). Ниже — будущая реализация; наличие плана не означает выполнение этих задач.
+
+## 1. Подтверждённый контракт снимка и адаптер
+
+- [x] 1.1 Сверить эффективный docs MCP и снять минимальную raw-форму разделов снимка без записи на портал; сохранить обезличенные формы и provenance в research. Проверка: research фиксирует MCP-ответы по точным именам, типы TASKS_TASK/CHAT_MUTED/TASKS_TASK_UNREAD второго портала (только чтение, без ID) и REST1/REST3 chatId; helper boolean не выдан за wire-форму.
+- [ ] 1.1.1 На удаляемой fixture снять непустую raw-форму TASKS_TASK_UNREAD в manual-only и manual+counter состояниях, readback cleanup. Проверка: фикстуры показывают точный тип членства, manual-only имеет counter=0, fixture удалена. Не выполнено: в окружении реализации нет playground-подключения, установка метки на рабочем портале — запись; парсер до этого принимает только список chat ID, иное — null/partial.
+- [x] 1.2 Добавить application port/тип снимка и REST1 im.counters.get adapter с DI, отдельными numeric/manual completeness и observedAt; закрепить adapter tests подтверждённых TASKS_TASK/CHAT_MUTED/ручной формы, пустого object/array и ID normalization. Проверка: целевые unit tests проходят, ответ не смешивает пользователей и не содержит посторонние raw-разделы.
+- [x] 1.3 Реализовать строгие unknown/conflict и лимит 10 000 релевантных записей; добавить тесты отсутствующих разделов, boolean/string/negative counters, неверных/переполненных ID, равных/конфликтующих дублей и превышения лимита. Проверка: нет приведения unknown к нулю, причина и независимая полнота воспроизводимы, подтверждённые значения не удваиваются; research описывает ровно поддерживаемые формы.
+
+## 2. `task:list --unread` целиком
+
+- [x] 2.1 Добавить boolean-флаг только в ListTaskCommand, явно провести его через input mapper/request/TaskQuery к handler без чтения неизвестной option в task:find/task:my. Проверка: command tests принимают --unread у списка, отклоняют у find/my с exit2 до API; обычный query остаётся прежним.
+- [x] 2.2 Объявить im.counters.get read-route в CommandCatalog и im mapping в ScopeManifest; выбирать mixed plan в ListTasksHandler только для флага. Проверка: policy/scope tests покрывают strict-rest3 до credentials/API даже при пустой выборке, отсутствие im, обычный список без im, temporal и participant routes; docs/connection-scopes.md отражает opt-in зависимость.
+- [x] 2.3 Добавить opt-in chatId select и CHAT_ID в temporal adapter, переиспользовать проверку task→chat для отсутствующей связи; не выполнять повторные чтения уже подтверждённых задач. Проверка: unit/integration tests различают валидный scalar, chat=null, missing/malformed и неверную entity-связь; fallback task get вызывается только после обычных критериев и в пределах task scan.
+- [x] 2.4 Встроить один снимок и соединение TASKS_TASK/CHAT_MUTED до добавления совпадений и лимита; сохранить текущие AND-предикаты, роль/статус/temporal/sort и счётчики обхода. Проверка: ListTaskCommandTest покрывает прочитанные первые страницы при --limit 1, mute, посторонний muted-чат, system/own/read-without-reply fixtures, все обычные фильтры и один IM-запрос на несколько страниц; im.dialog.get/recent/history не вызываются.
+- [x] 2.5 Возвращать chatState.chatId/counter/manuallyMarkedUnread и meta.unreadState, сохраняя отдельно primary scan reason и все причины unread. Проверка: тесты manual-only exclusion, manual+counter, null manual state, missing numeric schema, unknown association и обоих бюджетов дают предусмотренные JSON/partial/exit3; API errors и Ctrl-C сохраняют существующие коды, повторный запуск/другое подключение получает новый снимок.
+- [x] 2.6 Добавить human-представление счётчика и ручной метки при неизменных шести TSV-колонках и schemaVersion 1. Проверка: snapshots/assertions JSON/human/plain, неизвестной метки, stderr partial и --select сохраняют заданный контракт; обычный список не получает chatState или дополнительных запросов.
+- [x] 2.7 Обновить help/completion, docs/task-usage.md и docs/cli-command-map.md: --unread с явными статусом/ролью при необходимости, серверная семантика, mute, ручная метка, --json для новых полей, scope и partial. Проверка: offline help/completion и cli-reference-check проходят, примеры согласованы с допустимыми комбинациями флагов и не обещают совпадение с UI.
+- [x] 2.8 Обновить docs/task-jtbd.md для PM-06/AM-06/EMP-07 и CHANGELOG.md со ссылкой #148; описать состояние реализации и границу live proof отдельно. Проверка: канонические JTBD IDs сохранены, ссылки на тесты существуют, запись changelog отражает итоговый контракт, а не только добавление документации.
+
+## 3. `unread` в `task:chat:list`
+
+- [x] 3.1 Сохранить точный boolean unread в TaskChatAdapter и добавить unit tests true/false/missing/null/string без эвристики автора/текста. Проверка: существующие id/authorId/text/createdDate/chatId сохранены, неполное значение становится null и передаёт признак неполноты.
+- [x] 3.2 Провести unknown через Page/ChatSupport/service к OperationResult, сохраняя контент, before/after/limit/hasMore и причины partial. Проверка: ListTaskChatCommandTest покрывает смешанное окно true/false/null, exit3 для unknown, прежние API/policy/cancellation failures и отсутствие утверждения о всём чате по выбранному окну.
+- [x] 3.3 Показать три состояния в human, сохранить TSV-колонки истории (после #208 — шесть) и добавить поле JSON; обновить help и раздел истории в docs/task-usage.md/cli-command-map.md. Проверка: renderer/command tests различают true/false/null, JSON additive/schemaVersion 1 и plain совместимы; offline help указывает --json и отсутствие read acknowledgement.
+
+## 4. Совместная проверка реализации
+
+- [ ] 4.1 Выполнить портал acceptance двух команд на новых удаляемых fixtures с двумя подключениями: plain/mention/mute, read без ответа, own/system, manual-only/manual+counter, unread true/false, before/after и снимки до/после CLI-чтения. Проверка: сохранить обезличенные команды/ответы/коды и cleanup readback, подтвердить отсутствие сброса счётчиков/метки/mute, различие UI/API указать явно.
+- [ ] 4.2 Проверить доступ ограниченной роли и отказ/отсутствие im отдельным подключением при его наличии. Проверка: evidence фиксирует actual actor/права и результаты; если нужных credentials нет, явно оставить непроверенную границу, не выдавая admin-прогоны за denied-role acceptance.
+- [ ] 4.3 Проверить количество запросов на многостраничной fixture и повторные запуски. Проверка: ровно один im.counters.get за запуск, ноль im.dialog.get и history requests для фильтра, нет task get для валидных chatId; wall time и объём данных записаны как ограниченный замер без универсальных обещаний скорости.
+- [x] 4.4 Запустить make unit, make check, make lint-all и make cli-reference-check в изолированном окружении репозитория; проверить git diff --check. Проверка: unit 1225 tests OK (включая TaskUnreadStateTest и тест scope gate), check/lint-all/cli-reference-check — exit 0, diff --check чист.
+- [ ] 4.4.1 Запустить make integration (live) с playground-подключением, включая новые read-only кейсы ListTaskCommandTest::testUnreadJoinsOneCounterSnapshotWithTheSelectedTask и проверку unread в ListTaskChatCommandTest. Не выполнено: нет BITRIX24_PHP_SDK_PLAYGROUND_WEBHOOK в окружении реализации.
+- [x] 4.5 Выполнить openspec-verify-change и openspec validate add-task-unread-state --strict --no-interactive, сопоставить все четыре delta spec с кодом/тестами/evidence и актуализировать задачи по фактам. Проверка: validate — valid; каждое ADDED/MODIFIED требование сопоставлено с кодом и unit-тестом (TaskUnreadStateTest, ScopeValidationCommandTest, ScopeManifestAndStateTest, TaskChat*), включая temporal/strict/scope/find/my и неизменность обычного списка. Ready-for-archive не заявляется: открыты 1.1.1, 4.1–4.3 и 4.4.1 (портальная приёмка).
+
+## Workflow follow-up
+
+- После реализации и review подготовить PR в dev по maintainer workflow; CI и поставку подтверждать отдельно от локальных проверок.
+- После завершения реализации и проверки соответствия архивировать change через openspec-archive-change, обновить путь в #148 на архивный и проверить двухстороннюю трассировку. Эти действия не входят в текущую подготовку плана.

@@ -33,7 +33,7 @@ final class FixturePortal
             'tasks.task.field.get' => new ApiResponse(['item' => ['name' => $params['name'], 'type' => 'integer', 'editable' => false, 'filterable' => true, 'sortable' => true]]),
             'tasks.task.access.get' => new ApiResponse(['read' => true, 'edit' => false, 'delete' => null]),
             'im.dialog.get' => new ApiResponse(['id' => 456, 'dialog_id' => 'chat456', 'type' => 'tasksTask', 'entity_type' => 'TASKS_TASK', 'entity_id' => '123', 'last_message_id' => 900]),
-            'im.dialog.messages.get' => new ApiResponse(['chat_id' => 456, 'messages' => [['id' => 900, 'chat_id' => 456, 'author_id' => 2, 'text' => 'Original', 'date' => '2026-10-09T12:00:00+06:00']]]),
+            'im.dialog.messages.get' => new ApiResponse(['chat_id' => 456, 'messages' => [['id' => 900, 'chat_id' => 456, 'author_id' => 2, 'text' => 'Original', 'date' => '2026-10-09T12:00:00+06:00', 'unread' => false]]]),
             'task.elapseditem.add' => new ApiResponse([30]),
             'task.elapseditem.getlist' => new ApiResponse([['ID' => '30', 'TASK_ID' => '123', 'USER_ID' => '2', 'SECONDS' => '60', 'COMMENT_TEXT' => 'Original', 'CREATED_DATE' => '2026-10-09T12:00:00+06:00']], null, 1),
             'task.checklistitem.getlist' => new ApiResponse($this->nodes),
