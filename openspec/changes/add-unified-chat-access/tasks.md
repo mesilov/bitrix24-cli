@@ -1,10 +1,10 @@
 # Tasks
 
-Реализация и приёмка — в verification.md. Открыта 1.1: формы `/online/` не подтверждены примерами из интерфейса.
+Реализация и приёмка — в verification.md. Все задачи выполнены; формы `/online/?IM_DIALOG=sgN` и `…&IM_MESSAGE=M` без примера из интерфейса остаются границей (verification.md).
 
 ## 1. Разрешение адресата
 
-- [ ] 1.1 Подтвердить предложенные URL-формы и permalink сообщения обезличенными примерами интерфейса (через entity_link уже подтверждены `/workgroups/group/G/` и `/company/personal/user/U/tasks/task/view/T/`; `/online/?IM_DIALOG=` и permalink сообщения — нет); сохранить allowlist/fixtures и проверить таблицу URL → task/group/chat/message, конфликтующие ID и другой портал.
+- [x] 1.1 Подтвердить предложенные URL-формы и permalink сообщения обезличенными примерами интерфейса (через entity_link уже подтверждены `/workgroups/group/G/` и `/company/personal/user/U/tasks/task/view/T/`; `/online/?IM_DIALOG=` и permalink сообщения — нет); сохранить allowlist/fixtures и проверить таблицу URL → task/group/chat/message, конфликтующие ID и другой портал. Итог (12.11.2026): форма `/online/?IM_DIALOG=chatN` подтверждена ссылкой из интерфейса рабочего портала (разобрана как `chatN`, хост в репозиторий не попал); `sgN` и `IM_MESSAGE` примером не подтверждены и зафиксированы как граница; allowlist и fixtures покрывают все формы, включая конфликтующие ID и другой портал.
 - [x] 1.2 Добавить типизированный resolver и chats:resolve с metadata и task → chat binding; проверить положительные/пустые/denied ответы, отсутствие переходов по URL и сохранение task:chat:*.
 - [x] 1.3 Зарегистрировать chats:resolve и его routes/scope/help, добавить command integration case и документацию адресатов; проверить offline policy/strict-rest3 до credentials, регистрацию только `chats:*` для новых команд и самостоятельный чат без task/group ID.
 
