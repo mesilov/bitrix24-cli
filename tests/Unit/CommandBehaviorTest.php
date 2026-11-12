@@ -48,6 +48,13 @@ final class CommandBehaviorTest extends TestCase
             ['task:list', '--select', 'unknown'], ['task:list', '--order', 'chat:asc'],
             ['task:chat:list', '123', '--before', '1', '--after', '2'],
             ['task:chat:send', '123', '--text', ''], ['task:time:add', '123', '--seconds', '0'],
+            ['task:time:add', '123', '--seconds', '60', '--created-date', '2026-10-22T10:00:00'],
+            ['task:time:add', '123', '--seconds', '60', '--created-date', '2026-02-30T10:00:00+03:00'],
+            ['task:time:add', '123', '--seconds', '60', '--created-date', '2026-10-22'],
+            ['task:time:add', '123', '--seconds', '60', '--created-date', 'yesterday'],
+            ['task:time:add', '123', '--seconds', '60', '--created-date', ''],
+            ['task:time:update', '123', '--entry', '30', '--seconds', '60', '--created-date', 'not-a-date'],
+            ['task:time:update', '123', '--entry', '30', '--created-date', '2026-10-22T10:00:00+03:00'],
             ['task:time:list', '123', '--params', '{"filter":{"TASK_ID":999}}'],
             ['task:time:list', '123', '--params', '{"select":[["ID"]]}'],
             ['task:time:list', '123', '--params', '{"filter":{"SECONDS":10}}'],
@@ -113,6 +120,32 @@ final class CommandBehaviorTest extends TestCase
         $run = ConsoleHarness::run($app, ['task:update', '123', '--fields', '{"responsibleId":2}', '--json']);
         self::assertSame(0, $run->status);
         self::assertSame(['tasks.task.update'], array_column($fakeApiTransport->calls, 'method'));
+    }
+
+    public function testDatedTimeEntryShowsCreatedDateInPlanAndChangedFields(): void
+    {
+        $fixturePortal = new FixturePortal();
+        $fakeApiTransport = new FakeApiTransport($fixturePortal->respond(...));
+        $app = (new ApplicationFactory())->create(dirname(__DIR__, 2), $fakeApiTransport);
+        $run = ConsoleHarness::run($app, ['task:time:add', '123', '--seconds', '600', '--created-date', '2026-10-22T10:00:00+03:00', '--dry-run', '--json']);
+        self::assertSame(0, $run->status, $run->stdout . $run->stderr);
+        self::assertSame([], $fakeApiTransport->calls);
+        $json = $run->json();
+        self::assertTrue($json['meta']['dryRun']);
+        self::assertSame(['seconds' => 600, 'createdDate' => '2026-10-22T10:00:00+03:00'], $json['data']['plan']['steps'][0]['fields']);
+        $run = ConsoleHarness::run($app, ['task:time:add', '123', '--seconds', '600', '--created-date', '2026-10-22T10:00:00+03:00', '--json']);
+        self::assertSame(0, $run->status, $run->stdout . $run->stderr);
+        self::assertSame(['seconds', 'createdDate'], $run->json()['data']['operation']['changedFields']);
+        $run = ConsoleHarness::run($app, ['task:time:add', '123', '--seconds', '600', '--json']);
+        self::assertSame(['seconds'], $run->json()['data']['operation']['changedFields']);
+        $calls = count($fakeApiTransport->calls);
+        foreach ([['task:time:add', '123', '--seconds', '600'], ['task:time:update', '123', '--entry', '30', '--seconds', '600']] as $argv) {
+            $run = ConsoleHarness::run($app, [...$argv, '--created-date', '2026-10-22T10:00:00+03:00', '--api-policy', 'strict-rest3', '--json']);
+            self::assertSame(4, $run->status, $run->stdout . $run->stderr);
+            self::assertSame('policy-denied', $run->json()['error']['code']);
+        }
+
+        self::assertCount($calls, $fakeApiTransport->calls);
     }
 
     public function testStdinMayNotFeedBothConfigAndFields(): void

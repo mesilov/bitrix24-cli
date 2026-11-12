@@ -285,6 +285,8 @@ ID, имена профилей и тексты в примерах замени
 | `task:time:show` | Показать контекст учёта времени | `b24cli task:time:show 123` |
 | `task:time:update` | Исправить запись времени | `b24cli task:time:update 123 --entry 30 --seconds 1800 --dry-run` |
 
+Дату записи задаёт `--created-date` у `task:time:add` и `task:time:update`: ISO 8601 с часовым поясом, в прошлом или будущем, например `b24cli task:time:add 123 --seconds 3600 --created-date 2026-10-22T10:00:00+03:00`. Без флага `task:time:add` датирует запись моментом вызова, а `task:time:update` сохраняет прежнюю дату; `--seconds` у `task:time:update` обязателен.
+
 ### Диагностика агента
 
 | Команда | Назначение | Пример |
