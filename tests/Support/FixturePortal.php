@@ -26,7 +26,9 @@ final class FixturePortal
             'tasks.task.result.update' => new ApiResponse(['item' => [...$this->result, ...$params['fields']]]),
             'tasks.task.add' => new ApiResponse(['item' => ['id' => 124, ...$params['fields']]]),
             'tasks.task.get' => new ApiResponse($version === 3 ? ['item' => $this->task] : ['task' => ['id' => '123', 'auditors' => [], 'accomplices' => []]]),
-            'tasks.task.list' => new ApiResponse(['items' => [['id' => 123, 'title' => $this->task['title'], 'responsibleId' => 2, 'groupId' => null, 'status' => 'pending', 'deadline' => null]]]),
+            'tasks.task.list' => $version === 1
+                ? new ApiResponse(['tasks' => [['id' => '123', 'title' => $this->task['title'], 'responsibleId' => '2', 'createdBy' => '1', 'groupId' => '0', 'status' => '2', 'deadline' => '']]], null, 1)
+                : new ApiResponse(['items' => [['id' => 123, 'title' => $this->task['title'], 'responsibleId' => 2, 'groupId' => null, 'status' => 'pending', 'deadline' => null]]]),
             'tasks.task.field.list' => new ApiResponse(['items' => [['name' => 'title', 'type' => 'string', 'editable' => true, 'filterable' => false, 'sortable' => true], ['name' => 'id', 'type' => 'integer', 'editable' => false, 'filterable' => true, 'sortable' => true]]]),
             'tasks.task.field.get' => new ApiResponse(['item' => ['name' => $params['name'], 'type' => 'integer', 'editable' => false, 'filterable' => true, 'sortable' => true]]),
             'tasks.task.access.get' => new ApiResponse(['read' => true, 'edit' => false, 'delete' => null]),

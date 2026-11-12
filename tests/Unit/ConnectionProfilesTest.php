@@ -101,7 +101,12 @@ final class ConnectionProfilesTest extends TestCase
         putenv('BITRIX24_WEBHOOK=https://ambient.invalid/rest/2/AmbientFixtureSecret/');
         $path = $this->directory . '/explicit.env';
         file_put_contents($path, "BITRIX24_WEBHOOK=https://file.invalid/rest/8/FileFixtureSecret/\n");
-        $fakeApiTransport = new FakeApiTransport(static fn (): \Bitrix24\CLI\Infrastructure\Bitrix24\ApiResponse => new \Bitrix24\CLI\Infrastructure\Bitrix24\ApiResponse(['items' => array_map(static fn (int $id): array => ['id' => $id, 'title' => 'task', 'responsibleId' => $id], [2, 7, 8, 9])]));
+        $fakeApiTransport = new FakeApiTransport(static function (string $method, int $version, array $params): \Bitrix24\CLI\Infrastructure\Bitrix24\ApiResponse {
+            self::assertSame(1, $version);
+            $filter = (array) $params['filter'];
+            $rows = array_map(static fn (int $id): array => ['id' => (string) $id, 'title' => 'task', 'responsibleId' => (string) $id, 'groupId' => '0', 'status' => '2', 'deadline' => ''], [2, 7, 8, 9]);
+            return new \Bitrix24\CLI\Infrastructure\Bitrix24\ApiResponse(['tasks' => array_values(array_filter($rows, static fn (array $row): bool => (int) $row['responsibleId'] === $filter['RESPONSIBLE_ID']))], null, 1);
+        });
         $app = (new ApplicationFactory())->create(dirname(__DIR__, 2), $fakeApiTransport, packaged: true);
         foreach ([[['--profile', 'work'], 7], [['--env-file', $path], 8], [[], 2]] as [$options, $id]) {
             $run = ConsoleHarness::run($app, ['--json', 'task:list', '--role', 'responsible', ...$options]);

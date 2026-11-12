@@ -24,7 +24,8 @@ final class CommandContractsTest extends TestCase
         yield 'add' => [['task:add', '--title', 'New task', '--creator', '1', '--responsible', '2'], 'tasks.task.add', 3, ['fields' => ['title' => 'New task', 'creatorId' => 1, 'responsibleId' => 2, 'allowsTimeTracking' => false]]];
         yield 'show' => [['task:show', '123'], 'tasks.task.get', 3, null];
         yield 'my' => [['task:my', '--user', '2'], 'tasks.task.list', 3, null];
-        yield 'list' => [['task:list', '--responsible', '2'], 'tasks.task.list', 3, null];
+        yield 'list' => [['task:list', '--responsible', '2'], 'tasks.task.list', 1, ['filter' => (object) ['RESPONSIBLE_ID' => 2], 'select' => ['ID', 'TITLE', 'RESPONSIBLE_ID', 'GROUP_ID', 'STATUS', 'DEADLINE'], 'order' => (object) ['ID' => 'DESC'], 'start' => 0]];
+        yield 'list local' => [['task:list', '--status', 'pending'], 'tasks.task.list', 3, null];
         yield 'find' => [['task:find', '--title', 'ДОГОВОР'], 'tasks.task.list', 3, null];
         yield 'update' => [['task:update', '123', '--title', 'Changed'], 'tasks.task.update', 3, ['id' => 123, 'fields' => ['title' => 'Changed']]];
         yield 'delete' => [['task:delete', '123', '--force'], 'tasks.task.delete', 3, ['id' => 123]];

@@ -884,6 +884,240 @@
       "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"telemetry\":{\"lastProblemTrajectoryProcessingAt\":\"0000-01-01T00:00:00Z\"}}",
       "schemaValid": false,
       "runtimeValid": false
+    },
+    {
+      "name": "empty logging",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{}}",
+      "schemaValid": true,
+      "runtimeValid": true,
+      "loggingValid": true
+    },
+    {
+      "name": "partial logging enabled",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"enabled\":true}}",
+      "schemaValid": true,
+      "runtimeValid": true,
+      "loggingValid": true
+    },
+    {
+      "name": "complete logging",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"enabled\":true,\"level\":\"debug\",\"directory\":\"/var/log/b24cli\",\"fileMask\":\"b24cli-{YYYY}-{MM}-{DD}.log\",\"retentionDays\":7}}",
+      "schemaValid": true,
+      "runtimeValid": true,
+      "loggingValid": true
+    },
+    {
+      "name": "logging relative directory and null",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"directory\":null,\"level\":\"emergency\",\"retentionDays\":1}}",
+      "schemaValid": true,
+      "runtimeValid": true,
+      "loggingValid": true
+    },
+    {
+      "name": "logging relative directory",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"directory\":\"var/log\"}}",
+      "schemaValid": true,
+      "runtimeValid": true,
+      "loggingValid": true
+    },
+    {
+      "name": "logging mask with literal DD",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"fileMask\":\"ADDON-{YYYY}{MM}{DD}.log\"}}",
+      "schemaValid": true,
+      "runtimeValid": true,
+      "loggingValid": true
+    },
+    {
+      "name": "logging null",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":null}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
+    },
+    {
+      "name": "logging array",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":[]}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
+    },
+    {
+      "name": "logging scalar",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":true}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
+    },
+    {
+      "name": "logging unknown key",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"maxFiles\":7}}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
+    },
+    {
+      "name": "logging enabled string",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"enabled\":\"true\"}}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
+    },
+    {
+      "name": "logging enabled integer",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"enabled\":1}}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
+    },
+    {
+      "name": "logging level wrong case",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"level\":\"Info\"}}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
+    },
+    {
+      "name": "logging level unknown",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"level\":\"trace\"}}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
+    },
+    {
+      "name": "logging empty directory",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"directory\":\"\"}}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
+    },
+    {
+      "name": "logging directory number",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"directory\":5}}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
+    },
+    {
+      "name": "logging retention zero",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"retentionDays\":0}}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
+    },
+    {
+      "name": "logging retention string",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"retentionDays\":\"7\"}}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
+    },
+    {
+      "name": "logging retention fraction",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"retentionDays\":1.5}}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
+    },
+    {
+      "name": "logging retention overflow",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"retentionDays\":9223372036854775808}}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
+    },
+    {
+      "name": "logging mask empty",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"fileMask\":\"\"}}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
+    },
+    {
+      "name": "logging mask slash",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"fileMask\":\"logs/{YYYY}{MM}{DD}.log\"}}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
+    },
+    {
+      "name": "logging mask backslash",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"fileMask\":\"logs\\\\{YYYY}{MM}{DD}.log\"}}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
+    },
+    {
+      "name": "logging mask dot dot",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"fileMask\":\"..{YYYY}{MM}{DD}.log\"}}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
+    },
+    {
+      "name": "logging mask reserved character",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"fileMask\":\"b24cli:{YYYY}{MM}{DD}.log\"}}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
+    },
+    {
+      "name": "logging mask control character",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"fileMask\":\"b24cli\\t{YYYY}{MM}{DD}.log\"}}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
+    },
+    {
+      "name": "logging mask without day",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"fileMask\":\"b24cli-{YYYY}{MM}.log\"}}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
+    },
+    {
+      "name": "logging mask repeated year",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"fileMask\":\"{YYYY}-{YYYY}{MM}{DD}.log\"}}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
+    },
+    {
+      "name": "logging mask letter tokens",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"fileMask\":\"b24cli-YYYYMMDD.log\"}}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
+    },
+    {
+      "name": "logging mask too long",
+      "json": "{\"version\":1,\"defaultProfile\":null,\"profiles\":{},\"logging\":{\"fileMask\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa{YYYY}{MM}{DD}\"}}",
+      "schemaValid": false,
+      "runtimeValid": true,
+      "loggingValid": false,
+      "reason": "ProfileRepository keeps invalid logging unchanged so profile commands keep working; LoggingSettings rejects it and disables file logging for the run."
     }
   ]
 }
