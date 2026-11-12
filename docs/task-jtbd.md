@@ -23,7 +23,7 @@
 
 Сверка [#208](https://github.com/mesilov/bitrix24-cli/issues/208) от 12.11.2026, база `dev` — `91e90ff` (после merge #180): добавлены [PM-10](#pm-10), [PM-11](#pm-11) и [сценарии созвонов CHAT-03…CHAT-05](#chat-calls). Реализованы разметка и обогащение звонков в `task:chat:list` и `chats:messages:list`, команды `chats:calls:list`, `chats:calls:show` и `users:presence` (по `--user-id` и TARGET чата). Каталог: 50 task-команд / 71 публичная. Live (только чтение) на рабочем чате со звонком: `chats:messages:list`, `chats:calls:list`, `chats:calls:show`, `users:presence` по ID и по чату. Сверка оценки с заранее известным составом звонка не проводилась. [OpenSpec change](../openspec/changes/add-chat-call-insights/proposal.md).
 
-Сверка [#185](https://github.com/mesilov/bitrix24-cli/issues/185) от 13.11.2026, база `dev` — `ff9481e`: добавлен [CHAT-06 — завести чат для рассылки команде](#chat-06). Отправка в произвольный доступный чат уже поставлена `chats:send`; новая команда `chats:add` создаёт закрытый (`CHAT`) или открытый (`OPEN`) групповой чат с участниками. Каналы Битрикс24 REST не создаёт. Каталог: 50 task-команд / 72 публичные. Live на тестовом портале: dry-run, создание закрытого чата с проверкой названия и участника, запись в созданный чат, блокировка повторного создания `chat-exists`. [OpenSpec change](../openspec/changes/add-chat-creation/proposal.md).
+Сверка [#185](https://github.com/mesilov/bitrix24-cli/issues/185) от 13.11.2026, база `dev` — `ff9481e`: добавлен [CHAT-06 — завести чат для рассылки команде](#chat-06). Отправка в произвольный доступный чат уже поставлена `chats:send`; новая команда `chats:add` создаёт закрытый (`CHAT`) или открытый (`OPEN`) групповой чат с участниками. Каналы Битрикс24 REST не создаёт. Каталог: 50 task-команд / 72 публичные. Live на тестовом портале: dry-run, создание закрытого чата с проверкой названия и участника, запись в созданный чат, блокировка повторного создания `chat-exists`. [OpenSpec change](../openspec/changes/archive/2026-11-13-add-chat-creation/proposal.md).
 
 Сверка [#170](https://github.com/mesilov/bitrix24-cli/issues/170) от 16.10.2026, база dev `0caf9db`: проверка состава EMP-09/PM-04 использует фактический scope `sonet_group`. Серверный сброс статуса в `pending` после назначения обрабатывается достижением явной цели либо восстановлением исходного статуса штатными действиями. Повторная live-матрица: 18/18 проверок PASS; 4/4 integration tests PASS, включая ожидаемые partial/отказы. [Evidence и ограничения](../openspec/changes/archive/2026-10-16-fix-task-handover-project-scope/live-acceptance.md). Существующие 24 JTBD и ID сохранены.
 
@@ -60,7 +60,7 @@
 
 <a id="chat-06"></a>
 
-### [CHAT-06](../openspec/changes/add-chat-creation/specs/chat-access/spec.md) — Завести чат для рассылки команде
+### [CHAT-06](../openspec/specs/chat-access/spec.md) — Завести чат для рассылки команде
 
 - **Когда:** хочу регулярно делиться с группой коллег новостями по теме, например про ИИ, релевантными компании.
 - **Хочу:** попросить агента создать чат вместе со своей группой и писать туда новости.
