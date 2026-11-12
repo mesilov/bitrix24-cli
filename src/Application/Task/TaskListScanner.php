@@ -27,6 +27,9 @@ final readonly class TaskListScanner
             $filter = [...$deadlineWindow->filter(), ...($query->ids === [] ? [] : ['ID' => $query->ids]), ...(isset($query->where['groupId']) ? ['GROUP_ID' => $query->where['groupId']] : [])];
         }
 
+        $route = TaskListRoute::plan($query);
+        $serverRoute = $route?->server() === true;
+        $rest1 = $serverRoute || $deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow;
         $scalarRole = $query->role?->scalarField();
         $participantRole = $query->role?->participantField();
         $fields = array_values(array_unique([...($title === null ? FieldSchema::LIST_FIELDS : ['id', 'title']), ...$query->select, ...array_keys($query->where), ...($query->dueBefore === null && !$deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow ? [] : ['deadline']), ...($deadlineWindow?->overdue || $query->openOnly ? ['status'] : [])]));
@@ -40,6 +43,9 @@ final readonly class TaskListScanner
         }
 
         $userId = $query->role instanceof \Bitrix24\CLI\Application\Task\TaskRole && !$deadlineWindow?->empty() ? $this->currentUser->id() : null;
+        if ($route instanceof \Bitrix24\CLI\Application\Task\TaskListRoute && $serverRoute) {
+            $filter = $route->filter($query, $userId);
+        }
 
         $offset = 0;
         $scanned = 0;
@@ -54,7 +60,7 @@ final readonly class TaskListScanner
 
             $this->state->checkCancellation();
             try {
-                $page = $deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow
+                $page = $rest1
                     ? $this->deadlineTasks->page($filter, $fields, $query->order, $offset)
                     : $this->tasks->page($filter, $fields, $query->order, $offset, min(50, $query->maxScan - $scanned));
             } catch (Failure $failure) {
@@ -90,14 +96,15 @@ final readonly class TaskListScanner
 
                 $seen[$id] = true;
                 $progress++;
-                $required = ['title', ...($deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow ? array_keys($query->where) : array_diff(array_keys($query->where), ['groupId'])), ...($query->dueBefore === null && !$deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow ? [] : ['deadline']), ...($deadlineWindow?->overdue || $query->openOnly ? ['status'] : [])];
+                $required = ['title', ...($rest1 ? array_keys($query->where) : array_diff(array_keys($query->where), ['groupId'])), ...($query->dueBefore === null && !$deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow ? [] : ['deadline']), ...($deadlineWindow?->overdue || $query->openOnly ? ['status'] : [])];
                 if (array_diff($required, array_keys($row)) !== [] || !is_string($row['title'] ?? null)) {
                     $reason = 'missing-predicate-field';
                     $complete = false;
                     continue;
                 }
 
-                if ($deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow && array_any(array_keys($query->where), static fn (string $field): bool => $row[$field] === null)) {
+                // An undated task has deadline=null on REST1; that is a value for local equality, not missing data.
+                if ($rest1 && array_any(array_diff(array_keys($query->where), ['deadline']), static fn (string $field): bool => $row[$field] === null)) {
                     $reason = 'missing-predicate-field';
                     $complete = false;
                     continue;
@@ -111,7 +118,7 @@ final readonly class TaskListScanner
 
                 $matched = $title === null || mb_stripos($row['title'], $title) !== false;
                 foreach ($query->where as $field => $value) {
-                    if ($field !== 'groupId' || isset($row['groupId']) || $deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow) {
+                    if ($field !== 'groupId' || isset($row['groupId']) || $rest1) {
                         $matched = $matched && (string) $row[$field] === (string) $value;
                     }
                 }
@@ -179,7 +186,7 @@ final readonly class TaskListScanner
                     }
                 }
 
-                if ($matched && !$deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow && array_key_exists('groupId', $query->where)) {
+                if ($matched && !$rest1 && array_key_exists('groupId', $query->where)) {
                     if (!isset($row['groupId'])) {
                         try {
                             $card = $this->tasks->get($id, ['group.id']);
@@ -213,6 +220,12 @@ final readonly class TaskListScanner
             }
 
             $next = $page->next;
+            if ($serverRoute && !$page->complete) {
+                $reason = 'pagination-no-progress';
+                $complete = false;
+                break;
+            }
+
             if ($next !== null && ($progress === 0 || !is_int($next) || $next <= $offset)) {
                 $reason = 'pagination-no-progress';
                 $complete = false;
@@ -221,7 +234,7 @@ final readonly class TaskListScanner
 
             $offset = $next ?? 0;
             if ($next !== null && $scanned >= $query->maxScan) {
-                if ($query->verifyExhaustionAtBudget && !$deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow) {
+                if ($query->verifyExhaustionAtBudget && !$rest1) {
                     $this->state->checkCancellation();
                     try {
                         $probe = $this->tasks->page($filter, $fields, $query->order, $next, 1);
@@ -254,8 +267,9 @@ final readonly class TaskListScanner
             'limitApplied' => count($items) < $matchedCount, 'reason' => $reason,
             ...($query->role instanceof \Bitrix24\CLI\Application\Task\TaskRole ? ['roleFilter' => ['role' => $query->role->value, 'userId' => $userId]] : []),
             'order' => $query->order,
+            ...($route instanceof \Bitrix24\CLI\Application\Task\TaskListRoute ? ['listRoute' => $route->metadata()] : []),
             ...($deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow ? ['deadlineFilter' => [...$deadlineWindow->metadata(), 'groupApplied' => isset($query->where['groupId']) ? 'server' : null]] : []),
-            ...($reason === 'scan-budget-exhausted' ? ['hint' => 'Increase --max-scan to inspect more tasks; --all only removes the output limit. An incomplete search does not prove that no duplicate exists.'] : []),
+            ...($reason === 'scan-budget-exhausted' ? ['hint' => 'Increase --max-scan to inspect more tasks; --all only removes the output limit. ' . ($title === null ? 'An incomplete scan does not prove that no matching task exists.' : 'An incomplete search does not prove that no duplicate exists.')] : []),
         ], $complete ? 0 : 3);
     }
 }

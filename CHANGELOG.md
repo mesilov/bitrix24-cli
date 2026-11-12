@@ -4,6 +4,8 @@
 
 ### Исправлено
 
+- `task:list` и `task:find` без временных флагов передают `--group-id`, `--responsible`, `--role responsible|creator` и одноимённые поля `--where` в серверный фильтр REST 1.0 `tasks.task.list`. Выборка небольшого проекта на портале с десятками тысяч задач стала полной и быстрой, вместо `scan-budget-exhausted` после 10 000 задач. `meta.listRoute` показывает маршрут и серверные условия; `--api-policy strict-rest3` сохраняет прежнюю локальную фильтрацию REST 3.0. Подсказка неполного обхода `task:list` больше не упоминает дубли. [#183](https://github.com/mesilov/bitrix24-cli/issues/183)
+
 - Linux native packaging явно устанавливает Bash и zsh перед приёмкой документированных shell-последовательностей и проверяет их наличие; обязательные проверки `shell-installer-check.py` не ослаблены. Устранён блокер трёхплатформенной intermediate-сборки. [#177](https://github.com/mesilov/bitrix24-cli/issues/177)
 
 - Архивирован OpenSpec change исправления native connection fixture: сохранены причина общего сбоя packaging, ограниченный scope/list контракт и результаты проверки PHAR; повторная native-сборка и live-приёмка отслеживаются отдельно. [#174](https://github.com/mesilov/bitrix24-cli/issues/174)
@@ -17,6 +19,10 @@
 - Установщик Linux/macOS повторяет временные HTTP-ошибки, таймауты и отказы соединения до трёх раз с ограничением времени повторов. При окончательном сбое команды из README и руководства установки не подключают env и не запускают CLI. [#151](https://github.com/mesilov/bitrix24-cli/issues/151)
 
 ### Добавлено
+
+- **Файловое логирование:** корневой объект `logging` в `config.json` включает суточный лог JSON Lines (`b24cli-{YYYY}{MM}{DD}.log` в `logs/` рядом с config, хранение 7 дней) при любом способе подключения. Пишутся начало и завершение команды, ошибки и события b24phpsdk с `runId`; выше `debug` о REST-вызовах только сводка, данные на `debug` ограничены, webhook и токены маскируются. Неверный `logging` не ломает команды и профили, `connection:show` показывает статус и путь к файлу. Версии CLI без поддержки `logging` отклоняют такой `config.json`: перед их запуском удалите ключ. [#189](https://github.com/mesilov/bitrix24-cli/issues/189)
+
+- **Скилл grill-me:** в `.agents/skills/` добавлены `grill-me` и обязательный для него `grilling` из mattpocock/skills (MIT, commit `fcf0071`). В `grill-me` добавлен запасной путь для агентов без инструмента `Skill` (Codex): прочитать `../grilling/SKILL.md`; остальное совпадает с upstream. Скилл проводит интервью по плану раундами перед подготовкой OpenSpec change; происхождение и лицензия лежат рядом со скиллами, требования — в `openspec/specs/agent-skills/`. [#190](https://github.com/mesilov/bitrix24-cli/issues/190)
 
 - **Недельный отчёт (PM-09):** `task:report --group-id ID` показывает закрытые и новые за неделю, текущие задачи на контроле и количество в работе. По умолчанию весь проект и прошлая календарная неделя; `--responsible` сужает область. Период учитывает timezone/DST, неполные секции сохраняют строки и observedCount с неизвестным точным count. [#168](https://github.com/mesilov/bitrix24-cli/issues/168)
 

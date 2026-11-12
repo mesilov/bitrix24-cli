@@ -18,6 +18,7 @@ final readonly class TaskQuery
         public ?DeadlineWindow $deadlineWindow = null,
         public bool $openOnly = false,
         public bool $verifyExhaustionAtBudget = false,
+        public ?string $apiPolicy = null,
     ) {
     }
 }

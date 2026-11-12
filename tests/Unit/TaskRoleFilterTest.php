@@ -35,6 +35,11 @@ final class TaskRoleFilterTest extends TestCase
         return [ConsoleHarness::run($app, $argv), $fakeApiTransport, $spyConnectionResolver];
     }
 
+    private static function rest1Row(int $id, string $title = 'Договор', string $status = '5', ?string $deadline = null): array
+    {
+        return ['id' => (string) $id, 'title' => $title, 'responsibleId' => '1', 'createdBy' => '1', 'groupId' => '42', 'status' => $status, 'deadline' => $deadline ?? ''];
+    }
+
     private static function row(int $id, int $actor = 1): array
     {
         return ['id' => $id, 'title' => 'Договор', 'responsibleId' => $actor, 'creatorId' => $actor, 'groupId' => 42, 'status' => 'completed', 'deadline' => null];
@@ -43,7 +48,8 @@ final class TaskRoleFilterTest extends TestCase
     #[DataProvider('roles')]
     public function testEachRoleKeepsOnlyVerifiedMatches(string $command, string $role): void
     {
-        [$run, $api, $resolver] = $this->invoke($command, ['--role', $role], static function ($method, $version, array $params) use ($role): ApiResponse {
+        $policy = in_array($role, ['responsible', 'creator'], true) ? ['--api-policy', 'strict-rest3'] : [];
+        [$run, $api, $resolver] = $this->invoke($command, ['--role', $role, ...$policy], static function ($method, $version, array $params) use ($role): ApiResponse {
             if ($version === 3) {
                 self::assertSame('tasks.task.list', $method);
                 self::assertSame([], $params['filter']);
@@ -120,7 +126,7 @@ final class TaskRoleFilterTest extends TestCase
         [$run] = $this->invoke('task:list', ['--role', 'creator', '--where', '{"responsibleId":2}', '--api-policy', 'strict-rest3'], $respond);
         self::assertSame(0, $run->status, $run->stdout);
         self::assertSame([2], array_column($run->json()['data']['items'], 'id'));
-        [$run] = $this->invoke('task:list', ['--role', 'responsible', '--responsible', '2'], $respond);
+        [$run] = $this->invoke('task:list', ['--role', 'responsible', '--responsible', '2', '--api-policy', 'strict-rest3'], $respond);
         self::assertSame(0, $run->status);
         self::assertSame([], $run->json()['data']['items']);
         [$run, $api, $resolver] = $this->invoke('task:list', ['--role', 'creator', '--where', '{"groupId":42}', '--group-id', '42'], $respond);
@@ -132,7 +138,7 @@ final class TaskRoleFilterTest extends TestCase
     public function testInternalCreatorFieldIsOnlyReturnedWhenOtherwiseRequested(): void
     {
         foreach ([[], ['--select', 'creatorId'], ['--where', '{"creatorId":1}']] as $options) {
-            [$run] = $this->invoke('task:list', ['--role', 'creator', ...$options], static fn (): ApiResponse => new ApiResponse(['items' => [self::row(1)]]));
+            [$run] = $this->invoke('task:list', ['--role', 'creator', ...$options, '--api-policy', 'strict-rest3'], static fn (): ApiResponse => new ApiResponse(['items' => [self::row(1)]]));
             self::assertSame(0, $run->status, $run->stdout);
             self::assertSame($options !== [], array_key_exists('creatorId', $run->json()['data']['items'][0]));
         }
@@ -157,8 +163,9 @@ final class TaskRoleFilterTest extends TestCase
     public function testOtherPredicatesAndDuplicateIdsAvoidParticipantReads(): void
     {
         [$run, $api] = $this->invoke('task:find', ['--role', 'auditor', '--group-id', '42'], static function ($method, $version, array $params): ApiResponse {
-            if ($version === 3) {
-                return new ApiResponse(['items' => [[...self::row(1), 'groupId' => 7], [...self::row(2), 'title' => 'Другое'], self::row(3), self::row(3)]]);
+            if ($method === 'tasks.task.list') {
+                self::assertSame(['GROUP_ID' => 42], (array) $params['filter']);
+                return new ApiResponse(['tasks' => [self::rest1Row(2, 'Другое'), self::rest1Row(3), self::rest1Row(3)]], null, 3);
             }
 
             self::assertSame(3, $params['taskId']);
@@ -172,14 +179,14 @@ final class TaskRoleFilterTest extends TestCase
     public function testParticipantRoleComposesWithListStatusGroupAndDeadline(): void
     {
         [$run, $api] = $this->invoke('task:list', ['--role', 'auditor', '--group-id', '42', '--status', 'in_progress', '--due-before', '2026-10-13T00:00:00Z'], static function ($method, $version, array $params): ApiResponse {
-            if ($version === 3) {
-                self::assertSame([], $params['filter']);
-                return new ApiResponse(['items' => [
-                    [...self::row(1), 'status' => 'in_progress', 'deadline' => '2026-10-12T00:00:00Z'],
-                    [...self::row(2), 'groupId' => 7, 'status' => 'in_progress', 'deadline' => '2026-10-12T00:00:00Z'],
-                    [...self::row(3), 'deadline' => '2026-10-12T00:00:00Z'],
-                    [...self::row(4), 'status' => 'in_progress', 'deadline' => '2026-10-20T00:00:00Z'],
-                ]]);
+            if ($method === 'tasks.task.list') {
+                self::assertSame(1, $version);
+                self::assertSame(['GROUP_ID' => 42], (array) $params['filter']);
+                return new ApiResponse(['tasks' => [
+                    self::rest1Row(1, status: '3', deadline: '2026-10-12T00:00:00Z'),
+                    self::rest1Row(3, deadline: '2026-10-12T00:00:00Z'),
+                    self::rest1Row(4, status: '3', deadline: '2026-10-20T00:00:00Z'),
+                ]], null, 3);
             }
 
             self::assertSame(1, $params['taskId']);
@@ -204,13 +211,14 @@ final class TaskRoleFilterTest extends TestCase
                 ? array_map(static fn (int $id): array => self::row($id, $id === 2 ? 1 : 2), range(1, 50))
                 : [self::row(51)]]);
         };
-        [$run] = $this->invoke($command, ['--role', $role, '--limit', '1'], $response);
+        $policy = in_array($role, ['responsible', 'creator'], true) ? ['--api-policy', 'strict-rest3'] : [];
+        [$run] = $this->invoke($command, ['--role', $role, '--limit', '1', ...$policy], $response);
         self::assertSame(0, $run->status, $run->stdout);
         self::assertSame([2], array_column($run->json()['data']['items'], 'id'));
         self::assertSame(51, $run->json()['meta']['scanned']);
         self::assertSame(2, $run->json()['meta']['matched']);
         self::assertTrue($run->json()['meta']['limitApplied']);
-        [$run, $api] = $this->invoke($command, ['--role', $role, '--all', '--max-scan', '50'], $response);
+        [$run, $api] = $this->invoke($command, ['--role', $role, '--all', '--max-scan', '50', ...$policy], $response);
         self::assertSame(3, $run->status, $run->stdout);
         self::assertSame('scan-budget-exhausted', $run->json()['meta']['reason']);
         self::assertSame([2], array_column($run->json()['data']['items'], 'id'));

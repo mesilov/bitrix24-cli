@@ -96,6 +96,47 @@ final class ListTaskCommandTest extends LiveTaskLifecycleTestCase
         }
     }
 
+    #[Group('portal-acceptance')]
+    public function testRoleAndGroupUseTheServerFilterWithLocalRouteParity(): void
+    {
+        $group = $this->setting('B24CLI_TEST_GROUP_ID');
+        $other = $this->setting('B24CLI_TEST_OTHER_USER_ID');
+        if ($group === '' || $other === '') {
+            self::markTestSkipped('Server filter acceptance needs B24CLI_TEST_GROUP_ID and B24CLI_TEST_OTHER_USER_ID.');
+        }
+
+        $match = $this->createTask(fields: ['groupId' => (int) $group]);
+        $otherResponsible = $this->createTask(fields: ['groupId' => (int) $group, 'responsibleId' => (int) $other]);
+        $outsideGroup = $this->createTask();
+        $server = $this->invoke(['task:list', '--role', 'responsible', '--group-id', $group, '--all']);
+        $ids = array_column($server['data']['items'], 'id');
+        self::assertContains($match, $ids);
+        self::assertNotContains($otherResponsible, $ids);
+        self::assertNotContains($outsideGroup, $ids);
+        self::assertTrue($server['meta']['complete']);
+        self::assertSame(['apiVersion' => '1.0', 'serverFilter' => ['groupId', 'responsibleId'], 'reason' => null], $server['meta']['listRoute']);
+        self::assertSame(['1.0'], $server['meta']['apiVersions']);
+        foreach ($server['data']['items'] as $item) {
+            self::assertSame((int) $group, $item['groupId']);
+            self::assertSame($this->userId, $item['responsibleId']);
+        }
+
+        $fixtures = ['--id', $match, '--id', $otherResponsible, '--id', $outsideGroup];
+        $serverFixtures = $this->invoke(['task:list', '--role', 'responsible', '--group-id', $group, ...$fixtures, '--all']);
+        $localFixtures = $this->invoke(['task:list', '--role', 'responsible', '--group-id', $group, ...$fixtures, '--all', '--api-policy', 'strict-rest3']);
+        self::assertSame([$match], array_column($serverFixtures['data']['items'], 'id'));
+        self::assertSame(array_column($localFixtures['data']['items'], 'id'), array_column($serverFixtures['data']['items'], 'id'));
+        // Same fields and values; REST1 may order keys differently and render deadline in the user's offset.
+        $canonical = static function (array $item): array {
+            ksort($item);
+            $item['deadline'] = $item['deadline'] === null ? null : (new \DateTimeImmutable($item['deadline']))->getTimestamp();
+            return $item;
+        };
+        self::assertSame(array_map($canonical, $localFixtures['data']['items']), array_map($canonical, $serverFixtures['data']['items']));
+        self::assertSame('3.0', $localFixtures['meta']['listRoute']['apiVersion']);
+        self::assertSame('strict-rest3', $localFixtures['meta']['listRoute']['reason']);
+    }
+
     #[Group('happy-path')]
     public function testHappyPathListsSelectedTask(): void
     {

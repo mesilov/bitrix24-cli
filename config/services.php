@@ -17,6 +17,8 @@ return static function (ContainerBuilder $container, string $root, bool $package
         Bitrix24\CLI\Infrastructure\Connection\FileProtection::class,
         Bitrix24\CLI\Infrastructure\Connection\FileCredentialStore::class,
         Bitrix24\CLI\Infrastructure\Connection\ProfileRepository::class,
+        Bitrix24\CLI\Infrastructure\Logging\LoggingSettingsReader::class,
+        Bitrix24\CLI\Infrastructure\Logging\LoggingRuntime::class,
         Bitrix24\CLI\Infrastructure\Connection\ScopeStateStore::class,
         Bitrix24\CLI\Infrastructure\Connection\ScopeValidator::class,
         Bitrix24\CLI\Application\Connection\ScopeManifest::class,
@@ -69,7 +71,8 @@ return static function (ContainerBuilder $container, string $root, bool $package
     $container->setAlias(Bitrix24\CLI\Application\Clock::class, Bitrix24\CLI\Infrastructure\Doctor\SystemClock::class);
     $container->setAlias(Bitrix24\CLI\Application\Doctor\FeedbackGateway::class, Bitrix24\CLI\Infrastructure\Doctor\UnavailableFeedbackGateway::class);
 
-    $container->register(Bitrix24\SDK\Infrastructure\Filesystem\Base64Encoder::class)->setAutowired(true)->setArgument('$log', new Psr\Log\NullLogger());
+    $container->register('b24cli.sdk_logger', Psr\Log\LoggerInterface::class)->setFactory([new Symfony\Component\DependencyInjection\Reference(Bitrix24\CLI\Infrastructure\Logging\LoggingRuntime::class), 'sdkLogger']);
+    $container->register(Bitrix24\SDK\Infrastructure\Filesystem\Base64Encoder::class)->setAutowired(true)->setArgument('$log', new Symfony\Component\DependencyInjection\Reference('b24cli.sdk_logger'));
     $container->setAlias(Bitrix24\CLI\Application\Task\Port\LocalFileGateway::class, Bitrix24\CLI\Infrastructure\Filesystem\LocalFileSource::class);
     $container->register(Bitrix24\CLI\Infrastructure\Connection\ConnectionManager::class)->setAutowired(true)->setArgument('$projectRoot', $root)->setArgument('$packaged', $packaged);
     $container->setAlias(Bitrix24\CLI\Infrastructure\Connection\CredentialStore::class, Bitrix24\CLI\Infrastructure\Connection\FileCredentialStore::class);

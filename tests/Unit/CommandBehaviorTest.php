@@ -75,7 +75,8 @@ final class CommandBehaviorTest extends TestCase
     public function testStrictPolicyRejectsEveryLegacyPlanBeforeReads(): void
     {
         foreach (CommandContractsTest::cases() as [$argv, $method, $version]) {
-            if ($version !== 1) {
+            // task:list server filters stay on the local REST3 route under strict-rest3 instead of being denied.
+            if ($version !== 1 || $argv[0] === 'task:list') {
                 continue;
             }
 

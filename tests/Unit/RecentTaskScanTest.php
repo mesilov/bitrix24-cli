@@ -30,7 +30,8 @@ final class RecentTaskScanTest extends TestCase
             });
             return new ApiResponse(['items' => array_slice($rows, $params['pagination']['offset'], $params['pagination']['limit'])]);
         });
-        $run = ConsoleHarness::run((new ApplicationFactory())->create(dirname(__DIR__, 2), $fakeApiTransport), $argv);
+        // Local REST3 scan semantics; the default policy sends group filters to REST1 (TaskServerListFilterTest).
+        $run = ConsoleHarness::run((new ApplicationFactory())->create(dirname(__DIR__, 2), $fakeApiTransport), [...$argv, '--api-policy', 'strict-rest3']);
         return [$run, $fakeApiTransport];
     }
 
@@ -114,7 +115,7 @@ final class RecentTaskScanTest extends TestCase
             foreach ([7, 187] as $groupId) {
                 [$run] = $this->invoke([$format, ...$command, '--group-id', '187', '--all', '--max-scan', '1'], [['id' => 1, 'title' => 'ёж[', 'groupId' => $groupId], ['id' => 2, 'title' => 'ёж[', 'groupId' => $groupId]]);
                 self::assertSame(3, $run->status, $run->stdout);
-                foreach (['scan-budget-exhausted', 'scanned=1', 'order=id:DESC', 'Increase --max-scan', '--all only removes the output limit', 'does not prove that no duplicate exists'] as $fragment) {
+                foreach (['scan-budget-exhausted', 'scanned=1', 'order=id:DESC', 'Increase --max-scan', '--all only removes the output limit', $command[0] === 'task:list' ? 'does not prove that no matching task exists' : 'does not prove that no duplicate exists'] as $fragment) {
                     self::assertStringContainsString($fragment, $run->stderr);
                     if ($format === '--json') {
                         self::assertStringContainsString($fragment, $run->json()['error']['message']);

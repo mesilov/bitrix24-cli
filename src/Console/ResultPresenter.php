@@ -91,7 +91,7 @@ final readonly class ResultPresenter
         }
 
         if ($error !== null) {
-            $hint = $mode !== 'json' && in_array($result->profile, ['task-list', 'title-matches'], true) ? ' ' . $this->tasks->hint($result->meta['reason'] ?? '') : '';
+            $hint = $mode !== 'json' && in_array($result->profile, ['task-list', 'title-matches'], true) ? ' ' . $this->tasks->hint($result->meta['reason'] ?? '', $result->profile) : '';
             $this->diagnostic($output, $error['message'] . $hint);
         }
 
@@ -184,6 +184,10 @@ final readonly class ResultPresenter
         }
 
         $columns = self::COLUMNS[$result->profile] ?? ['field', 'value'];
+        if ($result->profile === 'connections' && array_any($result->data['items'] ?? [], static fn (array $item): bool => array_key_exists('logging', $item))) {
+            $columns[] = 'logging';
+        }
+
         if ($result->profile === 'template-mutation' && array_key_exists('visibleAfter', $result->data['operation'] ?? [])) {
             $columns[] = 'visibleAfter';
         }
