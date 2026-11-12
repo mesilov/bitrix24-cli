@@ -9,12 +9,15 @@ use Bitrix24\CLI\Application\Failure;
 
 final readonly class DeadlineWindowResolver
 {
-    public const WINDOWS = ['today', 'tomorrow', 'yesterday', 'day-before-yesterday', 'this-week', 'this-month', 'this-quarter'];
+    public const WINDOWS = TaskCalendar::WINDOWS;
 
-    private const TEMPORAL_FLAGS = '--deadline-window, --overdue, --created-window or --changed-window';
+    private const TEMPORAL_FLAGS = '--deadline-window, --overdue, --created-window, --changed-window or --closed-window';
 
-    public function __construct(private ?Clock $clock = null)
+    private TaskCalendar $calendar;
+
+    public function __construct(?Clock $clock = null)
     {
+        $this->calendar = new TaskCalendar($clock);
     }
 
     public function resolve(?string $window, bool $overdue, ?string $timezone): ?DeadlineWindow
@@ -25,7 +28,7 @@ final readonly class DeadlineWindowResolver
     /**
      * Resolves the deadline window and the creation/change windows with one timezone and one fixed now.
      *
-     * @param array<string, ?string> $dateWindows CLI field (created|changed) => window mnemonic
+     * @param array<string, ?string> $dateWindows CLI field (created|changed|closed) => window mnemonic
      *
      * @return array{0: ?DeadlineWindow, 1: list<DateWindow>}
      */
@@ -54,13 +57,8 @@ final readonly class DeadlineWindowResolver
             }
         }
 
-        $timezone ??= getenv('TZ') ?: date_default_timezone_get();
-        if (!in_array($timezone, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC), true)) {
-            throw Failure::usage('Use an IANA timezone for --timezone (for example Asia/Bishkek).');
-        }
-
-        $now = ($this->clock?->now() ?? new \DateTimeImmutable('now'))->setTimezone(new \DateTimeZone($timezone));
-        $now = $now->setTime((int) $now->format('H'), (int) $now->format('i'), (int) $now->format('s'));
+        $timezone = TaskCalendar::timezone($timezone);
+        $now = $this->calendar->now($timezone);
 
         $deadline = null;
         if ($window !== null || $overdue) {
@@ -88,18 +86,6 @@ final readonly class DeadlineWindowResolver
      */
     public static function bounds(string $window, \DateTimeImmutable $now): array
     {
-        $day = $now->setTime(0, 0);
-        $from = match ($window) {
-            'today' => $day, 'tomorrow' => $day->modify('+1 day'), 'yesterday' => $day->modify('-1 day'), 'day-before-yesterday' => $day->modify('-2 days'),
-            'this-week' => $day->modify('-' . ((int) $day->format('N') - 1) . ' days'),
-            'this-month' => $day->setDate((int) $day->format('Y'), (int) $day->format('n'), 1),
-            'this-quarter' => $day->setDate((int) $day->format('Y'), 1 + 3 * intdiv((int) $day->format('n') - 1, 3), 1),
-            default => throw new \InvalidArgumentException('Unknown window ' . $window . '.'),
-        };
-        $to = $from->modify(match ($window) {
-            'this-week' => '+1 week', 'this-month' => '+1 month', 'this-quarter' => '+3 months', default => '+1 day',
-        });
-
-        return [$from, $to];
+        return TaskCalendar::bounds($window, $now);
     }
 }

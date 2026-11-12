@@ -175,10 +175,15 @@ ID, имена профилей и тексты в примерах замени
 | `task:add` | Создать задачу | `b24cli task:add --title "Подготовить договор" --creator 1 --responsible 42 --dry-run` |
 | `task:assign` | Сменить ответственного | `b24cli task:assign 123 --responsible 3 --dry-run` |
 | [`task:handover`](docs/task-handover.md) | Передать выбранные задачи проекта; фильтр статуса, исключения ID и целевой статус | `b24cli task:handover --group-id 234 --from 14 --responsible 16 --dry-run` |
-| `task:deadline:set` | Изменить срок задачи | `b24cli task:deadline:set 123 --at 2026-12-01T12:00:00+06:00 --dry-run` |
+| `task:deadline:set` | Изменить срок задачи: точный `--at` или относительный `--day` с `--time` | `b24cli task:deadline:set 123 --day friday --time 17:00 --timezone Europe/Moscow --dry-run` |
 | `task:delete` | Удалить задачу | `b24cli task:delete 123 --dry-run` |
 | `task:participants:set` | Заменить выбранные роли участников | `b24cli task:participants:set 123 --auditor 4 --clear-accomplices --dry-run` |
 | `task:update` | Изменить явные поля задачи | `b24cli task:update 123 --title "Договор для согласования" --dry-run` |
+
+`task:add` и `task:update` принимают срок точным `--deadline` (ISO8601 с часовым поясом)
+или относительным днём `--deadline-day` с обязательным `--deadline-time HH:MM` и
+`--timezone IANA`; часа по умолчанию нет. Дни, правила и ограничения — в
+[руководстве](docs/task-usage.md#относительный-срок-задачи).
 
 ### Шаблоны задач
 
@@ -204,6 +209,12 @@ ID, имена профилей и тексты в примерах замени
 | `task:list` | Показать доступные задачи | `b24cli task:list --group-id 7 --responsible 42` |
 | `task:my` | Показать задачи выбранного исполнителя | `b24cli task:my --user 42 --open --json` |
 | `task:show` | Показать карточку задачи | `b24cli task:show 123` |
+
+`task:list` и `task:find` выбирают задачи по календарным окнам дедлайна, создания,
+изменения и фактического завершения: `--deadline-window`, `--created-window`,
+`--changed-window`, `--closed-window` с днями, текущими, прошлыми и следующими
+неделей/месяцем/кварталом и `next-7-days`/`last-7-days`, а также `--overdue`.
+Подробнее — в [руководстве](docs/task-usage.md#календарные-окна-дедлайна-создания-изменения-и-завершения).
 
 ### Жизненный цикл
 

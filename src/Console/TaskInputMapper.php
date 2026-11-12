@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 
 final readonly class TaskInputMapper
 {
-    public function __construct(private InputSourceReader $reader, private ?\Bitrix24\CLI\Infrastructure\Connection\ConnectionManager $connections = null, private ?\Bitrix24\CLI\Application\Task\Port\LocalFileGateway $files = null, private \Bitrix24\CLI\Application\Task\DeadlineWindowResolver $deadlines = new \Bitrix24\CLI\Application\Task\DeadlineWindowResolver())
+    public function __construct(private InputSourceReader $reader, private ?\Bitrix24\CLI\Infrastructure\Connection\ConnectionManager $connections = null, private ?\Bitrix24\CLI\Application\Task\Port\LocalFileGateway $files = null, private \Bitrix24\CLI\Application\Task\DeadlineWindowResolver $deadlines = new \Bitrix24\CLI\Application\Task\DeadlineWindowResolver(), private \Bitrix24\CLI\Application\Task\DeadlineAssignmentResolver $assignments = new \Bitrix24\CLI\Application\Task\DeadlineAssignmentResolver(), private ?\Bitrix24\CLI\Application\RuntimeState $state = null)
     {
     }
 
@@ -133,7 +133,20 @@ final readonly class TaskInputMapper
                 throw Failure::usage('Advanced --fields cannot be mixed with field flags.');
             }
 
-            $fields[$field] = in_array($flag, ['creator', 'responsible', 'group-id'], true) ? $this->id($value, '--' . $flag) : $value;
+            $fields[$field] = match (true) {
+                in_array($flag, ['creator', 'responsible', 'group-id'], true) => $this->id($value, '--' . $flag),
+                $flag === 'deadline' => $this->exactDeadline($value, '--deadline-day with --deadline-time'),
+                default => $value,
+            };
+        }
+
+        $resolution = $this->relativeDeadline($input, 'deadline-day', 'deadline-time');
+        if ($resolution instanceof \Bitrix24\CLI\Application\Task\DeadlineResolution) {
+            if (array_key_exists('deadline', $fields) || $advanced !== null) {
+                throw Failure::usage('Choose --deadline (exact ISO8601) or --deadline-day with --deadline-time; advanced --fields cannot be mixed with them.');
+            }
+
+            $fields['deadline'] = $resolution->value();
         }
 
         $legacy = $create && $custom !== null;
@@ -235,7 +248,57 @@ final readonly class TaskInputMapper
 
     public function setTaskDeadline(InputInterface $input): Request\UpdateTaskRequest
     {
-        return new Request\UpdateTaskRequest($this->taskId($input), ['deadline' => FieldSchema::date($input->getOption('at'))], false, 'task:deadline:set');
+        $taskId = $this->taskId($input);
+        $resolution = $this->relativeDeadline($input, 'day', 'time');
+        $at = $input->getOption('at');
+        if ($resolution instanceof \Bitrix24\CLI\Application\Task\DeadlineResolution && $at !== null) {
+            throw Failure::usage('Choose --at (exact ISO8601) or --day with --time.');
+        }
+
+        if (!$resolution instanceof \Bitrix24\CLI\Application\Task\DeadlineResolution && $at === null) {
+            throw Failure::usage('Provide --at with an exact ISO8601 deadline or --day with --time.');
+        }
+
+        return new Request\UpdateTaskRequest($taskId, ['deadline' => $resolution?->value() ?? $this->exactDeadline($at, '--day/--time')], false, 'task:deadline:set');
+    }
+
+    /**
+     * Resolves --<day>/--<time>/--timezone into an exact deadline and records it for the result metadata.
+     */
+    private function relativeDeadline(InputInterface $input, string $day, string $time): ?\Bitrix24\CLI\Application\Task\DeadlineResolution
+    {
+        if (!$input->hasOption($day)) {
+            return null;
+        }
+
+        $values = [];
+        foreach ([$day, $time, 'timezone'] as $name) {
+            $value = $input->getOption($name);
+            if ($value !== null && (!is_string($value) || trim($value) === '')) {
+                throw Failure::usage('Provide nonempty --' . $name . '.');
+            }
+
+            $values[] = $value;
+        }
+
+        $resolution = $this->assignments->resolve($values[0], $values[1], $values[2], '--' . $day, '--' . $time);
+        if ($resolution instanceof \Bitrix24\CLI\Application\Task\DeadlineResolution && $this->state instanceof \Bitrix24\CLI\Application\RuntimeState) {
+            $this->state->meta['deadlineResolution'] = $resolution->metadata();
+        }
+
+        return $resolution;
+    }
+
+    /**
+     * Exact deadline flags accept ISO8601 only; a relative-looking value points to the relative flags instead of being parsed.
+     */
+    private function exactDeadline(mixed $value, string $relative): string
+    {
+        if (is_string($value) && preg_match('/^\d{4}-\d{2}-\d{2}T/', $value) !== 1) {
+            throw Failure::usage('Use an ISO8601 date and time with an explicit timezone offset; for a relative deadline use ' . $relative . '.');
+        }
+
+        return FieldSchema::date($value);
     }
 
     private function limit(InputInterface $input, int $default): ?int
@@ -250,7 +313,7 @@ final readonly class TaskInputMapper
     private function query(InputInterface $input, bool $find, ?string $apiPolicy = null): TaskQuery
     {
         $windows = [];
-        foreach (['deadline', 'created', 'changed'] as $field) {
+        foreach (['deadline', 'created', 'changed', 'closed'] as $field) {
             $values = $input->getOption($field . '-window');
             if (count($values) > 1) {
                 throw Failure::usage('Provide --' . $field . '-window only once.');
@@ -259,9 +322,9 @@ final readonly class TaskInputMapper
             $windows[$field] = $values[0] ?? null;
         }
 
-        [$deadlineWindow, $dateWindows] = $this->deadlines->resolveAll($windows['deadline'], $input->getOption('overdue'), ['created' => $windows['created'], 'changed' => $windows['changed']], $input->getOption('timezone'));
+        [$deadlineWindow, $dateWindows] = $this->deadlines->resolveAll($windows['deadline'], $input->getOption('overdue'), ['created' => $windows['created'], 'changed' => $windows['changed'], 'closed' => $windows['closed']], $input->getOption('timezone'));
         if (($deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow || $dateWindows !== []) && ($input->getOption('due-before') !== null || $input->getOption('where') !== null || $input->getOption('where-file') !== null)) {
-            throw Failure::usage('Do not mix --deadline-window/--overdue/--created-window/--changed-window with --due-before or --where/--where-file.');
+            throw Failure::usage('Do not mix --deadline-window/--overdue/--created-window/--changed-window/--closed-window with --due-before or --where/--where-file.');
         }
 
         $value = $input->getOption('role');
