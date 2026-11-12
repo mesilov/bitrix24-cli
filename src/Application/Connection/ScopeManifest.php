@@ -30,6 +30,7 @@ final class ScopeManifest
         'user.current' => [['user', 'user_basic', 'user_brief']],
         'user.get' => [['user', 'user_basic', 'user_brief']],
         'department.get' => [['department']],
+        'im.dialog.get' => [['im']],
         'im.dialog.messages.get' => [['im']],
         'im.message.update' => [['im']],
         'im.message.delete' => [['im']],

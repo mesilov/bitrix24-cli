@@ -60,6 +60,7 @@ final class ScopeValidationCommandTest extends TestCase
                 'sonet_group.user.get' => [['USER_ID' => 1, 'ROLE' => 'A'], ['USER_ID' => 2, 'ROLE' => 'K']],
                 'tasks.task.list' => ['items' => []],
                 'tasks.task.get' => ['item' => ['id' => 1, 'title' => 'Fixture', 'chat' => ['id' => 3, 'entityId' => 1, 'entityType' => 'TASKS_TASK']]],
+                'im.dialog.get' => ['id' => 3, 'last_message_id' => 0],
                 'im.dialog.messages.get' => ['chat_id' => 3, 'messages' => []],
                 'tasks.task.file.attach' => [true],
                 default => [],

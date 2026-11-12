@@ -33,7 +33,7 @@ final class CommandContractsTest extends TestCase
         yield 'access' => [['task:access:show', '123'], 'tasks.task.access.get', 3, ['id' => 123]];
         yield 'assign' => [['task:assign', '123', '--responsible', '3'], 'tasks.task.update', 3, ['id' => 123, 'fields' => ['responsibleId' => 3]]];
         yield 'deadline' => [['task:deadline:set', '123', '--at', '2026-12-01T12:00:00+06:00'], 'tasks.task.update', 3, ['id' => 123, 'fields' => ['deadline' => '2026-12-01T12:00:00+06:00']]];
-        yield 'chat list' => [['task:chat:list', '123'], 'im.dialog.messages.get', 1, ['DIALOG_ID' => 'chat456', 'LIMIT' => 20]];
+        yield 'chat list' => [['task:chat:list', '123'], 'im.dialog.messages.get', 1, ['DIALOG_ID' => 'chat456', 'LIMIT' => 20, 'LAST_ID' => 901]];
         yield 'chat send' => [['task:chat:send', '123', '--text', 'Hello'], 'tasks.task.chat.message.send', 3, ['fields' => ['taskId' => 123, 'text' => 'Hello']]];
         yield 'chat update' => [['task:chat:update', '123', '--message', '900', '--text', 'Changed'], 'im.message.update', 1, ['MESSAGE_ID' => 900, 'MESSAGE' => 'Changed']];
         yield 'chat delete' => [['task:chat:delete', '123', '--message', '900', '--force'], 'im.message.delete', 1, ['MESSAGE_ID' => 900]];
