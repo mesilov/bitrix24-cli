@@ -116,7 +116,7 @@ final class CommandCatalog
         'task:result:delete' => [['tasks.task.result.list', 3], ['tasks.task.result.delete', 3]],
         'task:show' => [['tasks.task.get', 3], ['tasks.task.get', 1], ['user.get', 1]],
         'task:my' => [['tasks.task.list', 3]],
-        'task:list' => [['tasks.task.list', 3], ['tasks.task.list', 1], ['tasks.task.get', 1], ['tasks.task.get', 3]],
+        'task:list' => [['tasks.task.list', 3], ['tasks.task.list', 1], ['tasks.task.get', 1], ['tasks.task.get', 3], ['im.counters.get', 1]],
         'task:find' => [['tasks.task.list', 3], ['tasks.task.list', 1], ['tasks.task.get', 1], ['tasks.task.get', 3]],
         'task:update' => [['tasks.task.getFields', 1], ['tasks.task.update', 3], ['tasks.task.update', 1]],
         'task:delete' => [['tasks.task.delete', 3], ['tasks.task.get', 3]],

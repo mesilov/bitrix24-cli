@@ -387,6 +387,8 @@ final readonly class TaskInputMapper
             $deadlineWindow,
             apiPolicy: $apiPolicy,
             dateWindows: $dateWindows,
+            // Only task:list declares --unread; task:find and task:my reject the option before any API call.
+            unread: !$find && $input->hasOption('unread') && $input->getOption('unread') === true,
         );
     }
 

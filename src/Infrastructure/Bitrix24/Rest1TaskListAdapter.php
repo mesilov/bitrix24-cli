@@ -17,6 +17,7 @@ final readonly class Rest1TaskListAdapter implements DeadlineTaskGateway, \Bitri
         'activity' => 'ACTIVITY_DATE', 'startPlan' => 'START_DATE_PLAN', 'endPlan' => 'END_DATE_PLAN',
         'estimatedTime' => 'TIME_ESTIMATE', 'priority' => 'PRIORITY', 'mark' => 'MARK',
         'allowsChangeDeadline' => 'ALLOW_CHANGE_DEADLINE', 'allowsTimeTracking' => 'ALLOW_TIME_TRACKING',
+        'chatId' => 'CHAT_ID',
     ];
     private const RESPONSE_FIELDS = [
         'creatorId' => 'createdBy', 'created' => 'createdDate', 'started' => 'dateStart', 'changed' => 'changedDate',
@@ -108,7 +109,7 @@ final readonly class Rest1TaskListAdapter implements DeadlineTaskGateway, \Bitri
                 'allowsChangeDeadline', 'allowsTimeTracking' => match ($value) {
                     'Y' => true, 'N' => false, default => null
                 },
-                'id', 'creatorId', 'responsibleId', 'groupId', 'estimatedTime' => is_int($value) || (is_string($value) && ctype_digit($value)) ? (int) $value : null,
+                'id', 'creatorId', 'responsibleId', 'groupId', 'estimatedTime', 'chatId' => is_int($value) || (is_string($value) && ctype_digit($value)) ? (int) $value : null,
                 'deadline', 'created', 'started', 'changed', 'closed', 'activity', 'startPlan', 'endPlan' => $value === '' ? null : $value,
                 default => $value,
             };
