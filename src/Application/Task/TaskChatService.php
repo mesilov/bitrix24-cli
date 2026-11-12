@@ -39,6 +39,23 @@ final readonly class TaskChatService
             $scan = $this->support->scan($chatId, $request->before, $request->after, $request->limit, $request->maxMessages);
             $data = ['items' => CallMessage::mark($scan->data['items'])];
             $meta = $scan->meta;
+            $exitStatus = $scan->exitStatus;
+            // The server unread flag is kept as is; a missing or non-boolean value is unknown, never "read" (#148).
+            $unknown = 0;
+            foreach ($data['items'] as $index => $item) {
+                if (!is_bool($item['unread'] ?? null)) {
+                    $data['items'][$index]['unread'] = null;
+                    $unknown++;
+                }
+            }
+
+            if ($unknown > 0) {
+                $meta['complete'] = false;
+                $meta['reason'] ??= 'message-unread-unavailable';
+                $meta['unreadUnavailable'] = $unknown;
+                $exitStatus = $exitStatus === 0 ? 3 : $exitStatus;
+            }
+
             if ($request->callDetails) {
                 $calls = $this->calls->enrich($chatId, $scan->data['items']);
                 $data['calls'] = $calls['calls'];
@@ -47,7 +64,7 @@ final readonly class TaskChatService
                 $meta['calls'] = ['found' => count(array_unique(array_column(array_column($data['items'], 'callRef'), 'callId'))), 'details' => 'disabled'];
             }
 
-            return new OperationResult($scan->profile, $data, $meta, $scan->exitStatus);
+            return new OperationResult($scan->profile, $data, $meta, $exitStatus);
         });
     }
 

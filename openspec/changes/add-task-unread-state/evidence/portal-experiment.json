@@ -1,0 +1,494 @@
+{
+  "schemaVersion": 1,
+  "kind": "derived-experiment-evidence-not-wire-fixture",
+  "portal": "bitrix24-php-sdk-playground.bitrix24.ru",
+  "date": "2026-10-16",
+  "timezone": "Asia/Bishkek",
+  "fixture": {
+    "taskId": 6388,
+    "chatId": 10872,
+    "actors": [
+      {
+        "id": 1,
+        "admin": true
+      },
+      {
+        "id": 16,
+        "admin": true
+      }
+    ],
+    "sentMessages": 9
+  },
+  "provenance": {
+    "sourceBundle": "issue148-portal-experiment",
+    "evidenceRecords": 84,
+    "projection": "Only the disposable fixture counter projections, derived comparisons, timings and cleanup are retained. No message text, unrelated chat payload or credentials. Source lines are one-based JSONL lines.",
+    "manualMarkWireShapeCaptured": false,
+    "uiSource": "report.md and ui-*.json/JPG in the source bundle; UI values below are transcribed observations, not API fields.",
+    "sourceSha256": {
+      "evidence.jsonl": "bae122ef5e42675eeccbfd142a7c993cefa3f3ca71cf8afb1284a894fdc4396c",
+      "fixture.json": "d115116c72765a5983f11638bad7ebf3492d8b4ec640fa0df964f857ab3e9cb8",
+      "mention-unread.jpg": "3261e10626bc5fc4c9e133cac4b6e0b0fee381b4cd0455a6e5ca9a87631a1904",
+      "muted-unread.jpg": "74c3f07dd9a44a0796db49835b3b53ba1cdeb33de40a1df5ad5981206cd2bcbd",
+      "read-without-reply.jpg": "9860b4b155712e126904b24d18305e4f78ac9b5245f58585d7992ba2f3580f56",
+      "repeated-muted-mix.jpg": "d4809b5f271fee7bcc203f51f9658855a3ac06861b1bb51c56899c00483b03b0",
+      "report.md": "915864fad4ddd05908b5f6de0abe6c4a93fe9c5c028d0816398d411a65e590d1",
+      "summary.json": "435a1c433da118f85f9ac0d0f6758d5ea3c85c23a295c3a66c4f27317239cb5c",
+      "ui-cleanup.json": "bac93dde4ce3445c0466885041e959bc65acb3da7f13c690aad0285a99dc8a80",
+      "ui-muted-after-reload.json": "8548bf8dfc656d9289a6e8a21c9fa0489092870d91c607763340cd09a8c11532",
+      "ui-muted-plain.json": "cd4f7192d1f13ee9951fa486c73bd0bb51e6b5a4a635971e9fb168cfb2af87e6",
+      "ui-repeated-muted-mix.json": "f8434097e3c7130f04d8cad055f896c672580f1b88e5e50745f2eb4c23c1dae5"
+    }
+  },
+  "comparisonSnapshots": 19,
+  "functionalComparisonSnapshots": 14,
+  "benchmarkComparisonSnapshots": 5,
+  "matchingThreeApiCounts": 19,
+  "snapshots": [
+    {
+      "stage": "created",
+      "actorId": 1,
+      "observedAt": "2026-10-16T11:19:48.546718+00:00",
+      "sourceLines": [
+        2,
+        3,
+        4
+      ],
+      "numericSections": {
+        "TASKS_TASK": 1
+      },
+      "manualMarkMembershipProjection": false,
+      "dialogCounter": 1,
+      "taskCounterComponents": {
+        "newComments": 1,
+        "mutedNewComments": 0
+      },
+      "countsAgree": true
+    },
+    {
+      "stage": "baseline-read",
+      "actorId": 1,
+      "observedAt": "2026-10-16T11:20:52.895951+00:00",
+      "sourceLines": [
+        6,
+        7,
+        8
+      ],
+      "numericSections": {},
+      "manualMarkMembershipProjection": false,
+      "dialogCounter": 0,
+      "taskCounterComponents": {
+        "newComments": 0,
+        "mutedNewComments": 0
+      },
+      "countsAgree": true
+    },
+    {
+      "stage": "plain-unread",
+      "actorId": 1,
+      "observedAt": "2026-10-16T11:20:58.266770+00:00",
+      "sourceLines": [
+        10,
+        11,
+        12
+      ],
+      "numericSections": {
+        "TASKS_TASK": 1
+      },
+      "manualMarkMembershipProjection": false,
+      "dialogCounter": 1,
+      "taskCounterComponents": {
+        "newComments": 1,
+        "mutedNewComments": 0
+      },
+      "countsAgree": true
+    },
+    {
+      "stage": "after-messages-read",
+      "actorId": 1,
+      "observedAt": "2026-10-16T11:21:04.308142+00:00",
+      "sourceLines": [
+        14,
+        15,
+        16
+      ],
+      "numericSections": {
+        "TASKS_TASK": 1
+      },
+      "manualMarkMembershipProjection": false,
+      "dialogCounter": 1,
+      "taskCounterComponents": {
+        "newComments": 1,
+        "mutedNewComments": 0
+      },
+      "countsAgree": true
+    },
+    {
+      "stage": "mention-unread",
+      "actorId": 1,
+      "observedAt": "2026-10-16T11:21:35.188733+00:00",
+      "sourceLines": [
+        18,
+        19,
+        20
+      ],
+      "numericSections": {
+        "TASKS_TASK": 2
+      },
+      "manualMarkMembershipProjection": false,
+      "dialogCounter": 2,
+      "taskCounterComponents": {
+        "newComments": 2,
+        "mutedNewComments": 0
+      },
+      "countsAgree": true
+    },
+    {
+      "stage": "mention-author",
+      "actorId": 16,
+      "observedAt": "2026-10-16T11:21:38.486893+00:00",
+      "sourceLines": [
+        21,
+        22,
+        23
+      ],
+      "numericSections": {},
+      "manualMarkMembershipProjection": false,
+      "dialogCounter": 0,
+      "taskCounterComponents": {
+        "newComments": 0,
+        "mutedNewComments": 0
+      },
+      "countsAgree": true
+    },
+    {
+      "stage": "after-ui-open",
+      "actorId": 1,
+      "observedAt": "2026-10-16T11:22:12.101648+00:00",
+      "sourceLines": [
+        24,
+        25,
+        26
+      ],
+      "numericSections": {},
+      "manualMarkMembershipProjection": false,
+      "dialogCounter": 0,
+      "taskCounterComponents": {
+        "newComments": 0,
+        "mutedNewComments": 0
+      },
+      "countsAgree": true
+    },
+    {
+      "stage": "muted-unread",
+      "actorId": 1,
+      "observedAt": "2026-10-16T11:23:01.888595+00:00",
+      "sourceLines": [
+        29,
+        30,
+        31
+      ],
+      "numericSections": {
+        "CHAT_MUTED": 1
+      },
+      "manualMarkMembershipProjection": false,
+      "dialogCounter": 1,
+      "taskCounterComponents": {
+        "newComments": 0,
+        "mutedNewComments": 1
+      },
+      "countsAgree": true
+    },
+    {
+      "stage": "muted-mention",
+      "actorId": 1,
+      "observedAt": "2026-10-16T11:23:07.463736+00:00",
+      "sourceLines": [
+        33,
+        34,
+        35
+      ],
+      "numericSections": {
+        "CHAT_MUTED": 2
+      },
+      "manualMarkMembershipProjection": false,
+      "dialogCounter": 2,
+      "taskCounterComponents": {
+        "newComments": 0,
+        "mutedNewComments": 2
+      },
+      "countsAgree": true
+    },
+    {
+      "stage": "muted-after-ui-reload",
+      "actorId": 1,
+      "observedAt": "2026-10-16T11:23:39.954962+00:00",
+      "sourceLines": [
+        36,
+        37,
+        38
+      ],
+      "numericSections": {
+        "CHAT_MUTED": 2
+      },
+      "manualMarkMembershipProjection": false,
+      "dialogCounter": 2,
+      "taskCounterComponents": {
+        "newComments": 0,
+        "mutedNewComments": 2
+      },
+      "countsAgree": true
+    },
+    {
+      "stage": "muted-plain-only",
+      "actorId": 1,
+      "observedAt": "2026-10-16T11:24:23.666732+00:00",
+      "sourceLines": [
+        41,
+        42,
+        43
+      ],
+      "numericSections": {
+        "CHAT_MUTED": 1
+      },
+      "manualMarkMembershipProjection": false,
+      "dialogCounter": 1,
+      "taskCounterComponents": {
+        "newComments": 0,
+        "mutedNewComments": 1
+      },
+      "countsAgree": true
+    },
+    {
+      "stage": "own-message",
+      "actorId": 1,
+      "observedAt": "2026-10-16T11:25:03.128464+00:00",
+      "sourceLines": [
+        47,
+        48,
+        49
+      ],
+      "numericSections": {},
+      "manualMarkMembershipProjection": false,
+      "dialogCounter": 0,
+      "taskCounterComponents": {
+        "newComments": 0,
+        "mutedNewComments": 0
+      },
+      "countsAgree": true
+    },
+    {
+      "stage": "manual-mark-only",
+      "actorId": 1,
+      "observedAt": "2026-10-16T11:25:08.319809+00:00",
+      "sourceLines": [
+        51,
+        52,
+        53
+      ],
+      "numericSections": {},
+      "manualMarkMembershipProjection": true,
+      "dialogCounter": 0,
+      "taskCounterComponents": {
+        "newComments": 0,
+        "mutedNewComments": 0
+      },
+      "countsAgree": true
+    },
+    {
+      "stage": "repeated-muted-mix",
+      "actorId": 1,
+      "observedAt": "2026-10-16T11:26:05.140293+00:00",
+      "sourceLines": [
+        60,
+        61,
+        62
+      ],
+      "numericSections": {
+        "CHAT_MUTED": 3
+      },
+      "manualMarkMembershipProjection": false,
+      "dialogCounter": 3,
+      "taskCounterComponents": {
+        "newComments": 0,
+        "mutedNewComments": 3
+      },
+      "countsAgree": true
+    },
+    {
+      "stage": "benchmark-1",
+      "actorId": 1,
+      "observedAt": "2026-10-16T11:26:23.600196+00:00",
+      "sourceLines": [
+        64,
+        65,
+        66
+      ],
+      "numericSections": {
+        "CHAT_MUTED": 3
+      },
+      "manualMarkMembershipProjection": false,
+      "dialogCounter": 3,
+      "taskCounterComponents": {
+        "newComments": 0,
+        "mutedNewComments": 3
+      },
+      "countsAgree": true
+    },
+    {
+      "stage": "benchmark-2",
+      "actorId": 1,
+      "observedAt": "2026-10-16T11:26:24.346978+00:00",
+      "sourceLines": [
+        67,
+        68,
+        69
+      ],
+      "numericSections": {
+        "CHAT_MUTED": 3
+      },
+      "manualMarkMembershipProjection": false,
+      "dialogCounter": 3,
+      "taskCounterComponents": {
+        "newComments": 0,
+        "mutedNewComments": 3
+      },
+      "countsAgree": true
+    },
+    {
+      "stage": "benchmark-3",
+      "actorId": 1,
+      "observedAt": "2026-10-16T11:26:25.062661+00:00",
+      "sourceLines": [
+        70,
+        71,
+        72
+      ],
+      "numericSections": {
+        "CHAT_MUTED": 3
+      },
+      "manualMarkMembershipProjection": false,
+      "dialogCounter": 3,
+      "taskCounterComponents": {
+        "newComments": 0,
+        "mutedNewComments": 3
+      },
+      "countsAgree": true
+    },
+    {
+      "stage": "benchmark-4",
+      "actorId": 1,
+      "observedAt": "2026-10-16T11:26:25.799745+00:00",
+      "sourceLines": [
+        73,
+        74,
+        75
+      ],
+      "numericSections": {
+        "CHAT_MUTED": 3
+      },
+      "manualMarkMembershipProjection": false,
+      "dialogCounter": 3,
+      "taskCounterComponents": {
+        "newComments": 0,
+        "mutedNewComments": 3
+      },
+      "countsAgree": true
+    },
+    {
+      "stage": "benchmark-5",
+      "actorId": 1,
+      "observedAt": "2026-10-16T11:26:26.572984+00:00",
+      "sourceLines": [
+        76,
+        77,
+        78
+      ],
+      "numericSections": {
+        "CHAT_MUTED": 3
+      },
+      "manualMarkMembershipProjection": false,
+      "dialogCounter": 3,
+      "taskCounterComponents": {
+        "newComments": 0,
+        "mutedNewComments": 3
+      },
+      "countsAgree": true
+    }
+  ],
+  "uiObservations": [
+    {
+      "stage": "created",
+      "badge": 1,
+      "color": "green"
+    },
+    {
+      "stage": "plain-unread",
+      "badge": 1,
+      "color": "green"
+    },
+    {
+      "stage": "mention-unread",
+      "badge": 2,
+      "color": "green"
+    },
+    {
+      "stage": "after-ui-open",
+      "badge": null
+    },
+    {
+      "stage": "muted-unread",
+      "badge": 1,
+      "color": "gray"
+    },
+    {
+      "stage": "muted-mention",
+      "badge": 1,
+      "color": "green"
+    },
+    {
+      "stage": "muted-after-ui-reload",
+      "badge": 1,
+      "color": "green"
+    },
+    {
+      "stage": "repeated-muted-mix",
+      "badge": 2,
+      "color": "green"
+    }
+  ],
+  "metrics": {
+    "im.counters.get": {
+      "samples": 5,
+      "medianMs": 235.05,
+      "minMs": 213.96,
+      "maxMs": 251.78
+    },
+    "im.dialog.get": {
+      "samples": 5,
+      "medianMs": 260.75,
+      "minMs": 247.85,
+      "maxMs": 274.75
+    },
+    "tasks.task.list": {
+      "samples": 5,
+      "medianMs": 252.96,
+      "minMs": 239.5,
+      "maxMs": 269.42
+    }
+  },
+  "cleanup": {
+    "sourceLine": 84,
+    "observedAt": "2026-10-16T11:27:18.463470+00:00",
+    "remainingTasks": 0,
+    "uiCleanupVerified": true,
+    "uiFilterRestored": true
+  },
+  "limitations": [
+    "One portal, two administrator connections; restricted-role and cross-portal support not established.",
+    "Manual-marker membership was logged by a helper; its non-empty raw wire shape and marker-plus-counter state were not captured.",
+    "The literal @ badge was not reproduced; numeric UI badges differ from API counts in muted mention scenarios.",
+    "Five transport-inclusive samples per method do not establish scaled performance.",
+    "This evidence predates implementation of the proposed CLI flag and is not CLI acceptance."
+  ]
+}
