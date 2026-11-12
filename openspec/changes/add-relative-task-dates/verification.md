@@ -1,6 +1,8 @@
 # Verification
 
-Ветка `feature/141-relative-dates`, база `dev` `ff9481e`, рабочее дерево до коммита. Окружение — Docker `php-cli` проекта, PHP 8.4.27.
+Ветка `feature/141-relative-dates`, исходная база `dev` `ff9481e`. Окружение — Docker `php-cli` проекта, PHP 8.4.27.
+
+После merge `origin/dev` `c289c16` (#148, #179, #185): `make unit` — OK, 1315 тестов, 20223 assertions; `make lint-all` — OK; `make cli-reference-check` — 72 публичные команды; `openspec validate add-relative-task-dates --strict` — valid. Таблица ниже — результаты до merge.
 
 ## Локальные проверки (2026-11-13)
 
