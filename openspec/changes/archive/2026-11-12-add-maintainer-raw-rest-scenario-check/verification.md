@@ -20,3 +20,8 @@
 - Изменены только инструкции сопровождения. Runtime CLI, API-вызовы, тесты и JTBD не менялись; PHP-проверки не нужны.
 - Пример `curl --config -` не выполнялся против портала в рамках этой задачи: это правило работы, а не runtime-код.
 - Шаг проверки сырыми запросами для самого #192 не релевантен: issue не добавляет и не меняет вызовы REST API.
+
+## Доставка
+
+- [MR #194](https://github.com/mesilov/bitrix24-cli/pull/194) влит в `dev` 2026-11-12T05:40:06Z: `d2beda733ad5f8463970c95dec7bf48bc531ac71`. На head `be222bd` все CI checks SUCCESS; замечаний и открытых threads нет.
+- Issue #192 закрыт (completed). Change архивирован с `--skip-specs`: delta specs нет, `openspec/specs/` не менялись.
