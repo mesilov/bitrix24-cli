@@ -249,14 +249,19 @@ final readonly class TaskInputMapper
 
     private function query(InputInterface $input, bool $find, ?string $apiPolicy = null): TaskQuery
     {
-        $windows = $input->getOption('deadline-window');
-        if (count($windows) > 1) {
-            throw Failure::usage('Provide --deadline-window only once.');
+        $windows = [];
+        foreach (['deadline', 'created', 'changed'] as $field) {
+            $values = $input->getOption($field . '-window');
+            if (count($values) > 1) {
+                throw Failure::usage('Provide --' . $field . '-window only once.');
+            }
+
+            $windows[$field] = $values[0] ?? null;
         }
 
-        $deadlineWindow = $this->deadlines->resolve($windows[0] ?? null, $input->getOption('overdue'), $input->getOption('timezone'));
-        if ($deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow && ($input->getOption('due-before') !== null || $input->getOption('where') !== null || $input->getOption('where-file') !== null)) {
-            throw Failure::usage('Do not mix --deadline-window/--overdue with --due-before or --where/--where-file.');
+        [$deadlineWindow, $dateWindows] = $this->deadlines->resolveAll($windows['deadline'], $input->getOption('overdue'), ['created' => $windows['created'], 'changed' => $windows['changed']], $input->getOption('timezone'));
+        if (($deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow || $dateWindows !== []) && ($input->getOption('due-before') !== null || $input->getOption('where') !== null || $input->getOption('where-file') !== null)) {
+            throw Failure::usage('Do not mix --deadline-window/--overdue/--created-window/--changed-window with --due-before or --where/--where-file.');
         }
 
         $value = $input->getOption('role');
@@ -318,6 +323,7 @@ final readonly class TaskInputMapper
             $role,
             $deadlineWindow,
             apiPolicy: $apiPolicy,
+            dateWindows: $dateWindows,
         );
     }
 

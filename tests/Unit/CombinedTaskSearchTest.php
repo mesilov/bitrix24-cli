@@ -166,7 +166,7 @@ final class CombinedTaskSearchTest extends TestCase
                     self::assertStringContainsString('complete=true', $run->stderr);
                 } else {
                     self::assertSame([['id' => 3, 'title' => 'Согласовать договор']], $run->json()['data']['items']);
-                    self::assertSame('', $run->stderr);
+                    self::assertStringStartsWith('Локальный обход REST 3.0 (причина: strict-rest3)', $run->stderr);
                 }
             }
         }

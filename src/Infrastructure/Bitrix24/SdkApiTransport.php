@@ -70,22 +70,23 @@ final readonly class SdkApiTransport implements ApiTransport
                 }
             }
 
+            // REST errors arrive as "<error_code> - <description>"; keep only the native code for callers.
             throw new Failure('api-error', 'Bitrix24 rejected the request; verify the target, fields and permissions.', 1, $codeDetails);
         }
     }
 
     /**
-     * The API error code from the SDK message prefix ("code - description"), never the description itself.
+     * The native API error code in upper case from the SDK message prefix ("code - description"), never the description itself.
      */
     private function errorCode(\Throwable $exception): ?string
     {
         for ($cause = $exception; $cause instanceof \Throwable; $cause = $cause->getPrevious()) {
             if ($cause instanceof MethodNotFoundException) {
-                return 'error_method_not_found';
+                return 'ERROR_METHOD_NOT_FOUND';
             }
 
-            if (preg_match('/^([a-z][a-z0-9_]{2,80}) - /', strtolower($cause->getMessage()), $match) === 1) {
-                return $match[1];
+            if (preg_match('/^([a-z][a-z0-9_]{1,63}) - /', strtolower($cause->getMessage()), $match) === 1) {
+                return strtoupper($match[1]);
             }
         }
 

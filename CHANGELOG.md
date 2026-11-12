@@ -10,6 +10,8 @@
 
 ### Исправлено
 
+- `task:list` и `task:find` при `task-v3` передают `--status` и `where.status` в серверный фильтр REST 1.0 `REAL_STATUS`; выборка по статусу больше не обходит до 10 000 задач портала. `declined` не задокументирован для этого фильтра и проверяется локально. Временные флаги теперь передают на сервер не только группу, но и исполнителя, постановщика (в том числе из `--role responsible|creator`) и статус; `meta.listRoute` появился и на временном маршруте. Локальный обход REST 3.0 без `--id` пишет в stderr причину, бюджет `--max-scan` и прогресс каждые 1000 задач; `--quiet`/`--silent` подавляют эти строки, stdout и JSON не меняются. [#186](https://github.com/mesilov/bitrix24-cli/issues/186)
+
 - `task:chat:list` без `--before`/`--after` больше не теряет новые сообщения, когда в чате задачи есть непрочитанные: обход начинается с последнего сообщения (`im.dialog.get` → `last_message_id`), а не с окна первого непрочитанного. Та же проверка в `task:chat:update`/`task:chat:delete` теперь находит новые сообщения. Прочитанность не меняется. [#202](https://github.com/mesilov/bitrix24-cli/issues/202)
 
 - `task:list` и `task:find` без временных флагов передают `--group-id`, `--responsible`, `--role responsible|creator` и одноимённые поля `--where` в серверный фильтр REST 1.0 `tasks.task.list`. Выборка небольшого проекта на портале с десятками тысяч задач стала полной и быстрой, вместо `scan-budget-exhausted` после 10 000 задач. `meta.listRoute` показывает маршрут и серверные условия; `--api-policy strict-rest3` сохраняет прежнюю локальную фильтрацию REST 3.0. Подсказка неполного обхода `task:list` больше не упоминает дубли. [#183](https://github.com/mesilov/bitrix24-cli/issues/183)
@@ -17,6 +19,8 @@
 - Архивирован OpenSpec change серверных фильтров `task:list`/`task:find`; требования синхронизированы в основные спецификации `cli-experience`, `task-console-runtime` и `task-role-filtering`. [#183](https://github.com/mesilov/bitrix24-cli/issues/183)
 
 - Устранены 8 security advisories `composer audit`: `symfony/filesystem` 8.1.11 (GHSA-6prc-h956-hxjq), `symfony/http-client` 8.1.11 (CVE-2026-121971, CVE-2026-123119), `symfony/http-foundation` 8.1.11 (CVE-2026-118514 и три GHSA), `symfony/mime` 8.1.10 (CVE-2026-45070). Обновлён только `composer.lock`; ограничения `composer.json` и поведение CLI не менялись. [#196](https://github.com/mesilov/bitrix24-cli/issues/196)
+
+- Архивирован OpenSpec change установки Bash и zsh на Linux packaging runner: сохранены результаты трёхплатформенной intermediate-сборки run 43092552553 (`builds` 201e643), прохождение `test_documented_shell_sequences` на Linux и проверка SHA256SUMS скачанных артефактов. [#177](https://github.com/mesilov/bitrix24-cli/issues/177)
 
 - Linux native packaging явно устанавливает Bash и zsh перед приёмкой документированных shell-последовательностей и проверяет их наличие; обязательные проверки `shell-installer-check.py` не ослаблены. Устранён блокер трёхплатформенной intermediate-сборки. [#177](https://github.com/mesilov/bitrix24-cli/issues/177)
 
@@ -32,6 +36,18 @@
 
 ### Добавлено
 
+- **Отправка в чат (CHAT-02):** `chats:send TARGET|--name NAME --text|--text-file` отправляет одно сообщение через `im.message.add`. По названию запись разрешена только при единственном точном совпадении в полном поиске; иначе `chat-not-found`, `chat-ambiguous` с кандидатами или `search-incomplete`, и ничего не отправляется. `--dry-run` проверяет адресат без записи. Потерянный ответ даёт `outcomeUnknown` без повтора; созданное сообщение читается по ID и сверяется с чатом. [#180](https://github.com/mesilov/bitrix24-cli/issues/180)
+
+- **Поиск чата по названию:** `chats:find --name NAME` ищет групповые чаты (`im.search.chat.list`), проекты (`sonet_group.get` → `sgN`) и задачи по заголовку (→ `task:N`), потому что поиск чатов не возвращает чаты проектов и задач. Совпадения только по участнику скрыты; точные совпадения проекта и задачи подтверждаются как в `chats:resolve`. `data.selection` различает `unique`, `none`, `ambiguous`, `unavailable` и `incomplete` (exit 3); неполный источник не превращается в «не найдено». [#180](https://github.com/mesilov/bitrix24-cli/issues/180)
+
+- **История чата за период (CHAT-01):** `chats:messages:list TARGET --period yesterday --timezone ZONE` или `--from/--to` возвращает сообщения интервала [from, to) с авторами, временем и ID. Обход идёт от последнего сообщения, а не от окна непрочитанных, и не меняет прочитанность. Порядок дат по ID не предполагается: полнота подтверждается только началом истории, иначе exit 3 с причиной (`message-budget-exhausted`, `page-error`, `output-limit` и др.). [#180](https://github.com/mesilov/bitrix24-cli/issues/180)
+
+- **Адресат чата:** `chats:resolve TARGET` проверяет общий чат проекта (`sgN`, `group:N`), чат задачи (`task:N`) и групповой чат (`chatN`) по типизированному ID или ссылке портала. Ссылка разбирается локально; ссылка другого портала, голое число и личный диалог отклоняются до запросов. Недоступный чат возвращает `chat-unavailable`, а не пустой результат; strict-rest3 отклоняет REST 1.0 маршрут. [#180](https://github.com/mesilov/bitrix24-cli/issues/180)
+
+- Подготовлен OpenSpec `add-unified-chat-access` с самостоятельным namespace `chats:*`: вход по URL/названию, история периода и отправка в чат проекта, задачи и произвольный чат. Зафиксированы планируемые CHAT-01/CHAT-02 и текущее покрытие JTBD; runtime ещё не реализован. В инструкциях проекта закреплена работа с GitHub только через неинтерактивный `gh`. [#180](https://github.com/mesilov/bitrix24-cli/issues/180)
+
+- **Окна по дате создания и изменения:** `task:list` и `task:find` принимают `--created-window` и `--changed-window` с мнемониками `--deadline-window` (`today` … `this-quarter`). Окна идут на сервер REST 1.0 как `CREATED_DATE`/`CHANGED_DATE`, сочетаются между собой и с остальными критериями через AND и показывают границы в `meta.createdFilter`/`meta.changedFilter`. Пример: `b24cli task:list --group-id 42 --created-window this-quarter --json`. При `--api-policy strict-rest3` флаги отклоняются до запросов. [#186](https://github.com/mesilov/bitrix24-cli/issues/186)
+
 - **Файловое логирование:** корневой объект `logging` в `config.json` включает суточный лог JSON Lines (`b24cli-{YYYY}{MM}{DD}.log` в `logs/` рядом с config, хранение 7 дней) при любом способе подключения. Пишутся начало и завершение команды, ошибки и события b24phpsdk с `runId`; выше `debug` о REST-вызовах только сводка, данные на `debug` ограничены, webhook и токены маскируются. Неверный `logging` не ломает команды и профили, `connection:show` показывает статус и путь к файлу. Версии CLI без поддержки `logging` отклоняют такой `config.json`: перед их запуском удалите ключ. [#189](https://github.com/mesilov/bitrix24-cli/issues/189)
 
 - **Скилл grill-me:** в `.agents/skills/` добавлены `grill-me` и обязательный для него `grilling` из mattpocock/skills (MIT, commit `fcf0071`). В `grill-me` добавлен запасной путь для агентов без инструмента `Skill` (Codex): прочитать `../grilling/SKILL.md`; остальное совпадает с upstream. Скилл проводит интервью по плану раундами перед подготовкой OpenSpec change; происхождение и лицензия лежат рядом со скиллами, требования — в `openspec/specs/agent-skills/`. [#190](https://github.com/mesilov/bitrix24-cli/issues/190)
@@ -45,6 +61,10 @@
 - **Проверка прав вебхука:** требования выбранной команды сверяются с разрешениями подключения; отдельный защищённый `state.json` хранит снимок на сутки. Смена credentials/манифеста обновляет проверку, нехватка scope блокирует только затронутую команду, а `connection:check` принудительно обновляет права и показывает диагностику в human/plain/JSON. При сбое сохраняется последний успешный снимок и применяется backoff 300 секунд. [#149](https://github.com/mesilov/bitrix24-cli/issues/149)
 
 ### Изменено
+
+- Архивирован OpenSpec change `add-unified-chat-access`: спецификация `chat-access` перенесена в `openspec/specs/chat-access/`, материалы приёмки — в `openspec/changes/archive/2026-11-12-add-unified-chat-access/`. [#180](https://github.com/mesilov/bitrix24-cli/issues/180)
+
+- Архивирован OpenSpec change серверных фильтров `task:list` после merge MR #210 в `dev`: требования о серверном `REAL_STATUS`, окнах `--created-window`/`--changed-window` и сообщениях локального обхода в stderr перенесены в `openspec/specs/cli-experience/`, `task-deadline-windows/` и `task-console-runtime/`; change лежит в `openspec/changes/archive/2026-11-12-extend-task-list-server-filters/`. Перевод новых окон в skill задач остаётся открытой задачей 6.4 до выпуска флагов. [#186](https://github.com/mesilov/bitrix24-cli/issues/186)
 
 - Архивирован OpenSpec change исправления окна непрочитанных в `task:chat:list` после merge MR #203 в `dev`: требование «Task chat history starts from the latest message» перенесено в `openspec/specs/task-console-runtime/`, change лежит в `openspec/changes/archive/2026-11-12-fix-task-chat-unread-window/`. [#202](https://github.com/mesilov/bitrix24-cli/issues/202)
 

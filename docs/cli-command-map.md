@@ -1,6 +1,6 @@
 # Карта CLI-вызовов
 
-Каталог содержит 65 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
+Каталог содержит 69 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
 
 `b24cli --help`/`-h` показывают назначение, список команд, глобальные опции и примеры задач. Вся справка — на русском; имена команд, флагов и API/JSON-полей сохраняются. Единый первый блок «Общие» содержит `completion`, `help` и `list`; далее пространства имён и команды внутри блоков упорядочены по имени. `b24cli --about` показывает назначение, версию, автора, лицензию и ссылки на [приложение](https://github.com/mesilov/bitrix24-cli) и [скилл](https://github.com/mesilov/bitrix24-cli-skill). Эти вызовы не требуют подключения и не обращаются к порталу. `list --help` описывает именно list; вызов без аргументов выводит список команд.
 
@@ -8,6 +8,10 @@
 
 | Команда | Назначение | Эффект | Пример |
 | --- | --- | --- | --- |
+| [`chats:find`](../src/Console/Command/Chats/FindChatCommand.php) | Найти чат по названию: групповые чаты, проекты и задачи | read | `b24cli chats:find --name 'Команда проекта' --json` |
+| [`chats:messages:list`](../src/Console/Command/Chats/ListChatMessagesCommand.php) | Показать сообщения чата за период | read | `b24cli chats:messages:list sg234 --period yesterday --timezone Europe/Moscow --json` |
+| [`chats:resolve`](../src/Console/Command/Chats/ResolveChatCommand.php) | Проверить адресат чата по ссылке или типизированному ID | read | `b24cli chats:resolve 'https://portal.example/workgroups/group/234/' --json` |
+| [`chats:send`](../src/Console/Command/Chats/SendChatMessageCommand.php) | Отправить сообщение в чат по ссылке, ID или точному названию | write | `b24cli chats:send --name 'Команда проекта' --text 'Сегодня меня не будет' --json --dry-run` |
 | `completion` | Вывести скрипт автодополнения для оболочки | offline | `b24cli completion bash` |
 | [`connection:add`](../src/Console/Command/Connection/AddConnectionCommand.php) | Сохранить локальное подключение | local | `b24cli connection:add work --group-id 7 --creator-id 1 --responsible-id 42` |
 | [`connection:check`](../src/Console/Command/Connection/CheckConnectionCommand.php) | Проверить разрешения выбранного вебхука и требования CLI | read | `b24cli connection:check work --json` |

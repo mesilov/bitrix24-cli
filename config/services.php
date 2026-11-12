@@ -63,6 +63,13 @@ return static function (ContainerBuilder $container, string $root, bool $package
         Bitrix24\CLI\Application\Task\ChecklistItemService::class,
         Bitrix24\CLI\Application\Task\TaskLifecycleService::class,
         Bitrix24\CLI\Application\Task\TaskHandoverService::class,
+        Bitrix24\CLI\Console\ChatInputMapper::class,
+        Bitrix24\CLI\Application\Chat\ChatDestinationService::class,
+        Bitrix24\CLI\Application\Chat\MessagePeriodResolver::class,
+        Bitrix24\CLI\Application\Chat\ChatHistoryScanner::class,
+        Bitrix24\CLI\Application\Chat\ChatMessagesService::class,
+        Bitrix24\CLI\Application\Chat\ChatFindService::class,
+        Bitrix24\CLI\Application\Chat\ChatSendService::class,
 
     ];
     foreach ($services as $service) {
@@ -103,6 +110,11 @@ return static function (ContainerBuilder $container, string $root, bool $package
     ] as $handler) {
         $container->register('Bitrix24\\CLI\\Application\\Task\\Handler\\' . $handler . 'Handler')->setAutowired(true);
     }
+
+    $container->register(Bitrix24\CLI\Infrastructure\Bitrix24\Rest1ImDialogAdapter::class)->setAutowired(true);
+    $container->setAlias(Bitrix24\CLI\Application\Chat\Port\ChatDialogGateway::class, Bitrix24\CLI\Infrastructure\Bitrix24\Rest1ImDialogAdapter::class);
+    $container->register(Bitrix24\CLI\Infrastructure\Bitrix24\Rest1ChatSearchAdapter::class)->setAutowired(true);
+    $container->setAlias(Bitrix24\CLI\Application\Chat\Port\ChatSearchGateway::class, Bitrix24\CLI\Infrastructure\Bitrix24\Rest1ChatSearchAdapter::class);
 
     foreach (['UserDirectoryGateway' => 'Rest1UserDirectoryAdapter', 'DepartmentGateway' => 'Rest1DepartmentAdapter', 'UserPresenceGateway' => 'Rest1UserPresenceAdapter'] as $port => $adapter) {
         $class = 'Bitrix24\\CLI\\Infrastructure\\Bitrix24\\' . $adapter;

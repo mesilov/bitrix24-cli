@@ -143,7 +143,9 @@ final class RecentTaskScanTest extends TestCase
         self::assertTrue($run->json()['meta']['complete']);
         self::assertNull($run->json()['error']);
         self::assertArrayNotHasKey('hint', $run->json()['meta']);
-        self::assertSame('', $run->stderr);
+        // The only stderr line is the local scan notice; the JSON envelope stays in stdout.
+        self::assertStringStartsWith('Локальный обход REST 3.0', $run->stderr);
+        self::assertSame(1, substr_count($run->stderr, "\n"));
     }
 
     #[DataProvider('commands')]

@@ -135,7 +135,7 @@ CLI SHALL не читать stdin неявно и не разрешать два
 - **THEN** CLI SHALL сохранять schemaVersion 1, data/meta/error и текущие формы данных/TSV columns; human пояснения не добавляются в stdout machine форматов, а обязательная plain диагностика полноты идёт в stderr
 
 ### Requirement: Explicit filtering and completeness of lists
-Без новых временных флагов списки SHALL передавать на сервер id, а при task-v3 также группу, исполнителя и постановщика через REST1 tasks.task.list; остальные условия SHALL проверяться локально. Маршрут SHALL выбираться до запросов и показываться в meta. --limit ограничивает результат, --all снимает этот предел, --max-scan ограничивает просмотр. CLI SHALL сообщать scope, scanned и полноту; cap, ошибка страницы или недостающие данные SHALL означать partial.
+Без новых временных флагов списки SHALL передавать на сервер id, а при task-v3 также группу, исполнителя, постановщика и документированный статус через REST1 tasks.task.list; остальные условия SHALL проверяться локально. Маршрут SHALL выбираться до запросов и показываться в meta. --limit ограничивает результат, --all снимает этот предел, --max-scan ограничивает просмотр. CLI SHALL сообщать scope, scanned и полноту; cap, ошибка страницы или недостающие данные SHALL означать partial.
 
 #### Scenario: Responsible or project filter
 - **WHEN** пользователь задаёт `task:list --responsible 42 --group-id 7` без новых временных флагов при task-v3
@@ -150,8 +150,16 @@ CLI SHALL не читать stdin неявно и не разрешать два
 - **THEN** CLI до запросов выбирает REST3 маршрут с локальной фильтрацией текущей семантики и указывает его в meta.listRoute с причиной; маршрут не меняется после ошибки запроса
 
 #### Scenario: Remaining local predicates on the server route
-- **WHEN** серверные условия сочетаются с --status, --due-before, --title (task:find) или другими поддерживаемыми полями --where
+- **WHEN** серверные условия сочетаются с --due-before, --title (task:find), --status declined или другими поддерживаемыми полями --where
 - **THEN** эти условия проверяются локально по строкам серверной выборки через AND; формы data.items, TSV колонки и значения status/groupId/responsibleId совпадают с REST3 маршрутом
+
+#### Scenario: Status filtered by the server
+- **WHEN** `task:list --status in_progress` или where status со значением pending, in_progress, supposedly_completed, completed либо deferred выполняется без новых временных флагов при task-v3
+- **THEN** CLI отправляет REST1 tasks.task.list с filter REAL_STATUS равным коду 2, 3, 4, 5 или 6 соответственно, не вызывает REST3 tasks.task.list; meta.listRoute содержит apiVersion 1.0 и serverFilter со status; статус каждой строки дополнительно проверяется локально, и строка с другим или неизвестным статусом не добавляется к совпадениям
+
+#### Scenario: Undocumented status value stays local
+- **WHEN** запрошен --status declined без других серверных условий при task-v3
+- **THEN** REAL_STATUS не отправляется, CLI выбирает REST3 маршрут с локальной проверкой статуса и reason no-server-predicate; вместе с другими серверными условиями declined проверяется локально на REST1 маршруте
 
 #### Scenario: Strict policy keeps local filtering
 - **WHEN** `task:list --responsible 42 --group-id 7` выполняется при strict-rest3
@@ -179,7 +187,7 @@ CLI SHALL не читать stdin неявно и не разрешать два
 
 #### Scenario: Explicit deadline route
 - **WHEN** task:list получает --deadline-window или --overdue
-- **THEN** выбирается заранее объявленный REST1 tasks.task.list с серверными границами DEADLINE по task-deadline-windows; metadata показывает маршрут и интервал; strict-rest3 запрещает его до запросов; limit/all/max-scan/partial продолжают действовать
+- **THEN** выбирается заранее объявленный REST1 tasks.task.list с серверными границами DEADLINE по task-deadline-windows и теми же серверными условиями группы, исполнителя, постановщика и статуса, что и без временных флагов; metadata показывает маршрут, интервал и meta.listRoute с apiVersion 1.0 и serverFilter; strict-rest3 запрещает его до запросов; limit/all/max-scan/partial продолжают действовать
 
 #### Scenario: Visible complete scan with limited output
 - **WHEN** task:list или task:find завершила обход видимой выборки, но returned меньше matched из-за --limit
@@ -450,3 +458,22 @@ The root help SHALL group the current registered public command catalog before r
 - **THEN** the public unnamespaced command joins «Общие» and namespace commands join their corresponding groups
 - **AND** groups and commands follow the specified order without duplicates
 - **AND** the hidden command is absent
+
+### Requirement: Visible local scan in stderr
+Когда task:list или task:find обходит видимые задачи по REST3 маршруту без явного --id, CLI SHALL до первого запроса сообщить в stderr о локальном обходе, его причине и бюджете --max-scan, а во время обхода SHALL сообщать число просмотренных задач. Сообщения MUST NOT попадать в stdout и MUST NOT менять JSON-конверт.
+
+#### Scenario: Warning before a local scan
+- **WHEN** `task:list --status declined --limit 5` выполняется без других серверных условий при task-v3
+- **THEN** stderr до первого запроса содержит строку о локальном обходе с причиной no-server-predicate, бюджетом 10000 и советом добавить серверный критерий (--group-id, --responsible, --role responsible|creator, --status или временное окно); stdout содержит только результат
+
+#### Scenario: Progress during a long local scan
+- **WHEN** локальный обход просматривает больше 1000 задач
+- **THEN** stderr получает строку прогресса после каждых 1000 просмотренных задач с числом просмотренных задач, совпадений и бюджетом; итоговые meta.scanned и meta.matched не меняются
+
+#### Scenario: No warning on the server route or for explicit IDs
+- **WHEN** команда идёт серверным маршрутом REST1 либо REST3 выборка ограничена явным --id
+- **THEN** предупреждение и прогресс локального обхода не выводятся
+
+#### Scenario: Quiet and silent modes
+- **WHEN** локальный обход выполняется с --quiet или --silent
+- **THEN** предупреждение и прогресс не выводятся; partial диагностика и коды завершения сохраняют текущее поведение
