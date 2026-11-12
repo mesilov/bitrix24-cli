@@ -177,6 +177,14 @@ Runtime SHALL заранее проверять все потенциальны�
 - **WHEN** task:list или task:find получает --role responsible либо --role creator при strict-rest3
 - **THEN** роль проверяется локально по REST3 responsibleId/creatorId, план содержит только REST3 tasks.task.list; отсутствие --role не добавляет companion request
 
+#### Scenario: Planned server list filters
+- **WHEN** task:list или task:find без временных флагов получает при task-v3 --group-id, --responsible, --role responsible или --role creator, а выбранные select/order/where поддерживаются REST1 списком
+- **THEN** план заранее содержит REST1 tasks.task.list вместо REST3 tasks.task.list и не содержит tasks.task.get для проверки группы; для --role accomplice/auditor план дополнительно содержит REST1 tasks.task.get чтения участников; версии отражены в meta
+
+#### Scenario: Strict policy keeps local list filters
+- **WHEN** те же task:list или task:find выбраны при strict-rest3
+- **THEN** план содержит только REST3 маршруты текущей локальной фильтрации; policy-denied для --group-id, --responsible, --role responsible и --role creator не возвращается
+
 #### Scenario: Local attachment mixed route plan
 - **WHEN** task:file:attach выбрана с --file/--folder-id
 - **THEN** task-v3 допускает только disk.folder.uploadFile REST1 и tasks.task.file.attach REST3; strict-rest3 возвращает policy-denied/exit4 до credentials/API, включая dry-run; режим --file-id сохраняет только REST3

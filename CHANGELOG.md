@@ -6,6 +6,8 @@
 
 - `task:list` и `task:find` без временных флагов передают `--group-id`, `--responsible`, `--role responsible|creator` и одноимённые поля `--where` в серверный фильтр REST 1.0 `tasks.task.list`. Выборка небольшого проекта на портале с десятками тысяч задач стала полной и быстрой, вместо `scan-budget-exhausted` после 10 000 задач. `meta.listRoute` показывает маршрут и серверные условия; `--api-policy strict-rest3` сохраняет прежнюю локальную фильтрацию REST 3.0. Подсказка неполного обхода `task:list` больше не упоминает дубли. [#183](https://github.com/mesilov/bitrix24-cli/issues/183)
 
+- Архивирован OpenSpec change серверных фильтров `task:list`/`task:find`; требования синхронизированы в основные спецификации `cli-experience`, `task-console-runtime` и `task-role-filtering`. [#183](https://github.com/mesilov/bitrix24-cli/issues/183)
+
 - Устранены 8 security advisories `composer audit`: `symfony/filesystem` 8.1.11 (GHSA-6prc-h956-hxjq), `symfony/http-client` 8.1.11 (CVE-2026-121971, CVE-2026-123119), `symfony/http-foundation` 8.1.11 (CVE-2026-118514 и три GHSA), `symfony/mime` 8.1.10 (CVE-2026-45070). Обновлён только `composer.lock`; ограничения `composer.json` и поведение CLI не менялись. [#196](https://github.com/mesilov/bitrix24-cli/issues/196)
 
 - Linux native packaging явно устанавливает Bash и zsh перед приёмкой документированных shell-последовательностей и проверяет их наличие; обязательные проверки `shell-installer-check.py` не ослаблены. Устранён блокер трёхплатформенной intermediate-сборки. [#177](https://github.com/mesilov/bitrix24-cli/issues/177)

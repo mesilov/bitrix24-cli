@@ -82,6 +82,14 @@
 - **WHEN** REST3 строка для responsible/creator не содержит корректный `responsibleId`/`creatorId`
 - **THEN** эта задача не добавляется к совпадениям, результат помечается incomplete/exit 3, отсутствующее поле не трактуется как несовпадение
 
+#### Scenario: Scalar role filtered by the server
+- **WHEN** `--role responsible` или `--role creator` выбран при task-v3 и маршрут REST1 доступен для выбранных полей
+- **THEN** ID пользователя выбранного подключения передаётся в RESPONSIBLE_ID или CREATED_BY; scan budget считает только строки серверной выборки; строка с другим или некорректным значением роли не добавляется к совпадениям и помечает результат incomplete/exit 3
+
+#### Scenario: Participant role with server group filter
+- **WHEN** `--role accomplice` или `--role auditor` сочетается с `--group-id` при task-v3
+- **THEN** группа фильтруется на сервере REST1 списком, а участники проверяются прежним чтением только для кандидатов этой группы
+
 #### Scenario: Unknown participant membership
 - **WHEN** чтение ID участников проверяемой задачи не удалось, вернуло чужую задачу или повреждённый список IDs
 - **THEN** обход останавливается с reason=role-read-error и exit 3, уже подтверждённые совпадения сохраняются; ошибка не превращается в empty role и не запускает повтор или смену маршрута
