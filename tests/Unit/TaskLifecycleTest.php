@@ -189,7 +189,7 @@ final class TaskLifecycleTest extends TestCase
                 ['id' => 2, 'title' => 'Wrong user', 'responsibleId' => 99, 'groupId' => 7, 'status' => $status->value],
                 ['id' => 3, 'title' => 'Wrong group', 'responsibleId' => 42, 'groupId' => 8, 'status' => $status->value],
             ]]));
-            $run = $this->invoke($api, ['--json', 'task:list', '--responsible', '42', '--group-id', '7', '--status', $status->value]);
+            $run = $this->invoke($api, ['--json', 'task:list', '--responsible', '42', '--group-id', '7', '--status', $status->value, '--api-policy', 'strict-rest3']);
             self::assertSame([1], array_column($run->json()['data']['items'], 'id'));
             self::assertSame([], $api->calls[0]['parameters']['filter']);
         }
@@ -239,32 +239,27 @@ final class TaskLifecycleTest extends TestCase
 
     public function testGroupCompanionComposesWithRolesAndFindWithoutReadingExcludedRows(): void
     {
+        // The REST3 group companion only runs on the local route; the default policy filters groups on the REST1 server route.
         foreach (['task:list', 'task:find'] as $command) {
-            foreach (['responsible', 'auditor'] as $role) {
-                $api = new FakeApiTransport(static function (string $method, int $version, array $params): ApiResponse {
-                    if ($method === 'tasks.task.list') {
-                        return new ApiResponse(['items' => [
-                            ['id' => 1, 'title' => 'Match', 'responsibleId' => 1, 'groupId' => 8, 'status' => 'pending'],
-                            ['id' => 2, 'title' => 'Match', 'responsibleId' => 1, 'groupId' => null, 'status' => 'pending'],
-                            ['id' => 2, 'title' => 'Match', 'responsibleId' => 1, 'groupId' => null, 'status' => 'pending'],
-                            ['id' => 3, 'title' => 'Match', 'responsibleId' => 9, 'groupId' => null, 'status' => 'pending'],
-                        ]]);
-                    }
+            $api = new FakeApiTransport(static function (string $method, int $version, array $params): ApiResponse {
+                self::assertSame(3, $version);
+                if ($method === 'tasks.task.list') {
+                    return new ApiResponse(['items' => [
+                        ['id' => 1, 'title' => 'Match', 'responsibleId' => 1, 'groupId' => 8, 'status' => 'pending'],
+                        ['id' => 2, 'title' => 'Match', 'responsibleId' => 1, 'groupId' => null, 'status' => 'pending'],
+                        ['id' => 2, 'title' => 'Match', 'responsibleId' => 1, 'groupId' => null, 'status' => 'pending'],
+                        ['id' => 3, 'title' => 'Match', 'responsibleId' => 9, 'groupId' => null, 'status' => 'pending'],
+                    ]]);
+                }
 
-                    if ($version === 1) {
-                        self::assertSame(2, $params['taskId']);
-                        return new ApiResponse(['task' => ['id' => '2', 'auditors' => ['1']]]);
-                    }
-
-                    self::assertSame(2, $params['id']);
-                    return new ApiResponse(['item' => ['id' => 2, 'group' => ['id' => 7]]]);
-                });
-                $run = ConsoleHarness::run((new ApplicationFactory())->create(dirname(__DIR__, 2), $api, new SpyConnectionResolver()), ['--json', $command, ...($command === 'task:find' ? ['--title', 'Match'] : []), '--role', $role, '--responsible', '1', '--group-id', '7', '--status', 'pending']);
-                self::assertSame(0, $run->status, $run->stdout);
-                self::assertSame([2], array_column($run->json()['data']['items'], 'id'));
-                self::assertSame($role === 'auditor' ? [3, 1, 3] : [3, 3], array_column($api->calls, 'version'));
-                self::assertTrue($run->json()['meta']['complete']);
-            }
+                self::assertSame(2, $params['id']);
+                return new ApiResponse(['item' => ['id' => 2, 'group' => ['id' => 7]]]);
+            });
+            $run = ConsoleHarness::run((new ApplicationFactory())->create(dirname(__DIR__, 2), $api, new SpyConnectionResolver()), ['--json', $command, ...($command === 'task:find' ? ['--title', 'Match'] : []), '--role', 'responsible', '--responsible', '1', '--group-id', '7', '--status', 'pending', '--api-policy', 'strict-rest3']);
+            self::assertSame(0, $run->status, $run->stdout);
+            self::assertSame([2], array_column($run->json()['data']['items'], 'id'));
+            self::assertSame([3, 3], array_column($api->calls, 'version'));
+            self::assertTrue($run->json()['meta']['complete']);
         }
     }
 
@@ -280,7 +275,7 @@ final class TaskLifecycleTest extends TestCase
 
                 return new ApiResponse(['items' => [['id' => 123, 'title' => 'Group fixture', 'groupId' => null, 'responsibleId' => 14, 'status' => 'pending'], ['id' => 124, 'title' => 'Other user', 'groupId' => null, 'responsibleId' => 99, 'status' => 'pending']]]);
             });
-            $run = $this->invoke($api, ['--json', 'task:list', '--group-id', '234', '--responsible', '14', '--status', 'pending']);
+            $run = $this->invoke($api, ['--json', 'task:list', '--group-id', '234', '--responsible', '14', '--status', 'pending', '--api-policy', 'strict-rest3']);
             self::assertSame($verified ? 0 : 3, $run->status);
             self::assertSame($verified ? [123] : [], array_column($run->json()['data']['items'], 'id'));
             self::assertCount(2, $api->calls);

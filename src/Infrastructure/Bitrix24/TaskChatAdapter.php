@@ -39,6 +39,17 @@ final readonly class TaskChatAdapter implements TaskChatGateway
         return new Page($items, count($items) >= $limit && $ids !== [] ? ($after === null ? min($ids) : max($ids)) : null);
     }
 
+    public function lastMessageId(int $chatId): int
+    {
+        $result = $this->api->call('im.dialog.get', 1, ['DIALOG_ID' => 'chat' . $chatId])->result;
+        $last = $result['last_message_id'] ?? null;
+        if ((int) ($result['id'] ?? 0) !== $chatId || (!is_int($last) && (!is_string($last) || !ctype_digit($last)))) {
+            throw Failure::binding('The API did not confirm the selected task chat.', true);
+        }
+
+        return (int) $last;
+    }
+
     public function send(int $taskId, string $text): void
     {
         ResponseNormalizer::ack($this->api->call('tasks.task.chat.message.send', 3, ['fields' => ['taskId' => $taskId, 'text' => $text]], 'write')->result);

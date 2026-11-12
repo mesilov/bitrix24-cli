@@ -24,7 +24,8 @@ final class CommandContractsTest extends TestCase
         yield 'add' => [['task:add', '--title', 'New task', '--creator', '1', '--responsible', '2'], 'tasks.task.add', 3, ['fields' => ['title' => 'New task', 'creatorId' => 1, 'responsibleId' => 2, 'allowsTimeTracking' => false]]];
         yield 'show' => [['task:show', '123'], 'tasks.task.get', 3, null];
         yield 'my' => [['task:my', '--user', '2'], 'tasks.task.list', 3, null];
-        yield 'list' => [['task:list', '--responsible', '2'], 'tasks.task.list', 3, null];
+        yield 'list' => [['task:list', '--responsible', '2'], 'tasks.task.list', 1, ['filter' => (object) ['RESPONSIBLE_ID' => 2], 'select' => ['ID', 'TITLE', 'RESPONSIBLE_ID', 'GROUP_ID', 'STATUS', 'DEADLINE'], 'order' => (object) ['ID' => 'DESC'], 'start' => 0]];
+        yield 'list local' => [['task:list', '--status', 'pending'], 'tasks.task.list', 3, null];
         yield 'find' => [['task:find', '--title', 'ДОГОВОР'], 'tasks.task.list', 3, null];
         yield 'update' => [['task:update', '123', '--title', 'Changed'], 'tasks.task.update', 3, ['id' => 123, 'fields' => ['title' => 'Changed']]];
         yield 'delete' => [['task:delete', '123', '--force'], 'tasks.task.delete', 3, ['id' => 123]];
@@ -32,7 +33,7 @@ final class CommandContractsTest extends TestCase
         yield 'access' => [['task:access:show', '123'], 'tasks.task.access.get', 3, ['id' => 123]];
         yield 'assign' => [['task:assign', '123', '--responsible', '3'], 'tasks.task.update', 3, ['id' => 123, 'fields' => ['responsibleId' => 3]]];
         yield 'deadline' => [['task:deadline:set', '123', '--at', '2026-12-01T12:00:00+06:00'], 'tasks.task.update', 3, ['id' => 123, 'fields' => ['deadline' => '2026-12-01T12:00:00+06:00']]];
-        yield 'chat list' => [['task:chat:list', '123'], 'im.dialog.messages.get', 1, ['DIALOG_ID' => 'chat456', 'LIMIT' => 20]];
+        yield 'chat list' => [['task:chat:list', '123'], 'im.dialog.messages.get', 1, ['DIALOG_ID' => 'chat456', 'LIMIT' => 20, 'LAST_ID' => 901]];
         yield 'chat send' => [['task:chat:send', '123', '--text', 'Hello'], 'tasks.task.chat.message.send', 3, ['fields' => ['taskId' => 123, 'text' => 'Hello']]];
         yield 'chat update' => [['task:chat:update', '123', '--message', '900', '--text', 'Changed'], 'im.message.update', 1, ['MESSAGE_ID' => 900, 'MESSAGE' => 'Changed']];
         yield 'chat delete' => [['task:chat:delete', '123', '--message', '900', '--force'], 'im.message.delete', 1, ['MESSAGE_ID' => 900]];

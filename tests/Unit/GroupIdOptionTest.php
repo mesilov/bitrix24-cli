@@ -65,7 +65,7 @@ final class GroupIdOptionTest extends TestCase
                     : [['id' => 151, 'title' => 'Group task', 'groupId' => 42]];
                 return new ApiResponse(['items' => $items]);
             });
-            $run = ConsoleHarness::run((new ApplicationFactory())->create(dirname(__DIR__, 2), $api), ['--json', 'task:list', '--all', ...$filter], '{"groupId":42}');
+            $run = ConsoleHarness::run((new ApplicationFactory())->create(dirname(__DIR__, 2), $api), ['--json', 'task:list', '--all', '--api-policy', 'strict-rest3', ...$filter], '{"groupId":42}');
             self::assertSame(0, $run->status, $run->stdout);
             self::assertSame($filter === [] ? range(101, 151) : [151], array_column($run->json()['data']['items'], 'id'));
             self::assertTrue($run->json()['meta']['complete']);
@@ -150,7 +150,7 @@ final class GroupIdOptionTest extends TestCase
                     ];
                 return new ApiResponse(['items' => $items]);
             });
-            $run = ConsoleHarness::run((new ApplicationFactory())->create(dirname(__DIR__, 2), $api), ['--json', 'task:find', '--title', 'договор', ...$options]);
+            $run = ConsoleHarness::run((new ApplicationFactory())->create(dirname(__DIR__, 2), $api), ['--json', 'task:find', '--title', 'договор', '--api-policy', 'strict-rest3', ...$options]);
             self::assertSame($status, $run->status, $run->stdout . $run->stderr);
             $json = $run->json();
             self::assertSame($ids, array_column($json['data']['items'], 'id'));

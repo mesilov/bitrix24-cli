@@ -21,7 +21,7 @@ final readonly class TaskChatService
 
     public function listRoutes(): array
     {
-        return [new Route('tasks.task.get', 3, 'read'), new Route('im.dialog.messages.get', 1, 'read')];
+        return [new Route('tasks.task.get', 3, 'read'), new Route('im.dialog.get', 1, 'read'), new Route('im.dialog.messages.get', 1, 'read')];
     }
 
     public function list(ListTaskChatRequest $request): PreparedOperation
@@ -46,7 +46,7 @@ final readonly class TaskChatService
 
     public function updateRoutes(): array
     {
-        return [new Route('tasks.task.get', 3, 'read'), new Route('im.dialog.messages.get', 1, 'read'), new Route('im.message.update', 1, 'write')];
+        return [new Route('tasks.task.get', 3, 'read'), new Route('im.dialog.get', 1, 'read'), new Route('im.dialog.messages.get', 1, 'read'), new Route('im.message.update', 1, 'write')];
     }
 
     public function update(UpdateTaskChatMessageRequest $request): PreparedOperation
@@ -60,7 +60,7 @@ final readonly class TaskChatService
 
     public function deleteRoutes(): array
     {
-        return [new Route('tasks.task.get', 3, 'read'), new Route('im.dialog.messages.get', 1, 'read'), new Route('im.message.delete', 1, 'delete')];
+        return [new Route('tasks.task.get', 3, 'read'), new Route('im.dialog.get', 1, 'read'), new Route('im.dialog.messages.get', 1, 'read'), new Route('im.message.delete', 1, 'delete')];
     }
 
     public function delete(DeleteTaskChatMessageRequest $request): PreparedOperation

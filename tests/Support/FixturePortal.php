@@ -26,10 +26,13 @@ final class FixturePortal
             'tasks.task.result.update' => new ApiResponse(['item' => [...$this->result, ...$params['fields']]]),
             'tasks.task.add' => new ApiResponse(['item' => ['id' => 124, ...$params['fields']]]),
             'tasks.task.get' => new ApiResponse($version === 3 ? ['item' => $this->task] : ['task' => ['id' => '123', 'auditors' => [], 'accomplices' => []]]),
-            'tasks.task.list' => new ApiResponse(['items' => [['id' => 123, 'title' => $this->task['title'], 'responsibleId' => 2, 'groupId' => null, 'status' => 'pending', 'deadline' => null]]]),
+            'tasks.task.list' => $version === 1
+                ? new ApiResponse(['tasks' => [['id' => '123', 'title' => $this->task['title'], 'responsibleId' => '2', 'createdBy' => '1', 'groupId' => '0', 'status' => '2', 'deadline' => '']]], null, 1)
+                : new ApiResponse(['items' => [['id' => 123, 'title' => $this->task['title'], 'responsibleId' => 2, 'groupId' => null, 'status' => 'pending', 'deadline' => null]]]),
             'tasks.task.field.list' => new ApiResponse(['items' => [['name' => 'title', 'type' => 'string', 'editable' => true, 'filterable' => false, 'sortable' => true], ['name' => 'id', 'type' => 'integer', 'editable' => false, 'filterable' => true, 'sortable' => true]]]),
             'tasks.task.field.get' => new ApiResponse(['item' => ['name' => $params['name'], 'type' => 'integer', 'editable' => false, 'filterable' => true, 'sortable' => true]]),
             'tasks.task.access.get' => new ApiResponse(['read' => true, 'edit' => false, 'delete' => null]),
+            'im.dialog.get' => new ApiResponse(['id' => 456, 'dialog_id' => 'chat456', 'type' => 'tasksTask', 'entity_type' => 'TASKS_TASK', 'entity_id' => '123', 'last_message_id' => 900]),
             'im.dialog.messages.get' => new ApiResponse(['chat_id' => 456, 'messages' => [['id' => 900, 'chat_id' => 456, 'author_id' => 2, 'text' => 'Original', 'date' => '2026-10-09T12:00:00+06:00']]]),
             'task.elapseditem.add' => new ApiResponse([30]),
             'task.elapseditem.getlist' => new ApiResponse([['ID' => '30', 'TASK_ID' => '123', 'USER_ID' => '2', 'SECONDS' => '60', 'COMMENT_TEXT' => 'Original', 'CREATED_DATE' => '2026-10-09T12:00:00+06:00']], null, 1),

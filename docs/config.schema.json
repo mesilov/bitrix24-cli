@@ -42,6 +42,10 @@
     "telemetry": {
       "$ref": "#/$defs/telemetry",
       "description": "Local problem cards and analysis dates, independent of portal profiles. Collection never enables automatic transmission."
+    },
+    "logging": {
+      "$ref": "#/$defs/logging",
+      "description": "Local file logging of this configuration directory, independent of portal profiles. Invalid values disable logging at runtime instead of blocking commands."
     }
   },
   "$defs": {
@@ -209,6 +213,59 @@
         "lastProblemTrajectoryAnalysisOfferedAt": {
           "$ref": "#/$defs/utcTimestamp",
           "default": null
+        }
+      }
+    },
+    "logging": {
+      "type": "object",
+      "additionalProperties": false,
+      "$comment": "Runtime additionally limits fileMask to 255 bytes and requires exact JSON integer literals.",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "level": {
+          "enum": [
+            "debug",
+            "info",
+            "notice",
+            "warning",
+            "error",
+            "critical",
+            "alert",
+            "emergency"
+          ],
+          "default": "info",
+          "description": "Minimum PSR-3 level in lower case."
+        },
+        "directory": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1
+            }
+          ],
+          "default": null,
+          "description": "null means logs/ in the configuration directory; a relative path starts at the configuration directory. ~ and variables are not expanded."
+        },
+        "fileMask": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "^(?!.*\\.\\.)(?!.*[/\\\\<>:\"|?*\\u0000-\\u001F\\u007F])(?=(?:(?!\\{YYYY\\}).)*\\{YYYY\\}(?:(?!\\{YYYY\\}).)*$)(?=(?:(?!\\{MM\\}).)*\\{MM\\}(?:(?!\\{MM\\}).)*$)(?=(?:(?!\\{DD\\}).)*\\{DD\\}(?:(?!\\{DD\\}).)*$).+$",
+          "default": "b24cli-{YYYY}{MM}{DD}.log",
+          "description": "Plain file name with {YYYY}, {MM} and {DD} exactly once each."
+        },
+        "retentionDays": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807,
+          "default": 7,
+          "description": "Files whose date is older than this many days, counting today, are deleted."
         }
       }
     }

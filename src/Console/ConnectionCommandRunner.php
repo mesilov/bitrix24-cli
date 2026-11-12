@@ -18,7 +18,7 @@ use Symfony\Component\Console\Question\Question;
 
 final readonly class ConnectionCommandRunner
 {
-    public function __construct(private ConnectionManager $connections, private ProfileRepository $profiles, private CommandRunner $runner, private InputSourceReader $reader, private TaskInputMapper $mapper, private ResultPresenter $presenter)
+    public function __construct(private ConnectionManager $connections, private ProfileRepository $profiles, private CommandRunner $runner, private InputSourceReader $reader, private TaskInputMapper $mapper, private ResultPresenter $presenter, private \Bitrix24\CLI\Infrastructure\Logging\LoggingSettingsReader $logging)
     {
     }
 
@@ -49,7 +49,7 @@ final readonly class ConnectionCommandRunner
                 $this->connections->configure($alias, null, $input->getOption('config-dir'));
             }
 
-            $items = [$this->row($this->connections->inspect())];
+            $items = [[...$this->row($this->connections->inspect()), 'logging' => $this->logging($input->getOption('config-dir'))]];
         } else {
             $directory = $this->connections->directory();
             $items = match ($name) {
@@ -135,6 +135,25 @@ final readonly class ConnectionCommandRunner
         $profile['default']['task']['allowsTimeTracking'] ??= false;
         $profile['default']['users']['autoAddObserver'] ??= false;
         return $this->row(['profile' => $alias, 'source' => 'profile', 'path' => $directory . '/config.json', ...$profile]);
+    }
+
+    /**
+     * Effective file logging of the configuration directory; computed without creating the log directory.
+     */
+    private function logging(?string $configDirectory): array
+    {
+        $state = $this->logging->read($configDirectory);
+        $settings = $state['settings'];
+        return [
+            'status' => $state['status'],
+            'reason' => $state['reason'],
+            'enabled' => $state['status'] === 'ok',
+            'level' => $settings['level'],
+            'directory' => $state['directory'],
+            'fileMask' => $settings['fileMask'],
+            'retentionDays' => $settings['retentionDays'],
+            'currentFile' => $state['currentFile'],
+        ];
     }
 
     private function row(array $metadata): array

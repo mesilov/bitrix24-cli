@@ -141,7 +141,7 @@ B24CLI_ENV_FILE=/absolute/path/to/checkout/.env.local make integration
 | 4 | API policy или недоказанная привязка ресурса |
 | 130 | Прерывание или отказ подтверждения |
 
-`task:find` ищет буквальную подстроку title без учёта регистра локально по REST 3 списку. Серверный фильтр поддерживает ID; `--limit` ограничивает вывод, `--max-scan` — просмотр (10000 по умолчанию). `complete`, `scanned`, `matched`, `returned`, `limitApplied` обозначают полноту и ограничения. История без next/total возвращает partial/exit 3. `task:time:show` показывает `elapsedTime`, не обещая суммарное время или полноту записей. Удаление пункта удаляет его дочерние пункты; dry-run показывает их IDs.
+`task:find` ищет буквальную подстроку title без учёта регистра локально по строкам списка. REST 3.0 фильтрует на сервере только ID; группу, ответственного и постановщика при `task-v3` `TaskListRoute` до запросов переводит в REST 1.0 `tasks.task.list` (`GROUP_ID`, `RESPONSIBLE_ID`, `CREATED_BY`), а при `strict-rest3` и для полей вне REST 1.0 оставляет REST 3.0 с локальной фильтрацией (`meta.listRoute`); `--limit` ограничивает вывод, `--max-scan` — просмотр (10000 по умолчанию). `complete`, `scanned`, `matched`, `returned`, `limitApplied` обозначают полноту и ограничения. История без next/total возвращает partial/exit 3. `task:time:show` показывает `elapsedTime`, не обещая суммарное время или полноту записей. Удаление пункта удаляет его дочерние пункты; dry-run показывает их IDs.
 
 Update отправляет только явный патч; `--description=""` очищает описание. `--fields`/`--fields-file` — отдельный advanced JSON object режим с локальной проверкой документированных имён и типов REST3. Raw status, participants, tags, userFields и object relations в REST3 патче запрещены; custom значения задаются отдельными --user-fields/--user-fields-file. Пропущенная роль в `task:participants:set` сохраняется, указанная заменяется целиком. Разрешённые select/order/writable поля закреплены в `src/Application/Task/FieldSchema.php`; `task:fields:list` показывает metadata портала.
 
@@ -162,7 +162,7 @@ make cli ARGS='task:find --title "договор" --group-id 42 --role accomplic
 
 Критерии сочетаются через AND; несколько ролей в одном флаге не принимаются.
 Сам статус роль не ограничивает, а задача может попадать в несколько групп.
-Ответственный/постановщик проверяются по REST3 `responsibleId`/`creatorId` локально.
+Ответственный/постановщик при `task-v3` фильтруются на сервере REST 1.0 (`RESPONSIBLE_ID`/`CREATED_BY`) и дополнительно сверяются локально; при `strict-rest3` проверяются по REST3 `responsibleId`/`creatorId` локально.
 Соисполнитель/наблюдатель проверяются через заранее объявленный REST1
 `tasks.task.get` с `taskId` и `select` ID/ACCOMPLICES либо ID/AUDITORS. При
 `strict-rest3` эти две роли отклоняются с exit 4 до credentials/API;

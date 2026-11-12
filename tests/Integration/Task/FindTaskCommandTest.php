@@ -27,6 +27,26 @@ final class FindTaskCommandTest extends LiveTaskCommandTestCase
         self::assertSame(1, $result['meta']['matched']);
     }
 
+    #[Group('portal-acceptance')]
+    public function testTitleRoleAndGroupUseTheServerFilter(): void
+    {
+        $group = $this->setting('B24CLI_TEST_GROUP_ID');
+        $other = $this->setting('B24CLI_TEST_OTHER_USER_ID');
+        if ($group === '' || $other === '') {
+            self::markTestSkipped('Server filter acceptance needs B24CLI_TEST_GROUP_ID and B24CLI_TEST_OTHER_USER_ID.');
+        }
+
+        $needle = 'b24cli-группа-ёж-' . bin2hex(random_bytes(8));
+        $match = $this->createTask($needle . ' match', ['groupId' => (int) $group]);
+        $this->createTask($needle . ' other responsible', ['groupId' => (int) $group, 'responsibleId' => (int) $other]);
+        $this->createTask($needle . ' outside group');
+        $result = $this->invoke(['task:find', '--title', mb_strtoupper($needle), '--role', 'responsible', '--group-id', $group, '--all']);
+        self::assertSame([['id' => $match, 'title' => $needle . ' match']], $result['data']['items']);
+        self::assertTrue($result['meta']['complete']);
+        self::assertSame('1.0', $result['meta']['listRoute']['apiVersion']);
+        self::assertSame(['groupId', 'responsibleId'], $result['meta']['listRoute']['serverFilter']);
+    }
+
     #[Group('happy-path')]
     public function testHappyPathReturnsTwoUnicodeTitleMatches(): void
     {

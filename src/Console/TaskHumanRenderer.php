@@ -112,10 +112,10 @@ final class TaskHumanRenderer
         }
     }
 
-    public function hint(string $reason): string
+    public function hint(string $reason, string $profile = 'title-matches'): string
     {
         return match ($reason) {
-            'scan-budget-exhausted' => 'Увеличьте --max-scan; --all снимает только лимит вывода. Неполный поиск не доказывает отсутствие дублей.',
+            'scan-budget-exhausted' => 'Увеличьте --max-scan; --all снимает только лимит вывода. ' . ($profile === 'task-list' ? 'Неполный обход не доказывает отсутствие подходящих задач.' : 'Неполный поиск не доказывает отсутствие дублей.'),
             'page-error' => 'Повторите чтение и проверьте подключение и доступ.',
             'missing-id', 'missing-predicate-field' => 'Проверьте данные выбранных полей и права доступа.',
             'pagination-no-progress' => 'Повторите чтение и проверьте пагинацию: следующая страница не даёт новых задач.',
