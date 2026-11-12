@@ -52,7 +52,7 @@ final readonly class ChatFindService
         $name = $request->name;
         $sources = [];
         $candidates = [];
-        foreach (['chat' => $this->chats(...), 'project' => $this->projects(...), 'task' => $this->taskTitles(...)] as $source => $search) {
+        foreach (['chat' => $this->groupChats(...), 'project' => $this->projects(...), 'task' => $this->taskTitles(...)] as $source => $search) {
             [$found, $sources[$source]] = $search($name, $request->maxScan);
             $candidates = [...$candidates, ...$found];
         }
@@ -88,8 +88,12 @@ final readonly class ChatFindService
         ], $complete ? 0 : 3);
     }
 
-    /** @return array{0: list<array<string, mixed>>, 1: array<string, mixed>} */
-    private function chats(string $name, int $budget): array
+    /**
+     * Scans only the group chat source (im.search.chat.list); chats:add reuses it for its duplicate title check.
+     *
+     * @return array{0: list<array<string, mixed>>, 1: array<string, mixed>} candidates and source state
+     */
+    public function groupChats(string $name, int $budget): array
     {
         $offset = 0;
         $seen = [];

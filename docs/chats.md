@@ -2,7 +2,7 @@
 
 [Обзор CLI](../README.md#cli-команды) · [Подключение](connection.md) · [JTBD: CHAT-01/CHAT-02](task-jtbd.md#общие-сценарии-чатов--план-180) · [JTBD: созвоны CHAT-03…05](task-jtbd.md#chat-calls)
 
-Namespace `chats:*` работает с групповым чатом, общим чатом проекта и чатом задачи. Команды: `chats:resolve` (проверка адресата), `chats:find` (поиск по названию), `chats:messages:list` (история за период), `chats:send` (отправка), `chats:calls:list` (звонки за период) и `chats:calls:show` (один звонок). Issue — [#180](https://github.com/mesilov/bitrix24-cli/issues/180), созвоны — [#208](https://github.com/mesilov/bitrix24-cli/issues/208).
+Namespace `chats:*` работает с групповым чатом, общим чатом проекта и чатом задачи. Команды: `chats:resolve` (проверка адресата), `chats:find` (поиск по названию), `chats:messages:list` (история за период), `chats:send` (отправка), `chats:add` (создание группового чата), `chats:calls:list` (звонки за период) и `chats:calls:show` (один звонок). Issue — [#180](https://github.com/mesilov/bitrix24-cli/issues/180), созвоны — [#208](https://github.com/mesilov/bitrix24-cli/issues/208), создание чата — [#185](https://github.com/mesilov/bitrix24-cli/issues/185).
 
 ```sh
 b24cli chats:resolve sg234 --json
@@ -10,6 +10,7 @@ b24cli chats:resolve task:5288 --json
 b24cli chats:resolve 'https://portal.example/online/?IM_DIALOG=chat9636&IM_MESSAGE=19436' --json
 b24cli chats:find --name 'Команда проекта' --json
 b24cli chats:send --name 'Команда проекта' --text 'Сегодня меня не будет' --dry-run --json
+b24cli chats:add --title 'ИИ-новости' --description 'Новости про ИИ для компании' --user-id 12,34 --dry-run --json
 b24cli chats:messages:list sg234 --period yesterday --timezone Europe/Moscow --json
 b24cli chats:messages:list task:5288 --from 2026-11-11T00:00:00+03:00 --to 2026-11-12T00:00:00+03:00 --json
 b24cli chats:calls:list sg234 --from 2026-11-09T00:00:00+03:00 --to 2026-11-16T00:00:00+03:00 --plain
@@ -183,3 +184,48 @@ JSON `data`: `destination`, `period` (`kind`, `from`, `to`, `timezone`, `now`), 
 Отправка сама по себе отмечает чат прочитанным для отправителя: это поведение портала при `im.message.add` (приёмка 12.11.2026: 60 непрочитанных → 0). Чтение через `chats:*` прочитанность не меняет.
 
 JSON `data`: `destination`, `operation` (`action`, `target`, `chatId`, `messageId`, `confirmed`, `readback`), `readback`. TSV при `--plain`: `target`, `chatId`, `messageId`, `confirmed`, `readback`.
+
+## Создание чата
+
+`chats:add` создаёт групповой чат через [`im.chat.add`](https://apidocs.bitrix24.ru/api-reference/chats/im-chat-add.html) (REST 1.0, `im`) от имени пользователя подключения: он становится владельцем и участником автоматически. Сценарий — завести чат с коллегами и затем писать в него через `chats:send` ([JTBD CHAT-06](task-jtbd.md#chat-06)).
+
+```sh
+b24cli users:colleagues --json
+b24cli chats:add --title 'ИИ-новости' --description 'Новости про ИИ для компании' --user-id 12,34 --json
+b24cli chats:send chat9901 --text 'Первый выпуск новостей' --json
+```
+
+| Опция | Поле `im.chat.add` | Значения |
+| --- | --- | --- |
+| `--title` (обязательна) | `TITLE` | 2–255 символов после обрезки пробелов |
+| `--description` | `DESCRIPTION` | непустой текст; не передаётся, если опция не задана |
+| `--type` | `TYPE` | `CHAT` — закрытый (по умолчанию), `OPEN` — открытый |
+| `--user-id` | `USERS` | ID сотрудников; повторите опцию или перечислите через запятую, до 500 |
+
+Каналы Битрикс24 REST не создаёт: документация `im.chat.add` допускает только `CHAT` и `OPEN`, другие значения `--type` отклоняются. Писать в уже существующий канал можно через `chats:send chatN`, если у пользователя есть право публикации. Удалить чат через REST нельзя, поэтому создание защищено от повторного запуска.
+
+### Защита от дубля
+
+До записи CLI ищет доступные групповые чаты с тем же названием через `im.search.chat.list`, как источник групповых чатов в `chats:find`: сравнение после обрезки пробелов с учётом регистра, совпадения по имени участника и личные диалоги не считаются дублем, бюджет — `--max-scan` (по умолчанию 10000). Проекты и задачи не проверяются: создаётся обычный групповой чат.
+
+| Код | Когда |
+| --- | --- |
+| `chat-exists` (exit 4) | Доступный чат с таким названием уже есть; адресаты в `error.details.candidates`. Пишите в него через `chats:send` |
+| `search-incomplete` (exit 4) | Поиск неполный (`error.details.source.reason`: `scan-budget-exhausted`, `pagination-no-progress`, `page-error`); увеличьте `--max-scan` |
+| `chat-create-denied` (exit 1) | Портал отказал в создании (`ACCESS_ERROR`, `ACCESS_DENIED`) |
+
+`--allow-duplicate-title` пропускает проверку и создаёт ещё один одноимённый чат; вместе с `--max-scan` — `usage-error`. Проверка видит только чаты, доступные пользователю подключения.
+
+### Исход записи
+
+`--dry-run` выполняет только проверку дубля и показывает план: `im.chat.add` (`title`, `type`, `description`, `userIds`, `duplicateCheck`), затем проверочные чтения. `im.chat.add` вызывается один раз и возвращает ID чата. Затем CLI читает чат (`im.dialog.get`) и его участников без ботов (`im.dialog.users.list`).
+
+| Результат | Смысл |
+| --- | --- |
+| `operation.readback = verified`, exit 0 | Чат создан, название совпало, все запрошенные участники в чате |
+| `readback = title-mismatch`, `members-missing` или `failed`, exit 3 | Чат создан, но проверка не подтвердила название, участников (`readback.members.missing`) или не выполнилась (`readback.error`); `chatId` сохранён, повторно создавать не нужно |
+| ошибка с `meta.outcomeUnknown = true` | Ответ потерян или пришёл без ID: чат мог быть создан. CLI не повторяет запись; проверьте `chats:find --name` перед повтором |
+
+Поле `type` из `im.dialog.get` возвращается как есть и не сверяется: его значения в документации не перечислены. ID участников заранее не проверяются; несуществующий или недоступный ID обнаруживается проверкой участников.
+
+JSON `data`: `chat` (`target`, `chatId`, `title`, `type`, `description`, `userIds`), `operation` (`action: create`, `target`, `chatId`, `confirmed`, `readback`), `readback` (`status`, `dialog`: `id`, `name`, `type`, `owner`; `members`: `requested`, `present`, `missing`, `complete`), `duplicateCheck` (`status`: `none` или `skipped`, `scanned`). TSV при `--plain`: `target`, `chatId`, `title`, `type`, `confirmed`, `readback`.

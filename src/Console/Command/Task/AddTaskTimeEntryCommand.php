@@ -28,6 +28,7 @@ final class AddTaskTimeEntryCommand extends Command
         $this->addArgument('TASK_ID', InputArgument::REQUIRED, 'ID задачи.');
         $this->addOption('seconds', null, InputOption::VALUE_REQUIRED, 'Положительное число секунд.');
         $this->addOption('text', null, InputOption::VALUE_REQUIRED, 'Текст.');
+        $this->addOption('created-date', null, InputOption::VALUE_REQUIRED, 'Дата записи (CREATED_DATE): ISO8601 с часовым поясом; прошлое и будущее допустимы. Без флага add ставит текущий момент, update сохраняет прежнюю дату.');
         $this->addOption('dry-run', null, InputOption::VALUE_NONE, 'Показать план без записи; проверочные чтения обозначены.');
         $this->setHelp('JSON: структура data/meta/error; столбцы TSV при --plain: taskId, resourceId, action, changedFields. Дополнительный маршрут REST 1.0; strict-rest3 отклоняет вызов до подключения.   Пример: b24cli task:time:add 123 --seconds 3600 --text "Подготовка договора"');
     }

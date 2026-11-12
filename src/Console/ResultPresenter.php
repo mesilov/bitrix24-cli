@@ -26,6 +26,7 @@ final readonly class ResultPresenter
         'chat-calls' => ['callId', 'startedAt', 'durationSeconds', 'initiatorId', 'present', 'absent', 'leftEarly', 'unknown'],
         'chat-call' => ['callId', 'startedAt', 'durationSeconds', 'initiatorId', 'present', 'absent', 'leftEarly', 'unknown'],
         'chat-message-sent' => ['target', 'chatId', 'messageId', 'confirmed', 'readback'],
+        'chat-created' => ['target', 'chatId', 'title', 'type', 'confirmed', 'readback'],
         'chat-candidates' => ['source', 'target', 'name', 'exact', 'writable', 'chatId', 'reason'],
         'task-results' => ['id', 'taskId', 'authorId', 'createdAt', 'status', 'text'],
         'time-entries' => ['id', 'userId', 'seconds', 'text', 'createdDate'], 'checklist-roots' => ['id', 'title'],
@@ -240,6 +241,10 @@ final readonly class ResultPresenter
         }
 
         $items = $result->profile === 'plan' ? ($result->data['plan']['steps'] ?? []) : ($result->data['items'] ?? [$result->data['operation'] ?? []]);
+        if ($result->profile === 'chat-created') {
+            $items = [[...$result->data['operation'], 'title' => $result->data['chat']['title'], 'type' => $result->data['chat']['type']]];
+        }
+
         if ($result->profile === 'chat-messages') {
             $items = array_map(static fn (array $item): array => [...$item, 'callId' => $item['callRef']['callId'] ?? null], $items);
         }
