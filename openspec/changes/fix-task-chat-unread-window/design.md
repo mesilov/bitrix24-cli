@@ -4,9 +4,20 @@
 
 `ChatSupport::scan()` (общий обход для `task:chat:list` и проверки сообщения в `task:chat:update`/`task:chat:delete`) при `before === null` и `after === null` вызывает `TaskChatAdapter::messages()` без `LAST_ID`. Следующая страница берётся через `LAST_ID = min(id)` текущей страницы, то есть обход идёт только к более старым сообщениям.
 
+## Контракт API (MCP документации)
+
+Сверено 12.11.2026 через официальный MCP документации Битрикс24 (`bitrix24_dev`, `https://mcp-dev.bitrix24.tech/mcp`, сервер `b24-dev-mcp` 0.2.0), подключённый по Streamable HTTP: `bitrix-search` → `bitrix-method-details` по точному имени. Секреты MCP не передавались.
+
+| Метод | Источник | Что подтверждено |
+| --- | --- | --- |
+| `im.dialog.messages.get` | `bitrix-search "im.dialog.messages.get"` → `bitrix-method-details`; [apidocs](https://apidocs.bitrix24.ru/api-reference/chats/messages/im-dialog-messages-get.html) | Scope `im`. `DIALOG_ID` string (`chatXXX`, `sgXXX`, ID пользователя), обязателен. `LAST_ID` integer — «вернёт сообщения с идентификатором меньше указанного». `FIRST_ID` integer — больше указанного. `LIMIT` integer, по умолчанию 20, максимум 50. Ответ: `chat_id`, `messages[]` (`id`, `chat_id`, `author_id`, `date`, `text`, `unread`…), `users[]`, `files[]`. Стандартной постраничной навигации нет. Ошибка `ACCESS_ERROR`. |
+| `im.dialog.get` | `bitrix-search "im.dialog.get"` → `bitrix-method-details`; [apidocs](https://apidocs.bitrix24.ru/api-reference/chats/im-dialog-get.html) | Scope `im`. `DIALOG_ID` string, обязателен. В примере ответа есть `id`, `last_message_id`, `last_id`, `unread_id`, `counter`, `message_count`. Ошибка `ACCESS_ERROR`. |
+
+Граница проверки: документация не описывает, что возвращает `im.dialog.messages.get` без `LAST_ID` и `FIRST_ID`, и не перечисляет `last_message_id` в типизированных полях (поле есть только в примере ответа). Поведение без курсора (окно первого непрочитанного) и наличие `last_message_id` подтверждены ответами портала ниже. Решение опирается на документированную семантику `LAST_ID` («меньше указанного»), поэтому `LAST_ID = last_message_id + 1` возвращает последние сообщения.
+
 ## Проверка на портале
 
-Шаг обязателен: баг воспроизводится на портале и зависит от формы ответа `im.dialog.messages.get`. Запросы выполнены 12.11.2026 прямым HTTP по webhook, без `b24cli` и SDK, на тестовом портале. Официальный MCP документации Битрикс24 в этой сессии недоступен; контракт методов взят из ссылок ниже и из design change `add-unified-chat-access` (сверка через MCP 30.10.2026).
+Шаг обязателен: баг воспроизводится на портале и зависит от формы ответа `im.dialog.messages.get`. Запросы выполнены 12.11.2026 прямым HTTP по webhook, без `b24cli` и SDK, на тестовом портале.
 
 Фикстура: задача `b24cli-202-unread-check` (ID 6102) в тестовой группе `B24CLI_TEST_GROUP_ID`, ответственный — второй пользователь тестовых fixtures. Второй пользователь добавлен в чат задачи (`im.chat.user.add`, только фикстура) и отправил 6 сообщений m1–m6 (`im.message.add`). После проверки задача удалена (`tasks.task.delete` → `{"task":true}`), чат отвечает `ACCESS_ERROR`.
 
