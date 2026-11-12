@@ -8,6 +8,7 @@ use Bitrix24\CLI\Application\Failure;
 use Bitrix24\CLI\Application\RuntimeState;
 use Bitrix24\CLI\Infrastructure\Connection\B24ClientProvider;
 use Bitrix24\SDK\Core\Contracts\ApiVersion;
+use Bitrix24\SDK\Core\Exceptions\MethodNotFoundException;
 use Bitrix24\SDK\Core\Exceptions\ValidationException;
 
 final readonly class SdkApiTransport implements ApiTransport
@@ -42,6 +43,8 @@ final readonly class SdkApiTransport implements ApiTransport
                 throw new Failure('interrupted', 'Interrupted while awaiting the API response; inspect a sent write before retrying.', 130, [], $effect !== 'read');
             }
 
+            $code = $this->errorCode($exception);
+            $codeDetails = $code === null ? [] : ['apiErrorCode' => $code];
             for ($cause = $exception; $cause instanceof \Throwable; $cause = $cause->getPrevious()) {
                 if ($cause instanceof ValidationException) {
                     $validation = array_map(fn ($error): array => ['field' => $error->field, 'message' => $this->provider->redact($error->message), 'option' => $error->field === 'task.responsible.id' ? '--responsible' : null], $cause->getValidationErrors());
@@ -59,7 +62,7 @@ final readonly class SdkApiTransport implements ApiTransport
                 }
 
                 if (str_contains($name, 'AccessDenied') || str_contains($name, 'AuthForbidden') || array_any(['access denied', 'access_denied', 'accessdeniedexception', 'insufficient_scope', 'insufficientscopeexception'], static fn (string $code): bool => str_contains($message, $code))) {
-                    throw new Failure('permission-denied', 'Bitrix24 denied this operation; check the connection permissions.');
+                    throw new Failure('permission-denied', 'Bitrix24 denied this operation; check the connection permissions.', 1, $codeDetails);
                 }
 
                 if (str_contains($name, 'Transport') || str_contains($name, 'Timeout')) {
@@ -67,7 +70,25 @@ final readonly class SdkApiTransport implements ApiTransport
                 }
             }
 
-            throw new Failure('api-error', 'Bitrix24 rejected the request; verify the target, fields and permissions.');
+            throw new Failure('api-error', 'Bitrix24 rejected the request; verify the target, fields and permissions.', 1, $codeDetails);
         }
+    }
+
+    /**
+     * The API error code from the SDK message prefix ("code - description"), never the description itself.
+     */
+    private function errorCode(\Throwable $exception): ?string
+    {
+        for ($cause = $exception; $cause instanceof \Throwable; $cause = $cause->getPrevious()) {
+            if ($cause instanceof MethodNotFoundException) {
+                return 'error_method_not_found';
+            }
+
+            if (preg_match('/^([a-z][a-z0-9_]{2,80}) - /', strtolower($cause->getMessage()), $match) === 1) {
+                return $match[1];
+            }
+        }
+
+        return null;
     }
 }

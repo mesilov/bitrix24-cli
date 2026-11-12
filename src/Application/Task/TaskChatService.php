@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Bitrix24\CLI\Application\Task;
 
+use Bitrix24\CLI\Application\Chat\CallEnricher;
+use Bitrix24\CLI\Application\Chat\CallMessage;
 use Bitrix24\CLI\Application\OperationResult;
 use Bitrix24\CLI\Application\PreparedOperation;
 use Bitrix24\CLI\Application\Route;
@@ -15,19 +17,38 @@ use Bitrix24\CLI\Application\Task\Request\UpdateTaskChatMessageRequest;
 
 final readonly class TaskChatService
 {
-    public function __construct(private ChatSupport $support, private TaskChatGateway $chat)
+    public function __construct(private ChatSupport $support, private TaskChatGateway $chat, private CallEnricher $calls)
     {
     }
 
-    public function listRoutes(): array
+    public function listRoutes(?ListTaskChatRequest $request = null): array
     {
-        return [new Route('tasks.task.get', 3, 'read'), new Route('im.dialog.get', 1, 'read'), new Route('im.dialog.messages.get', 1, 'read')];
+        $routes = [new Route('tasks.task.get', 3, 'read'), new Route('im.dialog.get', 1, 'read'), new Route('im.dialog.messages.get', 1, 'read')];
+        if (!$request instanceof ListTaskChatRequest || $request->callDetails) {
+            // Requested only when the window contains call messages; call.followup.get is optional (scope call).
+            return [...$routes, new Route('im.call.get', 1, 'read'), new Route('im.user.list.get', 1, 'read'), new Route('call.followup.get', 3, 'read')];
+        }
+
+        return $routes;
     }
 
     public function list(ListTaskChatRequest $request): PreparedOperation
     {
         $chatId = $this->support->chatId($request->taskId);
-        return new PreparedOperation([], fn (): OperationResult => $this->support->scan($chatId, $request->before, $request->after, $request->limit, $request->maxMessages));
+        return new PreparedOperation([], function () use ($chatId, $request): OperationResult {
+            $scan = $this->support->scan($chatId, $request->before, $request->after, $request->limit, $request->maxMessages);
+            $data = ['items' => CallMessage::mark($scan->data['items'])];
+            $meta = $scan->meta;
+            if ($request->callDetails) {
+                $calls = $this->calls->enrich($chatId, $scan->data['items']);
+                $data['calls'] = $calls['calls'];
+                $meta['calls'] = $calls['meta'];
+            } else {
+                $meta['calls'] = ['found' => count(array_unique(array_column(array_column($data['items'], 'callRef'), 'callId'))), 'details' => 'disabled'];
+            }
+
+            return new OperationResult($scan->profile, $data, $meta, $scan->exitStatus);
+        });
     }
 
     public function sendRoutes(): array

@@ -34,12 +34,22 @@ final class ScopeManifest
         'im.dialog.messages.get' => [['im']],
         'im.message.update' => [['im']],
         'im.message.delete' => [['im']],
+        'im.call.get' => [['im']],
+        'im.user.list.get' => [['im']],
         'disk.folder.uploadFile' => [['disk']],
+    ];
+
+    /**
+     * Optional sources: a missing scope only leaves the related data unavailable with a reason,
+     * so they never block a command and are not reported as affected by connection:check.
+     */
+    public const OPTIONAL_METHODS = [
+        'call.followup.get' => [3, 'call'],
     ];
 
     public function revision(): string
     {
-        return hash('sha256', json_encode([self::TASK_METHODS, self::OTHER_METHODS, CommandCatalog::ROUTES], JSON_THROW_ON_ERROR));
+        return hash('sha256', json_encode([self::TASK_METHODS, self::OTHER_METHODS, self::OPTIONAL_METHODS, CommandCatalog::ROUTES], JSON_THROW_ON_ERROR));
     }
 
     public function required(array $routes): array
@@ -48,6 +58,10 @@ final class ScopeManifest
         foreach ($routes as $route) {
             if (!$route instanceof Route || !in_array($route->version, [1, 3], true)) {
                 throw new Failure('configuration-error', 'Invalid route in the scope manifest.');
+            }
+
+            if (($optional = self::OPTIONAL_METHODS[$route->method] ?? null) !== null && $optional[0] === $route->version) {
+                continue;
             }
 
             if (in_array($route->method, self::TASK_METHODS, true)) {

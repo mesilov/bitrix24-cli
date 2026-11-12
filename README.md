@@ -166,6 +166,7 @@ ID, имена профилей и тексты в примерах замени
 | `users:current` | Пользователь текущего подключения | `b24cli users:current --json` |
 | `users:find` | Найти активных сотрудников по ФИО или email | `b24cli users:find --name "Иванов Иван" --json` |
 | `users:manager` | Непосредственный или настроенный руководитель | `b24cli users:manager --department-id 7 --json` |
+| `users:presence` | Последняя активность и отсутствие сотрудников | `b24cli users:presence --user-id 11 --user-id 22 --json` |
 
 ### Создание и редактирование задач
 

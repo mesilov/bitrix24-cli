@@ -27,11 +27,11 @@
 
 ## Impact
 
-Зависит от #180: `chats:messages:list`, разбор TARGET, период и `Rest1ImDialogAdapter` пока находятся в ветке `feature/180-unified-chat-access` и не влиты в `dev`. Реализация начинается после merge #180 и затрагивает адаптер истории чата (сохранение `params`), новый порт и адаптер звонков, сервис вывода участников, адаптер `im.user.list.get`, presenter, `CommandCatalog`, API policy и scope manifest, тесты и документацию (`docs/chats.md`, CLI map, scope docs, каталог JTBD).
+Зависит от #180: `chats:messages:list`, разбор TARGET, период и `Rest1ImDialogAdapter` пока находятся в ветке `feature/180-unified-chat-access` и не влиты в `dev`. Часть, не зависящая от #180 (`task:chat:list`, `users:presence --user-id`), реализована сразу по решению пользователя; задачи `chats:*` и TARGET начинаются после merge #180. Изменение затрагивает адаптер истории чата (сохранение `params`), новый порт и адаптер звонков, сервис вывода участников, адаптер `im.user.list.get`, presenter, `CommandCatalog`, API policy и scope manifest, тесты и документацию (`docs/chats.md`, CLI map, scope docs, каталог JTBD).
 
 `im.call.get` не описан в документации Битрикс24 (проверено официальным MCP 12.11.2026) и отсутствует в ответе `methods`, хотя работает через webhook со scope `im`. Это главный риск контракта: портал может изменить или закрыть метод. Дизайн требует, чтобы его отказ не ломал чтение истории. Документированный `call.followup.get` даёт фактических участников, но только для звонков с AI Follow-up; на портале проверки метода нет.
 
-Снимок планирования: `dev` `3b5f21f`. Изменение только добавляет планирование и JTBD; runtime-код в этом MR не меняется.
+Снимок планирования: `dev` `3b5f21f`.
 
 ## GitHub issues
 

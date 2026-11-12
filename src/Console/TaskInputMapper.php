@@ -365,7 +365,7 @@ final readonly class TaskInputMapper
             throw Failure::usage('Choose --before or --after.');
         }
 
-        return new Request\ListTaskChatRequest($this->taskId($input), $before === null ? null : $this->id($before, '--before'), $after === null ? null : $this->id($after, '--after'), $this->limit($input, 20), $input->getOption('max-messages') === null ? 10000 : $this->id($input->getOption('max-messages'), '--max-messages'));
+        return new Request\ListTaskChatRequest($this->taskId($input), $before === null ? null : $this->id($before, '--before'), $after === null ? null : $this->id($after, '--after'), $this->limit($input, 20), $input->getOption('max-messages') === null ? 10000 : $this->id($input->getOption('max-messages'), '--max-messages'), !$input->getOption('no-call-details'));
     }
 
     public function sendTaskChatMessage(InputInterface $input): Request\SendTaskChatMessageRequest

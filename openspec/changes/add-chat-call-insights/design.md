@@ -163,6 +163,21 @@ Scope `call` необязателен: его отсутствие не блок
 - `chats:calls:show TARGET CALL_ID` — один звонок, CHAT-03/CHAT-05. Проверяет `call.CHAT_ID` против чата из TARGET; при расхождении ошибка привязки.
 - `users:presence (TARGET | --user-id ID…)` — PM-11, на `im.user.list.get`. Поля: `id, name, lastActivityDate, absent, observedAt`. `status` и `IS_ONLINE` не выводятся.
 
+### 8. Реализация до #180: `task:chat:list` и `users:presence --user-id`
+
+Решение по открытому вопросу: `task:chat:list` размечает и по умолчанию обогащает звонки так же, как `chats:messages:list`; `--no-call-details` отключает обогащение. Требования `chat-calls` сформулированы для команд чтения истории в целом, а до #180 это единственная такая команда. Для истории без звонков запросов не добавляется.
+
+Код разделён так, чтобы `chats:*` переиспользовал его без изменений:
+
+- `Application/Chat/CallMessage` — распознавание и разметка `kind`/`callRef`;
+- `Application/Chat/ParticipantInference` — таблица правил и вердикта;
+- `Application/Chat/CallEnricher` — сбор звонков окна, источники и запись звонка;
+- порты `CallGateway`, `ChatReadGateway`, `UserPresenceGateway` и адаптеры `ImCallAdapter` (белый список полей `im.call.get`, `call.followup.get`), `Rest1ChatReadAdapter`, `Rest1UserPresenceAdapter`.
+
+Чтобы различать причины отказа Follow-up, `SdkApiTransport` добавляет в `details.apiErrorCode` код ошибки из префикса сообщения SDK (`code - description`), не текст ошибки. `ScopeManifest::OPTIONAL_METHODS` объявляет `call.followup.get` необязательным: он не попадает в обязательные группы маршрута и в затронутые команды `connection:check`.
+
+В human и plain сводка звонков выводится в stderr; plain получает столбцы `kind` и `callId` в конце строки.
+
 ## Сверка с официальной документацией
 
 12.11.2026, официальный MCP документации Битрикс24 (`https://mcp-dev.bitrix24.tech/mcp`, Streamable HTTP): сначала `bitrix-search`, затем `bitrix-method-details` или `bitrix-article-details` по точному имени. Подробности — в `verification.md`.
@@ -207,8 +222,8 @@ Scope `call` необязателен: его отсутствие не блок
 
 ## Migration Plan
 
-Изменение аддитивное: новые поля в JSON, новые команды. Существующие поля `chats:messages:list` не меняются. `task:chat:list` получает только разметку `kind`/`callRef`; обогащение для него — отдельное решение в задачах.
+Изменение аддитивное: новые поля в JSON, новые команды. Существующие поля `chats:messages:list` не меняются. `task:chat:list` получает разметку и обогащение (решение 8); plain дополняется двумя столбцами в конце строки.
 
 ## Open Questions
 
-- Нужно ли обогащение звонков в `task:chat:list` или только в `chats:*`. Не меняет спецификацию `chat-calls`: требование сформулировано для команд чтения истории в целом, решение фиксируется в задаче 3.4.
+- Нет. Обогащение в `task:chat:list` решено в решении 8.

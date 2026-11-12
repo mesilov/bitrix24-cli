@@ -8,6 +8,7 @@ use Bitrix24\CLI\Application\Failure;
 use Bitrix24\CLI\Application\User\Request\FindUsersRequest;
 use Bitrix24\CLI\Application\User\Request\GetManagerRequest;
 use Bitrix24\CLI\Application\User\Request\ListColleaguesRequest;
+use Bitrix24\CLI\Application\User\Request\UserPresenceRequest;
 use Bitrix24\CLI\Application\User\UserQuery;
 use Bitrix24\CLI\Infrastructure\Connection\ConnectionManager;
 use Symfony\Component\Console\Input\InputInterface;
@@ -56,6 +57,23 @@ final readonly class UserInputMapper
     public function colleagues(InputInterface $input): ListColleaguesRequest
     {
         return new ListColleaguesRequest($this->query($input), $this->department($input));
+    }
+
+    public function presence(InputInterface $input): UserPresenceRequest
+    {
+        $ids = [];
+        foreach ((array) $input->getOption('user-id') as $value) {
+            foreach (explode(',', (string) $value) as $part) {
+                $id = $this->numbers->id(trim($part), '--user-id');
+                $ids[$id] = $id;
+            }
+        }
+
+        if ($ids === [] || count($ids) > 500) {
+            throw Failure::usage('Provide from 1 to 500 --user-id values.');
+        }
+
+        return new UserPresenceRequest(array_values($ids));
     }
 
     public function manager(InputInterface $input): GetManagerRequest
