@@ -37,3 +37,9 @@
 
 - Права второго пользователя для записи с датой (нет restricted webhook в окружении теста). Флаг не меняет маршрут и проверку прав; существующие тесты second-user не изменены.
 - Ручная приёмка standalone-бинарника.
+
+## Поставка
+
+- PR [#217](https://github.com/mesilov/bitrix24-cli/pull/217) влит в `dev` 12.11.2026 20:36 UTC, merge commit `f316eb0`, head `ceff349`. Перед merge: 15/15 GitHub checks `SUCCESS` на `ceff349`, нерешённых review threads нет, Codex review без замечаний, `origin/dev` (`f57a0f0`) включена, запись #179 в `CHANGELOG.md` присутствует в diff.
+- Issue [#179](https://github.com/mesilov/bitrix24-cli/issues/179) закрыто (completed).
+- Change архивирован в `openspec/changes/archive/2026-11-13-add-time-entry-created-date/`; три ADDED требования синхронизированы в `openspec/specs/task-mvp-scope/spec.md`.
