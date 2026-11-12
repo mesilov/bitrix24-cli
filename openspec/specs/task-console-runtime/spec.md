@@ -409,6 +409,23 @@ CLI SHALL сохранять подтверждённый ID созданной 
 - **WHEN** task:add receives --tag and an enabled default observer
 - **THEN** the plan and execution contain create, TAGS write, AUDITORS read and union update; each step uses the same created task ID
 - **AND** a failed tag write stops observer calls and retains the created task ID with skipped observer steps; a failed observer step retains the confirmed tag write
+
+### Requirement: Task chat history starts from the latest message
+Без `--before`/`--after` обход чата задачи SHALL начинаться с последнего сообщения чата (`LAST_ID = last_message_id + 1` из `im.dialog.get`), а не с окна первого непрочитанного сообщения. Чтение SHALL не менять прочитанность. Явные курсоры SHALL сохранять свою позицию без дополнительного запроса.
+
+#### Scenario: Unread messages in the task chat
+- **WHEN** у пользователя подключения есть непрочитанные сообщения в чате задачи и вызван `task:chat:list TASK_ID --limit 3`
+- **THEN** CLI возвращает три последних сообщения чата, а не первые непрочитанные; с `--all` возвращаются все сообщения, включая новее окна непрочитанных
+- **AND** счётчик непрочитанных после чтения не меняется
+
+#### Scenario: Message binding with unread messages
+- **WHEN** `task:chat:update` или `task:chat:delete` проверяет новое сообщение задачи при непрочитанных
+- **THEN** принадлежность подтверждается обходом от последнего сообщения, и команда не возвращает ложный `message-binding-unverified`
+
+#### Scenario: Explicit cursor
+- **WHEN** задан `--before MESSAGE_ID` или `--after MESSAGE_ID`
+- **THEN** обход начинается с заданной позиции, `im.dialog.get` не вызывается
+
 ## Решение о приёмке RC 0.1.0 — 12.10.2026
 
 По явному решению пользователя непроверенные части portal tasks 5.2–5.4 и связанного `define-task-jtbd` task 2.3 перенесены в milestone **0.2.0**, [#42](https://github.com/mesilov/bitrix24-cli/issues/42), change `complete-task-portal-acceptance` (`openspec/changes/complete-task-portal-acceptance/`). Они исключены из обязательной приёмки RC 0.1.0; перенос не является новым runtime proof. Уже выполненные 30 собственных happy-path и исходные records сохраняются.
