@@ -11,12 +11,13 @@ use Bitrix24\CLI\Application\Task\Port\CurrentUserGateway;
 use Bitrix24\CLI\Application\Task\Port\DeadlineTaskGateway;
 use Bitrix24\CLI\Application\Task\Port\ParticipantGateway;
 use Bitrix24\CLI\Application\Task\Port\TaskGateway;
+use Bitrix24\CLI\Application\Task\Port\UnreadCounterGateway;
 
 final readonly class TaskListScanner
 {
     private const PROGRESS_STEP = 1000;
 
-    public function __construct(private TaskGateway $tasks, private CurrentUserGateway $currentUser, private ParticipantGateway $participants, private RuntimeState $state, private DeadlineTaskGateway $deadlineTasks)
+    public function __construct(private TaskGateway $tasks, private CurrentUserGateway $currentUser, private ParticipantGateway $participants, private RuntimeState $state, private DeadlineTaskGateway $deadlineTasks, private ?UnreadCounterGateway $unreadCounters = null)
     {
     }
 
@@ -32,7 +33,7 @@ final readonly class TaskListScanner
         $fields = array_values(array_unique([...($title === null ? FieldSchema::LIST_FIELDS : ['id', 'title']), ...$query->select, ...array_keys($query->where), ...($query->dueBefore === null && !$deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow ? [] : ['deadline']), ...($deadlineWindow?->overdue || $query->openOnly ? ['status'] : [])]));
         // Fields needed only for local checks are read but not returned.
         $hiddenFields = [];
-        foreach ([$scalarRole, ...array_map(static fn (DateWindow $window): string => $window->field, $query->dateWindows)] as $field) {
+        foreach ([$scalarRole, ...($query->unread ? ['chatId'] : []), ...array_map(static fn (DateWindow $window): string => $window->field, $query->dateWindows)] as $field) {
             if ($field !== null && !in_array($field, $fields, true)) {
                 $fields[] = $field;
                 $hiddenFields[] = $field;
@@ -51,6 +52,19 @@ final readonly class TaskListScanner
         $localScan = $route instanceof \Bitrix24\CLI\Application\Task\TaskListRoute && !$rest1 && $query->ids === [];
         if ($localScan) {
             $this->state->notice($this->localScanNotice($route, $query->maxScan));
+        }
+
+        // One snapshot per run, read before the task pages so every row is joined with the same observation.
+        $snapshot = null;
+        $unreadReasons = [];
+        if ($query->unread) {
+            if (!$this->unreadCounters instanceof UnreadCounterGateway) {
+                throw new Failure('configuration-error', 'The unread counter source is not configured.');
+            }
+
+            $this->state->checkCancellation();
+            $snapshot = $this->unreadCounters->snapshot();
+            $unreadReasons = $snapshot->reasons;
         }
 
         $offset = 0;
@@ -235,9 +249,30 @@ final readonly class TaskListScanner
                     $matched = (string) $row['groupId'] === (string) $query->where['groupId'];
                 }
 
+                $chatState = null;
+                if ($matched && $snapshot instanceof UnreadCounterSnapshot) {
+                    $chatId = $this->chatId($id, $row['chatId'] ?? null);
+                    if ($chatId === null) {
+                        $unreadReasons[] = 'task-chat-association-unavailable';
+                    } elseif ($snapshot->conflict($chatId)) {
+                        $unreadReasons[] = 'unread-counter-conflict';
+                    }
+
+                    // An unknown counter or binding is not a zero: the row is dropped and the run is partial.
+                    $counter = is_int($chatId) && $chatId > 0 ? $snapshot->counter($chatId) : null;
+                    $matched = is_int($counter) && $counter > 0;
+                    if ($matched) {
+                        $chatState = ['chatId' => $chatId, 'counter' => $counter, 'manuallyMarkedUnread' => $snapshot->manuallyMarkedUnread($chatId)];
+                    }
+                }
+
                 if ($matched) {
                     foreach ($hiddenFields as $hiddenField) {
                         unset($row[$hiddenField]);
+                    }
+
+                    if ($chatState !== null) {
+                        $row['chatState'] = $chatState;
                     }
 
                     $matches[] = $title === null ? $row : ['id' => $id, 'title' => $row['title']];
@@ -284,6 +319,14 @@ final readonly class TaskListScanner
             }
         } while ($next !== null);
 
+        if ($snapshot instanceof UnreadCounterSnapshot) {
+            $unreadReasons = array_values(array_unique($unreadReasons));
+            if ($unreadReasons !== []) {
+                $complete = false;
+                $reason ??= $unreadReasons[0];
+            }
+        }
+
         $matchedCount = count($matches);
         $items = $query->limit === null ? $matches : array_slice($matches, 0, $query->limit);
         return new OperationResult($title === null ? 'task-list' : 'title-matches', ['items' => $items], [
@@ -295,8 +338,46 @@ final readonly class TaskListScanner
             ...($route instanceof \Bitrix24\CLI\Application\Task\TaskListRoute ? ['listRoute' => $route->metadata()] : []),
             ...($deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow ? ['deadlineFilter' => [...$deadlineWindow->metadata(), 'groupApplied' => isset($query->where['groupId']) ? 'server' : null]] : []),
             ...array_merge([], ...array_map(static fn (DateWindow $window): array => [$window->field . 'Filter' => $window->metadata()], $query->dateWindows)),
+            ...($snapshot instanceof UnreadCounterSnapshot ? ['unreadState' => $snapshot->metadata($unreadReasons)] : []),
             ...($reason === 'scan-budget-exhausted' ? ['hint' => 'Increase --max-scan to inspect more tasks; --all only removes the output limit. ' . ($title === null ? 'An incomplete scan does not prove that no matching task exists.' : 'An incomplete search does not prove that no duplicate exists.')] : []),
         ], $complete ? 0 : 3);
+    }
+
+    /**
+     * Chat of a matched task: a positive chatId of the list row confirms it. Otherwise one task get reads the
+     * chat binding; 0 means a confirmed absent chat (chat=null), null an unverified binding.
+     */
+    private function chatId(int $taskId, mixed $value): ?int
+    {
+        if (is_string($value) && preg_match('/^[1-9]\d{0,17}$/', $value) === 1) {
+            $value = (int) $value;
+        }
+
+        if (is_int($value) && $value > 0) {
+            return $value;
+        }
+
+        try {
+            $this->state->checkCancellation();
+            $task = $this->tasks->get($taskId, ['chat.id', 'chat.entityId', 'chat.entityType']);
+        } catch (Failure $failure) {
+            if ($failure->exitStatus === 130) {
+                throw $failure;
+            }
+
+            return null;
+        }
+
+        if (array_key_exists('chat', $task) && $task['chat'] === null) {
+            return 0;
+        }
+
+        $chat = $task['chat'] ?? null;
+        if (!is_array($chat) || !is_int($chat['id'] ?? null) || $chat['id'] < 1 || (string) ($chat['entityId'] ?? '') !== (string) $taskId || ($chat['entityType'] ?? null) !== 'TASKS_TASK') {
+            return null;
+        }
+
+        return $chat['id'];
     }
 
     private function localScanNotice(TaskListRoute $route, int $maxScan): string
