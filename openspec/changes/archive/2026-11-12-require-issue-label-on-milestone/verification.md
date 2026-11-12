@@ -12,9 +12,14 @@
 | `openspec validate --all --strict` | 30 passed, 1 failed: `define-task-jtbd`. Этот сбой уже есть на `dev` и не связан с change |
 | `git diff --check` | pass |
 | `CHANGELOG.md` | Собственная запись в `Unreleased → Изменено` со ссылкой на #205 |
-| Трассировка | `proposal.md` → #205; #205 → `openspec/changes/require-issue-label-on-milestone/` |
+| Трассировка | `proposal.md` → #205; #205 → `openspec/changes/archive/2026-11-12-require-issue-label-on-milestone/` |
 
 ## Границы проверки
 
 - Изменены только инструкции сопровождения. Runtime CLI, API-вызовы, тесты и JTBD не менялись; PHP-проверки не нужны.
 - Проверка сценариев сырыми запросами к REST API не релевантна: issue не добавляет и не меняет вызовы REST API.
+
+## Доставка
+
+- [MR #206](https://github.com/mesilov/bitrix24-cli/pull/206) влит в `dev` 2026-11-12T09:00:41Z: `8c21f45b4f4cffc614742ad09e61d39467dcdd4d`. На head `7dc89c5` все 13 CI checks SUCCESS; ревью Codex без замечаний, открытых threads нет.
+- Issue #205 закрыт (completed). Change архивирован с `--skip-specs`: delta specs нет, `openspec/specs/` не менялись.
