@@ -87,7 +87,6 @@ Runtime SHALL проверять синтаксис и локальные огр
 - **THEN** отдельный integration class в Users namespace вызывает только свою CLI-команду через production bootstrap и сверяет данные SDK без изменения сотрудников или оргструктуры
 - **AND** общий fixture harness не создаёт task fixtures для read-only users тестов; отсутствие нужных live данных/scope фиксируется как skip с причиной, а не pass
 
-
 ### Requirement: Consistent application error boundary
 Ошибки выбора команды, разбора аргументов и опций SHALL следовать cli-experience так же, как ошибки выполнения. Неизвестное или неоднозначное имя SHALL возвращать код 2 без запуска предложенной альтернативы. При --json и обычной verbosity SHALL выводиться ровно один envelope, в том числе при ошибке до начала операции; текст ввода после -- не SHALL интерпретироваться как глобальные опции.
 
@@ -178,12 +177,16 @@ Runtime SHALL заранее проверять все потенциальны�
 - **THEN** роль проверяется локально по REST3 responsibleId/creatorId, план содержит только REST3 tasks.task.list; отсутствие --role не добавляет companion request
 
 #### Scenario: Planned server list filters
-- **WHEN** task:list или task:find без временных флагов получает при task-v3 --group-id, --responsible, --role responsible или --role creator, а выбранные select/order/where поддерживаются REST1 списком
+- **WHEN** task:list или task:find без временных флагов получает при task-v3 --group-id, --responsible, --role responsible, --role creator или --status с документированным для REAL_STATUS значением, а выбранные select/order/where поддерживаются REST1 списком
 - **THEN** план заранее содержит REST1 tasks.task.list вместо REST3 tasks.task.list и не содержит tasks.task.get для проверки группы; для --role accomplice/auditor план дополнительно содержит REST1 tasks.task.get чтения участников; версии отражены в meta
 
 #### Scenario: Strict policy keeps local list filters
 - **WHEN** те же task:list или task:find выбраны при strict-rest3
 - **THEN** план содержит только REST3 маршруты текущей локальной фильтрации; policy-denied для --group-id, --responsible, --role responsible и --role creator не возвращается
+
+#### Scenario: Planned creation and change windows
+- **WHEN** task:list или task:find получает --created-window или --changed-window
+- **THEN** при task-v3 план заранее содержит REST1 tasks.task.list и не содержит REST3 tasks.task.list; при strict-rest3 весь план отклоняется с policy-denied/exit4 до credentials и API calls
 
 #### Scenario: Local attachment mixed route plan
 - **WHEN** task:file:attach выбрана с --file/--folder-id
