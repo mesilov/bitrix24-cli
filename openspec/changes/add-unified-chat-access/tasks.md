@@ -17,10 +17,10 @@ Planning завершён; ниже только будущие implementation/v
 
 ## 3. История за период
 
-- [ ] 3.1 Добавить календарный yesterday и точные from/to, один now и IANA timezone; проверить [from,to), DST, границы года/месяца и ошибочный ввод в unit cases и документировать варианты.
-- [ ] 3.2 Добавить chats:messages:list с bounded ID pagination от `LAST_ID = last_message_id + 1`, binding, дедупликацией, порядком и complete/reason; проверить старт при непрочитанных, >50 сообщений и фактический предел LIMIT, exact page/budget boundary, пустой день, conflicting rows, page error и no-progress.
-- [ ] 3.3 Проверить допустимость timestamp stop на документации/fixtures; при отсутствии доказанной монотонности реализовать исчерпание доступной истории или partial, подтвердив отсутствие пропущенных сообщений тестом немонотонных дат.
-- [ ] 3.4 Добавить human/plain/JSON, help, CLI map и отдельный integration case истории; проверить наличие адресата, авторов/времени/ID, периода/timezone и сохранение partial при ограничении вывода.
+- [x] 3.1 Добавить календарный yesterday и точные from/to, один now и IANA timezone; проверить [from,to), DST, границы года/месяца и ошибочный ввод в unit cases и документировать варианты.
+- [x] 3.2 Добавить chats:messages:list с bounded ID pagination от `LAST_ID = last_message_id + 1`, binding, дедупликацией, порядком и complete/reason; проверить старт при непрочитанных, >50 сообщений (offline; фактический предел LIMIT — в 5.2), exact page/budget boundary, пустой день, conflicting rows, page error и no-progress.
+- [x] 3.3 Проверить допустимость timestamp stop на документации/fixtures; при отсутствии доказанной монотонности реализовать исчерпание доступной истории или partial, подтвердив отсутствие пропущенных сообщений тестом немонотонных дат.
+- [x] 3.4 Добавить human/plain/JSON, help, CLI map и отдельный integration case истории; проверить наличие адресата, авторов/времени/ID, периода/timezone и сохранение partial при ограничении вывода.
 
 ## 4. Отправка
 
@@ -31,7 +31,7 @@ Planning завершён; ниже только будущие implementation/v
 ## 5. Сквозная приёмка
 
 - [ ] 5.1 Провести offline проверки затронутых команд и каталога, сохранить результаты и обновить CHAT-01/CHAT-02, число команд и границы JTBD; подтвердить двусторонние ссылки #180 ↔ change и strict validation.
-- [ ] 5.2 Выполнить отдельную live-приёмку на тестовом проекте, задаче и произвольном чате: URL/ID, история периода, отправка, права и read state до/после; сохранить evidence и cleanup только собственных fixtures.
+- [ ] 5.2 Выполнить отдельную live-приёмку на тестовом проекте, задаче и произвольном чате: URL/ID, история периода (включая чат >50 сообщений и фактический предел LIMIT im.dialog.messages.get), отправка, права и read state до/после; сохранить evidence и cleanup только собственных fixtures.
 - [ ] 5.3 Подтвердить CHAT-01 (саммари агентом с источниками и partial оговоркой) и CHAT-02 (ровно одно сообщение в выбранный чат), отделить offline/CI/live результаты в verification.md.
 
 ## Workflow follow-up

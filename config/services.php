@@ -62,6 +62,9 @@ return static function (ContainerBuilder $container, string $root, bool $package
         Bitrix24\CLI\Application\Task\TaskHandoverService::class,
         Bitrix24\CLI\Console\ChatInputMapper::class,
         Bitrix24\CLI\Application\Chat\ChatDestinationService::class,
+        Bitrix24\CLI\Application\Chat\MessagePeriodResolver::class,
+        Bitrix24\CLI\Application\Chat\ChatHistoryScanner::class,
+        Bitrix24\CLI\Application\Chat\ChatMessagesService::class,
 
     ];
     foreach ($services as $service) {

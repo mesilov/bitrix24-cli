@@ -64,6 +64,7 @@ final class CommandCatalog
         'task:participants:set' => ['class' => \Bitrix24\CLI\Console\Command\Task\SetTaskParticipantsCommand::class, 'effect' => 'write'],
         'task:history:list' => ['class' => \Bitrix24\CLI\Console\Command\Task\ListTaskHistoryCommand::class, 'effect' => 'read'],
         'chats:resolve' => ['class' => \Bitrix24\CLI\Console\Command\Chats\ResolveChatCommand::class, 'effect' => 'read'],
+        'chats:messages:list' => ['class' => \Bitrix24\CLI\Console\Command\Chats\ListChatMessagesCommand::class, 'effect' => 'read'],
     ];
 
     public const LOCAL_COMMANDS = [
@@ -138,5 +139,6 @@ final class CommandCatalog
         'task:participants:set' => [['tasks.task.update', 1], ['tasks.task.get', 3]],
         'task:history:list' => [['tasks.task.history.list', 1]],
         'chats:resolve' => [['tasks.task.get', 3], ['im.dialog.get', 1]],
+        'chats:messages:list' => [['tasks.task.get', 3], ['im.dialog.get', 1], ['im.dialog.messages.get', 1]],
     ];
 }

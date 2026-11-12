@@ -9,7 +9,7 @@ use Bitrix24\CLI\Application\Failure;
 
 final readonly class Rest1ImDialogAdapter implements ChatDialogGateway
 {
-    private const FIELDS = ['id', 'dialog_id', 'name', 'type', 'entity_type', 'entity_id', 'owner', 'role', 'message_count'];
+    private const FIELDS = ['id', 'dialog_id', 'name', 'type', 'entity_type', 'entity_id', 'owner', 'role', 'message_count', 'last_message_id'];
 
     public function __construct(private ApiTransport $api)
     {
@@ -39,5 +39,31 @@ final readonly class Rest1ImDialogAdapter implements ChatDialogGateway
         }
 
         return $dialog;
+    }
+
+    public function messages(int $chatId, int $lastId, int $limit): array
+    {
+        $result = $this->api->call('im.dialog.messages.get', 1, ['DIALOG_ID' => 'chat' . $chatId, 'LAST_ID' => $lastId, 'LIMIT' => $limit])->result;
+        if ((int) ($result['chat_id'] ?? 0) !== $chatId || !is_array($result['messages'] ?? null) || !array_is_list($result['messages'])) {
+            throw Failure::binding('The API did not confirm messages of the selected chat.', true);
+        }
+
+        $items = [];
+        foreach ($result['messages'] as $row) {
+            if (!is_array($row)) {
+                throw new Failure('api-error', 'im.dialog.messages.get returned a malformed message row.');
+            }
+
+            $items[] = ResponseNormalizer::fields($row, ['id' => 'id', 'date' => 'createdDate', 'author_id' => 'authorId', 'text' => 'text', 'chat_id' => 'chatId']);
+        }
+
+        $users = [];
+        foreach (is_array($result['users'] ?? null) ? $result['users'] : [] as $user) {
+            if (is_array($user) && is_numeric($user['id'] ?? null) && is_string($user['name'] ?? null)) {
+                $users[(int) $user['id']] = $user['name'];
+            }
+        }
+
+        return ['items' => $items, 'users' => $users];
     }
 }
