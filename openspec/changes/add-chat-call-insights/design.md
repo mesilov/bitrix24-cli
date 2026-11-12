@@ -18,7 +18,7 @@
 
 **Non-Goals:**
 
-- Фактический список подключившихся и время каждого участника: API его не отдаёт.
+- Фактический список подключившихся без AI Follow-up: в данных звонка и сообщений его нет. Если Follow-up сформирован, список берётся из него (решение 3).
 - Запись, расшифровка и анализ содержания звонка.
 - Включение записи или ИИ в настройках портала.
 - Личные диалоги и звонки вне групповых чатов, проектов и задач.
@@ -38,13 +38,30 @@
 
 Альтернатива — ограничиться данными из сообщений START и FINISH. Отклонено: в них нет UUID, состава, флагов записи и точного времени начала, если START вне окна.
 
-Перед реализацией нужно проверить метод по официальному MCP документации Битрикс24 (требование maintainer skill). Если метод там не найден, это фиксируется в `verification.md`, и реализация опирается на проверку портала ниже.
+Метод проверен по официальному MCP документации Битрикс24 12.11.2026: поиск его не находит, `bitrix-method-details` отвечает `Method 'im.call.get' not found` (раздел «Сверка с официальной документацией»). Решение: `im.call.get` остаётся необязательным источником метаданных звонка. Контракт задаётся проверкой портала и интеграционным тестом на форму ответа. Его отказ даёт `details.status = unavailable` (требование «Call details do not break history»); время и инициатор тогда берутся из сообщений START и FINISH. Документированные поля, на которых держится вывод участников (`params` сообщений, `readed_list`, `last_activity_date`), проверены по официальной документации.
 
-### 3. Обогащение по умолчанию, `--no-call-details` для отключения
+### 3. Подтверждённые участники — из AI Follow-up (`call.followup.get`)
 
-Цель CHAT-03 — получить итоги одним вызовом. Обогащение даёт по одному `im.call.get` на звонок, плюс один `im.user.list.get` на окно. Для истории без звонков дополнительных запросов нет.
+Официальная документация описывает REST 3.0 метод `call.followup.get` (scope `call`). Его поле `participants` содержит участников звонка с `userId`, `name` и `talkedSeconds`; это фактический состав, а не состав чата. Follow-up существует только для звонков, обработанных BitrixGPT Follow-up. Доступ проверяется по участию в звонке или связанном чате; администратор видит все Follow-up.
 
-### 4. Таблица правил вывода участников (`rulesVersion: 1`)
+Порядок: CLI запрашивает `call.followup.get` с `select = [callId, chatId, startDate, endDate, durationSeconds, participants, outcomes]`. Успешный ответ заполняет `participants.confirmed` (`available: true`, `source: call.followup.get`), и для этих пользователей правила вывода не применяются. Ошибка сопоставляется с причиной, и вывод идёт для всех из `eligible`:
+
+| Ответ | Причина |
+| --- | --- |
+| `BITRIX_REST_V3_EXCEPTION_METHODNOTFOUNDEXCEPTION` | `followup-method-unavailable` |
+| `BITRIX_REST_V3_EXCEPTION_INSUFFICIENTSCOPEEXCEPTION` | `followup-scope-missing` |
+| `BITRIX_REST_V3_EXCEPTION_ENTITYNOTFOUNDEXCEPTION` | `followup-not-found` |
+| `access_denied` | `followup-access-denied` |
+
+Scope `call` необязателен: его отсутствие не блокирует команды звонков, а только оставляет `confirmed` пустым. Маршрут объявляется как REST 3.0. Команды целиком остаются REST 1.0 из-за `im.*`, поэтому `strict-rest3` их отклоняет.
+
+Альтернатива — считать `im.call.get.users` подтверждённым составом. Отклонено: на портале этот список совпал с составом чата.
+
+### 4. Обогащение по умолчанию, `--no-call-details` для отключения
+
+Цель CHAT-03 — получить итоги одним вызовом. Обогащение даёт по одному `im.call.get` и одному `call.followup.get` на звонок, плюс один `im.user.list.get` на окно. Если `call.followup.get` вернул `followup-method-unavailable` или `followup-scope-missing`, в этом запуске он больше не вызывается. Для истории без звонков дополнительных запросов нет.
+
+### 5. Таблица правил вывода участников (`rulesVersion: 1`)
 
 | Правило | Доказательство | Влияние |
 | --- | --- | --- |
@@ -56,7 +73,27 @@
 | `last-activity-before-start` | `last_activity_date < start.date` | absent, high |
 | `last-activity-before-finish` | `start.date ≤ last_activity_date < finish.date − 60 s` | left-early, low |
 
-Итоговый вердикт: только правила присутствия → `present` с максимальной уверенностью среди них. Только правила отсутствия → `absent`. Правила обеих групп → `unknown`, `conflict: true`. Ничего не сработало → `unknown`.
+Правила делятся на четыре группы:
+
+- присутствие в конце: `finish-author`, `read-finish-at-end`;
+- присутствие во время звонка: `call-initiator`, `message-during-call`;
+- отсутствие: `last-read-before-start`, `last-activity-before-start`;
+- ранний уход: `last-activity-before-finish`.
+
+Итоговый вердикт определяется первой подходящей строкой:
+
+| Сработавшие группы | Вердикт | Уверенность | `conflict` |
+| --- | --- | --- | --- |
+| отсутствие вместе с любой другой группой | `unknown` | — | `true` |
+| ранний уход вместе с присутствием в конце | `unknown` | — | `true` |
+| ранний уход, с присутствием во время звонка или без него | `left-early` | `low` | `false` |
+| только присутствие (в конце и/или во время звонка) | `present` | максимальная среди сработавших правил | `false` |
+| только отсутствие | `absent` | максимальная среди сработавших правил | `false` |
+| ничего | `unknown` | — | `false` |
+
+Ранний уход противоречит присутствию в конце: если пользователь прочитал FINISH или завершил звонок, его последняя активность не может быть раньше конца звонка, поэтому сочетание означает рассинхрон источников. Присутствие во время звонка ранний уход подтверждает, а не опровергает. При конфликте в `evidence` попадают все сработавшие правила. Уверенность `left-early` не повышается: правило опирается на одну метку времени.
+
+`summary` считает пользователей по вердиктам: `present`, `absent`, `leftEarly`, `unknown`. Подтверждённые из Follow-up в `summary` не входят и считаются отдельно в `confirmed`.
 
 Свежесть: `fresh`, если после FINISH прошло меньше часа и после него в чате нет сообщений; иначе `stale`, и правила `read-*` дают не больше `low`.
 
@@ -64,7 +101,7 @@
 
 Признаки `status` и `IS_ONLINE` в таблицу не входят: на портале `IS_ONLINE = "Y"` стоял у пользователя, неактивного со вчерашнего дня.
 
-### 5. Структура данных
+### 6. Структура данных
 
 Новые поля `chats:messages:list --json` (остальное — по контракту #180):
 
@@ -97,7 +134,7 @@
       },
       "participants": {
         "eligible": { "source": "im.call.get.users", "note": "chat-members-not-attendees", "users": [ { "userId": 11, "name": "Пользователь 11", "role": "ADMIN" } ] },
-        "confirmed": { "available": false, "reason": "api-does-not-expose-attendance", "users": [] },
+        "confirmed": { "available": false, "source": "call.followup.get", "reason": "followup-method-unavailable", "users": [] },
         "inferred": {
           "rulesVersion": 1,
           "observedAt": "2026-11-12T12:05:00+03:00",
@@ -115,14 +152,32 @@
 }
 ```
 
-`meta.calls`: `found`, `enriched`, `unavailable`. `durationSeconds` считается по `END_DATE − START_DATE`; `durationText` — исходная строка из сообщения, для сверки.
+При `available: true` элемент `confirmed.users` — `{ "userId": 11, "name": "Пользователь 11", "talkedSeconds": 600 }`. `verdict` принимает значения `present`, `absent`, `left-early`, `unknown`.
 
-### 6. Команды
+`meta.calls`: `found`, `enriched`, `unavailable`, `confirmed`. `durationSeconds` считается по `END_DATE − START_DATE`; `durationText` — исходная строка из сообщения, для сверки.
+
+### 7. Команды
 
 - `chats:messages:list` — разметка и обогащение, флаг `--no-call-details`.
 - `chats:calls:list TARGET (--period … | --from … --to …) [--timezone]` — PM-10. Использует тот же обход истории за период и собирает только звонки. В `--plain` — одна строка на звонок: `callId, startedAt, durationSeconds, initiatorId, present, absent, unknown`.
 - `chats:calls:show TARGET CALL_ID` — один звонок, CHAT-03/CHAT-05. Проверяет `call.CHAT_ID` против чата из TARGET; при расхождении ошибка привязки.
 - `users:presence (TARGET | --user-id ID…)` — PM-11, на `im.user.list.get`. Поля: `id, name, lastActivityDate, absent, observedAt`. `status` и `IS_ONLINE` не выводятся.
+
+## Сверка с официальной документацией
+
+12.11.2026, официальный MCP документации Битрикс24 (`https://mcp-dev.bitrix24.tech/mcp`, Streamable HTTP): сначала `bitrix-search`, затем `bitrix-method-details` или `bitrix-article-details` по точному имени. Подробности — в `verification.md`.
+
+| Метод или раздел | Результат | Источник |
+| --- | --- | --- |
+| `im.call.get` | не найден ни поиском, ни `bitrix-method-details` (`Method 'im.call.get' not found`) | — |
+| `call.followup.get` | REST 3.0, scope `call`; `callId` обязателен, `select`, `mentionFormat`; `item.participants`, `durationSeconds`, `uuid`, `chatId`, `outcomes`; ошибки scope, доступа и «звонок не найден» | [call-followup-get](https://apidocs.bitrix24.ru/api-reference/telephony/follow-up/call-followup-get.html) |
+| `call.followup.list` | фильтр `startDate`, `participantId`; `participants[]{userId, name, talkedSeconds}` | [call-followup-list](https://apidocs.bitrix24.ru/api-reference/telephony/follow-up/call-followup-list.html) |
+| Follow-up, обзор | `participants` — участники звонка; доступ по участию в звонке или чате, администратору доступны все | [follow-up](https://apidocs.bitrix24.ru/api-reference/telephony/follow-up/index.html) |
+| `im.dialog.messages.get` | scope `im`; `DIALOG_ID`, `FIRST_ID`, `LAST_ID`, `LIMIT ≤ 50`; у сообщения есть `params` | [im-dialog-messages-get](https://apidocs.bitrix24.ru/api-reference/chats/messages/im-dialog-messages-get.html) |
+| `im.dialog.get` | scope `im`; `readed_list[]{user_id, user_name, message_id, date}` | [im-dialog-get](https://apidocs.bitrix24.ru/api-reference/chats/im-dialog-get.html) |
+| `im.user.list.get` | scope `im`; `ID[]`; `status`, `idle`, `last_activity_date`, `mobile_last_date`, `desktop_last_date`, `absent` | [im-user-list-get](https://apidocs.bitrix24.ru/api-reference/chats/users/im-user-list-get.html) |
+
+Значения `params.COMPONENT_ID = "CallMessage"` и `COMPONENT_PARAMS` в документации не описаны. Подтверждены только проверкой портала.
 
 ## Проверка на портале
 
@@ -136,6 +191,7 @@
 | `call.get` | `callId=K` | `ERROR_METHOD_NOT_FOUND` | такого метода нет |
 | `im.dialog.get` | `DIALOG_ID=chatC` | `readed_list[]{user_id, message_id, date}`, `last_message_views{message_id, first_viewers, count_of_viewers}` | подтверждено: 4 пользователя прочитали FINISH через 1 с; 2 пользователя последний раз читали вчерашний звонок |
 | `im.user.list.get` | `ID[]=…` | `last_activity_date`, `status: online` у всех, `mobile_last_date: false`, `desktop_last_date: false`, `absent` | `last_activity_date` пригоден; `status` непригоден |
+| `call.followup.get`, `call.followup.list` (REST 3.0) | `callId=K`; фильтр `startDate` за 12 дней | `BITRIX_REST_V3_EXCEPTION_METHODNOTFOUNDEXCEPTION` | на этом портале методов Follow-up нет; `confirmed` будет пуст с причиной `followup-method-unavailable` |
 | `user.get` | `FILTER[ID][]=…` | `IS_ONLINE: Y` у всех, `LAST_ACTIVITY_DATE: {}` | `IS_ONLINE` непригоден; дата пуста при scope `user_basic` (предположение) |
 
 Сверка с фактом: по правилам выше из 8 участников чата 6 получили бы `present`, 2 — `absent`. Фактический состав этого звонка не подтверждён; сверка с известным составом входит в live-приёмку.
@@ -144,7 +200,8 @@
 
 - [`im.call.get` недокументирован и может измениться] → белый список полей, статус `unavailable` вместо сбоя истории, отдельный интеграционный тест на форму ответа.
 - [Доказательства — снимок на момент запроса и перезаписываются] → `observedAt`, `evidenceFreshness`, понижение уверенности для `stale`.
-- [Оценку присутствия могут принять за контроль посещаемости] → вердикты названы оценкой, `confirmed` всегда пуст с причиной, справка и каталог JTBD предупреждают, что данные не для дисциплинарных решений.
+- [Оценку присутствия могут принять за контроль посещаемости] → вердикты названы оценкой и отделены от `confirmed`; `confirmed` заполняется только из Follow-up; справка и каталог JTBD предупреждают, что данные не для дисциплинарных решений.
+- [Follow-up есть не на всех порталах и не для всех звонков] → необязательный источник с причинами отказа; тест на каждую причину; без Follow-up работает только вывод по правилам.
 - [Утечка токенов звонка в лог при ошибке] → белый список применяется до логирования; тест проверяет отсутствие токенов в выводе, логе и ошибке.
 - [Лишние запросы на длинной истории со многими звонками] → один `im.call.get` на звонок, `--no-call-details`, общий бюджет запросов указывается в `meta`.
 
