@@ -22,6 +22,8 @@ final readonly class ResultPresenter
         'task-list' => ['id', 'title', 'responsibleId', 'groupId', 'status', 'deadline'],
         'title-matches' => ['id', 'title'], 'task-fields' => ['name', 'type', 'editable', 'filterable', 'sortable'],
         'chat-messages' => ['id', 'createdDate', 'authorId', 'text'],
+        'chat-message-sent' => ['target', 'chatId', 'messageId', 'confirmed', 'readback'],
+        'chat-candidates' => ['source', 'target', 'name', 'exact', 'writable', 'chatId', 'reason'],
         'task-results' => ['id', 'taskId', 'authorId', 'createdAt', 'status', 'text'],
         'time-entries' => ['id', 'userId', 'seconds', 'text', 'createdDate'], 'checklist-roots' => ['id', 'title'],
         'checklist-items' => ['id', 'parentId', 'title', 'isComplete'],
@@ -78,6 +80,11 @@ final readonly class ResultPresenter
         if ($mode === 'plain' && $result->profile === 'task-weekly-report') {
             $this->diagnostic($output, implode("\t", WeeklyReportRenderer::COLUMNS));
             $this->diagnostic($output, $this->reports->summary($result));
+        }
+
+        if ($mode !== 'json' && $result->profile === 'chat-candidates') {
+            $selection = $result->data['selection'];
+            $this->diagnostic($output, 'Выбор по названию: ' . $selection['status'] . ($selection['target'] === null ? '' : ' → ' . $selection['target']) . '; точных совпадений ' . $selection['exactMatches'] . '; complete=' . ($result->meta['complete'] ? 'true' : 'false') . '.');
         }
 
         if ($mode !== 'json' && $result->profile === 'task-handover') {
@@ -159,6 +166,17 @@ final readonly class ResultPresenter
 
         if ($result->profile === 'scope-check') {
             return [['field', 'value'], array_map(static fn (string $field, mixed $value): array => [$field, $value], array_keys($result->data), array_values($result->data))];
+        }
+
+        if ($result->profile === 'chat-destination') {
+            $rows = [];
+            foreach (['destination', 'dialog'] as $section) {
+                foreach ($result->data[$section] ?? [] as $key => $value) {
+                    $rows[] = [$section . '.' . $key, $value];
+                }
+            }
+
+            return [['field', 'value'], $rows];
         }
 
         if (in_array($result->profile, ['task-card', 'time-context', 'task-access'], true)) {

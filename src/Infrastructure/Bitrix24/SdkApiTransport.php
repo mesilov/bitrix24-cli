@@ -67,7 +67,9 @@ final readonly class SdkApiTransport implements ApiTransport
                 }
             }
 
-            throw new Failure('api-error', 'Bitrix24 rejected the request; verify the target, fields and permissions.');
+            // REST errors arrive as "<error_code> - <description>"; keep only the native code for callers.
+            $details = preg_match('/^([a-z][a-z0-9_]{1,63}) - /', strtolower($exception->getMessage()), $code) === 1 ? ['apiErrorCode' => strtoupper($code[1])] : [];
+            throw new Failure('api-error', 'Bitrix24 rejected the request; verify the target, fields and permissions.', 1, $details);
         }
     }
 }
