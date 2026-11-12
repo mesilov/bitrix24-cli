@@ -5,8 +5,8 @@ Planning завершён; ниже только будущие implementation/v
 ## 1. Разрешение адресата
 
 - [ ] 1.1 Подтвердить предложенные URL-формы и permalink сообщения обезличенными примерами интерфейса (через entity_link уже подтверждены `/workgroups/group/G/` и `/company/personal/user/U/tasks/task/view/T/`; `/online/?IM_DIALOG=` и permalink сообщения — нет); сохранить allowlist/fixtures и проверить таблицу URL → task/group/chat/message, конфликтующие ID и другой портал.
-- [ ] 1.2 Добавить типизированный resolver и chats:resolve с metadata и task → chat binding; проверить положительные/пустые/denied ответы, отсутствие переходов по URL и сохранение task:chat:*.
-- [ ] 1.3 Зарегистрировать chats:resolve и его routes/scope/help, добавить command integration case и документацию адресатов; проверить offline policy/strict-rest3 до credentials, регистрацию только `chats:*` для новых команд и самостоятельный чат без task/group ID.
+- [x] 1.2 Добавить типизированный resolver и chats:resolve с metadata и task → chat binding; проверить положительные/пустые/denied ответы, отсутствие переходов по URL и сохранение task:chat:*.
+- [x] 1.3 Зарегистрировать chats:resolve и его routes/scope/help, добавить command integration case и документацию адресатов; проверить offline policy/strict-rest3 до credentials, регистрацию только `chats:*` для новых команд и самостоятельный чат без task/group ID.
 
 ## 2. Поиск чата
 

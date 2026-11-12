@@ -161,6 +161,17 @@ final readonly class ResultPresenter
             return [['field', 'value'], array_map(static fn (string $field, mixed $value): array => [$field, $value], array_keys($result->data), array_values($result->data))];
         }
 
+        if ($result->profile === 'chat-destination') {
+            $rows = [];
+            foreach (['destination', 'dialog'] as $section) {
+                foreach ($result->data[$section] ?? [] as $key => $value) {
+                    $rows[] = [$section . '.' . $key, $value];
+                }
+            }
+
+            return [['field', 'value'], $rows];
+        }
+
         if (in_array($result->profile, ['task-card', 'time-context', 'task-access'], true)) {
             $object = $result->data['task'] ?? $result->data['time'] ?? $result->data['access'] ?? [];
             ksort($object);
