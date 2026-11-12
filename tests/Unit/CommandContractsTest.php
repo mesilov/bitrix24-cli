@@ -41,8 +41,10 @@ final class CommandContractsTest extends TestCase
         yield 'file attach' => [['task:file:attach', '123', '--file-id', '50'], 'tasks.task.file.attach', 3, ['taskId' => 123, 'fileIds' => [50]]];
         yield 'time context' => [['task:time:show', '123'], 'tasks.task.get', 3, ['id' => 123, 'select' => ['id', 'elapsedTime']]];
         yield 'time add' => [['task:time:add', '123', '--seconds', '60'], 'task.elapseditem.add', 1, ['TASKID' => 123, 'ARFIELDS' => ['SECONDS' => 60]]];
+        yield 'time add dated' => [['task:time:add', '123', '--seconds', '60', '--created-date', '2026-10-22T10:00:00+03:00'], 'task.elapseditem.add', 1, ['TASKID' => 123, 'ARFIELDS' => ['SECONDS' => 60, 'CREATED_DATE' => '2026-10-22T10:00:00+03:00']]];
         yield 'time list' => [['task:time:list', '123'], 'task.elapseditem.getlist', 1, null];
         yield 'time update' => [['task:time:update', '123', '--entry', '30', '--seconds', '120'], 'task.elapseditem.update', 1, ['TASKID' => 123, 'ITEMID' => 30, 'ARFIELDS' => ['SECONDS' => 120]]];
+        yield 'time update dated' => [['task:time:update', '123', '--entry', '30', '--seconds', '120', '--text', 'Fixed', '--created-date', '2026-10-21T18:00:00Z'], 'task.elapseditem.update', 1, ['TASKID' => 123, 'ITEMID' => 30, 'ARFIELDS' => ['SECONDS' => 120, 'COMMENT_TEXT' => 'Fixed', 'CREATED_DATE' => '2026-10-21T18:00:00Z']]];
         yield 'time delete' => [['task:time:delete', '123', '--entry', '30', '--force'], 'task.elapseditem.delete', 1, ['TASKID' => 123, 'ITEMID' => 30]];
         yield 'checklist add' => [['task:checklist:add', '123', '--title', 'Root'], 'task.checklistitem.add', 1, ['TASKID' => 123, 'FIELDS' => ['TITLE' => 'Root', 'PARENT_ID' => 0, 'IS_COMPLETE' => 'N']]];
         yield 'checklist list' => [['task:checklist:list', '123'], 'task.checklistitem.getlist', 1, null];

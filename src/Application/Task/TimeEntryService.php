@@ -26,10 +26,11 @@ final readonly class TimeEntryService
 
     public function add(AddTaskTimeEntryRequest $request): PreparedOperation
     {
+        $fields = $this->fields($request->seconds, $request->text, $request->createdDate);
 
-        return new PreparedOperation([Plan::step($request->taskId, 'task.elapseditem.add', 1, 'write', ['seconds' => $request->seconds, ...($request->text === null ? [] : ['text' => $request->text])])], function () use ($request): OperationResult {
-            $id = $this->entries->add($request->taskId, $request->seconds, $request->text);
-            return OperationResult::mutation($request->taskId, $id, 'add', ['seconds' => $request->seconds, ...($request->text === null ? [] : ['text' => $request->text])]);
+        return new PreparedOperation([Plan::step($request->taskId, 'task.elapseditem.add', 1, 'write', $fields)], function () use ($request, $fields): OperationResult {
+            $id = $this->entries->add($request->taskId, $request->seconds, $request->text, $request->createdDate);
+            return OperationResult::mutation($request->taskId, $id, 'add', $fields);
         }, 'task ' . $request->taskId);
     }
 
@@ -51,10 +52,22 @@ final readonly class TimeEntryService
     public function update(UpdateTaskTimeEntryRequest $request): PreparedOperation
     {
         $this->support->requireEntry($request->taskId, $request->entryId);
-        return new PreparedOperation([Plan::step($request->taskId, 'task.elapseditem.update', 1, 'write', ['entryId' => $request->entryId, 'seconds' => $request->seconds, ...($request->text === null ? [] : ['text' => $request->text])])], function () use ($request): OperationResult {
-            $this->entries->update($request->taskId, $request->entryId, $request->seconds, $request->text);
-            return OperationResult::mutation($request->taskId, $request->entryId, 'update', ['entryId' => $request->entryId, 'seconds' => $request->seconds, ...($request->text === null ? [] : ['text' => $request->text])]);
+        $fields = ['entryId' => $request->entryId, ...$this->fields($request->seconds, $request->text, $request->createdDate)];
+
+        return new PreparedOperation([Plan::step($request->taskId, 'task.elapseditem.update', 1, 'write', $fields)], function () use ($request, $fields): OperationResult {
+            $this->entries->update($request->taskId, $request->entryId, $request->seconds, $request->text, $request->createdDate);
+            return OperationResult::mutation($request->taskId, $request->entryId, 'update', $fields);
         }, 'time entry ' . $request->entryId . ' in task ' . $request->taskId);
+    }
+
+    /** @return array<string, int|string> */
+    private function fields(int $seconds, ?string $text, ?string $createdDate): array
+    {
+        return [
+            'seconds' => $seconds,
+            ...($text === null ? [] : ['text' => $text]),
+            ...($createdDate === null ? [] : ['createdDate' => $createdDate]),
+        ];
     }
 
     public function deleteRoutes(): array
