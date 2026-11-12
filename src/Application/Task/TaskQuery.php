@@ -19,6 +19,16 @@ final readonly class TaskQuery
         public bool $openOnly = false,
         public bool $verifyExhaustionAtBudget = false,
         public ?string $apiPolicy = null,
+        /** @var list<DateWindow> */
+        public array $dateWindows = [],
     ) {
+    }
+
+    /**
+     * Temporal flags (deadline, overdue, creation and change windows) select the REST 1.0 date route.
+     */
+    public function temporal(): bool
+    {
+        return $this->deadlineWindow instanceof DeadlineWindow || $this->dateWindows !== [];
     }
 }

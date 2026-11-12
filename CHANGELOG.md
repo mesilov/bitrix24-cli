@@ -4,6 +4,8 @@
 
 ### Исправлено
 
+- `task:list` и `task:find` при `task-v3` передают `--status` и `where.status` в серверный фильтр REST 1.0 `REAL_STATUS`; выборка по статусу больше не обходит до 10 000 задач портала. `declined` не задокументирован для этого фильтра и проверяется локально. Временные флаги теперь передают на сервер не только группу, но и исполнителя, постановщика (в том числе из `--role responsible|creator`) и статус; `meta.listRoute` появился и на временном маршруте. Локальный обход REST 3.0 без `--id` пишет в stderr причину, бюджет `--max-scan` и прогресс каждые 1000 задач; `--quiet`/`--silent` подавляют эти строки, stdout и JSON не меняются. [#186](https://github.com/mesilov/bitrix24-cli/issues/186)
+
 - `task:chat:list` без `--before`/`--after` больше не теряет новые сообщения, когда в чате задачи есть непрочитанные: обход начинается с последнего сообщения (`im.dialog.get` → `last_message_id`), а не с окна первого непрочитанного. Та же проверка в `task:chat:update`/`task:chat:delete` теперь находит новые сообщения. Прочитанность не меняется. [#202](https://github.com/mesilov/bitrix24-cli/issues/202)
 
 - `task:list` и `task:find` без временных флагов передают `--group-id`, `--responsible`, `--role responsible|creator` и одноимённые поля `--where` в серверный фильтр REST 1.0 `tasks.task.list`. Выборка небольшого проекта на портале с десятками тысяч задач стала полной и быстрой, вместо `scan-budget-exhausted` после 10 000 задач. `meta.listRoute` показывает маршрут и серверные условия; `--api-policy strict-rest3` сохраняет прежнюю локальную фильтрацию REST 3.0. Подсказка неполного обхода `task:list` больше не упоминает дубли. [#183](https://github.com/mesilov/bitrix24-cli/issues/183)
@@ -25,6 +27,8 @@
 - Установщик Linux/macOS повторяет временные HTTP-ошибки, таймауты и отказы соединения до трёх раз с ограничением времени повторов. При окончательном сбое команды из README и руководства установки не подключают env и не запускают CLI. [#151](https://github.com/mesilov/bitrix24-cli/issues/151)
 
 ### Добавлено
+
+- **Окна по дате создания и изменения:** `task:list` и `task:find` принимают `--created-window` и `--changed-window` с мнемониками `--deadline-window` (`today` … `this-quarter`). Окна идут на сервер REST 1.0 как `CREATED_DATE`/`CHANGED_DATE`, сочетаются между собой и с остальными критериями через AND и показывают границы в `meta.createdFilter`/`meta.changedFilter`. Пример: `b24cli task:list --group-id 42 --created-window this-quarter --json`. При `--api-policy strict-rest3` флаги отклоняются до запросов. [#186](https://github.com/mesilov/bitrix24-cli/issues/186)
 
 - **Файловое логирование:** корневой объект `logging` в `config.json` включает суточный лог JSON Lines (`b24cli-{YYYY}{MM}{DD}.log` в `logs/` рядом с config, хранение 7 дней) при любом способе подключения. Пишутся начало и завершение команды, ошибки и события b24phpsdk с `runId`; выше `debug` о REST-вызовах только сводка, данные на `debug` ограничены, webhook и токены маскируются. Неверный `logging` не ломает команды и профили, `connection:show` показывает статус и путь к файлу. Версии CLI без поддержки `logging` отклоняют такой `config.json`: перед их запуском удалите ключ. [#189](https://github.com/mesilov/bitrix24-cli/issues/189)
 

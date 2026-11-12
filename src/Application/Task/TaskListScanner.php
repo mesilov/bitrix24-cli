@@ -14,6 +14,8 @@ use Bitrix24\CLI\Application\Task\Port\TaskGateway;
 
 final readonly class TaskListScanner
 {
+    private const PROGRESS_STEP = 1000;
+
     public function __construct(private TaskGateway $tasks, private CurrentUserGateway $currentUser, private ParticipantGateway $participants, private RuntimeState $state, private DeadlineTaskGateway $deadlineTasks)
     {
     }
@@ -23,28 +25,32 @@ final readonly class TaskListScanner
         $filter = $query->ids === [] ? [] : [['id', 'in', $query->ids]];
         $deadlineWindow = $query->deadlineWindow;
         $dueBefore = $query->dueBefore === null ? null : new \DateTimeImmutable($query->dueBefore);
-        if ($deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow) {
-            $filter = [...$deadlineWindow->filter(), ...($query->ids === [] ? [] : ['ID' => $query->ids]), ...(isset($query->where['groupId']) ? ['GROUP_ID' => $query->where['groupId']] : [])];
-        }
-
         $route = TaskListRoute::plan($query);
-        $serverRoute = $route?->server() === true;
-        $rest1 = $serverRoute || $deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow;
+        $rest1 = $route?->server() === true;
         $scalarRole = $query->role?->scalarField();
         $participantRole = $query->role?->participantField();
         $fields = array_values(array_unique([...($title === null ? FieldSchema::LIST_FIELDS : ['id', 'title']), ...$query->select, ...array_keys($query->where), ...($query->dueBefore === null && !$deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow ? [] : ['deadline']), ...($deadlineWindow?->overdue || $query->openOnly ? ['status'] : [])]));
-        $hiddenRoleField = $scalarRole !== null && !in_array($scalarRole, $fields, true) ? $scalarRole : null;
-        if ($hiddenRoleField !== null) {
-            $fields[] = $hiddenRoleField;
+        // Fields needed only for local checks are read but not returned.
+        $hiddenFields = [];
+        foreach ([$scalarRole, ...array_map(static fn (DateWindow $window): string => $window->field, $query->dateWindows)] as $field) {
+            if ($field !== null && !in_array($field, $fields, true)) {
+                $fields[] = $field;
+                $hiddenFields[] = $field;
+            }
         }
 
-        if ($deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow) {
+        if ($query->temporal()) {
             $this->deadlineTasks->validate($fields, $query->order);
         }
 
         $userId = $query->role instanceof \Bitrix24\CLI\Application\Task\TaskRole && !$deadlineWindow?->empty() ? $this->currentUser->id() : null;
-        if ($route instanceof \Bitrix24\CLI\Application\Task\TaskListRoute && $serverRoute) {
+        if ($route instanceof \Bitrix24\CLI\Application\Task\TaskListRoute && $rest1) {
             $filter = $route->filter($query, $userId);
+        }
+
+        $localScan = $route instanceof \Bitrix24\CLI\Application\Task\TaskListRoute && !$rest1 && $query->ids === [];
+        if ($localScan) {
+            $this->state->notice($this->localScanNotice($route, $query->maxScan));
         }
 
         $offset = 0;
@@ -83,6 +89,10 @@ final readonly class TaskListScanner
                 }
 
                 $scanned++;
+                if ($localScan && $scanned % self::PROGRESS_STEP === 0) {
+                    $this->state->notice(sprintf('Локальный обход: просмотрено %d из %d задач, совпадений %d.', $scanned, $query->maxScan, count($matches)));
+                }
+
                 $id = $row['id'] ?? null;
                 if (!is_int($id) || $id < 1) {
                     $reason = 'missing-id';
@@ -96,7 +106,7 @@ final readonly class TaskListScanner
 
                 $seen[$id] = true;
                 $progress++;
-                $required = ['title', ...($rest1 ? array_keys($query->where) : array_diff(array_keys($query->where), ['groupId'])), ...($query->dueBefore === null && !$deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow ? [] : ['deadline']), ...($deadlineWindow?->overdue || $query->openOnly ? ['status'] : [])];
+                $required = ['title', ...($rest1 ? array_keys($query->where) : array_diff(array_keys($query->where), ['groupId'])), ...($query->dueBefore === null && !$deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow ? [] : ['deadline']), ...($deadlineWindow?->overdue || $query->openOnly ? ['status'] : []), ...array_map(static fn (DateWindow $window): string => $window->field, $query->dateWindows)];
                 if (array_diff($required, array_keys($row)) !== [] || !is_string($row['title'] ?? null)) {
                     $reason = 'missing-predicate-field';
                     $complete = false;
@@ -159,6 +169,21 @@ final readonly class TaskListScanner
                     }
                 }
 
+                foreach ($query->dateWindows as $dateWindow) {
+                    $dateMatch = $dateWindow->matches($row[$dateWindow->field]);
+                    if ($dateMatch === null) {
+                        $reason = 'missing-predicate-field';
+                        $complete = false;
+                        continue 2;
+                    }
+
+                    $matched = $matched && $dateMatch;
+                }
+
+                if ($query->dateWindows !== [] && $query->ids !== []) {
+                    $matched = $matched && in_array($id, $query->ids, true);
+                }
+
                 if ($scalarRole !== null) {
                     $value = $row[$scalarRole] ?? null;
                     if ((!is_int($value) && (!is_string($value) || !ctype_digit($value))) || filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) === false) {
@@ -211,8 +236,8 @@ final readonly class TaskListScanner
                 }
 
                 if ($matched) {
-                    if ($hiddenRoleField !== null) {
-                        unset($row[$hiddenRoleField]);
+                    foreach ($hiddenFields as $hiddenField) {
+                        unset($row[$hiddenField]);
                     }
 
                     $matches[] = $title === null ? $row : ['id' => $id, 'title' => $row['title']];
@@ -220,7 +245,7 @@ final readonly class TaskListScanner
             }
 
             $next = $page->next;
-            if ($serverRoute && !$page->complete) {
+            if ($rest1 && !$page->complete) {
                 $reason = 'pagination-no-progress';
                 $complete = false;
                 break;
@@ -269,7 +294,20 @@ final readonly class TaskListScanner
             'order' => $query->order,
             ...($route instanceof \Bitrix24\CLI\Application\Task\TaskListRoute ? ['listRoute' => $route->metadata()] : []),
             ...($deadlineWindow instanceof \Bitrix24\CLI\Application\Task\DeadlineWindow ? ['deadlineFilter' => [...$deadlineWindow->metadata(), 'groupApplied' => isset($query->where['groupId']) ? 'server' : null]] : []),
+            ...array_merge([], ...array_map(static fn (DateWindow $window): array => [$window->field . 'Filter' => $window->metadata()], $query->dateWindows)),
             ...($reason === 'scan-budget-exhausted' ? ['hint' => 'Increase --max-scan to inspect more tasks; --all only removes the output limit. ' . ($title === null ? 'An incomplete scan does not prove that no matching task exists.' : 'An incomplete search does not prove that no duplicate exists.')] : []),
         ], $complete ? 0 : 3);
+    }
+
+    private function localScanNotice(TaskListRoute $route, int $maxScan): string
+    {
+        $reason = (string) $route->reason;
+        $advice = match (true) {
+            $reason === 'strict-rest3' => 'серверные фильтры недоступны при --api-policy strict-rest3.',
+            str_starts_with($reason, 'unsupported-field:') => 'уберите поле ' . substr($reason, strlen('unsupported-field:')) . ' из --select/--order/--where, чтобы фильтровать на сервере.',
+            default => 'для серверной выборки добавьте --group-id, --responsible, --role responsible|creator, --status или временное окно (--deadline-window, --created-window, --changed-window).',
+        };
+
+        return sprintf('Локальный обход REST 3.0 (причина: %s): просмотр до %d задач (--max-scan), условия проверяются на клиенте; %s', $reason, $maxScan, $advice);
     }
 }

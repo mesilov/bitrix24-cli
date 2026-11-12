@@ -54,6 +54,14 @@ final readonly class CommandRunner
         }
 
         try {
+            if ($output instanceof ConsoleOutputInterface) {
+                // Notices go to stderr at normal verbosity, so --quiet and --silent suppress them and stdout stays clean.
+                $errorOutput = $output->getErrorOutput();
+                $this->state->notice = static function (string $message) use ($errorOutput): void {
+                    $errorOutput->writeln($message, OutputInterface::OUTPUT_RAW | OutputInterface::VERBOSITY_NORMAL);
+                };
+            }
+
             $scopeValidation = !$context->dryRun && $this->transport instanceof \Bitrix24\CLI\Infrastructure\Bitrix24\ScopeAwareTransport
                 ? $this->transport->beforeCommand($plan, $context->policy !== 'strict-rest3') : [];
             $operation = $prepare($request, $context);
@@ -80,6 +88,7 @@ final readonly class CommandRunner
             $this->presenter->success($result, $context->outputMode, $output, $command, $this->state->calls);
             return $result->exitStatus;
         } finally {
+            $this->state->notice = null;
             if ($oldHandler !== null) {
                 pcntl_signal(SIGINT, $oldHandler);
                 pcntl_async_signals($oldAsync);

@@ -182,14 +182,17 @@ b24cli task:find --title "договор" --group-id 42 --json
 JSON и REST 3.0 используют `groupId`; для advanced input используйте `--fields '{"groupId":42}'`,
 для JSON-фильтра списка — `task:list --where '{"groupId":42}'`.
 Флаг и JSON-поля нельзя смешивать. В `task:list` и `task:find` без новых временных флагов
-при политике по умолчанию `task-v3` группа, ответственный и постановщик (`--group-id`, `--responsible`,
-`--role responsible|creator`, `where` по `groupId`/`responsibleId`/`creatorId`) передаются в серверный
-фильтр REST 1.0 `tasks.task.list`. Поэтому небольшой проект на большом портале просматривается
-целиком за несколько запросов. Статус, `--due-before`, заголовок и роли участников проверяются
-локально по строкам этой выборки. При `--api-policy strict-rest3`, без серверных условий или если
+при политике по умолчанию `task-v3` группа, ответственный, постановщик и статус (`--group-id`, `--responsible`,
+`--role responsible|creator`, `--status`, `where` по `groupId`/`responsibleId`/`creatorId`/`status`) передаются в серверный
+фильтр REST 1.0 `tasks.task.list` (`GROUP_ID`, `RESPONSIBLE_ID`, `CREATED_BY`, `REAL_STATUS`). Поэтому небольшой проект на большом портале просматривается
+целиком за несколько запросов. Статус `declined` не задокументирован для фильтра `REAL_STATUS`
+и проверяется локально; остальные статусы сервер сужает, а CLI дополнительно сверяет каждую строку.
+`--due-before`, заголовок и роли участников проверяются локально по строкам этой выборки. При `--api-policy strict-rest3`, без серверных условий или если
 `--select`, `--order` либо `--where` содержит поле, которого нет в REST 1.0 (например,
 `--order responsibleId:asc`), остаётся REST 3.0 с локальной фильтрацией. Фактический маршрут,
-серверные условия и причину показывает `meta.listRoute`. На маршруте REST 1.0 `deadline` приходит
+серверные условия и причину показывает `meta.listRoute`. Локальный обход REST 3.0 без `--id`
+пишет в stderr строку с причиной и бюджетом `--max-scan`, затем прогресс каждые 1000 задач;
+stdout и JSON-конверт не меняются, `--quiet`/`--silent` подавляют эти строки. На маршруте REST 1.0 `deadline` приходит
 в часовом поясе пользователя, а не сервера: момент времени тот же, отличается смещение. `--max-scan` ограничивает число
 просмотренных строк выбранного маршрута, `--limit` — число результатов. `task:find` совмещает `--group-id` с поиском
 по заголовку без учёта регистра; без флага ищет во всех доступных группах.
@@ -217,7 +220,7 @@ REST 1.0 (`RESPONSIBLE_ID`/`CREATED_BY`), а при `strict-rest3` провер�
 недоступны при `--api-policy strict-rest3`. Для ограничения обхода используйте `--group-id`,
 для списка также `--id`; `--all` не снимает `--max-scan`.
 
-## Календарные окна дедлайна
+## Календарные окна дедлайна, создания и изменения
 
 Для выбора следующей работы используйте `task:my` с явным исполнителем:
 
@@ -237,15 +240,19 @@ b24cli task:my --user 42 --open --due-before 2026-10-20T00:00:00+06:00 --max-sca
 Команда использует чтение REST 3.0 и поддерживает `strict-rest3`. Очерёдность и
 приоритет работы пользователь определяет сам; это отдельная операция EMP-01.
 
-`task:list` и `task:find` принимают `--deadline-window` (один раз), `--overdue`
-и `--timezone IANA`. Мнемоники: `today`, `tomorrow`, `yesterday`,
-`day-before-yesterday`, `this-week`, `this-month`, `this-quarter`.
+`task:list` и `task:find` принимают `--deadline-window`, `--created-window`,
+`--changed-window` (каждый один раз), `--overdue` и `--timezone IANA`. Мнемоники
+общие: `today`, `tomorrow`, `yesterday`, `day-before-yesterday`, `this-week`,
+`this-month`, `this-quarter`. `--created-window` выбирает по дате создания задачи,
+`--changed-window` — по дате последнего изменения, `--deadline-window` — по дедлайну.
 
 ```sh
 b24cli task:list --group-id 42 --deadline-window today --timezone Asia/Bishkek --json
 b24cli task:list --group-id 42 --overdue --deadline-window this-week --timezone Asia/Bishkek --json
 b24cli task:list --overdue --timezone Asia/Bishkek --json
 b24cli task:find --title "отчёт" --group-id 42 --deadline-window this-month --overdue --timezone Asia/Bishkek --json
+b24cli task:list --group-id 42 --created-window this-quarter --timezone Asia/Bishkek --json  # задачи группы за квартал
+b24cli task:list --role responsible --status in_progress --changed-window this-week --json
 ```
 
 Окна календарные и полуоткрытые `[from, to)`: неделя начинается в понедельник,
@@ -262,11 +269,16 @@ skill передавайте известный IANA timezone пользоват
 это не выборка по фактической дате закрытия. `deadline=null` не совпадает.
 `tomorrow --overdue` возвращает полный пустой результат без сетевых запросов.
 
-Временная выборка использует явный `tasks.task.list` REST 1.0: `>=DEADLINE`,
-`<DEADLINE` и `GROUP_ID` для `--group-id`. Это выбор маршрута до вызовов;
+Временная выборка использует явный `tasks.task.list` REST 1.0: `>=DEADLINE`/`<DEADLINE`,
+`>=CREATED_DATE`/`<CREATED_DATE`, `>=CHANGED_DATE`/`<CHANGED_DATE` и те же серверные
+условия, что без временных флагов: `GROUP_ID`, `RESPONSIBLE_ID`, `CREATED_BY` (в том числе
+из `--role responsible|creator`) и `REAL_STATUS`. Это выбор маршрута до вызовов;
 `--api-policy strict-rest3` возвращает `policy-denied`/exit4 без fallback.
-Остальные критерии — AND; `task:find --status` задаёт локальный lifecycle статус.
-Не смешивайте новые флаги с `--due-before`, `--where`/`--where-file`;
+Окна и остальные критерии — AND; один `--timezone` и один `now` действуют для всех окон.
+Дата создания или изменения каждой строки дополнительно сверяется локально по моменту
+времени; пустая или нераспознаваемая дата даёт `missing-predicate-field` и exit 3.
+Поля `created`/`changed`, нужные только для проверки, в результат не попадают, если их нет в `--select`.
+Не смешивайте временные флаги с `--due-before`, `--where`/`--where-file`;
 неверные/повторные окна и неизвестный timezone дают usage-error/exit2 до API.
 
 REST1 поддерживает общий набор `--select`: id, title, description, creatorId,
@@ -278,6 +290,9 @@ CLI не отправляет придуманные имена и не дела
 
 JSON `meta.deadlineFilter` содержит window/overdue/timezone, now,
 fromInclusive/toExclusive, route, deadlineApplied/overdueStatusApplied/groupApplied.
+`meta.createdFilter` и `meta.changedFilter` содержат window, timezone, now,
+fromInclusive/toExclusive, route и `applied: "server"`; `meta.listRoute` показывает
+все серверные условия временного маршрута.
 Форматы выдачи, `--limit`, `--all`, `--max-scan`, visible-task scope и partial/exit3
 сохраняются. Metadata отличает полный обход от ограниченного вывода; права
 подключения ограничивают видимость задач. Границы/маршрут доступны в JSON,
@@ -423,7 +438,8 @@ b24cli task:list --group-id 7 --responsible 99 --status pending --all --json
 
 Фильтр `--status` принимает одно точное логическое значение: `pending`,
 `in_progress`, `supposedly_completed`, `completed`, `deferred`, `declined`.
-Все условия исполнителя/проекта/статуса объединяются через AND. Свои задачи
+Все условия исполнителя/проекта/статуса объединяются через AND. При `task-v3` статус
+кроме `declined` уходит в серверный фильтр `REAL_STATUS`. Свои задачи
 выбираются вашим явным ID; автоматического `--me` нет. Числовые коды и опечатки
 в `--status` или `--where.status` отклоняются. `--all` снимает лимит вывода,
 но сохраняет `--max-scan` (по умолчанию 10000) и ограничения доступа подключения.
