@@ -65,6 +65,7 @@ final class CommandCatalog
         'task:history:list' => ['class' => \Bitrix24\CLI\Console\Command\Task\ListTaskHistoryCommand::class, 'effect' => 'read'],
         'chats:resolve' => ['class' => \Bitrix24\CLI\Console\Command\Chats\ResolveChatCommand::class, 'effect' => 'read'],
         'chats:find' => ['class' => \Bitrix24\CLI\Console\Command\Chats\FindChatCommand::class, 'effect' => 'read'],
+        'chats:send' => ['class' => \Bitrix24\CLI\Console\Command\Chats\SendChatMessageCommand::class, 'effect' => 'write'],
         'chats:messages:list' => ['class' => \Bitrix24\CLI\Console\Command\Chats\ListChatMessagesCommand::class, 'effect' => 'read'],
     ];
 
@@ -141,6 +142,7 @@ final class CommandCatalog
         'task:history:list' => [['tasks.task.history.list', 1]],
         'chats:resolve' => [['tasks.task.get', 3], ['im.dialog.get', 1]],
         'chats:find' => [['im.search.chat.list', 1], ['sonet_group.get', 1], ['tasks.task.list', 3], ['tasks.task.get', 3], ['im.dialog.get', 1]],
+        'chats:send' => [['im.search.chat.list', 1], ['sonet_group.get', 1], ['tasks.task.list', 3], ['tasks.task.get', 3], ['im.dialog.get', 1], ['im.message.add', 1], ['im.dialog.messages.get', 1]],
         'chats:messages:list' => [['tasks.task.get', 3], ['im.dialog.get', 1], ['im.dialog.messages.get', 1]],
     ];
 }

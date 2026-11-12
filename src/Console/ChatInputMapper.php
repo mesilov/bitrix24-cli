@@ -9,6 +9,7 @@ use Bitrix24\CLI\Application\Chat\ChatTargetParser;
 use Bitrix24\CLI\Application\Chat\MessagePeriodResolver;
 use Bitrix24\CLI\Application\Chat\Request\FindChatsRequest;
 use Bitrix24\CLI\Application\Chat\Request\ListChatMessagesRequest;
+use Bitrix24\CLI\Application\Chat\Request\SendChatMessageRequest;
 use Bitrix24\CLI\Application\Failure;
 use Bitrix24\CLI\Infrastructure\Connection\ConnectionResolver;
 use Bitrix24\CLI\Infrastructure\Connection\FileCredentialStore;
@@ -42,6 +43,28 @@ final readonly class ChatInputMapper
 
         $limit = $input->getOption('all') ? null : $this->numbers->id($input->getOption('limit') ?? 50, '--limit');
         return new FindChatsRequest($name, $this->numbers->id($input->getOption('max-scan') ?? 10000, '--max-scan'), $limit);
+    }
+
+    public function send(InputInterface $input): SendChatMessageRequest
+    {
+        $hasTarget = $input->getArgument('TARGET') !== null;
+        $name = $input->getOption('name');
+        if ($hasTarget === ($name !== null)) {
+            throw Failure::usage('Pass TARGET or --name, not both.');
+        }
+
+        if ($hasTarget && $input->getOption('max-scan') !== null) {
+            throw Failure::usage('--max-scan applies only to --name.');
+        }
+
+        $target = $hasTarget ? $this->target($input) : null;
+        $name = is_string($name) ? trim($name) : null;
+        if (!$hasTarget && ($name === null || mb_strlen($name) < 2)) {
+            throw Failure::usage('Pass --name with at least 2 characters.');
+        }
+
+        $text = (string) $this->numbers->text($input, 'text');
+        return new SendChatMessageRequest($target, $hasTarget ? null : $name, $text, $this->numbers->id($input->getOption('max-scan') ?? 10000, '--max-scan'));
     }
 
     /** Parses TARGET locally; credentials are not read and the URL is never opened. */

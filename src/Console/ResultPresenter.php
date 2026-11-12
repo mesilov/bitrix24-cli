@@ -22,6 +22,7 @@ final readonly class ResultPresenter
         'task-list' => ['id', 'title', 'responsibleId', 'groupId', 'status', 'deadline'],
         'title-matches' => ['id', 'title'], 'task-fields' => ['name', 'type', 'editable', 'filterable', 'sortable'],
         'chat-messages' => ['id', 'createdDate', 'authorId', 'text'],
+        'chat-message-sent' => ['target', 'chatId', 'messageId', 'confirmed', 'readback'],
         'chat-candidates' => ['source', 'target', 'name', 'exact', 'writable', 'chatId', 'reason'],
         'task-results' => ['id', 'taskId', 'authorId', 'createdAt', 'status', 'text'],
         'time-entries' => ['id', 'userId', 'seconds', 'text', 'createdDate'], 'checklist-roots' => ['id', 'title'],

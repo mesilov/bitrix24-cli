@@ -26,6 +26,8 @@
 
 ### Добавлено
 
+- **Отправка в чат (CHAT-02):** `chats:send TARGET|--name NAME --text|--text-file` отправляет одно сообщение через `im.message.add`. По названию запись разрешена только при единственном точном совпадении в полном поиске; иначе `chat-not-found`, `chat-ambiguous` с кандидатами или `search-incomplete`, и ничего не отправляется. `--dry-run` проверяет адресат без записи. Потерянный ответ даёт `outcomeUnknown` без повтора; созданное сообщение читается по ID и сверяется с чатом. [#180](https://github.com/mesilov/bitrix24-cli/issues/180)
+
 - **Поиск чата по названию:** `chats:find --name NAME` ищет групповые чаты (`im.search.chat.list`), проекты (`sonet_group.get` → `sgN`) и задачи по заголовку (→ `task:N`), потому что поиск чатов не возвращает чаты проектов и задач. Совпадения только по участнику скрыты; точные совпадения проекта и задачи подтверждаются как в `chats:resolve`. `data.selection` различает `unique`, `none`, `ambiguous`, `unavailable` и `incomplete` (exit 3); неполный источник не превращается в «не найдено». [#180](https://github.com/mesilov/bitrix24-cli/issues/180)
 
 - **История чата за период (CHAT-01):** `chats:messages:list TARGET --period yesterday --timezone ZONE` или `--from/--to` возвращает сообщения интервала [from, to) с авторами, временем и ID. Обход идёт от последнего сообщения, а не от окна непрочитанных, и не меняет прочитанность. Порядок дат по ID не предполагается: полнота подтверждается только началом истории, иначе exit 3 с причиной (`message-budget-exhausted`, `page-error`, `output-limit` и др.). [#180](https://github.com/mesilov/bitrix24-cli/issues/180)

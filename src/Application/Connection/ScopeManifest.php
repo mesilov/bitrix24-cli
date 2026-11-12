@@ -34,6 +34,7 @@ final class ScopeManifest
         'im.dialog.get' => [['im']],
         'im.dialog.messages.get' => [['im']],
         'im.search.chat.list' => [['im']],
+        'im.message.add' => [['im']],
         'im.message.update' => [['im']],
         'im.message.delete' => [['im']],
         'disk.folder.uploadFile' => [['disk']],

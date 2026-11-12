@@ -2,13 +2,14 @@
 
 [Обзор CLI](../README.md#cli-команды) · [Подключение](connection.md) · [JTBD: CHAT-01/CHAT-02](task-jtbd.md#общие-сценарии-чатов--план-180)
 
-Namespace `chats:*` работает с групповым чатом, общим чатом проекта и чатом задачи. Доступны `chats:resolve` (проверка адресата), `chats:find` (поиск по названию) и `chats:messages:list` (история за период). Отправка — в плане [#180](https://github.com/mesilov/bitrix24-cli/issues/180).
+Namespace `chats:*` работает с групповым чатом, общим чатом проекта и чатом задачи. Команды: `chats:resolve` (проверка адресата), `chats:find` (поиск по названию), `chats:messages:list` (история за период) и `chats:send` (отправка). Issue — [#180](https://github.com/mesilov/bitrix24-cli/issues/180).
 
 ```sh
 b24cli chats:resolve sg234 --json
 b24cli chats:resolve task:5288 --json
 b24cli chats:resolve 'https://portal.example/online/?IM_DIALOG=chat9636&IM_MESSAGE=19436' --json
 b24cli chats:find --name 'Команда проекта' --json
+b24cli chats:send --name 'Команда проекта' --text 'Сегодня меня не будет' --dry-run --json
 b24cli chats:messages:list sg234 --period yesterday --timezone Europe/Moscow --json
 b24cli chats:messages:list task:5288 --from 2026-11-11T00:00:00+03:00 --to 2026-11-12T00:00:00+03:00 --json
 ```
@@ -107,3 +108,33 @@ JSON `data`: `name`, `selection` (`status`, `target`, `exactMatches`), `items` (
 Ошибка первой страницы или чужой `chat_id` — ошибка команды, а не пустой результат.
 
 JSON `data`: `destination`, `period` (`kind`, `from`, `to`, `timezone`, `now`), `items` (`id`, `createdDate`, `authorId`, `text`, `chatId`) по времени и ID, `authors` (`id`, `name` из ответа API; `authorId` 0 — системное сообщение). TSV при `--plain`: `id`, `createdDate`, `authorId`, `text`.
+
+## Отправка
+
+`chats:send` отправляет одно текстовое сообщение через `im.message.add` (REST 1.0, `im`). Адресат — TARGET или `--name`, текст — `--text` или `--text-file PATH|-` (stdin).
+
+Адресат проверяется до записи:
+
+- TARGET — как в `chats:resolve`.
+- `--name` — как в `chats:find`; запись разрешена только при `selection.status = unique`. Иначе ничего не отправляется:
+
+| Код | Когда |
+| --- | --- |
+| `chat-not-found` (exit 1) | Точных совпадений нет |
+| `chat-ambiguous` (exit 4) | Несколько точных совпадений; кандидаты в `error.details.candidates`, выберите TARGET |
+| `chat-unavailable` (exit 1) | Чат недоступен пользователю подключения, в том числе отказ `im.message.add` с `ACCESS_ERROR` |
+| `search-incomplete` (exit 4) | Поиск неполный (`error.details.sources`); укажите TARGET или увеличьте `--max-scan` |
+
+`--dry-run` выполняет проверочные чтения адресата и показывает план (`im.message.add` с `target`, `dialogId`, `chatName`, `text`, затем чтение для проверки) без отправки. Сообщение уходит в физический чат `chatN`, найденный при проверке.
+
+### Исход записи
+
+`im.message.add` вызывается один раз и возвращает ID сообщения. Затем CLI читает сообщение по ID (`im.dialog.messages.get`, `LAST_ID = ID + 1`, `LIMIT 1`) и сверяет чат.
+
+| Результат | Смысл |
+| --- | --- |
+| `operation.readback = verified`, exit 0 | Сообщение создано и найдено в выбранном чате |
+| `readback = missing`, `failed` или `chat-mismatch`, exit 3 | Сервер вернул ID, но проверка не подтвердила сообщение; `messageId` сохранён |
+| ошибка с `meta.outcomeUnknown = true` | Ответ потерян или пришёл без ID: сообщение могло быть создано. CLI не повторяет запись; проверьте `chats:messages:list` перед повтором |
+
+JSON `data`: `destination`, `operation` (`action`, `target`, `chatId`, `messageId`, `confirmed`, `readback`), `readback`. TSV при `--plain`: `target`, `chatId`, `messageId`, `confirmed`, `readback`.

@@ -21,4 +21,10 @@ interface ChatDialogGateway
      * @return array{items: list<array<string, mixed>>, users: array<int, string>}
      */
     public function messages(int $chatId, int $lastId, int $limit): array;
+
+    /**
+     * Sends one text message through im.message.add and returns the created message ID.
+     * A lost response is reported as a Failure with outcomeUnknown; the call is never repeated.
+     */
+    public function send(int $chatId, string $text): int;
 }

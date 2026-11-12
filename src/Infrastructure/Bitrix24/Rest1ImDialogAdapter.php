@@ -41,6 +41,26 @@ final readonly class Rest1ImDialogAdapter implements ChatDialogGateway
         return $dialog;
     }
 
+    public function send(int $chatId, string $text): int
+    {
+        try {
+            $result = $this->api->call('im.message.add', 1, ['DIALOG_ID' => 'chat' . $chatId, 'MESSAGE' => $text], 'write')->result;
+        } catch (Failure $failure) {
+            if ($failure->errorCode === 'api-error' && ($failure->details['apiErrorCode'] ?? null) === 'ACCESS_ERROR') {
+                throw new Failure('chat-unavailable', 'The connection user cannot post to the chat.', 1, ['DIALOG_ID' => 'chat' . $chatId, 'apiErrorCode' => 'ACCESS_ERROR']);
+            }
+
+            throw $failure;
+        }
+
+        $id = $result[0] ?? $result['result'] ?? null;
+        if ((!is_int($id) && (!is_string($id) || !ctype_digit($id))) || (int) $id < 1) {
+            throw new Failure('api-error', 'im.message.add did not return a message ID; the message may have been sent.', 1, ['DIALOG_ID' => 'chat' . $chatId], true);
+        }
+
+        return (int) $id;
+    }
+
     public function messages(int $chatId, int $lastId, int $limit): array
     {
         $result = $this->api->call('im.dialog.messages.get', 1, ['DIALOG_ID' => 'chat' . $chatId, 'LAST_ID' => $lastId, 'LIMIT' => $limit])->result;

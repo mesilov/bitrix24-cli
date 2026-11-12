@@ -24,9 +24,9 @@ Planning завершён; ниже только будущие implementation/v
 
 ## 4. Отправка
 
-- [ ] 4.1 Добавить chats:send с TARGET или --name, text/file/stdin, IM result ID и dry-run; проверить выбор ровно одного полного exact-title результата, mutual exclusions и отсутствие записи при dry-run/ambiguous/denied.
-- [ ] 4.2 Сохранить confirmed/outcomeUnknown без повтора записи; проверить timeout после возможного принятия, ID результата и readback со сверкой chat_id в command integration case; обновить help/CLI map.
-- [ ] 4.3 Обновить полные route plans, ScopeManifest и scope docs совместно с областью #178; проверить изоляцию команд, strict-rest3 и native REST1 payload, отсутствие read/join мутаций.
+- [x] 4.1 Добавить chats:send с TARGET или --name, text/file/stdin, IM result ID и dry-run; проверить выбор ровно одного полного exact-title результата, mutual exclusions и отсутствие записи при dry-run/ambiguous/denied.
+- [x] 4.2 Сохранить confirmed/outcomeUnknown без повтора записи; проверить timeout после возможного принятия, ID результата и readback со сверкой chat_id в command integration case; обновить help/CLI map.
+- [x] 4.3 Обновить полные route plans, ScopeManifest и scope docs совместно с областью #178; проверить изоляцию команд, strict-rest3 и native REST1 payload, отсутствие read/join мутаций.
 
 ## 5. Сквозная приёмка
 
