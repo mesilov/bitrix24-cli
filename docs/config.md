@@ -2,7 +2,7 @@
 
 [Подключение портала и выбор профиля](connection.md) · [Краткий обзор](../README.md#конфиг)
 
-Пользовательский `config.json` хранит параметры нескольких порталов, defaults создания задач/рабочих адресатов и локальную telemetry карточек проблем. Полный webhook находится в отдельном credential file. Формат не зависит от расположения и версии бинарника.
+Пользовательский `config.json` хранит параметры нескольких порталов, defaults создания задач/рабочих адресатов, локальную telemetry карточек проблем и настройки файлового лога. Полный webhook находится в отдельном credential file. Формат не зависит от расположения и версии бинарника.
 
 Машиночитаемый контракт: [config.schema.json](config.schema.json), [JSON Schema Draft 2020-12](https://json-schema.org/draft/2020-12/schema). Эта схема описывает пользовательский `config.json`. Глобальный `--config PATH` читает отдельный runtime JSON с `timeout`, `apiPolicy`, `profile`, `maxUploadBytes`.
 
@@ -269,7 +269,7 @@ b24cli --env-file "/run/secrets/bitrix24.env" task:list --json
 
 ## Проверка схемы и дополнительные проверки CLI
 
-`config.schema.json` можно подключить в редакторе через association с пользовательским config.json. Не добавляйте `$schema` в сам config.json: root schema v1 допускает version/defaultProfile/profiles и optional telemetry. CLI проверяет формат встроенным валидатором; для запуска не требуется Python, скачивание schema или remote `$ref`.
+`config.schema.json` можно подключить в редакторе через association с пользовательским config.json. Не добавляйте `$schema` в сам config.json: root schema v1 допускает version/defaultProfile/profiles и optional telemetry/logging. CLI проверяет формат встроенным валидатором; для запуска не требуется Python, скачивание schema или remote `$ref`.
 
 ## Локальная telemetry проблемных сценариев
 
@@ -320,12 +320,72 @@ telemetry, а doctor updates не теряют profiles/defaultProfile/credentia
 
 ```sh
 python3 -m venv /tmp/b24cli-schema-validation
-/tmp/b24cli-schema-validation/bin/python -m pip install jsonschema==4.25.1
+/tmp/b24cli-schema-validation/bin/python -m pip install 'jsonschema[format]==4.25.1'
 /tmp/b24cli-schema-validation/bin/python build/tests/config-schema-check.py
 make unit TEST_ARGS="--filter ConfigSchemaContractTest"
 ```
 
 Парные fixture expectations явно отделяют структурные ограничения от дополнительных runtime checks. Эта проверка не делает запросов к порталу.
+
+## Файловое логирование
+
+Корневой optional object `logging` включает файловый лог для всего каталога
+конфигурации, независимо от профиля портала и способа подключения: профиль,
+`--env-file`, `B24CLI_ENV_FILE` или `BITRIX24_WEBHOOK`. По умолчанию логирование
+выключено. Настройки меняют вручную в `config.json`; проверить их можно по JSON Schema
+и командой `connection:show`.
+
+```json
+{
+  "version": 1,
+  "defaultProfile": null,
+  "profiles": {},
+  "logging": {
+    "enabled": true,
+    "level": "info",
+    "directory": null,
+    "fileMask": "b24cli-{YYYY}{MM}{DD}.log",
+    "retentionDays": 7
+  }
+}
+```
+
+| Поле | Значение | По умолчанию |
+| --- | --- | --- |
+| `enabled` | Strict boolean. | `false` |
+| `level` | Минимальный уровень PSR-3 в нижнем регистре: `debug`, `info`, `notice`, `warning`, `error`, `critical`, `alert`, `emergency`. | `info` |
+| `directory` | Каталог логов. `null` — `logs/` в каталоге конфигурации; относительный путь отсчитывается от каталога конфигурации; `~` и переменные не раскрываются. | `null` |
+| `fileMask` | Имя файла с токенами `{YYYY}`, `{MM}`, `{DD}`, каждый ровно один раз. Без `/`, `\`, `..`, управляющих символов и `<>:"\|?*`, до 255 байт. | `b24cli-{YYYY}{MM}{DD}.log` |
+| `retentionDays` | Сколько дней хранить файлы, считая текущие сутки. Positive JSON integer literal. | `7` |
+
+С маской по умолчанию записи 12 ноября 2026 года попадают в `b24cli-20261112.log`.
+Дата берётся в часовом поясе `TZ`, если он задан, иначе в поясе PHP по умолчанию.
+При первой записи и при смене суток CLI удаляет файлы, дата в имени которых старше
+`retentionDays` дней. Файлы, не подходящие под маску, не удаляются.
+
+Каждая строка файла — отдельный JSON (JSON Lines) с полями `datetime`, `level`,
+`channel` (`cli` или `sdk`), `message`, `context` и `runId`. По `runId` разделяются
+записи параллельных запусков. CLI пишет начало и завершение команды (имя, код выхода,
+длительность), ошибки и события b24phpsdk. Аргументы команд не пишутся. Команды
+`--help`, `--version`, `list` и completion лог не создают.
+
+Выше уровня `debug` о REST-вызовах пишется только сводка: метод API, `requestId`,
+HTTP-статус и длительность. На уровне `debug` в лог попадают параметры запросов,
+то есть тексты задач, комментарии и другие данные портала. Они ограничены: строка
+до 4096 байт, base64 и бинарные данные заменяются длиной, запись до 64 KiB. Webhook,
+токены и пароли маскируются на любом уровне. Включайте `debug` только на время
+разбора проблемы.
+
+Лог не выводится в stdout. Если `logging` задан неверно или каталог недоступен для
+записи, команда работает как обычно, а в stderr печатается одно предупреждение.
+Профили при этом читаются и сохраняются без изменения `logging`. CLI создаёт каталог
+логов с правами 0700, а файлы с правами 0600; права существующего каталога не меняются.
+
+`connection:show` показывает блок `logging`: статус `ok`, `disabled` или `invalid`
+с причиной, эффективные значения и абсолютный путь к файлу текущих суток.
+
+Версии CLI без поддержки `logging` отклоняют `config.json` с этим ключом. Перед
+переходом на такую версию удалите `logging` из `config.json`.
 
 ## Лимит загрузки локального файла
 
