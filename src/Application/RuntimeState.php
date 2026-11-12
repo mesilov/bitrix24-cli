@@ -11,12 +11,26 @@ final class RuntimeState
     public bool $cancelled = false;
     public array $calls = [];
 
+    /**
+     * Progress and warning sink of the running command (stderr in the console); null keeps notices silent.
+     *
+     * @var (\Closure(string): void)|null
+     */
+    public ?\Closure $notice = null;
+
     public function begin(float $timeout): void
     {
         $this->generation++;
         $this->timeout = $timeout;
         $this->cancelled = false;
         $this->calls = [];
+    }
+
+    public function notice(string $message): void
+    {
+        if ($this->notice instanceof \Closure) {
+            ($this->notice)($message);
+        }
     }
 
     public function checkCancellation(): void

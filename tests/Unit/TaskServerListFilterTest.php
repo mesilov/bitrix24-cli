@@ -84,7 +84,7 @@ final class TaskServerListFilterTest extends TestCase
     {
         $rows = array_map(static fn (int $id): array => self::row($id, 7, 42, '3'), range(200, 101, -1));
         [$run, $api] = $this->invoke('task:list', ['--role', 'creator', '--responsible', '7', '--status', 'in_progress', '--id', '150', '--id', '120', '--limit', '1'], static function ($method, $version, array $params) use ($rows): ApiResponse {
-            self::assertSame(['ID' => [150, 120], 'RESPONSIBLE_ID' => 7, 'CREATED_BY' => 1], (array) $params['filter']);
+            self::assertSame(['ID' => [150, 120], 'RESPONSIBLE_ID' => 7, 'CREATED_BY' => 1, 'REAL_STATUS' => 3], (array) $params['filter']);
             $start = $params['start'];
             return new ApiResponse(['tasks' => array_slice($rows, $start, 50)], $start === 0 ? 50 : null, 100);
         });
@@ -93,7 +93,7 @@ final class TaskServerListFilterTest extends TestCase
         self::assertSame([200], array_column($json['data']['items'], 'id'));
         self::assertSame(100, $json['meta']['matched']);
         self::assertTrue($json['meta']['limitApplied']);
-        self::assertSame(['id', 'responsibleId', 'creatorId'], $json['meta']['listRoute']['serverFilter']);
+        self::assertSame(['id', 'responsibleId', 'creatorId', 'status'], $json['meta']['listRoute']['serverFilter']);
         self::assertSame([0, 50], array_column(array_column($api->calls, 'parameters'), 'start'));
         self::assertArrayNotHasKey('creatorId', $json['data']['items'][0]);
     }
@@ -114,7 +114,7 @@ final class TaskServerListFilterTest extends TestCase
     {
         [$run] = $this->invoke('task:list', ['--where', '{"groupId":"42","creatorId":3,"status":"pending"}'], static function ($method, $version, array $params): ApiResponse {
             self::assertSame(1, $version);
-            self::assertSame(['GROUP_ID' => 42, 'CREATED_BY' => 3], (array) $params['filter']);
+            self::assertSame(['GROUP_ID' => 42, 'CREATED_BY' => 3, 'REAL_STATUS' => 2], (array) $params['filter']);
             return new ApiResponse(['tasks' => [self::row(5, 1, 42, '2', 3), self::row(4, 1, 42, '5', 3)]], null, 2);
         });
         self::assertSame(0, $run->status, $run->stdout . $run->stderr);
@@ -182,19 +182,19 @@ final class TaskServerListFilterTest extends TestCase
         yield 'strict policy' => [['--group-id', '42'], ['--api-policy', 'strict-rest3'], 'strict-rest3', []];
         yield 'rest3 only order' => [['--group-id', '42', '--order', 'responsibleId:asc'], [], 'unsupported-field:responsibleId', []];
         yield 'rest3 only select' => [['--role', 'responsible', '--select', 'creator.id'], [], 'unsupported-field:creator.id', []];
-        yield 'no server predicate' => [['--status', 'pending', '--id', '5'], [], 'no-server-predicate', ['id']];
+        yield 'no server predicate' => [['--status', 'declined', '--id', '5'], [], 'no-server-predicate', ['id']];
     }
 
     #[DataProvider('localRoutes')]
     public function testLocalRouteIsChosenBeforeRequests(array $options, array $global, string $reason, array $serverFilter): void
     {
-        [$run, $api] = $this->invoke('task:list', $options, static function ($method, $version, array $params): ApiResponse {
+        [$run, $api] = $this->invoke('task:list', $options, static function ($method, $version, array $params) use ($options): ApiResponse {
             if ($method === 'tasks.task.get') {
                 return new ApiResponse(['task' => ['id' => $params['id'], 'group' => ['id' => 42]]]);
             }
 
             self::assertSame(['tasks.task.list', 3], [$method, $version]);
-            return new ApiResponse(['items' => [['id' => 5, 'title' => 'Договор', 'responsibleId' => 1, 'groupId' => 42, 'status' => 'pending', 'deadline' => null, 'creator' => ['id' => 1]]]]);
+            return new ApiResponse(['items' => [['id' => 5, 'title' => 'Договор', 'responsibleId' => 1, 'groupId' => 42, 'status' => in_array('declined', $options, true) ? 'declined' : 'pending', 'deadline' => null, 'creator' => ['id' => 1]]]]);
         }, '--json', $global);
         self::assertSame(0, $run->status, $run->stdout . $run->stderr);
         self::assertSame(['apiVersion' => '3.0', 'serverFilter' => $serverFilter, 'reason' => $reason], $run->json()['meta']['listRoute']);

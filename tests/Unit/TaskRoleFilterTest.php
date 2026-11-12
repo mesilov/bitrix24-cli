@@ -181,7 +181,7 @@ final class TaskRoleFilterTest extends TestCase
         [$run, $api] = $this->invoke('task:list', ['--role', 'auditor', '--group-id', '42', '--status', 'in_progress', '--due-before', '2026-10-13T00:00:00Z'], static function ($method, $version, array $params): ApiResponse {
             if ($method === 'tasks.task.list') {
                 self::assertSame(1, $version);
-                self::assertSame(['GROUP_ID' => 42], (array) $params['filter']);
+                self::assertSame(['GROUP_ID' => 42, 'REAL_STATUS' => 3], (array) $params['filter']);
                 return new ApiResponse(['tasks' => [
                     self::rest1Row(1, status: '3', deadline: '2026-10-12T00:00:00Z'),
                     self::rest1Row(3, deadline: '2026-10-12T00:00:00Z'),
