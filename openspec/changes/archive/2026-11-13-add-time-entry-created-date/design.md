@@ -2,7 +2,7 @@
 
 ## Context
 
-`task:time:add`/`task:time:update` используют явно допущенные REST 1.0 `task.elapseditem.add`/`update` ([требование task-mvp-scope](../../specs/task-mvp-scope/spec.md)). `Rest1TimeEntryAdapter` отправляет в `ARFIELDS` только `SECONDS` и `COMMENT_TEXT`. Чтение (`task:time:list`) уже возвращает `CREATED_DATE` как `createdDate`.
+`task:time:add`/`task:time:update` используют явно допущенные REST 1.0 `task.elapseditem.add`/`update` ([требование task-mvp-scope](../../../specs/task-mvp-scope/spec.md)). `Rest1TimeEntryAdapter` отправляет в `ARFIELDS` только `SECONDS` и `COMMENT_TEXT`. Чтение (`task:time:list`) уже возвращает `CREATED_DATE` как `createdDate`.
 
 ## Проверка документации (MCP Битрикс24, 13.11.2026)
 
