@@ -137,4 +137,6 @@ JSON `data`: `destination`, `period` (`kind`, `from`, `to`, `timezone`, `now`), 
 | `readback = missing`, `failed` или `chat-mismatch`, exit 3 | Сервер вернул ID, но проверка не подтвердила сообщение; `messageId` сохранён |
 | ошибка с `meta.outcomeUnknown = true` | Ответ потерян или пришёл без ID: сообщение могло быть создано. CLI не повторяет запись; проверьте `chats:messages:list` перед повтором |
 
+Отправка сама по себе отмечает чат прочитанным для отправителя: это поведение портала при `im.message.add` (приёмка 12.11.2026: 60 непрочитанных → 0). Чтение через `chats:*` прочитанность не меняет.
+
 JSON `data`: `destination`, `operation` (`action`, `target`, `chatId`, `messageId`, `confirmed`, `readback`), `readback`. TSV при `--plain`: `target`, `chatId`, `messageId`, `confirmed`, `readback`.
