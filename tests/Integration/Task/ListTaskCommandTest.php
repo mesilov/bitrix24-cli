@@ -28,6 +28,24 @@ final class ListTaskCommandTest extends LiveTaskLifecycleTestCase
         self::assertSame(1, $result['meta']['matched']);
     }
 
+    #[Group('happy-path')]
+    public function testUnreadJoinsOneCounterSnapshotWithTheSelectedTask(): void
+    {
+        $id = $this->createTask();
+        $result = $this->invoke(['task:list', '--id', $id, '--unread'], [0, 3]);
+        $state = $result['meta']['unreadState'];
+        self::assertSame('im.counters.get', $state['source']);
+        self::assertMatchesRegularExpression('/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$/', $state['observedAt']);
+        self::assertSame($result['meta']['complete'], $state['reasons'] === [] && $result['meta']['reason'] === null);
+        foreach ($result['data']['items'] as $item) {
+            self::assertSame($id, $item['id']);
+            self::assertIsInt($item['chatState']['chatId']);
+            self::assertGreaterThan(0, $item['chatState']['counter']);
+        }
+
+        self::assertContains('im.counters.get', array_column($result['meta']['apiCalls'], 'method'));
+    }
+
     #[Group('lifecycle')]
     public function testReviewAndRenewListsMatchIndependentTaskState(): void
     {

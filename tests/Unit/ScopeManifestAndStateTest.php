@@ -44,7 +44,8 @@ final class ScopeManifestAndStateTest extends TestCase
         self::assertSame([], $scopeManifest->missing($scopeManifest->required([new Route('user.get', 1)]), ['user_brief']));
         self::assertSame([], $scopeManifest->missing($scopeManifest->required($task), ['tasks']));
         self::assertArrayHasKey('task:chat:list', $scopeManifest->affectedCommands(['task']));
-        self::assertArrayNotHasKey('task:list', $scopeManifest->affectedCommands(['task']));
+        // #148: only the opt-in task:list --unread needs im; the plain list run is not blocked (TaskUnreadStateTest).
+        self::assertSame(['im'], $scopeManifest->affectedCommands(['task'])['task:list']);
         $this->expectException(Failure::class);
         $scopeManifest->required([new Route('tasks.task.futureMethod', 3)]);
     }
