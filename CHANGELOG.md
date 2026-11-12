@@ -13,6 +13,8 @@
 
 ### Исправлено
 
+- Архивирован OpenSpec change `add-time-entry-created-date` (дата записи времени `--created-date`); требования синхронизированы в основную спецификацию `task-mvp-scope`. [#179](https://github.com/mesilov/bitrix24-cli/issues/179)
+
 - `task:list` и `task:find` при `task-v3` передают `--status` и `where.status` в серверный фильтр REST 1.0 `REAL_STATUS`; выборка по статусу больше не обходит до 10 000 задач портала. `declined` не задокументирован для этого фильтра и проверяется локально. Временные флаги теперь передают на сервер не только группу, но и исполнителя, постановщика (в том числе из `--role responsible|creator`) и статус; `meta.listRoute` появился и на временном маршруте. Локальный обход REST 3.0 без `--id` пишет в stderr причину, бюджет `--max-scan` и прогресс каждые 1000 задач; `--quiet`/`--silent` подавляют эти строки, stdout и JSON не меняются. [#186](https://github.com/mesilov/bitrix24-cli/issues/186)
 
 - `task:chat:list` без `--before`/`--after` больше не теряет новые сообщения, когда в чате задачи есть непрочитанные: обход начинается с последнего сообщения (`im.dialog.get` → `last_message_id`), а не с окна первого непрочитанного. Та же проверка в `task:chat:update`/`task:chat:delete` теперь находит новые сообщения. Прочитанность не меняется. [#202](https://github.com/mesilov/bitrix24-cli/issues/202)
