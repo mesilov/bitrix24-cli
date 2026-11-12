@@ -40,6 +40,8 @@
 
 - Архивирован OpenSpec change шага проверки сценариев issue сырыми запросами к REST API после merge MR #194 в `dev`; delta specs нет, актуальные спецификации не менялись. [#192](https://github.com/mesilov/bitrix24-cli/issues/192)
 
+- Завершённый OpenSpec change обновления Symfony-пакетов архивирован после merge MR #197 в `dev` и 13 успешных CI checks на проверенном head; `composer audit` без advisories. [#196](https://github.com/mesilov/bitrix24-cli/issues/196)
+
 - **Правила мейнтейнера:** добавлен шаг проверки сценариев issue сырыми запросами к REST API Битрикс24 до фиксации design/spec/tasks — условия релевантности, передача webhook без argv, только чтение по умолчанию, запись только в тестовой группе с cleanup, фиксация в `design.md` и повтор при verify. В `AGENTS.md` и скилл перенесено правило «только `gh` в неинтерактивном режиме». [#192](https://github.com/mesilov/bitrix24-cli/issues/192)
 
 - Спецификации выборочной передачи EMP-09/PM-04 синхронизированы после merge MR #166; change расширения task:handover архивирован с evidence исправления P2 review и 15 успешных checks на проверенном head. [#165](https://github.com/mesilov/bitrix24-cli/issues/165)
