@@ -21,7 +21,7 @@
 
 Сверка [#165](https://github.com/mesilov/bitrix24-cli/issues/165) от 16.10.2026, база `dev` — `2e83e8b634baab3fd2bbeec6ec51c3cdbf20f403`: EMP-09/PM-04 поддерживают фильтр исходного статуса, исключения ID и пять целей, включая завершение/контроль. Итог назначения и перехода проверяется отдельно. Состав каталога сохранён: 24 JTBD, 49 task-команд, 63 публичных команды. Новые unit-контракты и opt-in integration cases не подтверждают live-приёмку.
 
-Постановка [#208](https://github.com/mesilov/bitrix24-cli/issues/208) от 12.11.2026, база `dev` — `3b5f21f`: добавлены планируемые [PM-10](#pm-10) и [PM-11](#pm-11) и общие [сценарии созвонов CHAT-03…CHAT-05](#chat-calls). Реализована независимая от [#180](https://github.com/mesilov/bitrix24-cli/issues/180) часть: разметка и обогащение звонков в `task:chat:list` (CHAT-03…05 для чатов задач) и `users:presence --user-id` (PM-11 по списку ID). Каталог: 50 task-команд / 65 публичных. `chats:calls:*`, обогащение `chats:messages:list` и выбор по TARGET ждут `chats:*` из #180. Живая проверка: интеграционный тест `users:presence` на портале прошёл; приёмка обогащения на чате задачи со звонком не проводилась. [OpenSpec change](../openspec/changes/add-chat-call-insights/proposal.md).
+Сверка [#208](https://github.com/mesilov/bitrix24-cli/issues/208) от 12.11.2026, база `dev` — `91e90ff` (после merge #180): добавлены [PM-10](#pm-10), [PM-11](#pm-11) и [сценарии созвонов CHAT-03…CHAT-05](#chat-calls). Реализованы разметка и обогащение звонков в `task:chat:list` и `chats:messages:list`, команды `chats:calls:list`, `chats:calls:show` и `users:presence` (по `--user-id` и TARGET чата). Каталог: 50 task-команд / 71 публичная. Live (только чтение) на рабочем чате со звонком: `chats:messages:list`, `chats:calls:list`, `chats:calls:show`, `users:presence` по ID и по чату. Сверка оценки с заранее известным составом звонка не проводилась. [OpenSpec change](../openspec/changes/add-chat-call-insights/proposal.md).
 
 Сверка [#170](https://github.com/mesilov/bitrix24-cli/issues/170) от 16.10.2026, база dev `0caf9db`: проверка состава EMP-09/PM-04 использует фактический scope `sonet_group`. Серверный сброс статуса в `pending` после назначения обрабатывается достижением явной цели либо восстановлением исходного статуса штатными действиями. Повторная live-матрица: 18/18 проверок PASS; 4/4 integration tests PASS, включая ожидаемые partial/отказы. [Evidence и ограничения](../openspec/changes/archive/2026-10-16-fix-task-handover-project-scope/live-acceptance.md). Существующие 24 JTBD и ID сохранены.
 
@@ -31,7 +31,7 @@
 
 ## Роли
 
-- **[Руководитель отдела](#role-manager)** — организует работу команды: планирует этапы, следит за рисками, снимает препятствия, пересогласует сроки и распределение работ, принимает результат внутри команды. Сценарии `PM-01`…`PM-11` описывают управление проектной работой и её координацию, включая [недельный отчёт](#pm-09), планируемые [ритм планёрок](#pm-10) и [присутствие команды](#pm-11).
+- **[Руководитель отдела](#role-manager)** — организует работу команды: планирует этапы, следит за рисками, снимает препятствия, пересогласует сроки и распределение работ, принимает результат внутри команды. Сценарии `PM-01`…`PM-11` описывают управление проектной работой и её координацию, включая [недельный отчёт](#pm-09), [ритм планёрок](#pm-10) и [присутствие команды](#pm-11).
 - **[Аккаунт-менеджер проекта](#role-account-manager)** — связывает клиента и команду: передаёт запросы, следит за обещаниями, сообщает о ходе работ, согласует изменения требований и передаёт результат с обратной связью клиента. Сценарии `AM-01`…`AM-07`.
 - **[Рядовой исполнитель](#role-executor)** — выполняет задачи: выбирает следующую работу, получает контекст, запрашивает помощь, учитывает актуальные ожидания, предъявляет результат и фиксирует трудозатраты. Сценарии `EMP-01`…`EMP-09`.
 
@@ -258,9 +258,9 @@
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
-| 🕓 План | `chats:calls:list TARGET --period … \| --from … --to …` | Нет |
+| ✅ Готово | [`chats:calls:list`](chats.md#созвоны) | [`ListChatCallsCommandTest.php`](../tests/Integration/Chats/ListChatCallsCommandTest.php) |
 
-**Границы:** план [#208](https://github.com/mesilov/bitrix24-cli/issues/208). Фактического списка подключившихся API не отдаёт, поэтому присутствие — только оценка по фиксированным правилам. Данные не предназначены для дисциплинарных решений.
+**Границы:** [#208](https://github.com/mesilov/bitrix24-cli/issues/208). Live-приёмка на известном звонке прошла (только чтение). Фактического списка подключившихся API не отдаёт, поэтому присутствие — только оценка по фиксированным правилам. Данные не предназначены для дисциплинарных решений.
 
 <a id="pm-11"></a>
 
@@ -273,10 +273,9 @@
 
 | Статус | Команда | Тест |
 | --- | --- | --- |
-| ✅ Готово | [`users:presence --user-id ID…`](../src/Console/Command/Users/UserPresenceCommand.php) | [`UserPresenceCommandTest.php`](../tests/Integration/Users/UserPresenceCommandTest.php) |
-| 🕓 План | `users:presence TARGET` — участники чата | Нет |
+| ✅ Готово | [`users:presence TARGET \| --user-id ID…`](users.md) | [`UserPresenceCommandTest.php`](../tests/Integration/Users/UserPresenceCommandTest.php) |
 
-**Границы:** [#208](https://github.com/mesilov/bitrix24-cli/issues/208); выбор по TARGET появится с `chats:*` из #180. Интеграционный тест по списку ID прошёл на портале 12.11.2026. Источник — `last_activity_date` и `absent` из `im.user.list.get`. Статус мессенджера и `IS_ONLINE` не используются: на портале `IS_ONLINE` был `Y` у пользователя, неактивного со вчерашнего дня.
+**Границы:** [#208](https://github.com/mesilov/bitrix24-cli/issues/208). Интеграционный тест по списку ID и live-проверка по чату прошли на портале 12.11.2026; интеграционного теста по TARGET нет. Источник — `last_activity_date` и `absent` из `im.user.list.get`. Статус мессенджера и `IS_ONLINE` не используются: на портале `IS_ONLINE` был `Y` у пользователя, неактивного со вчерашнего дня.
 
 <a id="role-account-manager"></a>
 
@@ -598,7 +597,7 @@
 
 <a id="chat-calls"></a>
 
-## Общие сценарии созвонов — план #208
+## Общие сценарии созвонов — #208
 
 Сценарии применимы ко всем трём ролям и дополняют чтение истории чата из [#180](https://github.com/mesilov/bitrix24-cli/issues/180). Звонок распознаётся по служебному сообщению в истории; данные звонка и оценку участников собирает CLI по фиксированной версионируемой таблице правил. [Issue #208](https://github.com/mesilov/bitrix24-cli/issues/208), [OpenSpec chat-calls](../openspec/changes/add-chat-call-insights/specs/chat-calls/spec.md).
 
@@ -632,11 +631,11 @@
 | Статус | Команда | Сценарий | Тест |
 | --- | --- | --- | --- |
 | ✅ Готово | [`task:chat:list`](../src/Console/Command/Task/ListTaskChatCommand.php) — разметка и обогащение звонков в чате задачи, `--no-call-details` | CHAT-03, CHAT-04, CHAT-05 | [`ListTaskChatCommandTest.php`](../tests/Integration/Task/ListTaskChatCommandTest.php) |
-| 🕓 План | `chats:messages:list` — разметка и обогащение звонков, `--no-call-details` | CHAT-03, CHAT-04 | Нет |
-| 🕓 План | `chats:calls:show TARGET CALL_ID` | CHAT-03, CHAT-05 | Нет |
-| 🕓 План | `chats:calls:list` | CHAT-03, CHAT-04 | Нет |
+| ✅ Готово | [`chats:messages:list`](chats.md#созвоны) — разметка и обогащение звонков, `--no-call-details` | CHAT-03, CHAT-04, CHAT-05 | [`ListChatMessagesCommandTest.php`](../tests/Integration/Chats/ListChatMessagesCommandTest.php) |
+| ✅ Готово | [`chats:calls:show TARGET CALL_ID`](chats.md#созвоны) | CHAT-03, CHAT-05 | [`ShowChatCallCommandTest.php`](../tests/Integration/Chats/ShowChatCallCommandTest.php) |
+| ✅ Готово | [`chats:calls:list`](chats.md#созвоны) | CHAT-03, CHAT-04 | [`ListChatCallsCommandTest.php`](../tests/Integration/Chats/ListChatCallsCommandTest.php) |
 
-**Границы:** фактический список подключившихся есть только в AI Follow-up звонка (`call.followup.get`, REST 3.0, scope `call`); без него участники оцениваются по правилам. Доказательства присутствия (прочтения, сообщения во время звонка, последняя активность) — снимок на момент запроса и для старых звонков слабеют. Гости по публичной ссылке не видны. Источник данных звонка `im.call.get` не описан в документации Битрикс24 (сверка по официальному MCP 12.11.2026); его отказ не делает историю неполной. Проверка на портале 12.11.2026 сохранена в [design](../openspec/changes/add-chat-call-insights/design.md#проверка-на-портале). Для `task:chat:list` поведение проверено unit-тестами на fixtures формы ответов портала; интеграционный тест не создаёт звонок, и live-приёмка на чате задачи со звонком не проводилась.
+**Границы:** фактический список подключившихся есть только в AI Follow-up звонка (`call.followup.get`, REST 3.0, scope `call`); без него участники оцениваются по правилам. Доказательства присутствия (прочтения, сообщения во время звонка, последняя активность) — снимок на момент запроса и для старых звонков слабеют. Гости по публичной ссылке не видны. Источник данных звонка `im.call.get` не описан в документации Битрикс24 (сверка по официальному MCP 12.11.2026); его отказ не делает историю неполной. Проверка на портале 12.11.2026 сохранена в [design](../openspec/changes/add-chat-call-insights/design.md#проверка-на-портале). Звонок через API не создать, поэтому интеграционные тесты `chats:calls:*` используют существующий звонок из `B24CLI_TEST_CALL_CHAT`/`B24CLI_TEST_CALL_ID` и пропускаются без них. Live 12.11.2026 на рабочем чате со звонком: звонок распознан, длительность совпала с текстом сообщения, причины отсутствия записи определены, токенов в выводе нет. Обогащение в `task:chat:list` на чате задачи со звонком не проверялось.
 
 ## Проверка и сопровождение
 

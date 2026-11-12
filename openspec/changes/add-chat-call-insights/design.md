@@ -159,9 +159,9 @@ Scope `call` необязателен: его отсутствие не блок
 ### 7. Команды
 
 - `chats:messages:list` — разметка и обогащение, флаг `--no-call-details`.
-- `chats:calls:list TARGET (--period … | --from … --to …) [--timezone]` — PM-10. Использует тот же обход истории за период и собирает только звонки. В `--plain` — одна строка на звонок: `callId, startedAt, durationSeconds, initiatorId, present, absent, unknown`.
-- `chats:calls:show TARGET CALL_ID` — один звонок, CHAT-03/CHAT-05. Проверяет `call.CHAT_ID` против чата из TARGET; при расхождении ошибка привязки.
-- `users:presence (TARGET | --user-id ID…)` — PM-11, на `im.user.list.get`. Поля: `id, name, lastActivityDate, absent, observedAt`. `status` и `IS_ONLINE` не выводятся.
+- `chats:calls:list TARGET (--period … | --from … --to …) [--timezone] [--max-messages]` — PM-10. Использует тот же обход истории за период и собирает только звонки. В `--plain` — одна строка на звонок: `callId, startedAt, durationSeconds, initiatorId, present, absent, leftEarly, unknown`.
+- `chats:calls:show TARGET CALL_ID [--max-messages]` — один звонок, CHAT-03/CHAT-05. Сначала `im.call.get`: при `unavailable` — ошибка `call-unavailable` (окно истории не определить), при `CHAT_ID` другого чата — `resource-binding-unverified`, exit 4, история не читается. Затем история в окне `[START_DATE, (END_DATE или сейчас) + 5 мин)` — хвост покрывает задержку сообщения FINISH; уже прочитанные данные звонка передаются в `CallEnricher`, повторного `im.call.get` нет. Запись звонка есть, даже если сообщений в окне не нашлось.
+- `users:presence (TARGET | --user-id ID…)` — PM-11, на `im.user.list.get`. Для TARGET адресат проверяется как в `chats:resolve`, участники — из `im.dialog.users.list` (`SKIP_EXTERNAL=Y`, страницы по 200, боты исключены, `--max-members` по умолчанию 1000, превышение — exit 3). Поля: `id, name, lastActivityDate, absent, found, observedAt`. `status` и `IS_ONLINE` не выводятся.
 
 ### 8. Реализация до #180: `task:chat:list` и `users:presence --user-id`
 

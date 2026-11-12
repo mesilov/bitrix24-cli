@@ -25,11 +25,18 @@ final readonly class CallEnricher
 
     /**
      * @param list<array> $items normalized messages that still carry params
+     * @param array<int, array> $knownDetails call details already read by the caller, by call ID
+     * @param list<int> $requiredCallIds calls that get a record even without messages in the window
      * @return array{calls: list<array>, meta: array{found: int, enriched: int, unavailable: int, confirmed: int}}
      */
-    public function enrich(int $chatId, array $items): array
+    public function enrich(int $chatId, array $items, array $knownDetails = [], array $requiredCallIds = []): array
     {
         $found = $this->collect($items);
+        foreach ($requiredCallIds as $callId) {
+            $found[$callId] ??= [];
+        }
+
+        ksort($found);
         $meta = ['found' => count($found), 'enriched' => 0, 'unavailable' => 0, 'confirmed' => 0];
         if ($found === []) {
             return ['calls' => [], 'meta' => $meta];
@@ -49,7 +56,7 @@ final readonly class CallEnricher
         $followups = [];
         $followupDisabled = null;
         foreach (array_keys($found) as $callId) {
-            $details[$callId] = $this->details($callId, $chatId);
+            $details[$callId] = $knownDetails[$callId] ?? $this->details($callId, $chatId);
             if ($followupDisabled !== null) {
                 $followups[$callId] = ['status' => 'unavailable', 'reason' => $followupDisabled];
                 continue;

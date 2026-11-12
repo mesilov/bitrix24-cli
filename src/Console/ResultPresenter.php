@@ -23,6 +23,8 @@ final readonly class ResultPresenter
         'title-matches' => ['id', 'title'], 'task-fields' => ['name', 'type', 'editable', 'filterable', 'sortable'],
         'chat-messages' => ['id', 'createdDate', 'authorId', 'text', 'kind', 'callId'],
         'user-presence' => ['id', 'name', 'lastActivityDate', 'absent'],
+        'chat-calls' => ['callId', 'startedAt', 'durationSeconds', 'initiatorId', 'present', 'absent', 'leftEarly', 'unknown'],
+        'chat-call' => ['callId', 'startedAt', 'durationSeconds', 'initiatorId', 'present', 'absent', 'leftEarly', 'unknown'],
         'chat-message-sent' => ['target', 'chatId', 'messageId', 'confirmed', 'readback'],
         'chat-candidates' => ['source', 'target', 'name', 'exact', 'writable', 'chatId', 'reason'],
         'task-results' => ['id', 'taskId', 'authorId', 'createdAt', 'status', 'text'],
@@ -88,8 +90,8 @@ final readonly class ResultPresenter
             $this->diagnostic($output, 'Выбор по названию: ' . $selection['status'] . ($selection['target'] === null ? '' : ' → ' . $selection['target']) . '; точных совпадений ' . $selection['exactMatches'] . '; complete=' . ($result->meta['complete'] ? 'true' : 'false') . '.');
         }
 
-        if ($mode !== 'json' && $result->profile === 'chat-messages') {
-            foreach ($result->data['calls'] ?? [] as $call) {
+        if ($mode !== 'json' && in_array($result->profile, ['chat-messages', 'chat-calls', 'chat-call'], true)) {
+            foreach ($result->data['calls'] ?? ($result->profile === 'chat-call' ? [$result->data['call']] : ($result->profile === 'chat-calls' ? $result->data['items'] : [])) as $call) {
                 $this->diagnostic($output, $this->callSummary($call));
             }
         }
@@ -232,6 +234,10 @@ final readonly class ResultPresenter
         $items = $result->profile === 'plan' ? ($result->data['plan']['steps'] ?? []) : ($result->data['items'] ?? [$result->data['operation'] ?? []]);
         if ($result->profile === 'chat-messages') {
             $items = array_map(static fn (array $item): array => [...$item, 'callId' => $item['callRef']['callId'] ?? null], $items);
+        }
+
+        if (in_array($result->profile, ['chat-calls', 'chat-call'], true)) {
+            $items = array_map(static fn (array $call): array => [...$call, ...$call['participants']['inferred']['summary']], $result->profile === 'chat-call' ? [$result->data['call']] : $items);
         }
 
         return [$columns, array_map(static fn (array $item): array => array_map(static fn (string $field): mixed => $item[$field] ?? ($field === 'visibleAfter' ? 'unknown' : null), $columns), $items)];

@@ -83,6 +83,7 @@ final class TaskChatCallDetailsTest extends TestCase
             'im.dialog.messages.get' => new ApiResponse(['chat_id' => 456, 'messages' => $this->page($params)]),
             'im.call.get' => new ApiResponse(($this->callDetails)($params['callId'])),
             'call.followup.get' => new ApiResponse(($this->followup)($params['callId'])),
+            'im.dialog.users.list' => new ApiResponse(array_map(static fn (int $id): array => ['id' => $id, 'name' => 'Пользователь ' . $id, 'bot' => $id === 900, 'status' => 'online'], [11, 22, 33, 44, 55, 66, 77, 900]), null, 8),
             'im.user.list.get' => new ApiResponse(array_combine(array_map('strval', $params['ID']), array_map(fn (int $id): ?array => isset($this->activity[$id]) ? ['id' => $id, 'name' => 'Пользователь ' . $id, 'status' => 'online', 'idle' => false, 'last_activity_date' => $this->activity[$id], 'absent' => false] : null, $params['ID']))),
             default => throw new \LogicException('Unexpected ' . $method),
         };
@@ -266,10 +267,77 @@ final class TaskChatCallDetailsTest extends TestCase
         }
     }
 
+    public function testCallsListIsChronologicalWithOneLinePerCall(): void
+    {
+        $this->messages[] = $this->call(5004, 33, '2026-11-12T11:00:00+03:00', 'START', 1002);
+        $this->messages[] = $this->call(5005, 33, '2026-11-12T11:10:00+03:00', 'FINISH', 1002);
+        $this->callDetails = fn (int $callId): array => $callId === 1002
+            ? ['call' => ['START_DATE' => '2026-11-12T11:00:00+03:00', 'END_DATE' => '2026-11-12T11:10:00+03:00', 'INITIATOR_ID' => 33] + $this->callResponse($callId)['call']] + $this->callResponse($callId)
+            : $this->callResponse($callId);
+        [$run] = $this->invoke(['chats:calls:list', 'chat456', '--from', '2026-11-12T10:00:00+03:00', '--to', '2026-11-12T12:00:00+03:00']);
+        $json = $run->json();
+        self::assertSame(0, $run->status, $run->stdout . $run->stderr);
+        self::assertSame([[1001, 1611], [1002, 600]], array_map(static fn (array $call): array => [$call['callId'], $call['durationSeconds']], $json['data']['items']));
+        self::assertSame(['found' => 2, 'enriched' => 2, 'unavailable' => 0, 'confirmed' => 0], $json['meta']['calls']);
+        self::assertTrue($json['meta']['complete']);
+        self::assertSame(['kind' => 'chat', 'chatId' => 456], array_intersect_key($json['data']['destination'], array_flip(['kind', 'chatId'])));
+
+        [$run] = $this->invoke(['chats:calls:list', 'chat456', '--from', '2026-11-12T10:00:00+03:00', '--to', '2026-11-12T12:00:00+03:00'], '--plain');
+        $lines = explode("\n", rtrim($run->stdout, "\n"));
+        self::assertCount(2, $lines);
+        self::assertSame(['1001', '2026-11-12T10:02:51+03:00', '1611', '11', '4', '2', '1', '0'], explode("\t", $lines[0]));
+        self::assertStringContainsString('Звонок 1002:', $run->stderr);
+
+        [$run] = $this->invoke(['chats:calls:list', 'chat456', '--from', '2026-11-12T10:00:00+03:00', '--to', '2026-11-12T12:00:00+03:00', '--max-messages', '2']);
+        self::assertSame([3, false, 'message-budget-exhausted'], [$run->status, $run->json()['meta']['complete'], $run->json()['meta']['reason']]);
+    }
+
+    public function testCallShowReadsOneCallAndRejectsAnotherChat(): void
+    {
+        [$run, $calls] = $this->invoke(['chats:calls:show', 'chat456', '1001']);
+        $json = $run->json();
+        self::assertSame(0, $run->status, $run->stdout . $run->stderr);
+        self::assertSame([1001, ['startId' => 5001, 'finishId' => 5003, 'duringIds' => [5002]], ['start' => true, 'finish' => true]], [$json['data']['call']['callId'], $json['data']['call']['messages'], $json['data']['call']['inWindow']]);
+        self::assertSame(['kind' => 'call', 'from' => '2026-11-12T10:02:51+03:00', 'to' => '2026-11-12T10:34:42+03:00'], array_intersect_key($json['data']['period'], array_flip(['kind', 'from', 'to'])));
+        self::assertSame(['ai-settings-disabled', 'ai-agreement-not-accepted', 'ai-tariff-unavailable'], $json['data']['call']['recording']['unavailableReasons']);
+        self::assertSame(['im.dialog.get', 'im.call.get', 'im.dialog.messages.get', 'im.dialog.get', 'call.followup.get', 'im.user.list.get'], array_column($calls, 'method'));
+        foreach (self::SECRETS as $secret) {
+            self::assertStringNotContainsString($secret, $run->stdout);
+        }
+
+        $this->callDetails = fn (int $callId): array => ['call' => ['CHAT_ID' => 999] + $this->callResponse($callId)['call']] + $this->callResponse($callId);
+        [$run, $calls] = $this->invoke(['chats:calls:show', 'chat456', '1001']);
+        self::assertSame([4, 'resource-binding-unverified', null], [$run->status, $run->json()['error']['code'], $run->json()['data']]);
+        self::assertNotContains('im.dialog.messages.get', array_column($calls, 'method'));
+        self::assertStringNotContainsString('00000000-0000-4000-8000', $run->stdout);
+
+        $this->callDetails = static fn (): never => throw new Failure('api-error', 'rejected', 1, ['apiErrorCode' => 'ERROR_METHOD_NOT_FOUND']);
+        [$run] = $this->invoke(['chats:calls:show', 'chat456', '1001']);
+        self::assertSame([1, 'call-unavailable', 'call-method-unavailable'], [$run->status, $run->json()['error']['code'], $run->json()['error']['details']['reason']]);
+    }
+
+    public function testUserPresenceForChatMembersSkipsBots(): void
+    {
+        [$run, $calls] = $this->invoke(['users:presence', 'chat456']);
+        $json = $run->json();
+        self::assertSame(0, $run->status, $run->stdout . $run->stderr);
+        self::assertSame([11, 22, 33, 44, 55, 66, 77], array_column($json['data']['items'], 'id'));
+        self::assertSame(456, $json['data']['destination']['chatId']);
+        self::assertSame(['source' => 'im.dialog.users.list', 'complete' => true, 'total' => 8], $json['meta']['members']);
+        self::assertSame(['im.dialog.get', 'im.dialog.users.list', 'im.user.list.get'], array_column($calls, 'method'));
+        self::assertSame(['DIALOG_ID' => 'chat456', 'SKIP_EXTERNAL' => 'Y', 'LIMIT' => 200, 'OFFSET' => 0], $calls[1]['parameters']);
+        self::assertStringNotContainsString('online', $run->stdout);
+
+        [$run, $calls] = $this->invoke(['users:presence', 'chat456', '--user-id', '1']);
+        self::assertSame([2, 'usage-error', []], [$run->status, $run->json()['error']['code'], $calls]);
+    }
+
     public function testStrictPolicyDeniesBeforeAnyRequest(): void
     {
-        [$run, $calls] = $this->invoke(['--api-policy', 'strict-rest3', 'task:chat:list', '123']);
-        self::assertSame([4, 'policy-denied', []], [$run->status, $run->json()['error']['code'], $calls]);
+        foreach ([['task:chat:list', '123'], ['chats:messages:list', 'chat456', '--period', 'yesterday', '--timezone', 'UTC'], ['chats:calls:list', 'chat456', '--period', 'yesterday', '--timezone', 'UTC'], ['chats:calls:show', 'chat456', '1001'], ['users:presence', 'chat456']] as $argv) {
+            [$run, $calls] = $this->invoke(['--api-policy', 'strict-rest3', ...$argv]);
+            self::assertSame([4, 'policy-denied', []], [$run->status, $run->json()['error']['code'], $calls], $argv[0]);
+        }
     }
 
     public function testScopeManifestKeepsFollowupOptional(): void

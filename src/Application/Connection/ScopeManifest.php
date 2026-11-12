@@ -39,6 +39,7 @@ final class ScopeManifest
         'im.message.delete' => [['im']],
         'im.call.get' => [['im']],
         'im.user.list.get' => [['im']],
+        'im.dialog.users.list' => [['im']],
         'disk.folder.uploadFile' => [['disk']],
     ];
 

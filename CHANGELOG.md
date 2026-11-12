@@ -4,9 +4,9 @@
 
 ### Добавлено
 
-- **Созвоны в чате задачи:** `task:chat:list` размечает сообщения (`kind`: `text`, `system`, `call`; `callRef` у сообщений о звонке) и по умолчанию добавляет `data.calls`: UUID, начало, конец, длительность, инициатор, завершивший, состояние записи с причинами её отсутствия, состав чата, фактические участники из AI Follow-up (`call.followup.get`, необязательный scope `call`) и оценку присутствия по правилам `rulesVersion: 1` с доказательствами. Токены подключения к звонку не выводятся. `--no-call-details` отключает дополнительные запросы; plain получает столбцы `kind`, `callId`. [#208](https://github.com/mesilov/bitrix24-cli/issues/208)
-- **`users:presence`:** последняя активность, отсутствие и момент наблюдения по списку `--user-id` через `im.user.list.get`; статус мессенджера и признак онлайна не используются, неизвестные ID видны в `meta.notFound`. [#208](https://github.com/mesilov/bitrix24-cli/issues/208)
-- Постановка сведений о созвонах в чатах: OpenSpec change `add-chat-call-insights`, JTBD CHAT-03…05, PM-10, PM-11, сверка с официальной документацией и проверка REST API на портале. Команды `chats:calls:*` и выбор по TARGET ждут #180. [#208](https://github.com/mesilov/bitrix24-cli/issues/208)
+- **Созвоны в истории чатов:** `task:chat:list` и `chats:messages:list` размечают сообщения (`kind`: `text`, `system`, `call`; `callRef` у сообщений о звонке) и по умолчанию добавляют `data.calls`: UUID, начало, конец, длительность, инициатор, завершивший, состояние записи с причинами её отсутствия, состав чата, фактические участники из AI Follow-up (`call.followup.get`, необязательный scope `call`) и оценку присутствия по правилам `rulesVersion: 1` с доказательствами. Токены подключения к звонку не выводятся. `--no-call-details` отключает дополнительные запросы; plain получает столбцы `kind`, `callId`. Новые `chats:calls:list` (звонки чата за период) и `chats:calls:show` (один звонок с проверкой привязки к чату). [#208](https://github.com/mesilov/bitrix24-cli/issues/208)
+- **`users:presence`:** последняя активность, отсутствие и момент наблюдения по списку `--user-id` или участникам чата из TARGET через `im.user.list.get`; статус мессенджера и признак онлайна не используются, неизвестные ID видны в `meta.notFound`. [#208](https://github.com/mesilov/bitrix24-cli/issues/208)
+- JTBD CHAT-03…05, PM-10, PM-11 и OpenSpec change `add-chat-call-insights` со сверкой по официальной документации и live-проверкой на портале. [#208](https://github.com/mesilov/bitrix24-cli/issues/208)
 
 ### Исправлено
 

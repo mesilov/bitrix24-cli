@@ -10,6 +10,7 @@ use Bitrix24\CLI\Application\Chat\MessagePeriodResolver;
 use Bitrix24\CLI\Application\Chat\Request\FindChatsRequest;
 use Bitrix24\CLI\Application\Chat\Request\ListChatMessagesRequest;
 use Bitrix24\CLI\Application\Chat\Request\SendChatMessageRequest;
+use Bitrix24\CLI\Application\Chat\Request\ShowChatCallRequest;
 use Bitrix24\CLI\Application\Failure;
 use Bitrix24\CLI\Infrastructure\Connection\ConnectionResolver;
 use Bitrix24\CLI\Infrastructure\Connection\FileCredentialStore;
@@ -27,6 +28,18 @@ final readonly class ChatInputMapper
         $period = $this->periods->resolve($input->getOption('period'), $input->getOption('from'), $input->getOption('to'), $input->getOption('timezone'));
         $limit = $input->getOption('limit') === null ? null : $this->numbers->id($input->getOption('limit'), '--limit');
         return new ListChatMessagesRequest($target, $period, $limit, $this->numbers->id($input->getOption('max-messages') ?? 10000, '--max-messages'), !$input->getOption('no-call-details'));
+    }
+
+    public function listCalls(InputInterface $input): ListChatMessagesRequest
+    {
+        $target = $this->target($input);
+        $period = $this->periods->resolve($input->getOption('period'), $input->getOption('from'), $input->getOption('to'), $input->getOption('timezone'));
+        return new ListChatMessagesRequest($target, $period, null, $this->numbers->id($input->getOption('max-messages') ?? 10000, '--max-messages'));
+    }
+
+    public function showCall(InputInterface $input): ShowChatCallRequest
+    {
+        return new ShowChatCallRequest($this->target($input), $this->numbers->id($input->getArgument('CALL_ID'), 'CALL_ID'), $this->numbers->id($input->getOption('max-messages') ?? 10000, '--max-messages'));
     }
 
     public function find(InputInterface $input): FindChatsRequest

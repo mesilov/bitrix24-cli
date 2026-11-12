@@ -71,3 +71,17 @@
 | Маршруты | после обхода истории: `im.dialog.get`, `im.call.get`, `call.followup.get`, `im.user.list.get` |
 
 Отличие от ручной оценки утром: тогда 2 участника получили бы `absent` по `last-read-before-start`; к моменту live-проверки они прочитали более поздние сообщения, и доказательство перезаписалось, поэтому `unknown`. Это ожидаемое поведение для `stale`. Сверка с заранее известным составом (5.4) не проводилась: фактический состав звонка неизвестен.
+
+## `chats:calls:*` и `users:presence TARGET` (12.11.2026)
+
+MCP документации Битрикс24: `bitrix-method-details im.dialog.users.list` — scope `im`; `DIALOG_ID`, `SKIP_EXTERNAL` (Y — без системных пользователей), `LIMIT` (по умолчанию 50, максимум 200), `OFFSET`, `LAST_ID`; ответ — массив участников с `id`, `bot`, `last_activity_date`, `absent`, `total`, `next`; ошибка `ACCESS_ERROR`. [Источник](https://apidocs.bitrix24.ru/api-reference/chats/chat-users/im-dialog-users-list.html).
+
+| Проверка | Результат |
+| --- | --- |
+| `make unit` | OK, 1192 теста |
+| `make lint-all`, `make cli-reference-check` | без замечаний; 71 публичная команда |
+| Unit `TaskChatCallDetailsTest` | `chats:calls:list` (хронология, plain-строка на звонок, exit 3 при бюджете), `chats:calls:show` (окно звонка, без повторного `im.call.get`, ошибка привязки без чтения истории и без данных звонка, `call-unavailable`), `users:presence TARGET` (без ботов, параметры страницы, взаимоисключение с `--user-id`), `strict-rest3` для пяти команд |
+| Live, интеграционные тесты (только чтение, `B24CLI_TEST_CALL_CHAT`/`B24CLI_TEST_CALL_ID` рабочего чата) | `ListChatCallsCommandTest::testKnownCallIsListedWithoutConnectionSecrets`, `ShowChatCallCommandTest::testHappyPathKnownCallMatchesCallData`, `UserPresenceCommandTest` — OK, 3 теста, 37 assertions |
+| Live `users:presence` по чату | 8 участников из `im.dialog.users.list` (`total` 8), у всех есть `lastActivityDate`, признака онлайна в выводе нет; маршруты `im.dialog.get`, `im.dialog.users.list`, `im.user.list.get` |
+
+Не запускались на рабочем портале сценарии, создающие задачи (`ListChatCallsCommandTest::testHappyPathTaskChatWithoutCallsIsCompleteAndEmpty`, `ShowChatCallCommandTest::testCallOfAnotherChatIsRejected`): запись допускается только в тестовой группе. Live-приёмка 5.4 со сверкой оценки с заранее известным составом звонка не проводилась.

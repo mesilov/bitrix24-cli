@@ -57,6 +57,7 @@ return static function (ContainerBuilder $container, string $root, bool $package
         Bitrix24\CLI\Application\Task\TaskMetadataService::class,
         Bitrix24\CLI\Application\Task\TaskTagMutation::class,
         Bitrix24\CLI\Application\Chat\CallEnricher::class,
+        Bitrix24\CLI\Application\Chat\ChatCallsService::class,
         Bitrix24\CLI\Application\Task\TaskChatService::class,
         Bitrix24\CLI\Application\Task\TaskResultService::class,
         Bitrix24\CLI\Application\Task\TimeEntryService::class,
@@ -122,7 +123,7 @@ return static function (ContainerBuilder $container, string $root, bool $package
         $container->setAlias('Bitrix24\\CLI\\Application\\User\\Port\\' . $port, $class);
     }
 
-    foreach (['CallGateway' => 'ImCallAdapter', 'ChatReadGateway' => 'Rest1ChatReadAdapter'] as $port => $adapter) {
+    foreach (['CallGateway' => 'ImCallAdapter', 'ChatReadGateway' => 'Rest1ChatReadAdapter', 'ChatMembersGateway' => 'Rest1ChatMembersAdapter'] as $port => $adapter) {
         $class = 'Bitrix24\\CLI\\Infrastructure\\Bitrix24\\' . $adapter;
         $container->register($class)->setAutowired(true);
         $container->setAlias('Bitrix24\\CLI\\Application\\Chat\\Port\\' . $port, $class);
