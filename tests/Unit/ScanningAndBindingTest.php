@@ -83,7 +83,7 @@ final class ScanningAndBindingTest extends TestCase
 
     public function testListSeparatesIdServerFilterFromLocalPredicates(): void
     {
-        [$run, $api] = $this->invoke(['task:list', '--id', '123', '--responsible', '2', '--order', 'title:desc'], (new FixturePortal())->respond(...));
+        [$run, $api] = $this->invoke(['task:list', '--id', '123', '--responsible', '2', '--order', 'title:desc', '--api-policy', 'strict-rest3'], (new FixturePortal())->respond(...));
         self::assertSame(0, $run->status, $run->stdout);
         self::assertSame([['id', 'in', [123]]], $api->calls[0]['parameters']['filter']);
         self::assertSame(['title' => 'DESC', 'id' => 'ASC'], (array) $api->calls[0]['parameters']['order']);

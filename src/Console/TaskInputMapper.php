@@ -247,7 +247,7 @@ final readonly class TaskInputMapper
         return $input->getOption('all') ? null : ($input->getOption('limit') === null ? $default : $this->id($input->getOption('limit'), '--limit'));
     }
 
-    private function query(InputInterface $input, bool $find): TaskQuery
+    private function query(InputInterface $input, bool $find, ?string $apiPolicy = null): TaskQuery
     {
         $windows = $input->getOption('deadline-window');
         if (count($windows) > 1) {
@@ -317,12 +317,13 @@ final readonly class TaskInputMapper
             $input->getOption('max-scan') === null ? 10000 : $this->id($input->getOption('max-scan'), '--max-scan'),
             $role,
             $deadlineWindow,
+            apiPolicy: $apiPolicy,
         );
     }
 
-    public function listTasks(InputInterface $input): Request\ListTasksRequest
+    public function listTasks(InputInterface $input, ?string $apiPolicy = null): Request\ListTasksRequest
     {
-        return new Request\ListTasksRequest($this->query($input, false));
+        return new Request\ListTasksRequest($this->query($input, false, $apiPolicy));
     }
 
     public function myTasks(InputInterface $input): Request\ListTasksRequest
@@ -335,9 +336,9 @@ final readonly class TaskInputMapper
         ));
     }
 
-    public function findTasks(InputInterface $input): Request\FindTasksRequest
+    public function findTasks(InputInterface $input, ?string $apiPolicy = null): Request\FindTasksRequest
     {
-        return new Request\FindTasksRequest($this->query($input, true), trim($this->text($input, 'title')));
+        return new Request\FindTasksRequest($this->query($input, true, $apiPolicy), trim($this->text($input, 'title')));
     }
 
     public function lifecycleRequest(InputInterface $input, \Bitrix24\CLI\Application\Task\LifecycleAction $action): Request\TaskLifecycleRequest

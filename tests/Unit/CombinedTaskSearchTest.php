@@ -20,6 +20,11 @@ final class CombinedTaskSearchTest extends TestCase
         return ['id' => $id, 'title' => 'Согласовать договор', 'responsibleId' => $responsible, 'creatorId' => 1, 'groupId' => $group, 'status' => 'in_progress', 'deadline' => '2026-10-15T12:00:00+06:00'];
     }
 
+    private static function rest1Row(int $id, int $group = 7, int $responsible = 1, string $title = 'Согласовать договор'): array
+    {
+        return ['id' => (string) $id, 'title' => $title, 'responsibleId' => (string) $responsible, 'createdBy' => '1', 'groupId' => (string) $group, 'status' => '3', 'deadline' => '2026-10-15T12:00:00+06:00'];
+    }
+
     private function invoke(array $options, \Closure $response, ?string $stdin = null): array
     {
         $fakeApiTransport = new FakeApiTransport($response);
@@ -41,7 +46,7 @@ final class CombinedTaskSearchTest extends TestCase
     #[DataProvider('filters')]
     public function testZeroOneManyAndRoleMatchesKeepShapeAndLocalPredicates(array $options, array $ids): void
     {
-        [$run, $api, $resolver] = $this->invoke($options, static function ($method, $version, array $params): ApiResponse {
+        [$run, $api, $resolver] = $this->invoke([...$options, '--api-policy', 'strict-rest3'], static function ($method, $version, array $params): ApiResponse {
             self::assertSame('tasks.task.list', $method);
             self::assertSame(3, $version);
             self::assertSame([], $params['filter']);
@@ -61,7 +66,7 @@ final class CombinedTaskSearchTest extends TestCase
 
     public function testPredicatesAreSelectedAndAppliedOnEveryPageBeforeOutputLimit(): void
     {
-        [$run, $api] = $this->invoke(['--group-id', '7', '--responsible', '1', '--status', 'in_progress', '--due-before', '2026-10-16T00:00:00+06:00', '--limit', '1', '--order', 'title:asc'], static function ($method, $version, array $params): ApiResponse {
+        [$run, $api] = $this->invoke(['--group-id', '7', '--responsible', '1', '--status', 'in_progress', '--due-before', '2026-10-16T00:00:00+06:00', '--limit', '1', '--order', 'title:asc', '--api-policy', 'strict-rest3'], static function ($method, $version, array $params): ApiResponse {
             self::assertEqualsCanonicalizing(['id', 'title', 'groupId', 'responsibleId', 'status', 'deadline'], $params['select']);
             self::assertSame(['title' => 'ASC', 'id' => 'ASC'], (array) $params['order']);
             self::assertSame([], $params['filter']);
@@ -77,7 +82,7 @@ final class CombinedTaskSearchTest extends TestCase
 
     public function testRepeatableServerIdsComposeWithWhereFileAndRole(): void
     {
-        [$run, $api] = $this->invoke(['--id', '1', '--id', '3', '--where-file', '-', '--role', 'responsible', '--all'], static function ($method, $version, array $params): ApiResponse {
+        [$run, $api] = $this->invoke(['--id', '1', '--id', '3', '--where-file', '-', '--role', 'responsible', '--all', '--api-policy', 'strict-rest3'], static function ($method, $version, array $params): ApiResponse {
             self::assertSame([['id', 'in', [1, 3]]], $params['filter']);
             return new ApiResponse(['items' => [self::row(3), self::row(1, 8)]]);
         }, '{"groupId":7}');
@@ -92,8 +97,10 @@ final class CombinedTaskSearchTest extends TestCase
     {
         foreach (['auditor', 'accomplice'] as $role) {
             [$run, $api] = $this->invoke(['--group-id', '7', '--responsible', '1', '--role', $role], static function ($method, $version, array $params) use ($role): ApiResponse {
-                if ($version === 3) {
-                    return new ApiResponse(['items' => [self::row(3), self::row(2, 8), self::row(1, 7, 2)]]);
+                self::assertSame(1, $version);
+                if ($method === 'tasks.task.list') {
+                    self::assertSame(['GROUP_ID' => 7, 'RESPONSIBLE_ID' => 1], (array) $params['filter']);
+                    return new ApiResponse(['tasks' => [self::rest1Row(3), self::rest1Row(2, 7, 1, 'Другое')]], null, 2);
                 }
 
                 self::assertSame('tasks.task.get', $method);
@@ -131,7 +138,7 @@ final class CombinedTaskSearchTest extends TestCase
     public function testMissingPredicateCapAndFailedSecondPageRemainPartial(): void
     {
         foreach (['missing-predicate-field', 'scan-budget-exhausted', 'page-error'] as $reason) {
-            [$run] = $this->invoke(['--responsible', '1', ...($reason === 'scan-budget-exhausted' ? ['--max-scan', '1'] : [])], static function ($method, $version, array $params) use ($reason): ApiResponse {
+            [$run] = $this->invoke(['--responsible', '1', '--api-policy', 'strict-rest3', ...($reason === 'scan-budget-exhausted' ? ['--max-scan', '1'] : [])], static function ($method, $version, array $params) use ($reason): ApiResponse {
                 if ($params['pagination']['offset'] > 0) {
                     throw new Failure('api-error', 'Fixture page error');
                 }
@@ -149,7 +156,7 @@ final class CombinedTaskSearchTest extends TestCase
         foreach (['--plain', '--json'] as $format) {
             foreach ([[], ['--quiet'], ['--silent'], ['--no-ansi', '--no-interaction']] as $flags) {
                 $api = new FakeApiTransport(static fn (): ApiResponse => new ApiResponse(['items' => [self::row(3), self::row(2, 8)]]));
-                $run = ConsoleHarness::run((new ApplicationFactory())->create(dirname(__DIR__, 2), $api), ['task:find', '--title', 'ДОГОВОР', '--responsible', '1', '--group-id', '7', $format, ...$flags]);
+                $run = ConsoleHarness::run((new ApplicationFactory())->create(dirname(__DIR__, 2), $api), ['task:find', '--title', 'ДОГОВОР', '--responsible', '1', '--group-id', '7', '--api-policy', 'strict-rest3', $format, ...$flags]);
                 self::assertSame(0, $run->status, $run->stdout . $run->stderr);
                 self::assertStringNotContainsString("\033", $run->stdout . $run->stderr);
                 if (in_array('--quiet', $flags, true) || in_array('--silent', $flags, true)) {
@@ -171,8 +178,9 @@ final class CombinedTaskSearchTest extends TestCase
         self::assertSame(1, $run->status);
         self::assertSame('api-error', $run->json()['error']['code']);
         [$run] = $this->invoke(['--role', 'auditor', '--where', '{"groupId":7}'], static function ($method, $version, array $params): ApiResponse {
-            if ($version === 3) {
-                return new ApiResponse(['items' => [self::row(3), self::row(2)]]);
+            if ($method === 'tasks.task.list') {
+                self::assertSame(['GROUP_ID' => 7], (array) $params['filter']);
+                return new ApiResponse(['tasks' => [self::rest1Row(3), self::rest1Row(2)]], null, 2);
             }
 
             if ($params['taskId'] === 2) {

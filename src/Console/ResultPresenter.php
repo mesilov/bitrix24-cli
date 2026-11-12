@@ -91,7 +91,7 @@ final readonly class ResultPresenter
         }
 
         if ($error !== null) {
-            $hint = $mode !== 'json' && in_array($result->profile, ['task-list', 'title-matches'], true) ? ' ' . $this->tasks->hint($result->meta['reason'] ?? '') : '';
+            $hint = $mode !== 'json' && in_array($result->profile, ['task-list', 'title-matches'], true) ? ' ' . $this->tasks->hint($result->meta['reason'] ?? '', $result->profile) : '';
             $this->diagnostic($output, $error['message'] . $hint);
         }
 
