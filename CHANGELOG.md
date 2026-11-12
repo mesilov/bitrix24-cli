@@ -8,6 +8,8 @@
 
 - Архивирован OpenSpec change серверных фильтров `task:list`/`task:find`; требования синхронизированы в основные спецификации `cli-experience`, `task-console-runtime` и `task-role-filtering`. [#183](https://github.com/mesilov/bitrix24-cli/issues/183)
 
+- Устранены 8 security advisories `composer audit`: `symfony/filesystem` 8.1.11 (GHSA-6prc-h956-hxjq), `symfony/http-client` 8.1.11 (CVE-2026-121971, CVE-2026-123119), `symfony/http-foundation` 8.1.11 (CVE-2026-118514 и три GHSA), `symfony/mime` 8.1.10 (CVE-2026-45070). Обновлён только `composer.lock`; ограничения `composer.json` и поведение CLI не менялись. [#196](https://github.com/mesilov/bitrix24-cli/issues/196)
+
 - Linux native packaging явно устанавливает Bash и zsh перед приёмкой документированных shell-последовательностей и проверяет их наличие; обязательные проверки `shell-installer-check.py` не ослаблены. Устранён блокер трёхплатформенной intermediate-сборки. [#177](https://github.com/mesilov/bitrix24-cli/issues/177)
 
 - Архивирован OpenSpec change исправления native connection fixture: сохранены причина общего сбоя packaging, ограниченный scope/list контракт и результаты проверки PHAR; повторная native-сборка и live-приёмка отслеживаются отдельно. [#174](https://github.com/mesilov/bitrix24-cli/issues/174)
@@ -35,6 +37,10 @@
 - **Проверка прав вебхука:** требования выбранной команды сверяются с разрешениями подключения; отдельный защищённый `state.json` хранит снимок на сутки. Смена credentials/манифеста обновляет проверку, нехватка scope блокирует только затронутую команду, а `connection:check` принудительно обновляет права и показывает диагностику в human/plain/JSON. При сбое сохраняется последний успешный снимок и применяется backoff 300 секунд. [#149](https://github.com/mesilov/bitrix24-cli/issues/149)
 
 ### Изменено
+
+- Архивирован OpenSpec change шага проверки сценариев issue сырыми запросами к REST API после merge MR #194 в `dev`; delta specs нет, актуальные спецификации не менялись. [#192](https://github.com/mesilov/bitrix24-cli/issues/192)
+
+- **Правила мейнтейнера:** добавлен шаг проверки сценариев issue сырыми запросами к REST API Битрикс24 до фиксации design/spec/tasks — условия релевантности, передача webhook без argv, только чтение по умолчанию, запись только в тестовой группе с cleanup, фиксация в `design.md` и повтор при verify. В `AGENTS.md` и скилл перенесено правило «только `gh` в неинтерактивном режиме». [#192](https://github.com/mesilov/bitrix24-cli/issues/192)
 
 - Спецификации выборочной передачи EMP-09/PM-04 синхронизированы после merge MR #166; change расширения task:handover архивирован с evidence исправления P2 review и 15 успешных checks на проверенном head. [#165](https://github.com/mesilov/bitrix24-cli/issues/165)
 
