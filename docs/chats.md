@@ -2,12 +2,13 @@
 
 [Обзор CLI](../README.md#cli-команды) · [Подключение](connection.md) · [JTBD: CHAT-01/CHAT-02](task-jtbd.md#общие-сценарии-чатов--план-180)
 
-Namespace `chats:*` работает с групповым чатом, общим чатом проекта и чатом задачи. Доступны `chats:resolve` (проверка адресата) и `chats:messages:list` (история за период). Поиск по названию и отправка — в плане [#180](https://github.com/mesilov/bitrix24-cli/issues/180).
+Namespace `chats:*` работает с групповым чатом, общим чатом проекта и чатом задачи. Доступны `chats:resolve` (проверка адресата), `chats:find` (поиск по названию) и `chats:messages:list` (история за период). Отправка — в плане [#180](https://github.com/mesilov/bitrix24-cli/issues/180).
 
 ```sh
 b24cli chats:resolve sg234 --json
 b24cli chats:resolve task:5288 --json
 b24cli chats:resolve 'https://portal.example/online/?IM_DIALOG=chat9636&IM_MESSAGE=19436' --json
+b24cli chats:find --name 'Команда проекта' --json
 b24cli chats:messages:list sg234 --period yesterday --timezone Europe/Moscow --json
 b24cli chats:messages:list task:5288 --from 2026-11-11T00:00:00+03:00 --to 2026-11-12T00:00:00+03:00 --json
 ```
@@ -49,6 +50,32 @@ JSON `data.destination`: `kind`, `target`, `source`, `chatId`, `groupId`, `taskI
 | `policy-denied` (exit 4) | `--api-policy strict-rest3`: маршрут `im.dialog.get` относится к REST 1.0 |
 
 Команда требует область доступа `im`, для `task:N` — также `task`. Чтение не меняет прочитанность и не добавляет пользователя в чат.
+
+## Поиск по названию
+
+`chats:find --name NAME` ищет адресат в трёх источниках, потому что `im.search.chat.list` не возвращает чаты проектов и задач:
+
+| Источник | Метод | Кандидат | Сравнивается |
+| --- | --- | --- | --- |
+| Групповые чаты | `im.search.chat.list` (REST 1.0, `im`) | `chatN` | Название чата |
+| Проекты | `sonet_group.get` с `%NAME` (REST 1.0, `sonet_group`) | `sgN` | Название группы |
+| Задачи | `tasks.task.list` (REST 3.0, `task`), как `task:find --title` | `task:N` | Заголовок задачи, а не название её чата |
+
+Поиск чатов находит чаты и по именам участников. Такие совпадения не выводятся, их число — в `meta.sources.chat.participantOnly`. Кандидат показывается, если его название содержит NAME без учёта регистра. Точное совпадение — название после обрезки пробелов с учётом регистра. Для точных совпадений проекта и задачи чат подтверждается так же, как в `chats:resolve`; остальные кандидаты не проверяются, чтобы не тратить запросы.
+
+`data.selection.status` — итог выбора по названию:
+
+| status | Смысл |
+| --- | --- |
+| `unique` | Ровно одно точное совпадение с подтверждённым чатом при полном поиске; `target` — адресат |
+| `none` | Точных совпадений нет |
+| `ambiguous` | Точных совпадений несколько, в том числе в разных источниках; укажите TARGET явно |
+| `unavailable` | Единственное точное совпадение без доступного чата (`reason`: `chat-unavailable` или код ошибки связи) |
+| `incomplete` | Хотя бы один источник просмотрен не полностью; exit 3, адресат не выбирается даже при одном точном совпадении |
+
+`meta.sources.chat|project|task`: `complete`, `reason` (`scan-budget-exhausted`, `page-error`, `pagination-no-progress`), `scanned`, `matched`, при ошибке — `error`. Ошибка источника не превращается в «не найдено». `--max-scan` (по умолчанию 10000) — бюджет на каждый источник; `--limit` (50) и `--all` меняют только вывод, точные совпадения идут первыми.
+
+JSON `data`: `name`, `selection` (`status`, `target`, `exactMatches`), `items` (`source`, `target`, `name`, `exact`, `writable`, `chatId`, `reason`, `chatType` / `groupId` / `taskId`). TSV при `--plain`: `source`, `target`, `name`, `exact`, `writable`, `chatId`, `reason`; итог выбора — в stderr.
 
 ## История за период
 

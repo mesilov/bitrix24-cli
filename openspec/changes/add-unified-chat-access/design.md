@@ -107,6 +107,28 @@ Raw-запросы вебхуком пользователя 1 к тестово
 | entity_link.url: `/workgroups/group/234/…`, `/company/personal/user/1/tasks/task/view/5288/…` | Две URL-формы подтверждены; `/online/?IM_DIALOG=` и permalink сообщения — нет |
 | Локальное время +06 12.11, портал MSK 11.11 | «Вчера» зависит от timezone; передавать её явно |
 
+## Проверка chats:find (12.11.2026)
+
+Контракт сверен через MCP документации (`bitrix-search` → `bitrix-method-details`), секреты не передавались:
+
+| Метод | Подтверждено MCP |
+| --- | --- |
+| [im.search.chat.list](https://apidocs.bitrix24.ru/api-reference/chats/search/im-search-chat-list.html) | Scope `im`; ищет по заголовку и именам участников; `FIND` от 2 символов (`FIND_SHORT`), `OFFSET` по умолчанию 0, `LIMIT` по умолчанию 10, максимум 50; ответ `result[]`, `total`, `next` только при следующей странице |
+| [sonet_group.get](https://apidocs.bitrix24.ru/api-reference/sonet-group/sonet-group-get.html) | Группы и проекты с учётом прав; `ORDER`, `FILTER` (пример `'%NAME': 'Про'`); ответ `result[]`, `total`, `next`. MCP называет scope `sonet`, портал выдаёт код `sonet_group` (как для sonet_group.user.get в #170) |
+
+Сырые запросы на тестовом портале, только чтение:
+
+| Запрос | Ответ (сокращённо) | Вывод |
+| --- | --- | --- |
+| `sonet_group.get {"FILTER":{"%NAME":"тестовый проект"}}` | 1 строка: `ID` "234" (строка), `NAME`, `PROJECT` "Y", `CLOSED`, `VISIBLE`; `next` нет | ID приходит строкой; поиск без учёта регистра (`ТЕСТОВЫЙ ПРОЕКТ` → тот же результат) |
+| `sonet_group.get {}` | `total` 2 | Подключению видны 2 группы |
+| `im.search.chat.list {"FIND":"Общий","LIMIT":3}` | `id` 2 (int), `name` "Общий чат", `type` general; `dialog_id` нет | Кандидат строится как `chatN` |
+| `im.search.chat.list` по фамилии участника, `LIMIT` 50, `OFFSET` 0 / 250 | `next` 50, `total` 286 / 36 строк без `next` | `next` = OFFSET + LIMIT; последняя страница без `next` |
+
+`b24cli chats:find` в ветке на том же портале: «Общий чат» → `unique chat2`, 5 вызовов; «тестовый проект bitrix24-cli» → `unique sg234` (подтверждён im.dialog.get), 6 вызовов; «тестовый» → `none` с неточным кандидатом sg234. Источник задач просмотрел 146 задач, все источники complete. Integration cases `FindChatCommandTest` (задача по заголовку, проект по названию) прошли; собственная задача удалена в tearDown.
+
+Решения реализации: точное сравнение — после trim и с учётом регистра; кандидат выводится, если название содержит NAME без учёта регистра; совпадения только по участнику считаются в `participantOnly` и не выводятся. Подтверждение чата (`chats:resolve`) выполняется только для точных совпадений проекта и задачи. Несколько точных совпадений с одним физическим чатом считаются одним. Бюджет `--max-scan` — на каждый источник.
+
 ## Risks / Trade-offs
 
 - [Различия URL между порталами] → конкретный allowlist и fixture tests; неподдерживаемая форма явно отклоняется, остаются типизированные ID.

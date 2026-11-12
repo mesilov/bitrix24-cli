@@ -36,7 +36,7 @@
 
 ## Общие сценарии чатов — план #180
 
-Сверка 30.10.2026 по dev `787770ee3c1b596df8ccde4bf6e984cee46c34ef`: к 25 ролевым сценариям добавлены **два общих планируемых CHAT-01/CHAT-02** (всего 27 описанных сценариев). Они применимы ко всем трём ролям и не меняют нумерацию PM/AM/EMP. [Issue #180](https://github.com/mesilov/bitrix24-cli/issues/180), [OpenSpec chat-access](../openspec/changes/add-unified-chat-access/specs/chat-access/spec.md). Сверка 12.11.2026 по dev `3b1c247`: добавлены `chats:resolve` и `chats:messages:list` (50 task-команд, 66 публичных); поиск и отправка в плане.
+Сверка 30.10.2026 по dev `787770ee3c1b596df8ccde4bf6e984cee46c34ef`: к 25 ролевым сценариям добавлены **два общих планируемых CHAT-01/CHAT-02** (всего 27 описанных сценариев). Они применимы ко всем трём ролям и не меняют нумерацию PM/AM/EMP. [Issue #180](https://github.com/mesilov/bitrix24-cli/issues/180), [OpenSpec chat-access](../openspec/changes/add-unified-chat-access/specs/chat-access/spec.md). Сверка 12.11.2026 по dev `3b1c247`: добавлены `chats:resolve`, `chats:find` и `chats:messages:list` (50 task-команд, 67 публичных); отправка в плане.
 
 Самостоятельный namespace **`chats:*`** работает с обычным доступным групповым чатом без обязательного TASK_ID/GROUP_ID. Ссылки на задачу и проект дополнительно разрешают адресат; существующий `task:chat:*` сохраняется.
 
@@ -57,13 +57,13 @@
 | Статус | Предлагаемая команда | Сценарий | Тест |
 | --- | --- | --- | --- |
 | ✅ Готово | [chats:resolve](chats.md) | URL/типизированный ID для CHAT-01/02 | [ResolveChatCommandTest.php](../tests/Integration/Chats/ResolveChatCommandTest.php) |
-| 🕓 План | chats:find | Поиск адресата CHAT-02 | Нет |
+| ✅ Готово | [chats:find](chats.md#поиск-по-названию) | Поиск адресата CHAT-02 | [FindChatCommandTest.php](../tests/Integration/Chats/FindChatCommandTest.php) |
 | ✅ Готово | [chats:messages:list](chats.md#история-за-период) | История периода CHAT-01 | [ListChatMessagesCommandTest.php](../tests/Integration/Chats/ListChatMessagesCommandTest.php) |
 | 🕓 План | chats:send | Отправка CHAT-02 | Нет |
 
 **Текущее покрытие:** PM-06, AM-06 и EMP-07 уже используют task:chat:list/send по TASK_ID; PM-03/EMP-03 — отправку сообщения о препятствии. Эти команды не принимают URL, название или календарный период. Общий чат проекта не равен чатам его задач. AM-03 частично поддержан отчётами по задачам; PM-09/task:report не делает саммари переписки. Состояние unread вынесено в [#148](https://github.com/mesilov/bitrix24-cli/issues/148), права — в [#178](https://github.com/mesilov/bitrix24-cli/issues/178).
 
-**Границы:** CLI предоставит сообщения и полноту, а саммари составляет агент/skill; встроенный LLM не требуется. Готовы адресация `chats:resolve` и чтение периода `chats:messages:list`: их integration cases прошли на тестовом портале 12.11.2026, но это не сквозная приёмка CHAT-01/CHAT-02. Поиск, отправка и сквозная live-приёмка отсутствуют. Наличие integration cases существующих task:chat:* не доказывает сквозной CHAT-01/CHAT-02. Формы URL требуют fixtures; фактическая работа с порталом в этой сверке не выполнялась.
+**Границы:** CLI предоставит сообщения и полноту, а саммари составляет агент/skill; встроенный LLM не требуется. Готовы адресация `chats:resolve`, поиск `chats:find` и чтение периода `chats:messages:list`: их integration cases прошли на тестовом портале 12.11.2026, но это не сквозная приёмка CHAT-01/CHAT-02. Отправка и сквозная live-приёмка отсутствуют. Наличие integration cases существующих task:chat:* не доказывает сквозной CHAT-01/CHAT-02. Формы URL требуют fixtures; фактическая работа с порталом в этой сверке не выполнялась.
 
 <a id="role-manager"></a>
 

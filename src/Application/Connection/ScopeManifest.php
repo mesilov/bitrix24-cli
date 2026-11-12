@@ -26,12 +26,14 @@ final class ScopeManifest
 
     private const OTHER_METHODS = [
         'sonet_group.user.get' => [['sonet_group']],
+        'sonet_group.get' => [['sonet_group']],
         'scope' => [],
         'user.current' => [['user', 'user_basic', 'user_brief']],
         'user.get' => [['user', 'user_basic', 'user_brief']],
         'department.get' => [['department']],
         'im.dialog.get' => [['im']],
         'im.dialog.messages.get' => [['im']],
+        'im.search.chat.list' => [['im']],
         'im.message.update' => [['im']],
         'im.message.delete' => [['im']],
         'disk.folder.uploadFile' => [['disk']],

@@ -7,6 +7,7 @@ namespace Bitrix24\CLI\Console;
 use Bitrix24\CLI\Application\Chat\ChatTarget;
 use Bitrix24\CLI\Application\Chat\ChatTargetParser;
 use Bitrix24\CLI\Application\Chat\MessagePeriodResolver;
+use Bitrix24\CLI\Application\Chat\Request\FindChatsRequest;
 use Bitrix24\CLI\Application\Chat\Request\ListChatMessagesRequest;
 use Bitrix24\CLI\Application\Failure;
 use Bitrix24\CLI\Infrastructure\Connection\ConnectionResolver;
@@ -25,6 +26,22 @@ final readonly class ChatInputMapper
         $period = $this->periods->resolve($input->getOption('period'), $input->getOption('from'), $input->getOption('to'), $input->getOption('timezone'));
         $limit = $input->getOption('limit') === null ? null : $this->numbers->id($input->getOption('limit'), '--limit');
         return new ListChatMessagesRequest($target, $period, $limit, $this->numbers->id($input->getOption('max-messages') ?? 10000, '--max-messages'));
+    }
+
+    public function find(InputInterface $input): FindChatsRequest
+    {
+        $name = $input->getOption('name');
+        $name = is_string($name) ? trim($name) : '';
+        if (mb_strlen($name) < 2) {
+            throw Failure::usage('Pass --name with at least 2 characters.');
+        }
+
+        if ($input->getOption('all') && $input->getOption('limit') !== null) {
+            throw Failure::usage('Choose --limit or --all.');
+        }
+
+        $limit = $input->getOption('all') ? null : $this->numbers->id($input->getOption('limit') ?? 50, '--limit');
+        return new FindChatsRequest($name, $this->numbers->id($input->getOption('max-scan') ?? 10000, '--max-scan'), $limit);
     }
 
     /** Parses TARGET locally; credentials are not read and the URL is never opened. */
