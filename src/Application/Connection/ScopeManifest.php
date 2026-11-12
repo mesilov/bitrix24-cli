@@ -35,6 +35,7 @@ final class ScopeManifest
         'im.dialog.messages.get' => [['im']],
         'im.search.chat.list' => [['im']],
         'im.message.add' => [['im']],
+        'im.chat.add' => [['im']],
         'im.message.update' => [['im']],
         'im.message.delete' => [['im']],
         'im.call.get' => [['im']],
