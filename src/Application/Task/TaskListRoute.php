@@ -9,7 +9,8 @@ use Bitrix24\CLI\Application\Route;
 /**
  * Selects the task list route before any request: server predicates go to REST 1.0
  * tasks.task.list when the default policy and the chosen fields allow it, otherwise
- * the REST 3.0 route keeps local filtering.
+ * the REST 3.0 route keeps local filtering. Temporal flags always use REST 1.0 and
+ * carry the same server predicates next to their date bounds.
  */
 final readonly class TaskListRoute
 {
@@ -26,7 +27,12 @@ final readonly class TaskListRoute
         'estimatedTime', 'changed', 'closed', 'activity', 'mark', 'allowsChangeDeadline', 'allowsTimeTracking',
     ];
 
-    private const SERVER_FIELDS = ['groupId' => 'GROUP_ID', 'responsibleId' => 'RESPONSIBLE_ID', 'creatorId' => 'CREATED_BY'];
+    private const SERVER_FIELDS = ['groupId' => 'GROUP_ID', 'responsibleId' => 'RESPONSIBLE_ID', 'creatorId' => 'CREATED_BY', 'status' => 'REAL_STATUS'];
+
+    /**
+     * Statuses documented for the REST 1.0 REAL_STATUS filter. "declined" (7) is not documented there and stays a local check.
+     */
+    public const REAL_STATUSES = ['pending' => 2, 'in_progress' => 3, 'supposedly_completed' => 4, 'completed' => 5, 'deferred' => 6];
 
     /**
      * @param list<string> $serverFilter
@@ -36,17 +42,25 @@ final readonly class TaskListRoute
     }
 
     /**
-     * Returns null for callers that do not opt in (no API policy on the query) and for deadline windows,
-     * which keep their own REST 1.0 route and metadata.
+     * Returns null for callers that do not opt in (no API policy on the query) and use no temporal flags.
+     * Temporal flags select REST 1.0 regardless of the fields; the adapter rejects unsupported fields as usage errors.
      */
     public static function plan(TaskQuery $query): ?self
     {
-        if ($query->apiPolicy === null || $query->deadlineWindow instanceof DeadlineWindow) {
+        $idFilter = $query->ids === [] ? [] : ['id'];
+        $candidates = self::candidates($query);
+        if ($query->temporal()) {
+            $windows = [
+                ...($query->deadlineWindow instanceof DeadlineWindow ? ['deadline'] : []),
+                ...array_map(static fn (DateWindow $window): string => $window->field, $query->dateWindows),
+            ];
+            return new self('1.0', [...$idFilter, ...$candidates, ...$windows], null);
+        }
+
+        if ($query->apiPolicy === null) {
             return null;
         }
 
-        $idFilter = $query->ids === [] ? [] : ['id'];
-        $candidates = self::candidates($query);
         if ($candidates === []) {
             return new self('3.0', $idFilter, 'no-server-predicate');
         }
@@ -78,10 +92,6 @@ final readonly class TaskListRoute
     public static function routes(TaskQuery $query): array
     {
         $participants = $query->role?->participantField() === null ? [] : [new Route('tasks.task.get', 1, 'read')];
-        if ($query->deadlineWindow instanceof DeadlineWindow) {
-            return [new Route('tasks.task.list', 1, 'read'), ...$participants];
-        }
-
         if (self::plan($query)?->server() === true) {
             return [new Route('tasks.task.list', 1, 'read'), ...$participants];
         }
@@ -101,10 +111,15 @@ final readonly class TaskListRoute
     /**
      * REST 1.0 filter for the server route. An explicit field value wins over the connection user of a
      * scalar role; the role itself stays a local AND check, so contradictory criteria end in a complete empty result.
+     * Temporal windows add their date bounds.
      */
     public function filter(TaskQuery $query, ?int $userId): array
     {
-        $filter = $query->ids === [] ? [] : ['ID' => $query->ids];
+        $filter = [
+            ...($query->deadlineWindow?->filter() ?? []),
+            ...array_merge([], ...array_map(static fn (DateWindow $window): array => $window->filter(), $query->dateWindows)),
+            ...($query->ids === [] ? [] : ['ID' => $query->ids]),
+        ];
         $role = $query->role?->scalarField();
         foreach (self::SERVER_FIELDS as $field => $native) {
             if (!in_array($field, $this->serverFilter, true)) {
@@ -112,6 +127,10 @@ final readonly class TaskListRoute
             }
 
             $value = $query->where[$field] ?? ($role === $field ? $userId : null);
+            if ($field === 'status') {
+                $value = self::REAL_STATUSES[$value] ?? null;
+            }
+
             if ($value !== null) {
                 $filter[$native] = (int) $value;
             }
@@ -133,7 +152,9 @@ final readonly class TaskListRoute
         $role = $query->role?->scalarField();
         return array_values(array_filter(
             array_keys(self::SERVER_FIELDS),
-            static fn (string $field): bool => isset($query->where[$field]) || $role === $field,
+            static fn (string $field): bool => $field === 'status'
+                ? is_string($query->where['status'] ?? null) && array_key_exists($query->where['status'], self::REAL_STATUSES)
+                : isset($query->where[$field]) || $role === $field,
         ));
     }
 }
