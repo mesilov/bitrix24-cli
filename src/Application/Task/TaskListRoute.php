@@ -18,7 +18,7 @@ final readonly class TaskListRoute
     public const REST1_FIELDS = [
         'id', 'title', 'description', 'creatorId', 'responsibleId', 'groupId', 'deadline', 'status', 'created', 'started',
         'changed', 'closed', 'activity', 'startPlan', 'endPlan', 'estimatedTime', 'priority', 'mark',
-        'allowsChangeDeadline', 'allowsTimeTracking',
+        'allowsChangeDeadline', 'allowsTimeTracking', 'chatId',
     ];
 
     /** Fields sortable through REST 1.0 tasks.task.list, kept equal to Rest1TaskListAdapter::SORT_FIELDS. */
@@ -92,11 +92,14 @@ final readonly class TaskListRoute
     public static function routes(TaskQuery $query): array
     {
         $participants = $query->role?->participantField() === null ? [] : [new Route('tasks.task.get', 1, 'read')];
+        // --unread reads one IM counter snapshot and, only for a task row without a valid chatId, the task chat binding.
+        $unread = $query->unread ? [new Route('im.counters.get', 1, 'read'), new Route('tasks.task.get', 3, 'read')] : [];
         if (self::plan($query)?->server() === true) {
-            return [new Route('tasks.task.list', 1, 'read'), ...$participants];
+            return [...$unread, new Route('tasks.task.list', 1, 'read'), ...$participants];
         }
 
         return [
+            ...$unread,
             new Route('tasks.task.list', 3, 'read'),
             ...(array_key_exists('groupId', $query->where) ? [new Route('tasks.task.get', 3, 'read')] : []),
             ...$participants,

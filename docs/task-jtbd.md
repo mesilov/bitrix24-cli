@@ -23,6 +23,8 @@
 
 Сверка [#208](https://github.com/mesilov/bitrix24-cli/issues/208) от 12.11.2026, база `dev` — `91e90ff` (после merge #180): добавлены [PM-10](#pm-10), [PM-11](#pm-11) и [сценарии созвонов CHAT-03…CHAT-05](#chat-calls). Реализованы разметка и обогащение звонков в `task:chat:list` и `chats:messages:list`, команды `chats:calls:list`, `chats:calls:show` и `users:presence` (по `--user-id` и TARGET чата). Каталог: 50 task-команд / 71 публичная. Live (только чтение) на рабочем чате со звонком: `chats:messages:list`, `chats:calls:list`, `chats:calls:show`, `users:presence` по ID и по чату. Сверка оценки с заранее известным составом звонка не проводилась. [OpenSpec change](../openspec/changes/add-chat-call-insights/proposal.md).
 
+Сверка [#148](https://github.com/mesilov/bitrix24-cli/issues/148) от 13.11.2026, база `dev` — `ff9481e`: PM-06 и EMP-07 дополнены `task:list --unread` (серверный счётчик непрочитанных сообщений чата задачи по снимку `im.counters.get`, отдельная ручная метка), AM-06 — признаком `unread` сообщений `task:chat:list`. Новых JTBD и команд нет: каталог 50 task-команд / 71 публичная, ID сохранены. Offline unit-контракты выполнены; live-приёмка на удаляемых fixtures не выполнялась. [OpenSpec change](../openspec/changes/add-task-unread-state/proposal.md).
+
 Сверка [#170](https://github.com/mesilov/bitrix24-cli/issues/170) от 16.10.2026, база dev `0caf9db`: проверка состава EMP-09/PM-04 использует фактический scope `sonet_group`. Серверный сброс статуса в `pending` после назначения обрабатывается достижением явной цели либо восстановлением исходного статуса штатными действиями. Повторная live-матрица: 18/18 проверок PASS; 4/4 integration tests PASS, включая ожидаемые partial/отказы. [Evidence и ограничения](../openspec/changes/archive/2026-10-16-fix-task-handover-project-scope/live-acceptance.md). Существующие 24 JTBD и ID сохранены.
 
 Сверка [#179](https://github.com/mesilov/bitrix24-cli/issues/179) от 13.11.2026, база `dev` — `ff9481e`: [EMP-06](#emp-06) дополнен датой записи времени (`--created-date` у `task:time:add`/`task:time:update`); число сценариев и статусы команд не меняются.
@@ -65,7 +67,7 @@
 | ✅ Готово | [chats:messages:list](chats.md#история-за-период) | История периода CHAT-01 | [ListChatMessagesCommandTest.php](../tests/Integration/Chats/ListChatMessagesCommandTest.php) |
 | ✅ Готово | [chats:send](chats.md#отправка) | Отправка CHAT-02 | [SendChatMessageCommandTest.php](../tests/Integration/Chats/SendChatMessageCommandTest.php) |
 
-**Текущее покрытие:** PM-06, AM-06 и EMP-07 уже используют task:chat:list/send по TASK_ID; PM-03/EMP-03 — отправку сообщения о препятствии. Эти команды не принимают URL, название или календарный период. Общий чат проекта не равен чатам его задач. AM-03 частично поддержан отчётами по задачам; PM-09/task:report не делает саммари переписки. Состояние unread вынесено в [#148](https://github.com/mesilov/bitrix24-cli/issues/148), права — в [#178](https://github.com/mesilov/bitrix24-cli/issues/178).
+**Текущее покрытие:** PM-06, AM-06 и EMP-07 уже используют task:chat:list/send по TASK_ID; PM-03/EMP-03 — отправку сообщения о препятствии. Эти команды не принимают URL, название или календарный период. Общий чат проекта не равен чатам его задач. AM-03 частично поддержан отчётами по задачам; PM-09/task:report не делает саммари переписки. Состояние непрочитанных сообщений чатов задач реализовано в [#148](https://github.com/mesilov/bitrix24-cli/issues/148) (`task:list --unread`, `unread` в `task:chat:list`), права — в [#178](https://github.com/mesilov/bitrix24-cli/issues/178).
 
 **Границы:** CLI предоставит сообщения и полноту, а саммари составляет агент/skill; встроенный LLM не требуется. Готовы адресация `chats:resolve`, поиск `chats:find`, чтение периода `chats:messages:list` и отправка `chats:send`: их integration cases прошли на тестовом портале 12.11.2026. Сквозная live-приёмка 12.11.2026 подтвердила CHAT-01 (история 61 сообщения за период на 2 страницах, complete, прочитанность не изменилась, саммари агента со ссылками на ID) и CHAT-02 (поиск по заголовку → ровно одно сообщение, проверено по ID) — [verification.md](../openspec/changes/archive/2026-11-12-add-unified-chat-access/verification.md). Форма `/online/?IM_DIALOG=chatN` подтверждена ссылкой из интерфейса; `sgN` и ссылка на сообщение примерами не подтверждены. Отправка отмечает чат прочитанным для отправителя — это поведение портала.
 
@@ -193,8 +195,9 @@
 | --- | --- | --- |
 | ✅ Готово | [`task:chat:list`](../src/Console/Command/Task/ListTaskChatCommand.php) | [`ListTaskChatCommandTest.php`](../tests/Integration/Task/ListTaskChatCommandTest.php) |
 | ✅ Готово | [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) | [`SendTaskChatMessageCommandTest.php`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php) |
+| ✅ Готово | [`task:list --unread`](../src/Console/Command/Task/ListTaskCommand.php) | [`ListTaskCommandTest.php`](../tests/Integration/Task/ListTaskCommandTest.php) |
 
-**Границы:** Проверяются чтение и отправка в чате задачи; denied-role матрица остаётся в #42.
+**Границы:** Проверяются чтение и отправка в чате задачи; denied-role матрица остаётся в #42. Для #148 `task:list --unread` находит задачи с положительным серверным счётчиком непрочитанных сообщений подключения (включая чаты без звука), ручная метка показывается отдельно; это не число упоминаний и не бейдж «@». Offline-контракты покрыты unit-тестами; live-приёмка на удаляемых fixtures (mention/mute/ручная метка, второе подключение) не выполнялась, live-тест только читает снимок для созданной задачи.
 
 
 <a id="pm-07"></a>
@@ -399,7 +402,7 @@
 | ✅ Готово | [`task:chat:list`](../src/Console/Command/Task/ListTaskChatCommand.php) | [`ListTaskChatCommandTest.php`](../tests/Integration/Task/ListTaskChatCommandTest.php) |
 | ✅ Готово | [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) | [`SendTaskChatMessageCommandTest.php`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php) |
 
-**Границы:** Проверяются сообщения чата задачи; клиентское согласование и доступ внешнего клиента не проверяются, denied-role — #42.
+**Границы:** Проверяются сообщения чата задачи; клиентское согласование и доступ внешнего клиента не проверяются, denied-role — #42. Для #148 каждое сообщение `task:chat:list` содержит серверное `unread` (`true`/`false`, `null` при отсутствии — partial); прочитанность не выводится из ответов, чтение истории не отмечает сообщения прочитанными. Live-тест проверяет только тип поля на собственном сообщении.
 
 
 <a id="am-07"></a>
@@ -555,8 +558,9 @@
 | --- | --- | --- |
 | ✅ Готово | [`task:chat:list`](../src/Console/Command/Task/ListTaskChatCommand.php) | [`ListTaskChatCommandTest.php`](../tests/Integration/Task/ListTaskChatCommandTest.php) |
 | ✅ Готово | [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) | [`SendTaskChatMessageCommandTest.php`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php) |
+| ✅ Готово | [`task:list --unread`](../src/Console/Command/Task/ListTaskCommand.php) | [`ListTaskCommandTest.php`](../tests/Integration/Task/ListTaskCommandTest.php) |
 
-**Границы:** Проверяются чтение и отправка в чате задачи; сквозная переписка вопрос/ответ и denied-role матрица не подтверждены (#42).
+**Границы:** Проверяются чтение и отправка в чате задачи; сквозная переписка вопрос/ответ и denied-role матрица не подтверждены (#42). Для #148 `task:list --unread` относится к выбранному подключению: ручная метка «Не прочитано» сама задачу не включает и выводится в `manuallyMarkedUnread`; совпадение с бейджем «@» не обещается. Live-приёмка различения метки и счётчика не выполнялась.
 
 
 <a id="emp-08"></a>

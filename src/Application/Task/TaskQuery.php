@@ -21,6 +21,8 @@ final readonly class TaskQuery
         public ?string $apiPolicy = null,
         /** @var list<DateWindow> */
         public array $dateWindows = [],
+        /** task:list --unread: join one im.counters.get snapshot with the scanned tasks (#148). */
+        public bool $unread = false,
     ) {
     }
 

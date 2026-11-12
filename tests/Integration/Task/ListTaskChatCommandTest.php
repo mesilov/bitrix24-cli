@@ -21,6 +21,8 @@ final class ListTaskChatCommandTest extends LiveTaskCommandTestCase
         self::assertCount(1, $own);
         self::assertSame($text, $own[0]['text']);
         self::assertSame($this->userId, $own[0]['authorId']);
+        // #148: the server unread flag is a boolean for every message of a complete read.
+        self::assertSame([], array_filter(array_column($messages, 'unread'), static fn (mixed $unread): bool => !is_bool($unread)));
     }
     #[Group('portal-acceptance')]
     public function testSecondUserWithoutTaskRoleCannotAccessOwnedFixture(): void

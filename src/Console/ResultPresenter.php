@@ -71,6 +71,14 @@ final readonly class ResultPresenter
             } elseif (in_array($result->profile, ['task-list', 'title-matches'], true)) {
                 $this->tasks->listing($result, $output);
             } else {
+                if ($result->profile === 'chat-messages' && array_any($result->data['items'] ?? [], static fn (array $item): bool => array_key_exists('unread', $item))) {
+                    // Human output only: the server unread flag with an explicit unknown; --plain keeps its columns.
+                    $columns[] = 'unread';
+                    $rows = array_map(static fn (array $row, array $item): array => [...$row, match ($item['unread'] ?? null) {
+                        true => 'да', false => 'нет', default => 'неизвестно',
+                    }], $rows, $result->data['items']);
+                }
+
                 (new Table($output))->setHeaders($columns)->setRows(array_map(fn ($row): array => array_map(fn ($value): string => OutputFormatter::escape($this->string($value)), $row), $rows))->render();
             }
         }
