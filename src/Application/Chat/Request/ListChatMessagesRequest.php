@@ -9,7 +9,7 @@ use Bitrix24\CLI\Application\Chat\MessagePeriod;
 
 final readonly class ListChatMessagesRequest
 {
-    public function __construct(public ChatTarget $target, public MessagePeriod $period, public ?int $limit, public int $maxMessages)
+    public function __construct(public ChatTarget $target, public MessagePeriod $period, public ?int $limit, public int $maxMessages, public bool $callDetails = true)
     {
     }
 }

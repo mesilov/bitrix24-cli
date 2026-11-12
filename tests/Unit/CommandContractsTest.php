@@ -125,7 +125,7 @@ final class CommandContractsTest extends TestCase
             'task:show', 'task:access:show', 'task:time:show', 'task:find', 'task:checklist:list' => 2,
             'task:list', 'task:my' => 6,
             'task:fields:list', 'task:time:list' => 5,
-            'task:history:list', 'task:result:list' => 6,
+            'task:history:list', 'task:result:list', 'task:chat:list' => 6,
             default => 4,
         };
         foreach (explode("\n", rtrim($run->stdout, "\n")) as $line) {

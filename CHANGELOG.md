@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Добавлено
+
+- **Созвоны в истории чатов:** `task:chat:list` и `chats:messages:list` размечают сообщения (`kind`: `text`, `system`, `call`; `callRef` у сообщений о звонке) и по умолчанию добавляют `data.calls`: UUID, начало, конец, длительность, инициатор, завершивший, состояние записи с причинами её отсутствия, состав чата, фактические участники из AI Follow-up (`call.followup.get`, необязательный scope `call`) и оценку присутствия по правилам `rulesVersion: 1` с доказательствами. Токены подключения к звонку не выводятся. `--no-call-details` отключает дополнительные запросы; plain получает столбцы `kind`, `callId`. Новые `chats:calls:list` (звонки чата за период) и `chats:calls:show` (один звонок с проверкой привязки к чату). [#208](https://github.com/mesilov/bitrix24-cli/issues/208)
+- **`users:presence`:** последняя активность, отсутствие и момент наблюдения по списку `--user-id` или участникам чата из TARGET через `im.user.list.get`; статус мессенджера и признак онлайна не используются, неизвестные ID видны в `meta.notFound`. [#208](https://github.com/mesilov/bitrix24-cli/issues/208)
+- JTBD CHAT-03…05, PM-10, PM-11 и OpenSpec change `add-chat-call-insights` со сверкой по официальной документации и live-проверкой на портале. [#208](https://github.com/mesilov/bitrix24-cli/issues/208)
+
 ### Исправлено
 
 - `task:list` и `task:find` при `task-v3` передают `--status` и `where.status` в серверный фильтр REST 1.0 `REAL_STATUS`; выборка по статусу больше не обходит до 10 000 задач портала. `declined` не задокументирован для этого фильтра и проверяется локально. Временные флаги теперь передают на сервер не только группу, но и исполнителя, постановщика (в том числе из `--role responsible|creator`) и статус; `meta.listRoute` появился и на временном маршруте. Локальный обход REST 3.0 без `--id` пишет в stderr причину, бюджет `--max-scan` и прогресс каждые 1000 задач; `--quiet`/`--silent` подавляют эти строки, stdout и JSON не меняются. [#186](https://github.com/mesilov/bitrix24-cli/issues/186)

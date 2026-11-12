@@ -21,7 +21,10 @@ final readonly class ResultPresenter
         'connections' => ['profile', 'name', 'hostname', 'default', 'source', 'path', 'isDefault'],
         'task-list' => ['id', 'title', 'responsibleId', 'groupId', 'status', 'deadline'],
         'title-matches' => ['id', 'title'], 'task-fields' => ['name', 'type', 'editable', 'filterable', 'sortable'],
-        'chat-messages' => ['id', 'createdDate', 'authorId', 'text'],
+        'chat-messages' => ['id', 'createdDate', 'authorId', 'text', 'kind', 'callId'],
+        'user-presence' => ['id', 'name', 'lastActivityDate', 'absent'],
+        'chat-calls' => ['callId', 'startedAt', 'durationSeconds', 'initiatorId', 'present', 'absent', 'leftEarly', 'unknown'],
+        'chat-call' => ['callId', 'startedAt', 'durationSeconds', 'initiatorId', 'present', 'absent', 'leftEarly', 'unknown'],
         'chat-message-sent' => ['target', 'chatId', 'messageId', 'confirmed', 'readback'],
         'chat-candidates' => ['source', 'target', 'name', 'exact', 'writable', 'chatId', 'reason'],
         'task-results' => ['id', 'taskId', 'authorId', 'createdAt', 'status', 'text'],
@@ -85,6 +88,16 @@ final readonly class ResultPresenter
         if ($mode !== 'json' && $result->profile === 'chat-candidates') {
             $selection = $result->data['selection'];
             $this->diagnostic($output, 'Выбор по названию: ' . $selection['status'] . ($selection['target'] === null ? '' : ' → ' . $selection['target']) . '; точных совпадений ' . $selection['exactMatches'] . '; complete=' . ($result->meta['complete'] ? 'true' : 'false') . '.');
+        }
+
+        if ($mode !== 'json' && in_array($result->profile, ['chat-messages', 'chat-calls', 'chat-call'], true)) {
+            foreach ($result->data['calls'] ?? ($result->profile === 'chat-call' ? [$result->data['call']] : ($result->profile === 'chat-calls' ? $result->data['items'] : [])) as $call) {
+                $this->diagnostic($output, $this->callSummary($call));
+            }
+        }
+
+        if ($mode !== 'json' && $result->profile === 'user-presence') {
+            $this->diagnostic($output, 'Последняя активность на ' . ($result->meta['observedAt'] ?? '') . '; статус и признак онлайна не учитываются.' . (($result->meta['notFound'] ?? []) === [] ? '' : ' Не найдены: ' . implode(', ', $result->meta['notFound']) . '.'));
         }
 
         if ($mode !== 'json' && $result->profile === 'task-handover') {
@@ -219,7 +232,28 @@ final readonly class ResultPresenter
         }
 
         $items = $result->profile === 'plan' ? ($result->data['plan']['steps'] ?? []) : ($result->data['items'] ?? [$result->data['operation'] ?? []]);
+        if ($result->profile === 'chat-messages') {
+            $items = array_map(static fn (array $item): array => [...$item, 'callId' => $item['callRef']['callId'] ?? null], $items);
+        }
+
+        if (in_array($result->profile, ['chat-calls', 'chat-call'], true)) {
+            $items = array_map(static fn (array $call): array => [...$call, ...$call['participants']['inferred']['summary']], $result->profile === 'chat-call' ? [$result->data['call']] : $items);
+        }
+
         return [$columns, array_map(static fn (array $item): array => array_map(static fn (string $field): mixed => $item[$field] ?? ($field === 'visibleAfter' ? 'unknown' : null), $columns), $items)];
+    }
+
+    private function callSummary(array $call): string
+    {
+        $inferred = $call['participants']['inferred'];
+        $confirmed = $call['participants']['confirmed'];
+        $parts = [
+            'Звонок ' . $call['callId'] . ': ' . ($call['startedAt'] ?? '?') . ' — ' . ($call['endedAt'] ?? '?') . ', ' . ($call['durationSeconds'] === null ? 'длительность неизвестна' : $call['durationSeconds'] . ' с'),
+            'данные звонка: ' . ($call['details']['status'] === 'ok' ? 'ok' : 'недоступны (' . $call['details']['reason'] . ')'),
+            'подтверждено: ' . ($confirmed['available'] ? (string) count($confirmed['users']) : 'нет (' . $confirmed['reason'] . ')'),
+            'оценка v' . $inferred['rulesVersion'] . ' (' . $inferred['evidenceFreshness'] . '): present ' . $inferred['summary']['present'] . ', absent ' . $inferred['summary']['absent'] . ', left-early ' . $inferred['summary']['leftEarly'] . ', unknown ' . $inferred['summary']['unknown'],
+        ];
+        return implode('; ', $parts) . '. Оценка не является фактом присутствия.';
     }
 
     private function string(mixed $value): string

@@ -225,6 +225,6 @@ final class ChatsMessagesListCommandTest extends TestCase
         $app = (new ApplicationFactory())->create(dirname(__DIR__, 2), new FakeApiTransport($this->portal(...)), new SpyConnectionResolver());
         $plain = ConsoleHarness::run($app, ['chats:messages:list', 'sg7', '--from', '2026-11-01T10:00:00Z', '--to', '2026-11-01T11:00:00Z', '--plain']);
         self::assertSame(0, $plain->status);
-        self::assertSame("11\t2026-11-01T10:00:00+00:00\t2\tm11", trim($plain->stdout));
+        self::assertSame("11\t2026-11-01T10:00:00+00:00\t2\tm11\ttext\t\n", $plain->stdout);
     }
 }

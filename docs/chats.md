@@ -1,8 +1,8 @@
 # Чаты: адресаты
 
-[Обзор CLI](../README.md#cli-команды) · [Подключение](connection.md) · [JTBD: CHAT-01/CHAT-02](task-jtbd.md#общие-сценарии-чатов--план-180)
+[Обзор CLI](../README.md#cli-команды) · [Подключение](connection.md) · [JTBD: CHAT-01/CHAT-02](task-jtbd.md#общие-сценарии-чатов--план-180) · [JTBD: созвоны CHAT-03…05](task-jtbd.md#chat-calls)
 
-Namespace `chats:*` работает с групповым чатом, общим чатом проекта и чатом задачи. Команды: `chats:resolve` (проверка адресата), `chats:find` (поиск по названию), `chats:messages:list` (история за период) и `chats:send` (отправка). Issue — [#180](https://github.com/mesilov/bitrix24-cli/issues/180).
+Namespace `chats:*` работает с групповым чатом, общим чатом проекта и чатом задачи. Команды: `chats:resolve` (проверка адресата), `chats:find` (поиск по названию), `chats:messages:list` (история за период), `chats:send` (отправка), `chats:calls:list` (звонки за период) и `chats:calls:show` (один звонок). Issue — [#180](https://github.com/mesilov/bitrix24-cli/issues/180), созвоны — [#208](https://github.com/mesilov/bitrix24-cli/issues/208).
 
 ```sh
 b24cli chats:resolve sg234 --json
@@ -12,6 +12,9 @@ b24cli chats:find --name 'Команда проекта' --json
 b24cli chats:send --name 'Команда проекта' --text 'Сегодня меня не будет' --dry-run --json
 b24cli chats:messages:list sg234 --period yesterday --timezone Europe/Moscow --json
 b24cli chats:messages:list task:5288 --from 2026-11-11T00:00:00+03:00 --to 2026-11-12T00:00:00+03:00 --json
+b24cli chats:calls:list sg234 --from 2026-11-09T00:00:00+03:00 --to 2026-11-16T00:00:00+03:00 --plain
+b24cli chats:calls:show chat37 1001 --json
+b24cli users:presence chat37 --json
 ```
 
 ## Адресат
@@ -107,7 +110,47 @@ JSON `data`: `name`, `selection` (`status`, `target`, `exactMatches`), `items` (
 
 Ошибка первой страницы или чужой `chat_id` — ошибка команды, а не пустой результат.
 
-JSON `data`: `destination`, `period` (`kind`, `from`, `to`, `timezone`, `now`), `items` (`id`, `createdDate`, `authorId`, `text`, `chatId`) по времени и ID, `authors` (`id`, `name` из ответа API; `authorId` 0 — системное сообщение). TSV при `--plain`: `id`, `createdDate`, `authorId`, `text`.
+JSON `data`: `destination`, `period` (`kind`, `from`, `to`, `timezone`, `now`), `items` (`id`, `createdDate`, `authorId`, `text`, `chatId`, `kind`, `callRef`) по времени и ID, `authors` (`id`, `name` из ответа API; `authorId` 0 — системное сообщение), `calls`. TSV при `--plain`: `id`, `createdDate`, `authorId`, `text`, `kind`, `callId`.
+
+## Созвоны
+
+Сообщение о звонке распознаётся только по компоненту `CallMessage` в `params`; локализованный текст «Звонок завершён (…)» не разбирается. У такого сообщения `kind: call` и `callRef` (`callId`, событие `start` или `finish`); у остальных `kind: text` или `system`.
+
+Если в периоде есть сообщения о звонке, `chats:messages:list` по умолчанию добавляет `data.calls` — по записи на звонок. `--no-call-details` отключает дополнительные запросы; без сообщений о звонке их нет. `chats:calls:list` возвращает только записи звонков периода в хронологическом порядке (PM-10); полнота такая же, как у истории. `chats:calls:show TARGET CALL_ID` читает один звонок в окне от его начала до пяти минут после конца (CHAT-03, CHAT-05); звонок другого чата отклоняется ошибкой привязки (exit 4), а при недоступных данных звонка — `call-unavailable`.
+
+Запись звонка:
+
+| Поле | Содержимое |
+| --- | --- |
+| `callId`, `uuid`, `state`, `isPublic` | из `im.call.get` |
+| `startedAt`, `endedAt`, `durationSeconds` | из данных звонка, иначе из сообщений; `durationText` — текст сообщения для сверки |
+| `initiatorId`, `finishedById` | инициатор звонка и завершивший из сообщения FINISH |
+| `messages` | `startId`, `finishId`, `duringIds` — ID сообщений в окне |
+| `inWindow` | попали ли START и FINISH в окно; начало до периода берётся из данных звонка, сообщения вне периода не добавляются |
+| `recording` | `audio`, `aiAnalyze`, `logUrl`, флаги ИИ и причины отсутствия записи: `ai-service-disabled`, `ai-settings-disabled`, `ai-agreement-not-accepted`, `ai-tariff-unavailable` |
+| `participants.eligible` | состав чата из данных звонка (или читатели чата, если данных нет) — не список подключившихся |
+| `participants.confirmed` | фактические участники с `talkedSeconds` из AI Follow-up `call.followup.get`; без Follow-up пусто с причиной `followup-method-unavailable`, `followup-scope-missing`, `followup-not-found` или `followup-access-denied` |
+| `participants.inferred` | оценка остальных по правилам `rulesVersion: 1` |
+
+Правила оценки:
+
+| Правило | Доказательство | Влияние |
+| --- | --- | --- |
+| `finish-author` | автор сообщения FINISH | present, high |
+| `call-initiator` | инициатор звонка | present, medium |
+| `read-finish-at-end` | прочитал FINISH не позже 5 секунд после него | present, high |
+| `message-during-call` | писал в чат во время звонка | present, medium |
+| `last-read-before-start` | последнее прочтение раньше START | absent, high |
+| `last-activity-before-start` | последняя активность раньше начала | absent, high |
+| `last-activity-before-finish` | последняя активность во время звонка, раньше чем за минуту до конца | left-early, low |
+
+Присутствие вместе с отсутствием и ранний уход вместе с присутствием в конце дают `unknown` с `conflict: true`. Ранний уход с присутствием во время звонка — `left-early`. Ничего не сработало — `unknown`. Доказательства — снимок на `observedAt`: если после звонка прошло больше часа или в чате появились новые сообщения, `evidenceFreshness: stale`, и правила прочтения дают не больше `low`. Для публичного звонка есть оговорка `public-link-guests-invisible`.
+
+Оценка не является фактом присутствия и не годится для дисциплинарных решений. Статус мессенджера и признак онлайна не используются: на портале они остаются `online` у давно неактивных пользователей.
+
+`im.call.get` не описан в документации Битрикс24. Его отказ даёт `details.status: unavailable` с причиной и не меняет полноту истории и код выхода. Ответ проходит через белый список полей, поэтому токены подключения (`jwt`, подписи каналов, `logToken`) не выводятся и не логируются. `call.followup.get` (REST 3.0) требует необязательной области доступа `call`. В human и plain сводка по звонкам выводится в stderr; TSV `chats:calls:list` и `chats:calls:show`: `callId`, `startedAt`, `durationSeconds`, `initiatorId`, `present`, `absent`, `leftEarly`, `unknown`.
+
+`users:presence TARGET` показывает последнюю активность участников того же чата (без ботов и системных пользователей, [`im.dialog.users.list`](https://apidocs.bitrix24.ru/api-reference/chats/chat-users/im-dialog-users-list.html)); подробнее — в [сотрудниках](users.md).
 
 ## Отправка
 

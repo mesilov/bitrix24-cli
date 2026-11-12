@@ -56,6 +56,8 @@ return static function (ContainerBuilder $container, string $root, bool $package
         Bitrix24\CLI\Application\Task\TaskParticipantEnricher::class,
         Bitrix24\CLI\Application\Task\TaskMetadataService::class,
         Bitrix24\CLI\Application\Task\TaskTagMutation::class,
+        Bitrix24\CLI\Application\Chat\CallEnricher::class,
+        Bitrix24\CLI\Application\Chat\ChatCallsService::class,
         Bitrix24\CLI\Application\Task\TaskChatService::class,
         Bitrix24\CLI\Application\Task\TaskResultService::class,
         Bitrix24\CLI\Application\Task\TimeEntryService::class,
@@ -115,13 +117,19 @@ return static function (ContainerBuilder $container, string $root, bool $package
     $container->register(Bitrix24\CLI\Infrastructure\Bitrix24\Rest1ChatSearchAdapter::class)->setAutowired(true);
     $container->setAlias(Bitrix24\CLI\Application\Chat\Port\ChatSearchGateway::class, Bitrix24\CLI\Infrastructure\Bitrix24\Rest1ChatSearchAdapter::class);
 
-    foreach (['UserDirectoryGateway' => 'Rest1UserDirectoryAdapter', 'DepartmentGateway' => 'Rest1DepartmentAdapter'] as $port => $adapter) {
+    foreach (['UserDirectoryGateway' => 'Rest1UserDirectoryAdapter', 'DepartmentGateway' => 'Rest1DepartmentAdapter', 'UserPresenceGateway' => 'Rest1UserPresenceAdapter'] as $port => $adapter) {
         $class = 'Bitrix24\\CLI\\Infrastructure\\Bitrix24\\' . $adapter;
         $container->register($class)->setAutowired(true);
         $container->setAlias('Bitrix24\\CLI\\Application\\User\\Port\\' . $port, $class);
     }
 
-    foreach (['CurrentUser', 'FindUsers', 'ListColleagues', 'GetManager'] as $handler) {
+    foreach (['CallGateway' => 'ImCallAdapter', 'ChatReadGateway' => 'Rest1ChatReadAdapter', 'ChatMembersGateway' => 'Rest1ChatMembersAdapter'] as $port => $adapter) {
+        $class = 'Bitrix24\\CLI\\Infrastructure\\Bitrix24\\' . $adapter;
+        $container->register($class)->setAutowired(true);
+        $container->setAlias('Bitrix24\\CLI\\Application\\Chat\\Port\\' . $port, $class);
+    }
+
+    foreach (['CurrentUser', 'FindUsers', 'ListColleagues', 'GetManager', 'UserPresence'] as $handler) {
         $container->register('Bitrix24\\CLI\\Application\\User\\Handler\\' . $handler . 'Handler')->setAutowired(true);
     }
 

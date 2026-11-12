@@ -31,7 +31,8 @@ final class ListTaskChatCommand extends Command
         $this->addOption('limit', null, InputOption::VALUE_REQUIRED, 'Лимит вывода; не заменяет бюджет обхода.');
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Снять только лимит вывода; бюджет остаётся конечным.');
         $this->addOption('max-messages', null, InputOption::VALUE_REQUIRED, 'Бюджет просмотра сообщений (по умолчанию 10000).');
-        $this->setHelp('JSON: структура data/meta/error; столбцы TSV при --plain: id, createdDate, authorId, text. Дополнительный маршрут REST 1.0; strict-rest3 отклоняет вызов до подключения.  Доступ ограничен правами пользователя вебхука и областью доступа im. --all просматривает доступную историю до --max-messages (10000). Пример: b24cli task:chat:list 123 --limit 20');
+        $this->addOption('no-call-details', null, InputOption::VALUE_NONE, 'Не запрашивать данные звонков и участников; сообщения о звонке остаются размеченными.');
+        $this->setHelp('JSON: структура data/meta/error; data.items[].kind (text, system, call) и callRef у сообщений о звонке, data.calls — по записи на звонок окна. Столбцы TSV при --plain: id, createdDate, authorId, text, kind, callId; сводка звонков — в stderr. Данные звонка из im.call.get (не описан в документации Битрикс24); подтверждённые участники — только из AI Follow-up (call.followup.get, REST 3.0, необязательная область доступа call); остальные участники — оценка по правилам v1 с доказательствами, не факт и не основание для дисциплинарных решений. --no-call-details отключает дополнительные запросы. Дополнительный маршрут REST 1.0; strict-rest3 отклоняет вызов до подключения.  Доступ ограничен правами пользователя вебхука и областью доступа im. --all просматривает доступную историю до --max-messages (10000). Пример: b24cli task:chat:list 123 --limit 20');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -41,7 +42,7 @@ final class ListTaskChatCommand extends Command
             $input,
             $output,
             fn (): ListTaskChatRequest => $this->mapper->listTaskChat($input),
-            fn (ListTaskChatRequest $request): array => $this->service->listRoutes(),
+            fn (ListTaskChatRequest $request): array => $this->service->listRoutes($request),
             fn (ListTaskChatRequest $request): \Bitrix24\CLI\Application\PreparedOperation => $this->service->list($request),
         );
     }

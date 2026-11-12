@@ -28,6 +28,7 @@ final class CommandCatalog
         'users:find' => ['class' => \Bitrix24\CLI\Console\Command\Users\FindUsersCommand::class, 'effect' => 'read'],
         'users:colleagues' => ['class' => \Bitrix24\CLI\Console\Command\Users\ListColleaguesCommand::class, 'effect' => 'read'],
         'users:manager' => ['class' => \Bitrix24\CLI\Console\Command\Users\GetManagerCommand::class, 'effect' => 'read'],
+        'users:presence' => ['class' => \Bitrix24\CLI\Console\Command\Users\UserPresenceCommand::class, 'effect' => 'read'],
         'task:result:add' => ['class' => \Bitrix24\CLI\Console\Command\Task\AddTaskResultCommand::class, 'effect' => 'write'],
         'task:result:list' => ['class' => \Bitrix24\CLI\Console\Command\Task\ListTaskResultsCommand::class, 'effect' => 'read'],
         'task:result:update' => ['class' => \Bitrix24\CLI\Console\Command\Task\UpdateTaskResultCommand::class, 'effect' => 'write'],
@@ -67,6 +68,8 @@ final class CommandCatalog
         'chats:find' => ['class' => \Bitrix24\CLI\Console\Command\Chats\FindChatCommand::class, 'effect' => 'read'],
         'chats:send' => ['class' => \Bitrix24\CLI\Console\Command\Chats\SendChatMessageCommand::class, 'effect' => 'write'],
         'chats:messages:list' => ['class' => \Bitrix24\CLI\Console\Command\Chats\ListChatMessagesCommand::class, 'effect' => 'read'],
+        'chats:calls:list' => ['class' => \Bitrix24\CLI\Console\Command\Chats\ListChatCallsCommand::class, 'effect' => 'read'],
+        'chats:calls:show' => ['class' => \Bitrix24\CLI\Console\Command\Chats\ShowChatCallCommand::class, 'effect' => 'read'],
     ];
 
     public const LOCAL_COMMANDS = [
@@ -105,6 +108,7 @@ final class CommandCatalog
         'users:find' => [['user.get', 1]],
         'users:colleagues' => [['user.current', 1], ['user.get', 1]],
         'users:manager' => [['user.current', 1], ['department.get', 1], ['user.get', 1]],
+        'users:presence' => [['tasks.task.get', 3], ['im.dialog.get', 1], ['im.dialog.users.list', 1], ['im.user.list.get', 1]],
         'task:add' => [['tasks.task.add', 1], ['tasks.task.getFields', 1], ['tasks.task.add', 3], ['tasks.task.get', 1], ['tasks.task.update', 1]],
         'task:result:add' => [['tasks.task.result.add', 3]],
         'task:result:list' => [['tasks.task.result.list', 3]],
@@ -120,7 +124,7 @@ final class CommandCatalog
         'task:access:show' => [['tasks.task.access.get', 3]],
         'task:assign' => [['tasks.task.update', 3]],
         'task:deadline:set' => [['tasks.task.update', 3]],
-        'task:chat:list' => [['tasks.task.get', 3], ['im.dialog.get', 1], ['im.dialog.messages.get', 1]],
+        'task:chat:list' => [['tasks.task.get', 3], ['im.dialog.get', 1], ['im.dialog.messages.get', 1], ['im.call.get', 1], ['im.user.list.get', 1], ['call.followup.get', 3]],
         'task:chat:send' => [['tasks.task.chat.message.send', 3]],
         'task:chat:update' => [['tasks.task.get', 3], ['im.dialog.get', 1], ['im.message.update', 1], ['im.dialog.messages.get', 1]],
         'task:chat:delete' => [['tasks.task.get', 3], ['im.dialog.get', 1], ['im.message.delete', 1], ['im.dialog.messages.get', 1]],
@@ -143,6 +147,8 @@ final class CommandCatalog
         'chats:resolve' => [['tasks.task.get', 3], ['im.dialog.get', 1]],
         'chats:find' => [['im.search.chat.list', 1], ['sonet_group.get', 1], ['tasks.task.list', 3], ['tasks.task.get', 3], ['im.dialog.get', 1]],
         'chats:send' => [['im.search.chat.list', 1], ['sonet_group.get', 1], ['tasks.task.list', 3], ['tasks.task.get', 3], ['im.dialog.get', 1], ['im.message.add', 1], ['im.dialog.messages.get', 1]],
-        'chats:messages:list' => [['tasks.task.get', 3], ['im.dialog.get', 1], ['im.dialog.messages.get', 1]],
+        'chats:messages:list' => [['tasks.task.get', 3], ['im.dialog.get', 1], ['im.dialog.messages.get', 1], ['im.call.get', 1], ['im.user.list.get', 1], ['call.followup.get', 3]],
+        'chats:calls:list' => [['tasks.task.get', 3], ['im.dialog.get', 1], ['im.dialog.messages.get', 1], ['im.call.get', 1], ['im.user.list.get', 1], ['call.followup.get', 3]],
+        'chats:calls:show' => [['tasks.task.get', 3], ['im.dialog.get', 1], ['im.dialog.messages.get', 1], ['im.call.get', 1], ['im.user.list.get', 1], ['call.followup.get', 3]],
     ];
 }

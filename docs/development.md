@@ -303,6 +303,8 @@ filter taskId, select id/taskId/status, order id ASC, offset=0/limit=1.
 skip и не считаются portal acceptance. Fixtures и переходы в ListTaskCommandTest
 выполняются SDK; каждый case вызывает только свою CLI-команду.
 
+`B24CLI_TEST_CALL_CHAT` (TARGET чата, например `chat37`) и `B24CLI_TEST_CALL_ID` (ID завершённого звонка в нём) включают read-only приёмку `chats:calls:list` и `chats:calls:show`; без них эти сценарии пропускаются. Звонок через API создать нельзя, поэтому используется существующий.
+
 ```sh
 make unit TEST_ARGS='--filter TaskLifecycleTest'
 B24CLI_ENV_FILE=/absolute/secure/test.env make integration TEST_ARGS='--group lifecycle'

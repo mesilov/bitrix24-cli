@@ -1,6 +1,6 @@
 # Карта CLI-вызовов
 
-Каталог содержит 68 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
+Каталог содержит 71 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
 
 `b24cli --help`/`-h` показывают назначение, список команд, глобальные опции и примеры задач. Вся справка — на русском; имена команд, флагов и API/JSON-полей сохраняются. Единый первый блок «Общие» содержит `completion`, `help` и `list`; далее пространства имён и команды внутри блоков упорядочены по имени. `b24cli --about` показывает назначение, версию, автора, лицензию и ссылки на [приложение](https://github.com/mesilov/bitrix24-cli) и [скилл](https://github.com/mesilov/bitrix24-cli-skill). Эти вызовы не требуют подключения и не обращаются к порталу. `list --help` описывает именно list; вызов без аргументов выводит список команд.
 
@@ -8,6 +8,8 @@
 
 | Команда | Назначение | Эффект | Пример |
 | --- | --- | --- | --- |
+| [`chats:calls:list`](../src/Console/Command/Chats/ListChatCallsCommand.php) | Звонки чата за период | read | `b24cli chats:calls:list sg234 --from 2026-11-09T00:00:00+03:00 --to 2026-11-16T00:00:00+03:00 --json` |
+| [`chats:calls:show`](../src/Console/Command/Chats/ShowChatCallCommand.php) | Сведения об одном звонке чата | read | `b24cli chats:calls:show chat37 1001 --json` |
 | [`chats:find`](../src/Console/Command/Chats/FindChatCommand.php) | Найти чат по названию: групповые чаты, проекты и задачи | read | `b24cli chats:find --name 'Команда проекта' --json` |
 | [`chats:messages:list`](../src/Console/Command/Chats/ListChatMessagesCommand.php) | Показать сообщения чата за период | read | `b24cli chats:messages:list sg234 --period yesterday --timezone Europe/Moscow --json` |
 | [`chats:resolve`](../src/Console/Command/Chats/ResolveChatCommand.php) | Проверить адресат чата по ссылке или типизированному ID | read | `b24cli chats:resolve 'https://portal.example/workgroups/group/234/' --json` |
@@ -76,6 +78,7 @@
 | [`users:current`](../src/Console/Command/Users/CurrentUserCommand.php) | Пользователь текущего подключения | read | `b24cli users:current --json` |
 | [`users:find`](../src/Console/Command/Users/FindUsersCommand.php) | Найти активных сотрудников по ФИО или email | read | `b24cli users:find --name "Иванов Иван" --json` |
 | [`users:manager`](../src/Console/Command/Users/GetManagerCommand.php) | Непосредственный или настроенный руководитель | read | `b24cli users:manager --department-id 7 --json` |
+| [`users:presence`](../src/Console/Command/Users/UserPresenceCommand.php) | Последняя активность и отсутствие сотрудников | read | `b24cli users:presence --user-id 11 --user-id 22 --json` |
 
 ## Ограничения и справка
 

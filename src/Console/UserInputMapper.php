@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Bitrix24\CLI\Console;
 
+use Bitrix24\CLI\Application\Chat\ChatTargetParser;
 use Bitrix24\CLI\Application\Failure;
 use Bitrix24\CLI\Application\User\Request\FindUsersRequest;
 use Bitrix24\CLI\Application\User\Request\GetManagerRequest;
 use Bitrix24\CLI\Application\User\Request\ListColleaguesRequest;
+use Bitrix24\CLI\Application\User\Request\UserPresenceRequest;
 use Bitrix24\CLI\Application\User\UserQuery;
 use Bitrix24\CLI\Infrastructure\Connection\ConnectionManager;
 use Symfony\Component\Console\Input\InputInterface;
@@ -56,6 +58,36 @@ final readonly class UserInputMapper
     public function colleagues(InputInterface $input): ListColleaguesRequest
     {
         return new ListColleaguesRequest($this->query($input), $this->department($input));
+    }
+
+    public function presence(InputInterface $input): UserPresenceRequest
+    {
+        $target = $input->getArgument('TARGET');
+        if ($target !== null) {
+            if ((array) $input->getOption('user-id') !== []) {
+                throw Failure::usage('Pass TARGET or --user-id, not both.');
+            }
+
+            return new UserPresenceRequest([], (new ChatTargetParser())->parse($target), $this->numbers->id($input->getOption('max-members') ?? 1000, '--max-members'));
+        }
+
+        if ($input->getOption('max-members') !== null) {
+            throw Failure::usage('--max-members applies only to TARGET.');
+        }
+
+        $ids = [];
+        foreach ((array) $input->getOption('user-id') as $value) {
+            foreach (explode(',', (string) $value) as $part) {
+                $id = $this->numbers->id(trim($part), '--user-id');
+                $ids[$id] = $id;
+            }
+        }
+
+        if ($ids === [] || count($ids) > 500) {
+            throw Failure::usage('Pass TARGET or from 1 to 500 --user-id values.');
+        }
+
+        return new UserPresenceRequest(array_values($ids));
     }
 
     public function manager(InputInterface $input): GetManagerRequest
