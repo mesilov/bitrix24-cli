@@ -23,6 +23,8 @@
 
 Сверка [#208](https://github.com/mesilov/bitrix24-cli/issues/208) от 12.11.2026, база `dev` — `91e90ff` (после merge #180): добавлены [PM-10](#pm-10), [PM-11](#pm-11) и [сценарии созвонов CHAT-03…CHAT-05](#chat-calls). Реализованы разметка и обогащение звонков в `task:chat:list` и `chats:messages:list`, команды `chats:calls:list`, `chats:calls:show` и `users:presence` (по `--user-id` и TARGET чата). Каталог: 50 task-команд / 71 публичная. Live (только чтение) на рабочем чате со звонком: `chats:messages:list`, `chats:calls:list`, `chats:calls:show`, `users:presence` по ID и по чату. Сверка оценки с заранее известным составом звонка не проводилась. [OpenSpec change](../openspec/changes/add-chat-call-insights/proposal.md).
 
+Сверка [#185](https://github.com/mesilov/bitrix24-cli/issues/185) от 13.11.2026, база `dev` — `ff9481e`: добавлен [CHAT-06 — завести чат для рассылки команде](#chat-06). Отправка в произвольный доступный чат уже поставлена `chats:send`; новая команда `chats:add` создаёт закрытый (`CHAT`) или открытый (`OPEN`) групповой чат с участниками. Каналы Битрикс24 REST не создаёт. Каталог: 50 task-команд / 72 публичные. Live на тестовом портале: dry-run, создание закрытого чата с проверкой названия и участника, запись в созданный чат, блокировка повторного создания `chat-exists`. [OpenSpec change](../openspec/changes/add-chat-creation/proposal.md).
+
 Сверка [#148](https://github.com/mesilov/bitrix24-cli/issues/148) от 13.11.2026, база `dev` — `ff9481e`: PM-06 и EMP-07 дополнены `task:list --unread` (серверный счётчик непрочитанных сообщений чата задачи по снимку `im.counters.get`, отдельная ручная метка), AM-06 — признаком `unread` сообщений `task:chat:list`. Новых JTBD и команд нет: каталог 50 task-команд / 71 публичная, ID сохранены. Offline unit-контракты выполнены; live-приёмка на удаляемых fixtures не выполнялась. [OpenSpec change](../openspec/changes/add-task-unread-state/proposal.md).
 
 Сверка [#170](https://github.com/mesilov/bitrix24-cli/issues/170) от 16.10.2026, база dev `0caf9db`: проверка состава EMP-09/PM-04 использует фактический scope `sonet_group`. Серверный сброс статуса в `pending` после назначения обрабатывается достижением явной цели либо восстановлением исходного статуса штатными действиями. Повторная live-матрица: 18/18 проверок PASS; 4/4 integration tests PASS, включая ожидаемые partial/отказы. [Evidence и ограничения](../openspec/changes/archive/2026-10-16-fix-task-handover-project-scope/live-acceptance.md). Существующие 24 JTBD и ID сохранены.
@@ -31,7 +33,7 @@
 
 Сверка реализации от 17.10.2026, база `dev` — `c6295051a61d48b8821a00d6766c4585bf8ccb08`: добавлен PM-09 «Недельный отчёт». По умолчанию выбранный проект целиком, optional `--responsible` сужает все четыре показателя. Команда `task:report` реализована в этой ветке; текущий каталог содержит 50 task-команд / 64 публичных. Live-приёмка не подтверждена. [Постановка и состояние GitHub issue](../openspec/changes/add-weekly-task-report/proposal.md#github-issues).
 
-**[Общие сценарии чатов — CHAT-01/CHAT-02](#общие-сценарии-чатов--план-180)** — планируемое получение контекста и уведомление команды.
+**[Общие сценарии чатов — CHAT-01/CHAT-02, CHAT-06](#общие-сценарии-чатов--план-180)** — получение контекста, уведомление команды и создание чата для рассылки.
 
 ## Роли
 
@@ -60,16 +62,26 @@
 - **Чтобы:** команда могла скорректировать взаимодействие.
 - **Признак успеха:** однозначно выбран доступный чат, сохранено одно сообщение, получены подтверждение и ID. Несколько совпадений требуют выбора до записи.
 
+<a id="chat-06"></a>
+
+### [CHAT-06](../openspec/changes/add-chat-creation/specs/chat-access/spec.md) — Завести чат для рассылки команде
+
+- **Когда:** хочу регулярно делиться с группой коллег новостями по теме, например про ИИ, релевантными компании.
+- **Хочу:** попросить агента создать чат вместе со своей группой и писать туда новости.
+- **Чтобы:** новости собирались в одном месте, а не терялись в личных сообщениях.
+- **Признак успеха:** создан ровно один чат с заданным названием, описанием и участниками; возвращён подтверждённый адресат `chatN`, в который агент отправляет сообщения через `chats:send`. Повторный запуск не создаёт одноимённый чат без явного разрешения. Просьба о канале получает явный ответ: REST создаёт только закрытый или открытый групповой чат.
+
 | Статус | Предлагаемая команда | Сценарий | Тест |
 | --- | --- | --- | --- |
 | ✅ Готово | [chats:resolve](chats.md) | URL/типизированный ID для CHAT-01/02 | [ResolveChatCommandTest.php](../tests/Integration/Chats/ResolveChatCommandTest.php) |
 | ✅ Готово | [chats:find](chats.md#поиск-по-названию) | Поиск адресата CHAT-02 | [FindChatCommandTest.php](../tests/Integration/Chats/FindChatCommandTest.php) |
 | ✅ Готово | [chats:messages:list](chats.md#история-за-период) | История периода CHAT-01 | [ListChatMessagesCommandTest.php](../tests/Integration/Chats/ListChatMessagesCommandTest.php) |
 | ✅ Готово | [chats:send](chats.md#отправка) | Отправка CHAT-02 | [SendChatMessageCommandTest.php](../tests/Integration/Chats/SendChatMessageCommandTest.php) |
+| ✅ Готово | [chats:add](chats.md#создание-чата) | Создание чата CHAT-06 | [CreateChatCommandTest.php](../tests/Integration/Chats/CreateChatCommandTest.php) |
 
 **Текущее покрытие:** PM-06, AM-06 и EMP-07 уже используют task:chat:list/send по TASK_ID; PM-03/EMP-03 — отправку сообщения о препятствии. Эти команды не принимают URL, название или календарный период. Общий чат проекта не равен чатам его задач. AM-03 частично поддержан отчётами по задачам; PM-09/task:report не делает саммари переписки. Состояние непрочитанных сообщений чатов задач реализовано в [#148](https://github.com/mesilov/bitrix24-cli/issues/148) (`task:list --unread`, `unread` в `task:chat:list`), права — в [#178](https://github.com/mesilov/bitrix24-cli/issues/178).
 
-**Границы:** CLI предоставит сообщения и полноту, а саммари составляет агент/skill; встроенный LLM не требуется. Готовы адресация `chats:resolve`, поиск `chats:find`, чтение периода `chats:messages:list` и отправка `chats:send`: их integration cases прошли на тестовом портале 12.11.2026. Сквозная live-приёмка 12.11.2026 подтвердила CHAT-01 (история 61 сообщения за период на 2 страницах, complete, прочитанность не изменилась, саммари агента со ссылками на ID) и CHAT-02 (поиск по заголовку → ровно одно сообщение, проверено по ID) — [verification.md](../openspec/changes/archive/2026-11-12-add-unified-chat-access/verification.md). Форма `/online/?IM_DIALOG=chatN` подтверждена ссылкой из интерфейса; `sgN` и ссылка на сообщение примерами не подтверждены. Отправка отмечает чат прочитанным для отправителя — это поведение портала.
+**Границы:** CLI предоставит сообщения и полноту, а саммари составляет агент/skill; встроенный LLM не требуется. Готовы адресация `chats:resolve`, поиск `chats:find`, чтение периода `chats:messages:list` и отправка `chats:send`: их integration cases прошли на тестовом портале 12.11.2026. Создание `chats:add` (CHAT-06) прошло integration case на тестовом портале 13.11.2026; удалить чат через REST нельзя, сквозная приёмка «создать чат с реальной группой и публиковать новости» не проводилась. Сквозная live-приёмка 12.11.2026 подтвердила CHAT-01 (история 61 сообщения за период на 2 страницах, complete, прочитанность не изменилась, саммари агента со ссылками на ID) и CHAT-02 (поиск по заголовку → ровно одно сообщение, проверено по ID) — [verification.md](../openspec/changes/archive/2026-11-12-add-unified-chat-access/verification.md). Форма `/online/?IM_DIALOG=chatN` подтверждена ссылкой из интерфейса; `sgN` и ссылка на сообщение примерами не подтверждены. Отправка отмечает чат прочитанным для отправителя — это поведение портала.
 
 <a id="role-manager"></a>
 

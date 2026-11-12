@@ -168,6 +168,20 @@ ID, имена профилей и тексты в примерах замени
 | `users:manager` | Непосредственный или настроенный руководитель | `b24cli users:manager --department-id 7 --json` |
 | `users:presence` | Последняя активность и отсутствие сотрудников | `b24cli users:presence --user-id 11 --user-id 22 --json` |
 
+### Чаты
+
+Подробнее — в [адресатах чатов](docs/chats.md).
+
+| Команда | Назначение | Пример |
+| --- | --- | --- |
+| `chats:add` | Создать групповой чат с участниками для рассылки | `b24cli chats:add --title 'ИИ-новости' --user-id 12,34 --dry-run --json` |
+| `chats:calls:list` | Звонки чата за период | `b24cli chats:calls:list sg234 --from 2026-11-09T00:00:00+03:00 --to 2026-11-16T00:00:00+03:00 --json` |
+| `chats:calls:show` | Сведения об одном звонке чата | `b24cli chats:calls:show chat37 1001 --json` |
+| `chats:find` | Найти чат по названию: групповые чаты, проекты и задачи | `b24cli chats:find --name 'Команда проекта' --json` |
+| `chats:messages:list` | Показать сообщения чата за период | `b24cli chats:messages:list sg234 --period yesterday --timezone Europe/Moscow --json` |
+| `chats:resolve` | Проверить адресат чата по ссылке или типизированному ID | `b24cli chats:resolve 'https://portal.example/workgroups/group/234/' --json` |
+| `chats:send` | Отправить сообщение в чат по ссылке, ID или точному названию | `b24cli chats:send --name 'Команда проекта' --text 'Сегодня меня не будет' --dry-run --json` |
+
 ### Создание и редактирование задач
 
 | Команда | Назначение | Пример |
