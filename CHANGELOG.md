@@ -40,6 +40,8 @@
 
 ### Изменено
 
+- Архивирован OpenSpec change исправления окна непрочитанных в `task:chat:list` после merge MR #203 в `dev`: требование «Task chat history starts from the latest message» перенесено в `openspec/specs/task-console-runtime/`, change лежит в `openspec/changes/archive/2026-11-12-fix-task-chat-unread-window/`. [#202](https://github.com/mesilov/bitrix24-cli/issues/202)
+
 - Архивирован OpenSpec change файлового логирования после merge MR #195 в `dev`: новая спецификация `cli-logging` и требования к `logging` в `connection-configuration` перенесены в `openspec/specs/`, change лежит в `openspec/changes/archive/2026-11-12-add-file-logging/`. [#189](https://github.com/mesilov/bitrix24-cli/issues/189)
 
 - Архивирован OpenSpec change шага проверки сценариев issue сырыми запросами к REST API после merge MR #194 в `dev`; delta specs нет, актуальные спецификации не менялись. [#192](https://github.com/mesilov/bitrix24-cli/issues/192)
