@@ -38,6 +38,8 @@
 
 ### Изменено
 
+- Архивирован OpenSpec change файлового логирования после merge MR #195 в `dev`: новая спецификация `cli-logging` и требования к `logging` в `connection-configuration` перенесены в `openspec/specs/`, change лежит в `openspec/changes/archive/2026-11-12-add-file-logging/`. [#189](https://github.com/mesilov/bitrix24-cli/issues/189)
+
 - Архивирован OpenSpec change шага проверки сценариев issue сырыми запросами к REST API после merge MR #194 в `dev`; delta specs нет, актуальные спецификации не менялись. [#192](https://github.com/mesilov/bitrix24-cli/issues/192)
 
 - Завершённый OpenSpec change обновления Symfony-пакетов архивирован после merge MR #197 в `dev` и 13 успешных CI checks на проверенном head; `composer audit` без advisories. [#196](https://github.com/mesilov/bitrix24-cli/issues/196)
