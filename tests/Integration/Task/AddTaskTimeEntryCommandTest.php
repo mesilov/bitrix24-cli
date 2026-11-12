@@ -24,6 +24,18 @@ final class AddTaskTimeEntryCommandTest extends LiveTaskCommandTestCase
         self::assertSame('fixture', $row['text']);
         self::assertSame($this->userId, $row['userId']);
     }
+    #[Group('happy-path')]
+    public function testHappyPathBackdatesTimeEntry(): void
+    {
+        $id = $this->createTask();
+        $result = $this->invoke(['task:time:add', $id, '--seconds', 600, '--created-date', '2026-10-22T10:00:00+03:00']);
+        $entry = $result['data']['operation']['resourceId'];
+        self::assertSame(['seconds', 'createdDate'], $result['data']['operation']['changedFields']);
+        $row = $this->timeEntries($id)[$entry];
+        self::assertSame(600, $row['seconds']);
+        self::assertSame((new \DateTimeImmutable('2026-10-22T10:00:00+03:00'))->getTimestamp(), (new \DateTimeImmutable($row['createdDate']))->getTimestamp());
+    }
+
     #[Group('portal-acceptance')]
     public function testSecondUserWithoutTaskRoleCannotAccessOwnedFixture(): void
     {

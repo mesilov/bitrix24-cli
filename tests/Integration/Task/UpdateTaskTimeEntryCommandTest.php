@@ -21,6 +21,22 @@ final class UpdateTaskTimeEntryCommandTest extends LiveTaskCommandTestCase
         self::assertSame('fixture', $row['text']);
     }
 
+    #[Group('happy-path')]
+    public function testHappyPathCorrectsEntryDateAndKeepsItWhenOmitted(): void
+    {
+        $id = $this->createTask();
+        $entry = $this->entries->add($id, 60, 'fixture');
+        $this->invoke(['task:time:update', $id, '--entry', $entry, '--seconds', 120, '--created-date', '2026-10-21T18:00:00Z']);
+        $expected = (new \DateTimeImmutable('2026-10-21T18:00:00Z'))->getTimestamp();
+        $row = $this->timeEntries($id)[$entry];
+        self::assertSame(120, $row['seconds']);
+        self::assertSame($expected, (new \DateTimeImmutable($row['createdDate']))->getTimestamp());
+        $this->invoke(['task:time:update', $id, '--entry', $entry, '--seconds', 180]);
+        $row = $this->timeEntries($id)[$entry];
+        self::assertSame(180, $row['seconds']);
+        self::assertSame($expected, (new \DateTimeImmutable($row['createdDate']))->getTimestamp());
+    }
+
     public function testEntryFromOtherTaskIsRejected(): void
     {
         $id = $this->createTask();

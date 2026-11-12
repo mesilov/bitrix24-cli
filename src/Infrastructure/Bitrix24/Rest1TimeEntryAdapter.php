@@ -13,12 +13,9 @@ final readonly class Rest1TimeEntryAdapter implements TimeEntryGateway
     {
     }
 
-    public function add(int $taskId, int $seconds, ?string $text): int
+    public function add(int $taskId, int $seconds, ?string $text, ?string $createdDate = null): int
     {
-        $fields = ['SECONDS' => $seconds];
-        if ($text !== null) {
-            $fields['COMMENT_TEXT'] = $text;
-        }
+        $fields = $this->fields($seconds, $text, $createdDate);
 
         return ResponseNormalizer::id($this->api->call('task.elapseditem.add', 1, ['TASKID' => $taskId, 'ARFIELDS' => $fields], 'write')->result);
     }
@@ -39,14 +36,26 @@ final readonly class Rest1TimeEntryAdapter implements TimeEntryGateway
         return new Page($items, $finished ? null : $page + 1);
     }
 
-    public function update(int $taskId, int $entryId, int $seconds, ?string $text): void
+    public function update(int $taskId, int $entryId, int $seconds, ?string $text, ?string $createdDate = null): void
+    {
+        $fields = $this->fields($seconds, $text, $createdDate);
+
+        ResponseNormalizer::voidAck($this->api->call('task.elapseditem.update', 1, ['TASKID' => $taskId, 'ITEMID' => $entryId, 'ARFIELDS' => $fields], 'write')->result);
+    }
+
+    /** @return array<string, int|string> */
+    private function fields(int $seconds, ?string $text, ?string $createdDate): array
     {
         $fields = ['SECONDS' => $seconds];
         if ($text !== null) {
             $fields['COMMENT_TEXT'] = $text;
         }
 
-        ResponseNormalizer::voidAck($this->api->call('task.elapseditem.update', 1, ['TASKID' => $taskId, 'ITEMID' => $entryId, 'ARFIELDS' => $fields], 'write')->result);
+        if ($createdDate !== null) {
+            $fields['CREATED_DATE'] = $createdDate;
+        }
+
+        return $fields;
     }
 
     public function delete(int $taskId, int $entryId): void

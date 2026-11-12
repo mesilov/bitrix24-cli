@@ -6,7 +6,7 @@ namespace Bitrix24\CLI\Application\Task\Request;
 
 final readonly class AddTaskTimeEntryRequest
 {
-    public function __construct(public int $taskId, public int $seconds, public ?string $text)
+    public function __construct(public int $taskId, public int $seconds, public ?string $text, public ?string $createdDate = null)
     {
     }
 }

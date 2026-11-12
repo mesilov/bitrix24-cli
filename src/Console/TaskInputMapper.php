@@ -439,12 +439,19 @@ final readonly class TaskInputMapper
 
     public function addTaskTimeEntry(InputInterface $input): Request\AddTaskTimeEntryRequest
     {
-        return new Request\AddTaskTimeEntryRequest($this->taskId($input), $this->id($input->getOption('seconds'), '--seconds'), $this->text($input, 'text', false, true));
+        return new Request\AddTaskTimeEntryRequest($this->taskId($input), $this->id($input->getOption('seconds'), '--seconds'), $this->text($input, 'text', false, true), $this->timeEntryDate($input));
     }
 
     public function updateTaskTimeEntry(InputInterface $input): Request\UpdateTaskTimeEntryRequest
     {
-        return new Request\UpdateTaskTimeEntryRequest($this->taskId($input), $this->id($input->getOption('entry'), '--entry'), $this->id($input->getOption('seconds'), '--seconds'), $this->text($input, 'text', false, true));
+        return new Request\UpdateTaskTimeEntryRequest($this->taskId($input), $this->id($input->getOption('entry'), '--entry'), $this->id($input->getOption('seconds'), '--seconds'), $this->text($input, 'text', false, true), $this->timeEntryDate($input));
+    }
+
+    private function timeEntryDate(InputInterface $input): ?string
+    {
+        $value = $input->getOption('created-date');
+
+        return $value === null ? null : FieldSchema::date($value);
     }
 
     public function deleteTaskTimeEntry(InputInterface $input): Request\DeleteTaskTimeEntryRequest

@@ -25,6 +25,8 @@
 
 Сверка [#170](https://github.com/mesilov/bitrix24-cli/issues/170) от 16.10.2026, база dev `0caf9db`: проверка состава EMP-09/PM-04 использует фактический scope `sonet_group`. Серверный сброс статуса в `pending` после назначения обрабатывается достижением явной цели либо восстановлением исходного статуса штатными действиями. Повторная live-матрица: 18/18 проверок PASS; 4/4 integration tests PASS, включая ожидаемые partial/отказы. [Evidence и ограничения](../openspec/changes/archive/2026-10-16-fix-task-handover-project-scope/live-acceptance.md). Существующие 24 JTBD и ID сохранены.
 
+Сверка [#179](https://github.com/mesilov/bitrix24-cli/issues/179) от 13.11.2026, база `dev` — `ff9481e`: [EMP-06](#emp-06) дополнен датой записи времени (`--created-date` у `task:time:add`/`task:time:update`); число сценариев и статусы команд не меняются.
+
 Сверка реализации от 17.10.2026, база `dev` — `c6295051a61d48b8821a00d6766c4585bf8ccb08`: добавлен PM-09 «Недельный отчёт». По умолчанию выбранный проект целиком, optional `--responsible` сужает все четыре показателя. Команда `task:report` реализована в этой ветке; текущий каталог содержит 50 task-команд / 64 публичных. Live-приёмка не подтверждена. [Постановка и состояние GitHub issue](../openspec/changes/add-weekly-task-report/proposal.md#github-issues).
 
 **[Общие сценарии чатов — CHAT-01/CHAT-02](#общие-сценарии-чатов--план-180)** — планируемое получение контекста и уведомление команды.
@@ -536,7 +538,7 @@
 | ✅ Готово | [`task:time:update`](../src/Console/Command/Task/UpdateTaskTimeEntryCommand.php) | [`UpdateTaskTimeEntryCommandTest.php`](../tests/Integration/Task/UpdateTaskTimeEntryCommandTest.php) |
 | ✅ Готово | [`task:time:delete`](../src/Console/Command/Task/DeleteTaskTimeEntryCommand.php) | [`DeleteTaskTimeEntryCommandTest.php`](../tests/Integration/Task/DeleteTaskTimeEntryCommandTest.php) |
 
-**Границы:** Проверяются собственные записи и граница полноты elapsedTime; полнота списка, чужие права и wrong-task проверки остаются частью #42.
+**Границы:** Проверяются собственные записи и граница полноты elapsedTime; полнота списка, чужие права и wrong-task проверки остаются частью #42. Запись можно датировать днём выполненной работы и исправить ошибочную дату: `task:time:add`/`task:time:update --created-date` ([#179](https://github.com/mesilov/bitrix24-cli/issues/179)); live-проверка — собственные записи на тестовом портале, права второго пользователя для даты отдельно не проверялись.
 
 <a id="emp-07"></a>
 
