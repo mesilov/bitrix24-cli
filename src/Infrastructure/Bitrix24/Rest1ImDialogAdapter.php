@@ -74,7 +74,7 @@ final readonly class Rest1ImDialogAdapter implements ChatDialogGateway
                 throw new Failure('api-error', 'im.dialog.messages.get returned a malformed message row.');
             }
 
-            $items[] = ResponseNormalizer::fields($row, ['id' => 'id', 'date' => 'createdDate', 'author_id' => 'authorId', 'text' => 'text', 'chat_id' => 'chatId']);
+            $items[] = ResponseNormalizer::fields($row, ['id' => 'id', 'date' => 'createdDate', 'author_id' => 'authorId', 'text' => 'text', 'chat_id' => 'chatId', 'params' => 'params']);
         }
 
         $users = [];

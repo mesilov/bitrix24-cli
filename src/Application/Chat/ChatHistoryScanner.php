@@ -94,7 +94,8 @@ final readonly class ChatHistoryScanner
                 $scanned++;
                 $oldest = !$oldest instanceof \DateTimeImmutable || $date < $oldest ? $date : $oldest;
                 if ($period->contains($date)) {
-                    $items[] = ['id' => $id, 'createdDate' => $row['createdDate'], 'authorId' => $row['authorId'] ?? null, 'text' => $row['text'] ?? null, 'chatId' => $chatId];
+                    // params stay internal: ChatMessagesService turns them into kind/callRef and call records.
+                    $items[] = ['id' => $id, 'createdDate' => $row['createdDate'], 'authorId' => $row['authorId'] ?? null, 'text' => $row['text'] ?? null, 'chatId' => $chatId, 'params' => $row['params'] ?? null];
                 }
             }
 

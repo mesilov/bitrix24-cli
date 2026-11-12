@@ -145,6 +145,6 @@ final class CommandCatalog
         'chats:resolve' => [['tasks.task.get', 3], ['im.dialog.get', 1]],
         'chats:find' => [['im.search.chat.list', 1], ['sonet_group.get', 1], ['tasks.task.list', 3], ['tasks.task.get', 3], ['im.dialog.get', 1]],
         'chats:send' => [['im.search.chat.list', 1], ['sonet_group.get', 1], ['tasks.task.list', 3], ['tasks.task.get', 3], ['im.dialog.get', 1], ['im.message.add', 1], ['im.dialog.messages.get', 1]],
-        'chats:messages:list' => [['tasks.task.get', 3], ['im.dialog.get', 1], ['im.dialog.messages.get', 1]],
+        'chats:messages:list' => [['tasks.task.get', 3], ['im.dialog.get', 1], ['im.dialog.messages.get', 1], ['im.call.get', 1], ['im.user.list.get', 1], ['call.followup.get', 3]],
     ];
 }

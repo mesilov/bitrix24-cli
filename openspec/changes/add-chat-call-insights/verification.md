@@ -48,3 +48,26 @@
 - Отсутствие токенов в логе проверено косвенно: белый список применяется в адаптере до возврата результата, ошибки `im.call.get` не содержат тела ответа, SDK пишет в debug-лог параметры запроса, но не тело ответа (проверено по исходникам SDK). Отдельного теста на файл лога нет, потому что fake-транспорт unit-тестов обходит SDK.
 - `call.followup.get` на рабочем портале отсутствует, поэтому заполнение `confirmed` проверено только на fixtures по примеру из официальной документации.
 - Обогащение `task:chat:list` не проверялось на реальном чате задачи со звонком.
+
+## После merge #180 (12.11.2026)
+
+Ветка синхронизирована с `dev` `91e90ff` (#180 влит и архивирован). Конфликты: `ResultPresenter`, `SdkApiTransport` (оба добавляли `apiErrorCode`; оставлен общий помощник, код в верхнем регистре, как в `dev`), `config/services.php`, `ContainerRegistrationTest`, `connection-scopes.md`, карта команд. После merge: `make unit` — OK, 1189 тестов; `make lint-all` — без замечаний; карта — 69 публичных команд.
+
+`chats:messages:list` получил `kind`/`callRef`, `data.calls` и `--no-call-details` через те же `CallMessage` и `CallEnricher`.
+
+### Live: `chats:messages:list` на рабочем чате со звонком (только чтение)
+
+Окно 40 минут вокруг звонка, проверка после его завершения более чем через час. Домен, имена и ID обезличены.
+
+| Проверка | Результат |
+| --- | --- |
+| Код выхода, полнота | 0, `complete=true` |
+| Разметка | 6 сообщений: 2 `call` (START и FINISH), 4 `text` |
+| `meta.calls` | `found=1, enriched=1, unavailable=0, confirmed=0` |
+| Запись звонка | `state=finished`, `isPublic=true`, `durationSeconds=1611` совпадает с текстом «26 мин 51 сек», `inWindow` start и finish, 4 сообщения во время звонка |
+| Запись и ИИ | `audio=false`, `aiAnalyze=false`, причины `ai-settings-disabled`, `ai-agreement-not-accepted`, `ai-tariff-unavailable` |
+| Участники | `eligible` 8 из `im.call.get.users`; `confirmed` недоступны (`followup-method-unavailable`); `inferred` — 6 `present` (finish-author high; call-initiator с прочтением medium; message-during-call medium; read-finish-at-end low ×3), 2 `unknown` без доказательств; `evidenceFreshness=stale`, оговорка `public-link-guests-invisible` |
+| Секреты | в выводе нет `jwt`, `publicChannels`, `logToken`, `connectionData`, подписей и JWT-префикса |
+| Маршруты | после обхода истории: `im.dialog.get`, `im.call.get`, `call.followup.get`, `im.user.list.get` |
+
+Отличие от ручной оценки утром: тогда 2 участника получили бы `absent` по `last-read-before-start`; к моменту live-проверки они прочитали более поздние сообщения, и доказательство перезаписалось, поэтому `unknown`. Это ожидаемое поведение для `stale`. Сверка с заранее известным составом (5.4) не проводилась: фактический состав звонка неизвестен.

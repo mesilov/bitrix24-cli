@@ -76,7 +76,7 @@ final class TaskChatCallDetailsTest extends TestCase
         $last = max(array_column($this->messages, 'id'));
         return match ($method) {
             'tasks.task.get' => new ApiResponse(['item' => ['id' => 123, 'chat' => ['id' => 456, 'entityId' => 123, 'entityType' => 'TASKS_TASK']]]),
-            'im.dialog.get' => new ApiResponse(['id' => 456, 'dialog_id' => 'chat456', 'last_message_id' => $last, 'readed_list' => [
+            'im.dialog.get' => new ApiResponse(['id' => 456, 'dialog_id' => 'chat456', 'name' => 'Команда', 'type' => 'chat', 'entity_type' => '', 'entity_id' => '', 'last_message_id' => $last, 'readed_list' => [
                 ['user_id' => 33, 'user_name' => 'Пользователь 33', 'message_id' => 5003, 'date' => '2026-11-12T10:29:43+03:00'],
                 ['user_id' => 66, 'user_name' => 'Пользователь 66', 'message_id' => 4990, 'date' => '2026-11-11T18:00:00+03:00'],
             ]]),
@@ -241,6 +241,29 @@ final class TaskChatCallDetailsTest extends TestCase
         self::assertStringContainsString('Звонок 1001:', $run->stderr);
         self::assertStringContainsString('present 4, absent 2, left-early 1, unknown 0', $run->stderr);
         self::assertStringContainsString('Оценка не является фактом присутствия.', $run->stderr);
+    }
+
+    public function testChatHistoryPeriodMarksAndEnrichesCallsWithStartBeforePeriod(): void
+    {
+        [$run, $calls] = $this->invoke(['chats:messages:list', 'chat456', '--from', '2026-11-12T10:20:00+03:00', '--to', '2026-11-12T11:00:00+03:00']);
+        $json = $run->json();
+        self::assertSame(0, $run->status, $run->stdout . $run->stderr);
+        self::assertSame([[5003, 'call', ['callId' => 1001, 'event' => 'finish']]], array_map(static fn (array $item): array => [$item['id'], $item['kind'], $item['callRef']], $json['data']['items']));
+        self::assertArrayNotHasKey('params', $json['data']['items'][0]);
+        $call = $json['data']['calls'][0];
+        self::assertSame([['start' => false, 'finish' => true], '2026-11-12T10:02:51+03:00', 1611, 'ok'], [$call['inWindow'], $call['startedAt'], $call['durationSeconds'], $call['details']['status']]);
+        self::assertSame(['startId' => null, 'finishId' => 5003, 'duringIds' => []], $call['messages']);
+        self::assertSame(['found' => 1, 'enriched' => 1, 'unavailable' => 0, 'confirmed' => 0], $json['meta']['calls']);
+        self::assertTrue($json['meta']['complete']);
+        self::assertSame(['im.dialog.get', 'im.dialog.messages.get', 'im.dialog.get', 'im.call.get', 'call.followup.get', 'im.user.list.get'], array_column($calls, 'method'));
+
+        [$run, $calls] = $this->invoke(['chats:messages:list', 'chat456', '--from', '2026-11-12T10:00:00+03:00', '--to', '2026-11-12T11:00:00+03:00', '--no-call-details'], '--plain');
+        self::assertSame(0, $run->status, $run->stderr);
+        self::assertSame(['call', 'text', 'call'], array_map(static fn (string $line): string => explode("\t", $line)[4], explode("\n", rtrim($run->stdout, "\n"))));
+        self::assertSame(['im.dialog.get', 'im.dialog.messages.get'], array_column($calls, 'method'));
+        foreach (self::SECRETS as $secret) {
+            self::assertStringNotContainsString($secret, $run->stdout . $run->stderr);
+        }
     }
 
     public function testStrictPolicyDeniesBeforeAnyRequest(): void

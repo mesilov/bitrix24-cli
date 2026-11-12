@@ -8,19 +8,19 @@
 - [x] 1.2 Выполнить сырые REST1-запросы по сценариям issue и сохранить обезличенные результаты в разделе «Проверка на портале» design.md.
 - [x] 1.3 Добавить CHAT-03…05, PM-10, PM-11 в `docs/task-jtbd.md` со статусом «план» и запись в CHANGELOG.
 - [x] 1.4 Сверить `im.call.get`, `im.user.list.get`, `im.dialog.get` (`readed_list`), `im.dialog.messages.get` по официальному MCP документации Битрикс24 (search → method details); записать найденное и отсутствие `im.call.get` в документации в verification.md и design. Найденный `call.followup.get` внесён в design и spec как источник подтверждённых участников.
-- [ ] 1.5 После merge #180 синхронизировать ветку с `dev`, сверить каталог команд, адаптер истории и контракт `chats:messages:list`; записать SHA.
+- [x] 1.5 После merge #180 синхронизировать ветку с `dev`, сверить каталог команд, адаптер истории и контракт `chats:messages:list`; записать SHA (`dev` `91e90ff`, verification.md).
 
 ## 2. Разметка звонков в истории
 
 - [x] 2.1 Сохранять нормализованный `params` в адаптере истории чата задачи (`TaskChatAdapter`); распознавать звонок только по `COMPONENT_ID = CallMessage`; unit-тестами проверить START, FINISH, обычный текст, системное сообщение и сообщение без `params`.
 - [x] 2.2 Выводить `kind` и `callRef` в human, plain и JSON `task:chat:list` без изменения существующих полей (plain получает столбцы `kind`, `callId` в конце); formatter-тестом сверить одинаковые ID во всех форматах.
-- [ ] 2.3 После merge #180 сохранить `params` в `Rest1ImDialogAdapter` и выводить `kind`/`callRef` в `chats:messages:list` тем же `CallMessage::mark`.
+- [x] 2.3 После merge #180 сохранить `params` в `Rest1ImDialogAdapter` и выводить `kind`/`callRef` в `chats:messages:list` тем же `CallMessage::mark`.
 
 ## 3. Данные звонка и вывод участников
 
 - [x] 3.1 Добавить порт и REST1-адаптер `im.call.get` (`callId`) с белым списком полей, применяемым до логирования; тестом проверить, что `jwt`, `publicChannels`, `logToken` не попадают в результат, лог и ошибку.
 - [x] 3.2 Реализовать таблицу правил `rulesVersion: 1`, таблицу итогового вердикта (включая `left-early` и его конфликты), свежесть и оговорки; unit-тест на каждое правило, на каждую строку таблицы вердикта и на повторяемость результата на одних fixtures.
-- [ ] 3.3 После merge #180 обогащать звонки в `chats:messages:list` по умолчанию через `CallEnricher` и добавить `--no-call-details`; повторить для неё проверки двух звонков в окне, звонка с началом вне окна и статуса `unavailable` при ошибке `im.call.get` (для `task:chat:list` они выполнены в 3.4).
+- [x] 3.3 После merge #180 обогащать звонки в `chats:messages:list` по умолчанию через `CallEnricher` и добавить `--no-call-details`; повторить для неё проверки двух звонков в окне, звонка с началом вне окна и статуса `unavailable` при ошибке `im.call.get` (для `task:chat:list` они выполнены в 3.4).
 - [x] 3.4 Решить и зафиксировать в design, нужно ли обогащение в `task:chat:list`: да, по умолчанию с `--no-call-details` (решение 8 design). Проверены два звонка в окне, начало вне окна, `unavailable` при ошибке `im.call.get` без изменения полноты и exit code, звонок другого чата, отсутствие запросов без звонков и с `--no-call-details`.
 - [x] 3.5 Добавить необязательный REST3-адаптер `call.followup.get` (scope `call`) для `participants.confirmed`; unit-тестами проверить заполнение `confirmed`, исключение подтверждённых из вывода по правилам и четыре причины недоступности без изменения полноты и exit code истории.
 

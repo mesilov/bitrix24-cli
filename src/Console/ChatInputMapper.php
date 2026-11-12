@@ -26,7 +26,7 @@ final readonly class ChatInputMapper
         $target = $this->target($input);
         $period = $this->periods->resolve($input->getOption('period'), $input->getOption('from'), $input->getOption('to'), $input->getOption('timezone'));
         $limit = $input->getOption('limit') === null ? null : $this->numbers->id($input->getOption('limit'), '--limit');
-        return new ListChatMessagesRequest($target, $period, $limit, $this->numbers->id($input->getOption('max-messages') ?? 10000, '--max-messages'));
+        return new ListChatMessagesRequest($target, $period, $limit, $this->numbers->id($input->getOption('max-messages') ?? 10000, '--max-messages'), !$input->getOption('no-call-details'));
     }
 
     public function find(InputInterface $input): FindChatsRequest
