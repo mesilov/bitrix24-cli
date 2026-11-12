@@ -135,11 +135,27 @@ CLI SHALL не читать stdin неявно и не разрешать два
 - **THEN** CLI SHALL сохранять schemaVersion 1, data/meta/error и текущие формы данных/TSV columns; human пояснения не добавляются в stdout machine форматов, а обязательная plain диагностика полноты идёт в stderr
 
 ### Requirement: Explicit filtering and completeness of lists
-Без новых временных флагов списки SHALL различать серверный фильтр id и локальные фильтры REST3; --limit ограничивает результат, --all снимает этот предел, --max-scan ограничивает просмотр. CLI SHALL сообщать scope доступных задач, scanned count и полноту. Достигнутый scan cap, ошибка страницы или недостающие данные SHALL означать partial; полнота видимых задач не SHALL выдаваться за полноту проекта.
+Без новых временных флагов списки SHALL передавать на сервер id, а при task-v3 также группу, исполнителя и постановщика через REST1 tasks.task.list; остальные условия SHALL проверяться локально. Маршрут SHALL выбираться до запросов и показываться в meta. --limit ограничивает результат, --all снимает этот предел, --max-scan ограничивает просмотр. CLI SHALL сообщать scope, scanned и полноту; cap, ошибка страницы или недостающие данные SHALL означать partial.
 
 #### Scenario: Responsible or project filter
-- **WHEN** пользователь задаёт `task:list --responsible 42 --group-id 7` без новых временных флагов
-- **THEN** CLI фильтрует соответствующие selected fields локально, проверяет все страницы в установленном scan budget и не отправляет неподдерживаемый v3 filter или скрытый legacy request
+- **WHEN** пользователь задаёт `task:list --responsible 42 --group-id 7` без новых временных флагов при task-v3
+- **THEN** CLI отправляет REST1 tasks.task.list с filter GROUP_ID=7 и RESPONSIBLE_ID=42, просматривает только серверную выборку в scan budget, не вызывает REST3 tasks.task.list и tasks.task.get для проверки группы; meta.listRoute содержит apiVersion 1.0 и serverFilter [groupId, responsibleId]
+
+#### Scenario: Large portal with a small project
+- **WHEN** на портале больше 10000 видимых задач, а в группе 1096 их три и ни в одной текущий пользователь не ответственный
+- **THEN** `task:list --role responsible --group-id 1096 --all` возвращает data.items=[], complete=true и exit 0 после серверной выборки, а не scan-budget-exhausted
+
+#### Scenario: Unsupported fields keep the local route
+- **WHEN** серверные условия сочетаются с --select, --order или --where по полю, которого нет в REST1 списке
+- **THEN** CLI до запросов выбирает REST3 маршрут с локальной фильтрацией текущей семантики и указывает его в meta.listRoute с причиной; маршрут не меняется после ошибки запроса
+
+#### Scenario: Remaining local predicates on the server route
+- **WHEN** серверные условия сочетаются с --status, --due-before, --title (task:find) или другими поддерживаемыми полями --where
+- **THEN** эти условия проверяются локально по строкам серверной выборки через AND; формы data.items, TSV колонки и значения status/groupId/responsibleId совпадают с REST3 маршрутом
+
+#### Scenario: Strict policy keeps local filtering
+- **WHEN** `task:list --responsible 42 --group-id 7` выполняется при strict-rest3
+- **THEN** CLI сохраняет REST3 маршрут с локальной фильтрацией и scan budget, meta.listRoute показывает apiVersion 3.0 без серверных условий кроме id; policy-denied не возвращается
 
 #### Scenario: Scan cap reached
 - **WHEN** просмотр прекращён из-за --max-scan до исчерпания доступных страниц
@@ -151,15 +167,15 @@ CLI SHALL не читать stdin неявно и не разрешать два
 
 #### Scenario: Fresh tasks are scanned first
 - **WHEN** task:list запускается без --order и новых временных флагов на портале с более чем 10000 задач
-- **THEN** сервер получает order {"id":"DESC"}; новые задачи просматриваются первыми, вывод сохраняет порядок страниц, --id остаётся единственным серверным фильтром
+- **THEN** сервер получает order {"id":"DESC"} на выбранном маршруте; новые задачи просматриваются первыми, вывод сохраняет порядок страниц; без группы, исполнителя и постановщика --id остаётся единственным серверным фильтром
 
 #### Scenario: Explicit list order
 - **WHEN** task:list получает повторяемый --order title:asc --order id:desc без новых временных флагов
-- **THEN** указанный порядок передаётся в REST3 без замены на default; если id не указан, добавляется id ASC для устойчивого порядка
+- **THEN** указанный порядок передаётся выбранному маршруту без замены на default; если id не указан, добавляется id ASC для устойчивого порядка
 
 #### Scenario: Incomplete duplicate check diagnostics
 - **WHEN** task:list либо task:find исчерпывает --max-scan, в том числе без совпадений
-- **THEN** JSON содержит meta.complete=false, reason=scan-budget-exhausted, scanned и фактический meta.order; error.code=partial-result и exit3 сохраняются; диагностика во всех форматах содержит причину, scanned, order и совет увеличить --max-scan, предупреждая, что неполный поиск не доказывает отсутствие дублей; --all не снимает budget
+- **THEN** JSON содержит meta.complete=false, reason=scan-budget-exhausted, scanned и фактический meta.order; error.code=partial-result и exit3 сохраняются; диагностика во всех форматах содержит причину, scanned, order и совет увеличить --max-scan; task:find предупреждает, что неполный поиск не доказывает отсутствие дублей, а task:list — что он не доказывает отсутствие подходящих задач; --all не снимает budget
 
 #### Scenario: Explicit deadline route
 - **WHEN** task:list получает --deadline-window или --overdue
