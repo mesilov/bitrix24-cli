@@ -18,7 +18,8 @@ final readonly class ResultPresenter
         'doctor-cards' => ['cardId', 'state', 'sanitizedScenario', 'missingCapability', 'createdAt', 'analysisRef'],
         'user-card' => ['ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'EMAIL', 'UF_DEPARTMENT'],
         'user-list' => ['ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'EMAIL', 'UF_DEPARTMENT'],
-        'connections' => ['profile', 'name', 'hostname', 'default', 'source', 'path', 'isDefault'],
+        'auth-profiles' => ['profile', 'name', 'hostname', 'isDefault'],
+        'config-settings' => ['key', 'value', 'source'],
         'task-list' => ['id', 'title', 'responsibleId', 'groupId', 'status', 'deadline'],
         'title-matches' => ['id', 'title'], 'task-fields' => ['name', 'type', 'editable', 'filterable', 'sortable'],
         'chat-messages' => ['id', 'createdDate', 'authorId', 'text', 'kind', 'callId'],
@@ -58,7 +59,9 @@ final readonly class ResultPresenter
             $output->writeln(json_encode(['data' => $result->data, 'meta' => $meta, 'error' => $error], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), OutputInterface::OUTPUT_RAW);
         } else {
             [$columns, $rows] = $this->rows($result);
-            if ($mode === 'plain') {
+            if ($mode === 'plain' && $result->profile === 'config-value') {
+                $output->writeln($this->escape($result->data['value']), OutputInterface::OUTPUT_RAW);
+            } elseif ($mode === 'plain') {
                 foreach ($rows as $row) {
                     $output->writeln(implode("\t", array_map($this->escape(...), $row)), OutputInterface::OUTPUT_RAW);
                 }
@@ -83,6 +86,13 @@ final readonly class ResultPresenter
         if ($mode === 'plain' && $result->profile === 'task-weekly-report') {
             $this->diagnostic($output, implode("\t", WeeklyReportRenderer::COLUMNS));
             $this->diagnostic($output, $this->reports->summary($result));
+        }
+
+        if ($mode !== 'json') {
+            // Explanations of local auth/config commands; JSON carries the same lines in meta.notices.
+            foreach ($result->meta['notices'] ?? [] as $notice) {
+                $this->diagnostic($output, $notice);
+            }
         }
 
         if ($mode !== 'json' && $result->profile === 'chat-candidates') {
@@ -119,7 +129,7 @@ final readonly class ResultPresenter
             $this->diagnostic($output, 'Задача ожидает контроля постановщика (supposedly_completed).');
         }
 
-        if ($mode !== 'json' && isset($result->meta['scopeValidation']) && $result->meta['scopeValidation']['status'] !== 'fresh') {
+        if ($mode !== 'json' && isset($result->meta['scopeValidation']) && $result->meta['scopeValidation']['status'] !== 'fresh' && isset($result->meta['scopeValidation']['reason'])) {
             $this->diagnostic($output, $result->meta['scopeValidation']['reason']);
         }
 
@@ -177,8 +187,12 @@ final readonly class ResultPresenter
             return [['field', 'value'], array_map(static fn (string $field, mixed $value): array => [$field, $value], array_keys($object), array_values($object))];
         }
 
-        if ($result->profile === 'scope-check') {
+        if (in_array($result->profile, ['scope-check', 'auth-profile'], true)) {
             return [['field', 'value'], array_map(static fn (string $field, mixed $value): array => [$field, $value], array_keys($result->data), array_values($result->data))];
+        }
+
+        if ($result->profile === 'config-value') {
+            return [['key', 'value', 'source', 'profile'], [array_map(static fn (string $field): mixed => $result->data[$field], ['key', 'value', 'source', 'profile'])]];
         }
 
         if ($result->profile === 'chat-destination') {
@@ -215,9 +229,6 @@ final readonly class ResultPresenter
         }
 
         $columns = self::COLUMNS[$result->profile] ?? ['field', 'value'];
-        if ($result->profile === 'connections' && array_any($result->data['items'] ?? [], static fn (array $item): bool => array_key_exists('logging', $item))) {
-            $columns[] = 'logging';
-        }
 
         if ($result->profile === 'template-mutation' && array_key_exists('visibleAfter', $result->data['operation'] ?? [])) {
             $columns[] = 'visibleAfter';
@@ -231,7 +242,11 @@ final readonly class ResultPresenter
             $columns[] = 'templateId';
         }
 
-        $items = $result->profile === 'plan' ? ($result->data['plan']['steps'] ?? []) : ($result->data['items'] ?? [$result->data['operation'] ?? []]);
+        $items = match ($result->profile) {
+            'plan' => $result->data['plan']['steps'] ?? [],
+            'config-settings' => $result->data['settings'],
+            default => $result->data['items'] ?? [$result->data['operation'] ?? []],
+        };
         if ($result->profile === 'chat-messages') {
             $items = array_map(static fn (array $item): array => [...$item, 'callId' => $item['callRef']['callId'] ?? null], $items);
         }

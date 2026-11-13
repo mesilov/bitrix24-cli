@@ -14,7 +14,7 @@ use Bitrix24\CLI\Tests\Support\ProblemTrajectoryFixtures;
 [$script, $directory, $mode, $key] = $argv;
 if ($mode === 'profile') {
     $protection = new FileProtection();
-    (new ProfileRepository($protection, new FileCredentialStore($protection)))->add($directory, 'fixture', 'https://fixture.invalid/rest/1/ConcurrentFixtureSecret/', null, []);
+    (new ProfileRepository($protection, new FileCredentialStore($protection)))->login($directory, 'fixture', 'https://fixture.invalid/rest/1/ConcurrentFixtureSecret/');
     exit(0);
 }
 

@@ -15,7 +15,7 @@ final class CommandCatalog
         'task:template:update' => ['class' => \Bitrix24\CLI\Console\Command\Task\UpdateTaskTemplateCommand::class, 'effect' => 'write'],
         'task:template:delete' => ['class' => \Bitrix24\CLI\Console\Command\Task\DeleteTaskTemplateCommand::class, 'effect' => 'delete'],
 
-        'connection:check' => ['class' => \Bitrix24\CLI\Console\Command\Connection\CheckConnectionCommand::class, 'effect' => 'read'],
+        'auth:status' => ['class' => \Bitrix24\CLI\Console\Command\Auth\StatusCommand::class, 'effect' => 'read'],
         'task:status:durations' => ['class' => \Bitrix24\CLI\Console\Command\Task\StatusDurationsTaskCommand::class, 'effect' => 'read'],
         'task:start' => ['class' => \Bitrix24\CLI\Console\Command\Task\StartTaskCommand::class, 'effect' => 'write'],
         'task:pause' => ['class' => \Bitrix24\CLI\Console\Command\Task\PauseTaskCommand::class, 'effect' => 'write'],
@@ -74,11 +74,15 @@ final class CommandCatalog
 
     public const LOCAL_COMMANDS = [
         'doctor:problem-trajectory' => ['class' => \Bitrix24\CLI\Console\Command\Doctor\ProblemTrajectoryCommand::class, 'effect' => 'local'],
-        'connection:add' => ['class' => \Bitrix24\CLI\Console\Command\Connection\AddConnectionCommand::class, 'effect' => 'local'],
-        'connection:list' => ['class' => \Bitrix24\CLI\Console\Command\Connection\ListConnectionsCommand::class, 'effect' => 'local'],
-        'connection:show' => ['class' => \Bitrix24\CLI\Console\Command\Connection\ShowConnectionCommand::class, 'effect' => 'local'],
-        'connection:use' => ['class' => \Bitrix24\CLI\Console\Command\Connection\UseConnectionCommand::class, 'effect' => 'local'],
-        'connection:remove' => ['class' => \Bitrix24\CLI\Console\Command\Connection\RemoveConnectionCommand::class, 'effect' => 'local'],
+        // Verifies the webhook on the portal before saving it; --skip-check keeps the command offline.
+        'auth:login' => ['class' => \Bitrix24\CLI\Console\Command\Auth\LoginCommand::class, 'effect' => 'credentials'],
+        'auth:list' => ['class' => \Bitrix24\CLI\Console\Command\Auth\ListCommand::class, 'effect' => 'local'],
+        'auth:switch' => ['class' => \Bitrix24\CLI\Console\Command\Auth\SwitchCommand::class, 'effect' => 'local'],
+        'auth:logout' => ['class' => \Bitrix24\CLI\Console\Command\Auth\LogoutCommand::class, 'effect' => 'local'],
+        'config:list' => ['class' => \Bitrix24\CLI\Console\Command\Config\ListCommand::class, 'effect' => 'local'],
+        'config:get' => ['class' => \Bitrix24\CLI\Console\Command\Config\GetCommand::class, 'effect' => 'local'],
+        'config:set' => ['class' => \Bitrix24\CLI\Console\Command\Config\SetCommand::class, 'effect' => 'local'],
+        'config:unset' => ['class' => \Bitrix24\CLI\Console\Command\Config\UnsetCommand::class, 'effect' => 'local'],
     ];
 
     public static function all(): array
@@ -95,7 +99,8 @@ final class CommandCatalog
         'task:template:update' => [['tasks.template.update', 1]],
         'task:template:delete' => [['tasks.template.get', 1], ['tasks.template.delete', 1]],
 
-        'connection:check' => [['scope', 1]],
+        'auth:status' => [['profile', 1], ['scope', 1]],
+        'auth:login' => [['profile', 1], ['scope', 1]],
         'task:status:durations' => [['tasks.task.history.list', 1], ['tasks.task.get', 3], ['tasks.task.list', 3]],
         'task:start' => [['tasks.task.get', 3], ['tasks.task.access.get', 3], ['tasks.task.start', 1]],
         'task:pause' => [['tasks.task.get', 3], ['tasks.task.access.get', 3], ['tasks.task.pause', 1]],

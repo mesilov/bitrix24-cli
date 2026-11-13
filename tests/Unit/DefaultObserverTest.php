@@ -44,7 +44,7 @@ final class DefaultObserverTest extends TestCase
     private function profile(array $roles): void
     {
         $fileProtection = new FileProtection();
-        (new ProfileRepository($fileProtection, new FileCredentialStore($fileProtection)))->add($this->directory, 'work', 'https://work.invalid/rest/1/RecognizableFixtureSecret/', null, ['creatorId' => 1, 'responsibleId' => 2], $roles);
+        \Bitrix24\CLI\Tests\Support\ProfileFixtures::add(new ProfileRepository($fileProtection, new FileCredentialStore($fileProtection)), $this->directory, 'work', 'https://work.invalid/rest/1/RecognizableFixtureSecret/', null, ['creatorId' => 1, 'responsibleId' => 2], $roles);
     }
 
     private function response(string $method, int $version, array $parameters): ApiResponse

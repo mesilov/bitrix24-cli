@@ -70,7 +70,7 @@ final class RussianHelpTest extends TestCase
         $run = ConsoleHarness::run($app, ['--help']);
         self::assertSame($run->stdout, ConsoleHarness::run($app, ['-h'])->stdout);
         preg_match_all('/^  (Общие|[a-z]+)$/m', $run->stdout, $groups);
-        self::assertSame(['Общие', 'aaa', 'chats', 'connection', 'doctor', 'task', 'users', 'zzz'], $groups[1]);
+        self::assertSame(['Общие', 'aaa', 'auth', 'chats', 'config', 'doctor', 'task', 'users', 'zzz'], $groups[1]);
         preg_match('/^  Общие\n(.*?)(?=^  aaa$)/ms', $run->stdout, $common);
         preg_match_all('/^    ([^ ]+) — /m', $common[1], $names);
         self::assertSame(['aaa', 'completion', 'help', 'list', 'zzz'], $names[1]);

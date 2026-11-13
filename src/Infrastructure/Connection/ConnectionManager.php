@@ -12,6 +12,7 @@ final class ConnectionManager implements ConnectionResolver
     private ?string $file = null;
     private ?string $configDirectory = null;
     private ?array $selection = null;
+    private ?string $candidate = null;
     public array $fieldSources = [];
 
     public function __construct(private readonly ConfigDirectoryResolver $directories, private readonly ProfileRepository $profiles, private readonly CredentialStore $credentials, private readonly string $projectRoot, private readonly bool $packaged = false)
@@ -40,7 +41,39 @@ final class ConnectionManager implements ConnectionResolver
         $this->file = $file;
         $this->configDirectory = $directory;
         $this->selection = null;
+        $this->candidate = null;
         $this->fieldSources = [];
+    }
+
+    /**
+     * Selects a webhook that is not saved yet as profile $alias, so its verification
+     * and scope snapshot already carry the identity of the future profile.
+     */
+    public function candidate(string $alias, string $webhook): void
+    {
+        ProfileRepository::alias($alias);
+        $hostname = FileCredentialStore::hostname($webhook);
+        $this->candidate = $webhook;
+        $this->selection = ['source' => 'profile', 'profile' => $alias, 'path' => $this->directory() . '/config.json', 'metadata' => ['name' => $hostname, 'connection' => ['hostname' => $hostname]]];
+    }
+
+    /**
+     * Saved profile addressed by --profile, B24CLI_PROFILE or defaultProfile.
+     * Webhooks from the environment and dotenv files are not profiles and are ignored.
+     */
+    public function profileAlias(): ?string
+    {
+        if ($this->profile !== null) {
+            return $this->profile;
+        }
+
+        $profile = $this->environment('B24CLI_PROFILE');
+        if ($profile !== '') {
+            ProfileRepository::alias($profile);
+            return $profile;
+        }
+
+        return $this->profiles->load($this->directory())['defaultProfile'];
     }
 
     public function directory(): string
@@ -135,18 +168,28 @@ final class ConnectionManager implements ConnectionResolver
         return $selection;
     }
 
-    public function inspect(): array
+    /**
+     * Effective connection of this invocation for local inspection: its source, the relevant
+     * profile, path or variable, and the hostname. A saved profile is described by its metadata only.
+     */
+    public function effective(): array
     {
-        $metadata = $this->metadata();
-        if (($metadata['source'] ?? '') !== 'profile') {
-            $metadata['hostname'] = FileCredentialStore::hostname($this->webhook());
+        $selection = $this->selected();
+        $hostname = $selection['metadata']['connection']['hostname'] ?? null;
+        unset($selection['metadata']);
+        if ($selection['source'] !== 'none' && $hostname === null) {
+            $hostname = FileCredentialStore::hostname($this->webhook());
         }
 
-        return $metadata;
+        return [...$selection, 'hostname' => $hostname];
     }
 
     public function webhook(): string
     {
+        if ($this->candidate !== null) {
+            return $this->candidate;
+        }
+
         $selection = $this->selected();
         if ($selection['source'] === 'profile') {
             $connection = $selection['metadata']['connection'];
@@ -168,7 +211,7 @@ final class ConnectionManager implements ConnectionResolver
             return FileCredentialStore::environmentFile($selection['path']);
         }
 
-        throw new Failure('connection-unavailable', 'Configure connection:add and connection:use, supply --env-file, or set BITRIX24_WEBHOOK.');
+        throw new Failure('connection-unavailable', 'No connection is configured. Save a webhook with auth:login NAME, select a saved profile with auth:switch NAME or --profile, supply --env-file, or set BITRIX24_WEBHOOK.');
     }
 
     private function saved(string $alias): array

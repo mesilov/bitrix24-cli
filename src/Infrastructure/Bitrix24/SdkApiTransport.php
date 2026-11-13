@@ -54,7 +54,7 @@ final readonly class SdkApiTransport implements ApiTransport
                 $name = $cause::class;
                 $message = strtolower($cause->getMessage());
                 if (str_contains($name, 'InsufficientScope') || str_starts_with($message, 'insufficient_scope -')) {
-                    throw new Failure('permission-denied', 'Bitrix24 denied the requested scope; update the incoming webhook permissions and run connection:check.', 1, ['apiErrorCode' => 'insufficient_scope']);
+                    throw new Failure('permission-denied', 'Bitrix24 denied the requested scope; update the incoming webhook permissions and run auth:status.', 1, ['apiErrorCode' => 'insufficient_scope']);
                 }
 
                 if (str_starts_with($message, 'internal_server_error -')) {

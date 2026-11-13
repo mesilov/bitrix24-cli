@@ -38,30 +38,7 @@ final readonly class ScopeValidator
                     return $cached;
                 }
 
-                $attempt = $this->timestamp($now);
-                try {
-                    $scopes = $this->transport->call('scope', 1, [])->result;
-                    if (!ScopeStateStore::validScopes($scopes)) {
-                        throw new Failure('scope-check-unavailable', 'The scope method did not return a list of permission codes.');
-                    }
-
-                    $scopes = array_values(array_unique($scopes));
-                    sort($scopes);
-                    $completed = $this->clock->now()->getTimestamp();
-                    $entry = [
-                        'grantedScopes' => $scopes, 'lastSuccessfulCheckAt' => $this->timestamp($completed),
-                        'checkedWithAppVersion' => BuildVersion::version(), 'scopeManifestRevision' => $this->manifest->revision(),
-                        'lastAttemptAt' => $attempt, 'nextCheckAt' => $this->timestamp($completed + self::TTL), 'status' => 'fresh',
-                    ];
-                } catch (Failure $failure) {
-                    if ($failure->exitStatus === 130) {
-                        throw $failure;
-                    }
-
-                    $entry ??= ['grantedScopes' => [], 'lastSuccessfulCheckAt' => null, 'checkedWithAppVersion' => BuildVersion::version(), 'scopeManifestRevision' => $this->manifest->revision()];
-                    $entry = [...$entry, 'lastAttemptAt' => $attempt, 'nextCheckAt' => $this->timestamp($this->clock->now()->getTimestamp() + self::BACKOFF), 'status' => $entry['lastSuccessfulCheckAt'] === null ? 'unknown' : 'stale'];
-                }
-
+                $entry = $this->probe($entry);
                 $state['connections'][$key] = $entry;
                 return $this->cached($entry);
             });
@@ -70,8 +47,64 @@ final readonly class ScopeValidator
                 throw $failure;
             }
 
-            return ['status' => 'unknown', 'grantedScopes' => [], 'lastSuccessfulCheckAt' => null, 'scopeManifestRevision' => $this->manifest->revision(), 'reason' => 'Scope state is unavailable; check state.json storage.'];
+            return $this->unavailable();
         }
+    }
+
+    /**
+     * Reads the scopes of the selected webhook once. The returned snapshot entry is not persisted,
+     * so a webhook can be probed before its profile exists.
+     */
+    public function probe(?array $entry = null): array
+    {
+        $attempt = $this->timestamp($this->clock->now()->getTimestamp());
+        try {
+            $scopes = $this->transport->call('scope', 1, [])->result;
+            if (!ScopeStateStore::validScopes($scopes)) {
+                throw new Failure('scope-check-unavailable', 'The scope method did not return a list of permission codes.');
+            }
+
+            $scopes = array_values(array_unique($scopes));
+            sort($scopes);
+            $completed = $this->clock->now()->getTimestamp();
+            return [
+                'grantedScopes' => $scopes, 'lastSuccessfulCheckAt' => $this->timestamp($completed),
+                'checkedWithAppVersion' => BuildVersion::version(), 'scopeManifestRevision' => $this->manifest->revision(),
+                'lastAttemptAt' => $attempt, 'nextCheckAt' => $this->timestamp($completed + self::TTL), 'status' => 'fresh',
+            ];
+        } catch (Failure $failure) {
+            if ($failure->exitStatus === 130) {
+                throw $failure;
+            }
+
+            $entry ??= ['grantedScopes' => [], 'lastSuccessfulCheckAt' => null, 'checkedWithAppVersion' => BuildVersion::version(), 'scopeManifestRevision' => $this->manifest->revision()];
+            return [...$entry, 'lastAttemptAt' => $attempt, 'nextCheckAt' => $this->timestamp($this->clock->now()->getTimestamp() + self::BACKOFF), 'status' => $entry['lastSuccessfulCheckAt'] === null ? 'unknown' : 'stale'];
+        }
+    }
+
+    /**
+     * Persists a probed snapshot entry for the selected connection and returns its report.
+     */
+    public function remember(array $entry): array
+    {
+        try {
+            $key = $this->key($this->connectionMetadata(), $this->provider->resolvedWebhook());
+            return $this->store->transaction($this->connections->directory(), function (array &$state) use ($key, $entry): array {
+                $state['connections'][$key] = $entry;
+                return $this->cached($entry);
+            });
+        } catch (Failure $failure) {
+            if ($failure->exitStatus === 130) {
+                throw $failure;
+            }
+
+            return $this->unavailable();
+        }
+    }
+
+    private function unavailable(): array
+    {
+        return ['status' => 'unknown', 'grantedScopes' => [], 'lastSuccessfulCheckAt' => null, 'scopeManifestRevision' => $this->manifest->revision(), 'reason' => 'Scope state is unavailable; check state.json storage.'];
     }
 
     public function invalidate(): void
@@ -112,7 +145,7 @@ final readonly class ScopeValidator
             ...($entry ?? ['grantedScopes' => [], 'lastSuccessfulCheckAt' => null]),
             'status' => $fresh ? 'fresh' : ($checked === null ? 'unknown' : 'stale'),
             'currentScopeManifestRevision' => $this->manifest->revision(),
-            'reason' => $fresh ? null : 'Webhook scope check is unknown or stale; use connection:check to refresh it.',
+            'reason' => $fresh ? null : 'Webhook scope check is unknown or stale; use auth:status to refresh it.',
         ];
     }
 

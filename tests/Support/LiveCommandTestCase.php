@@ -112,7 +112,7 @@ abstract class LiveCommandTestCase extends TestCase
         $profileRepository = new ProfileRepository($fileProtection, new FileCredentialStore($fileProtection));
         try {
             $webhook = (new EnvConnectionResolver($this->root()))->webhook();
-            $profileRepository->add($directory, 'fixture', $webhook, null, ['creatorId' => $this->userId, 'responsibleId' => $this->userId], $roles);
+            ProfileFixtures::add($profileRepository, $directory, 'fixture', $webhook, null, ['creatorId' => $this->userId, 'responsibleId' => $this->userId], $roles);
             return $run($directory);
         } finally {
             if (is_dir($directory)) {

@@ -25,6 +25,7 @@ use Bitrix24\CLI\Infrastructure\Logging\SizeLimitProcessor;
 use Bitrix24\CLI\Tests\Support\ConsoleHarness;
 use Bitrix24\CLI\Tests\Support\ConsoleRun;
 use Bitrix24\CLI\Tests\Support\FakeApiTransport;
+use Bitrix24\CLI\Tests\Support\ProfileFixtures;
 use Bitrix24\CLI\Tests\Support\SpyConnectionResolver;
 use Monolog\Level;
 use Monolog\LogRecord;
@@ -92,8 +93,12 @@ final class FileLoggingTest extends TestCase
             $this->clean();
             $this->config(['logging' => $logging === [] ? new \stdClass() : $logging]);
             $expected = json_decode((string) file_get_contents($this->directory . '/config.json'), false)->logging;
-            $this->repository->add($this->directory, 'work', self::WEBHOOK, null, ['allowsTimeTracking' => false]);
+            ProfileFixtures::add($this->repository, $this->directory, 'work', self::WEBHOOK, null, ['allowsTimeTracking' => false]);
             $this->repository->use($this->directory, 'work');
+            $this->repository->login($this->directory, 'work', 'https://portal.invalid/rest/7/RotatedLoggingSecret42/', true);
+            $this->repository->set($this->directory, 'work', 'default.task.groupId', '42');
+            $this->repository->unset($this->directory, 'work', 'default.task.groupId');
+            $this->repository->set($this->directory, null, 'telemetry.maxProblemTrajectoryFiles', '5');
             (new ProblemTrajectoryStore($this->repository, $this->protection, new SystemClock()))->configure($this->directory, ['collectProblemTrajectories' => false]);
             $this->repository->remove($this->directory, 'work');
             $saved = json_decode((string) file_get_contents($this->directory . '/config.json'), false);
@@ -141,7 +146,7 @@ final class FileLoggingTest extends TestCase
         file_put_contents($envFile, 'BITRIX24_WEBHOOK=' . self::WEBHOOK . "\n");
         self::assertSame(0, $this->dryRun(['--env-file', $envFile])->status);
 
-        $this->repository->add($this->directory, 'work', self::WEBHOOK, null, ['allowsTimeTracking' => false]);
+        ProfileFixtures::add($this->repository, $this->directory, 'work', self::WEBHOOK, null, ['allowsTimeTracking' => false]);
         self::assertSame(0, $this->dryRun(['--profile', 'work'])->status);
 
         $records = $this->records();
@@ -162,12 +167,25 @@ final class FileLoggingTest extends TestCase
         self::assertStringContainsString('logging.level', $run->stderr);
         self::assertDirectoryDoesNotExist($this->directory . '/logs');
 
-        $this->repository->add($this->directory, 'work', self::WEBHOOK, null, ['allowsTimeTracking' => false]);
+        ProfileFixtures::add($this->repository, $this->directory, 'work', self::WEBHOOK, null, ['allowsTimeTracking' => false]);
         $this->config([...json_decode((string) file_get_contents($this->directory . '/config.json'), true), 'logging' => ['retentionDays' => 0]]);
         putenv('BITRIX24_WEBHOOK');
-        $run = $this->cli(['connection:use', 'work', '--json']);
+        foreach ([['auth:switch', 'work'], ['config:set', 'default.task.groupId', '42', '--profile', 'work']] as $argv) {
+            $run = $this->cli([...$argv, '--json']);
+            self::assertSame(0, $run->status, $run->stdout);
+            self::assertSame(['retentionDays' => 0], json_decode((string) file_get_contents($this->directory . '/config.json'), true)['logging']);
+        }
+
+        self::assertSame(42, $this->repository->profile($this->directory, 'work')['default']['task']['groupId']);
+        // A logging.* change must leave the whole block valid; another invalid field blocks it with its reason.
+        $before = file_get_contents($this->directory . '/config.json');
+        $run = $this->cli(['config:set', 'logging.enabled', 'true', '--json']);
+        self::assertSame(2, $run->status, $run->stdout);
+        self::assertStringContainsString('logging.retentionDays', $run->json()['error']['message']);
+        self::assertSame($before, file_get_contents($this->directory . '/config.json'));
+        $run = $this->cli(['config:set', 'logging.retentionDays', '3', '--json']);
         self::assertSame(0, $run->status, $run->stdout);
-        self::assertSame(['retentionDays' => 0], json_decode((string) file_get_contents($this->directory . '/config.json'), true)['logging']);
+        self::assertSame(['retentionDays' => 3], json_decode((string) file_get_contents($this->directory . '/config.json'), true)['logging']);
     }
 
     public function testUnwritableDirectoryWarnsOnceWithoutChangingOutput(): void
@@ -389,25 +407,45 @@ final class FileLoggingTest extends TestCase
         self::assertSame([$first->runId() => array_fill(0, 20, 'first'), $second->runId() => array_fill(0, 20, 'second')], $byRun);
     }
 
-    public function testConnectionShowReportsEffectiveLogging(): void
+    public function testConfigListReportsEffectiveLogging(): void
     {
         putenv('BITRIX24_WEBHOOK=' . self::WEBHOOK);
-        $logging = static fn (ConsoleRun $run): array => $run->json()['data']['items'][0]['logging'];
-        self::assertSame('disabled', $logging($this->cli(['connection:show', '--json']))['status']);
+        $logging = static fn (ConsoleRun $run): array => $run->json()['data']['logging'];
+        $run = $this->cli(['config:list', '--json']);
+        self::assertSame('disabled', $logging($run)['status']);
+        self::assertNull($run->json()['data']['profile']);
+        self::assertDirectoryDoesNotExist($this->directory);
 
         $this->config(['logging' => ['enabled' => true, 'directory' => 'var/log', 'retentionDays' => 3]]);
         putenv('TZ=UTC');
-        $shown = $logging($this->cli(['connection:show', '--json']));
+        $run = $this->cli(['config:list', '--json']);
+        $shown = $logging($run);
         self::assertSame(['status' => 'ok', 'reason' => null, 'enabled' => true, 'level' => 'info', 'directory' => $this->directory . '/var/log', 'fileMask' => 'b24cli-{YYYY}{MM}{DD}.log', 'retentionDays' => 3], array_diff_key($shown, ['currentFile' => true]));
         self::assertSame($this->directory . '/var/log/b24cli-' . gmdate('Ymd') . '.log', $shown['currentFile']);
+        $settings = array_column($run->json()['data']['settings'], null, 'key');
+        self::assertSame(['key' => 'logging.enabled', 'value' => true, 'source' => 'root'], $settings['logging.enabled']);
+        self::assertSame(['key' => 'logging.directory', 'value' => 'var/log', 'source' => 'root'], $settings['logging.directory']);
+        self::assertSame(['key' => 'logging.level', 'value' => 'info', 'source' => 'default'], $settings['logging.level']);
+        self::assertArrayNotHasKey('default.task.groupId', $settings);
         // Computing the block creates nothing; the command itself logs its lifecycle when logging is enabled.
         self::assertSame(['command.start', 'command.finish'], array_column(array_map(static fn (string $line): array => json_decode($line, true), file($shown['currentFile'], FILE_IGNORE_NEW_LINES)), 'message'));
 
         $this->config(['logging' => ['retentionDays' => 0]]);
-        $run = $this->cli(['connection:show', '--plain']);
+        $before = file_get_contents($this->directory . '/config.json');
+        foreach (['--plain', '--no-ansi'] as $mode) {
+            $run = $this->cli(['config:list', $mode]);
+            self::assertSame(0, $run->status);
+            self::assertStringContainsString('invalid', $run->stderr);
+            self::assertStringContainsString('retentionDays', $run->stderr);
+            self::assertStringContainsString('logging.retentionDays', $run->stdout);
+        }
+
+        $run = $this->cli(['config:list', '--json']);
         self::assertSame(0, $run->status);
-        self::assertStringContainsString('"status":"invalid"', $run->stdout);
-        self::assertStringContainsString('retentionDays', $run->stdout);
+        self::assertSame('invalid', $logging($run)['status']);
+        self::assertStringContainsString('retentionDays', $logging($run)['reason']);
+        self::assertSame(['key' => 'logging.retentionDays', 'value' => 7, 'source' => 'default'], array_column($run->json()['data']['settings'], null, 'key')['logging.retentionDays']);
+        self::assertSame($before, file_get_contents($this->directory . '/config.json'));
     }
 
     private function dryRun(array $extra = []): ConsoleRun

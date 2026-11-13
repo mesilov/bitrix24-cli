@@ -10,7 +10,7 @@ use Bitrix24\CLI\Bootstrap\CommandCatalog;
 
 final class ScopeManifest
 {
-    // See docs/connection-scopes.md for official sources and the task/tasks discrepancy.
+    // See docs/auth-scopes.md for official sources and the task/tasks discrepancy.
     private const TASK_METHODS = [
         'tasks.template.get', 'tasks.template.fields', 'tasks.template.add', 'tasks.template.update', 'tasks.template.delete',
         'tasks.task.add', 'tasks.task.get', 'tasks.task.list', 'tasks.task.update', 'tasks.task.delete',
@@ -28,6 +28,7 @@ final class ScopeManifest
         'sonet_group.user.get' => [['sonet_group']],
         'sonet_group.get' => [['sonet_group']],
         'scope' => [],
+        'profile' => [],
         'user.current' => [['user', 'user_basic', 'user_brief']],
         'user.get' => [['user', 'user_basic', 'user_brief']],
         'department.get' => [['department']],
@@ -45,7 +46,7 @@ final class ScopeManifest
 
     /**
      * Optional sources: a missing scope only leaves the related data unavailable with a reason,
-     * so they never block a command and are not reported as affected by connection:check.
+     * so they never block a command and are not reported as affected by auth:status.
      */
     public const OPTIONAL_METHODS = [
         'call.followup.get' => [3, 'call'],

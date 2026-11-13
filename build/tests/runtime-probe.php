@@ -26,19 +26,25 @@ if (($argv[1] ?? '') === 'connection-fixture') {
         $path = rtrim(preg_replace('~/+~', '/', (string) parse_url($url, PHP_URL_PATH)), '/') . '/';
         $method = basename(rtrim($path, '/'));
         $requests[] = $method;
+        // auth:login verifies a webhook with profile → scope; other commands start with scope or use its cache.
         $sequence = match ($method) {
-            'scope' => ['scope'],
+            'profile' => ['profile'],
+            'scope' => in_array('profile', $requests, true) ? ['profile', 'scope'] : ['scope'],
             'tasks.task.list' => in_array('scope', $requests, true) ? ['scope', 'tasks.task.list'] : ['tasks.task.list'],
             default => [],
         };
-        $expectedPath = $method === 'scope'
-            ? '/rest/1/RecognizableFixtureSecret/scope/'
-            : '/rest/api/1/RecognizableFixtureSecret/tasks.task.list/';
+        $expectedPath = $method === 'tasks.task.list'
+            ? '/rest/api/1/RecognizableFixtureSecret/tasks.task.list/'
+            : '/rest/1/RecognizableFixtureSecret/' . $method . '/';
         $expected = getenv('B24CLI_FIXTURE_EXPECTED_HOST');
         if ($requests !== $sequence || $verb !== 'POST' || $path !== $expectedPath || parse_url($url, PHP_URL_HOST) !== $expected || parse_url($url, PHP_URL_SCHEME) !== 'https') {
             throw new RuntimeException('Selected transport fixture mismatch.');
         }
-        $result = $method === 'scope' ? ['task'] : ['items' => [['id' => 123, 'title' => 'Fixture']]];
+        $result = match ($method) {
+            'profile' => ['ID' => '1', 'ADMIN' => false, 'NAME' => 'Fixture', 'LAST_NAME' => 'Owner'],
+            'scope' => ['task'],
+            default => ['items' => [['id' => 123, 'title' => 'Fixture']]],
+        };
         return new Symfony\Component\HttpClient\Response\MockResponse(json_encode(['result' => $result, 'time' => (object) []], JSON_THROW_ON_ERROR));
     });
     $application = (new Bitrix24\CLI\Bootstrap\ApplicationFactory())->create(dirname(__DIR__), packaged: true, httpClient: $client);
