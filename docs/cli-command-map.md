@@ -1,6 +1,6 @@
 # Карта CLI-вызовов
 
-Каталог содержит 72 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
+Каталог содержит 75 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
 
 `b24cli --help`/`-h` показывают назначение, список команд, глобальные опции и примеры задач. Вся справка — на русском; имена команд, флагов и API/JSON-полей сохраняются. Единый первый блок «Общие» содержит `completion`, `help` и `list`; далее пространства имён и команды внутри блоков упорядочены по имени. `b24cli --about` показывает назначение, версию, автора, лицензию и ссылки на [приложение](https://github.com/mesilov/bitrix24-cli) и [скилл](https://github.com/mesilov/bitrix24-cli-skill). Эти вызовы не требуют подключения и не обращаются к порталу. `list --help` описывает именно list; вызов без аргументов выводит список команд.
 
@@ -8,6 +8,11 @@
 
 | Команда | Назначение | Эффект | Пример |
 | --- | --- | --- | --- |
+| [`auth:list`](../src/Console/Command/Auth/ListCommand.php) | Показать сохранённые профили и фактическое подключение | local | `b24cli auth:list` |
+| [`auth:login`](../src/Console/Command/Auth/LoginCommand.php) | Сохранить вебхук портала как профиль и проверить его | credentials | `b24cli auth:login work` |
+| [`auth:logout`](../src/Console/Command/Auth/LogoutCommand.php) | Удалить локальный профиль и его учётные данные | local | `b24cli auth:logout work` |
+| [`auth:status`](../src/Console/Command/Auth/StatusCommand.php) | Проверить вебхук: владелец, разрешения и требования CLI | read | `b24cli auth:status work --json` |
+| [`auth:switch`](../src/Console/Command/Auth/SwitchCommand.php) | Выбрать сохранённый профиль по умолчанию | local | `b24cli auth:switch work` |
 | [`chats:add`](../src/Console/Command/Chats/CreateChatCommand.php) | Создать групповой чат с участниками для рассылки | write | `b24cli chats:add --title 'ИИ-новости' --user-id 12,34 --json --dry-run` |
 | [`chats:calls:list`](../src/Console/Command/Chats/ListChatCallsCommand.php) | Звонки чата за период | read | `b24cli chats:calls:list sg234 --from 2026-11-09T00:00:00+03:00 --to 2026-11-16T00:00:00+03:00 --json` |
 | [`chats:calls:show`](../src/Console/Command/Chats/ShowChatCallCommand.php) | Сведения об одном звонке чата | read | `b24cli chats:calls:show chat37 1001 --json` |
@@ -16,12 +21,10 @@
 | [`chats:resolve`](../src/Console/Command/Chats/ResolveChatCommand.php) | Проверить адресат чата по ссылке или типизированному ID | read | `b24cli chats:resolve 'https://portal.example/workgroups/group/234/' --json` |
 | [`chats:send`](../src/Console/Command/Chats/SendChatMessageCommand.php) | Отправить сообщение в чат по ссылке, ID или точному названию | write | `b24cli chats:send --name 'Команда проекта' --text 'Сегодня меня не будет' --json --dry-run` |
 | `completion` | Вывести скрипт автодополнения для оболочки | offline | `b24cli completion bash` |
-| [`connection:add`](../src/Console/Command/Connection/AddConnectionCommand.php) | Сохранить локальное подключение | local | `b24cli connection:add work --group-id 7 --creator-id 1 --responsible-id 42` |
-| [`connection:check`](../src/Console/Command/Connection/CheckConnectionCommand.php) | Проверить разрешения выбранного вебхука и требования CLI | read | `b24cli connection:check work --json` |
-| [`connection:list`](../src/Console/Command/Connection/ListConnectionsCommand.php) | Показать сохранённые подключения | local | `b24cli connection:list` |
-| [`connection:remove`](../src/Console/Command/Connection/RemoveConnectionCommand.php) | Удалить локальный профиль и его учётные данные | local | `b24cli connection:remove work` |
-| [`connection:show`](../src/Console/Command/Connection/ShowConnectionCommand.php) | Показать безопасные параметры выбранного подключения | local | `b24cli connection:show work` |
-| [`connection:use`](../src/Console/Command/Connection/UseConnectionCommand.php) | Выбрать сохранённый профиль по умолчанию | local | `b24cli connection:use work` |
+| [`config:get`](../src/Console/Command/Config/GetCommand.php) | Показать действующее значение одной настройки | local | `b24cli config:get default.task.groupId` |
+| [`config:list`](../src/Console/Command/Config/ListCommand.php) | Показать действующие настройки профиля и каталога конфигурации | local | `b24cli config:list` |
+| [`config:set`](../src/Console/Command/Config/SetCommand.php) | Изменить одну настройку без повторного ввода вебхука | local | `b24cli config:set default.task.groupId 187` |
+| [`config:unset`](../src/Console/Command/Config/UnsetCommand.php) | Удалить настройку и вернуть значение по умолчанию | local | `b24cli config:unset default.task.groupId` |
 | [`doctor:problem-trajectory`](../src/Console/Command/Doctor/ProblemTrajectoryCommand.php) | Сохранить и разобрать обезличенные карточки нехватки CLI | local | `b24cli doctor:problem-trajectory --action status --json` |
 | `help` | Показать справку команды | offline | `b24cli help task:add` |
 | `list` | Показать список команд | offline | `b24cli list task` |
@@ -83,7 +86,7 @@
 
 ## Ограничения и справка
 
-ID в примерах — образцы, замените их доступными вам сущностями. `write`/`delete` примеры используют `--dry-run`: записи не выполняются, но проверочные чтения могут требовать подключения и прав. Проверка без записи не доказывает приёмку сервером. `local` читает или изменяет локальную конфигурацию; `connection:add` требует скрытого ввода вебхука в терминале либо `--webhook-stdin` с перенаправленным stdin, `connection:remove` удаляет локальный профиль. `read` зависит от прав, бюджета обхода и полноты данных.
+ID в примерах — образцы, замените их доступными вам сущностями. `write`/`delete` примеры используют `--dry-run`: записи не выполняются, но проверочные чтения могут требовать подключения и прав. Проверка без записи не доказывает приёмку сервером. `local` читает или изменяет локальную конфигурацию и не обращается к порталу; `auth:logout` удаляет локальный профиль. `credentials` — это `auth:login`: вебхук вводится скрыто в терминале либо читается из перенаправленного stdin с `--webhook-stdin`, перед сохранением проверяется на портале, а `--skip-check` сохраняет его без запросов. `read` зависит от прав, бюджета обхода и полноты данных.
 
 Аргументы, опции, значения по умолчанию, формат вывода и ограничения смотрите в справке соответствующей команды. Параметры выбора подключения — в [конфигурации](config.md); запуск и тесты — в [разработке](development.md).
 

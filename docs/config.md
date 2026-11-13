@@ -1,6 +1,6 @@
 # Конфигурация подключений b24cli
 
-[Подключение портала и выбор профиля](connection.md) · [Краткий обзор](../README.md#конфиг)
+[Вход и профили](auth.md) · [Проверка разрешений](auth-scopes.md) · [Краткий обзор](../README.md#конфиг)
 
 Пользовательский `config.json` хранит параметры нескольких порталов, defaults создания задач/рабочих адресатов, локальную telemetry карточек проблем и настройки файлового лога. Полный webhook находится в отдельном credential file. Формат не зависит от расположения и версии бинарника.
 
@@ -30,6 +30,97 @@ b24cli/
 `credentialFile` отсчитывается **от каталога конфигурации**, а не от cwd. Имя файла генерирует CLI: в schema v1 допустим `credentials/<8..64 lowercase hex characters>.env`, текущий writer использует 32 символа. В JSON используется `/` также на Windows. Абсолютные пути, `..`, произвольные имена и обратные слеши в этой ссылке не допускаются.
 
 Credential file содержит `BITRIX24_WEBHOOK` с полным входящим HTTPS webhook. Managed storage — plaintext с ограниченным доступом: Unix directories 0700/files 0600; Windows — проверяемый ACL текущего пользователя. Права не являются шифрованием и не защищают от администратора. `--env-file` читает внешний файл; CLI не изменяет его права и содержимое. `--env-file` и `B24CLI_ENV_FILE` принимают путь к обычному файлу или локальный `file://` URI. HTTP URL и виртуальные потоки отклоняются до чтения, включая dry-run.
+
+## Команды config
+
+Несекретные настройки меняются командами `config:*`: без ручной правки файла и без
+повторного ввода вебхука. Команды локальные — не читают учётные данные, не обращаются
+к порталу и не открывают `state.json`.
+
+```sh
+b24cli config:list                                    # действующие значения и их источник
+b24cli config:get default.task.groupId                # одно значение
+b24cli config:set default.task.groupId 187            # изменить одно значение
+b24cli config:unset default.task.groupId              # вернуть значение по умолчанию
+b24cli config:set default.users.observerId 5 --profile work
+b24cli config:set logging.enabled true
+```
+
+### Ключи
+
+Ключ — точный путь в `config.json`; имена полей совпадают с REST 3.0 и не переименовываются.
+Список закрыт: неизвестный ключ, синоним (`default.task.authorId`) или сокращение (`groupId`)
+дают usage-error / exit 2 со списком поддерживаемых ключей, файл не меняется.
+
+| Ключ | Область | Значение | Без значения |
+| --- | --- | --- | --- |
+| `name` | профиль | Bare ASCII hostname, например `client.example` | Обязательное поле, `config:unset` запрещён |
+| `default.task.groupId` | профиль | ID | Группа не подставляется |
+| `default.task.creatorId` | профиль | ID | Автор передаётся явно |
+| `default.task.responsibleId` | профиль | ID | Исполнитель передаётся явно |
+| `default.task.allowsTimeTracking` | профиль | `true` / `false` | `false` |
+| `default.users.observerId` | профиль | ID | Наблюдателя по умолчанию нет |
+| `default.users.managerId` | профиль | ID | Рабочего руководителя нет |
+| `default.users.autoAddObserver` | профиль | `true` / `false`; `true` требует `observerId` | `false` |
+| `logging.enabled` | каталог | `true` / `false` | `false` |
+| `logging.level` | каталог | `debug`, `info`, `notice`, `warning`, `error`, `critical`, `alert`, `emergency` | `info` |
+| `logging.directory` | каталог | Непустой путь | `logs/` в каталоге конфигурации |
+| `logging.fileMask` | каталог | Имя файла с `{YYYY}`, `{MM}`, `{DD}` | `b24cli-{YYYY}{MM}{DD}.log` |
+| `logging.retentionDays` | каталог | Целое от 1 | `7` |
+| `telemetry.collectProblemTrajectories` | каталог | `true` / `false` | `true` |
+| `telemetry.maxProblemTrajectoryFiles` | каталог | Целое от 1 | `100` |
+| `telemetry.lastProblemTrajectoryProcessingAt` | каталог | Только чтение: дату ведёт CLI | `null` |
+| `telemetry.lastProblemTrajectoryAnalysisOfferedAt` | каталог | Только чтение: дату ведёт CLI | `null` |
+
+`defaultProfile` и `connection.*` через `config:*` недоступны: профиль по умолчанию
+меняет `auth:switch NAME`, а вебхук и `connection.hostname` — `auth:login NAME --replace`.
+
+### Значения
+
+Тип берётся из ключа и не угадывается по значению:
+
+- ID и счётчики — десятичное целое от 1 до 9223372036854775807, только цифры. `0`, `-1`, `+1`, `1.0`, `1e0` и пробелы отклоняются.
+- Флаги — только `true` или `false`. `Y`, `1`, `"false"` и `TRUE` отклоняются.
+- `logging.level` — значение из списка в нижнем регистре; `Info` отклоняется.
+- `name` — hostname без схемы, порта и пути.
+
+После подстановки весь документ проходит ту же проверку, что и при чтении. Ошибка
+значения — usage-error / exit 2 с ожидаемым форматом, файл сохраняет прежние байты.
+`default.users.autoAddObserver true` требует сохранённый `default.users.observerId`;
+удалить `observerId` можно только при `autoAddObserver=false`.
+
+`config:unset KEY` удаляет ключ из файла: дальше действует встроенное значение
+по умолчанию, опустевшие объекты `default.task`, `default.users`, `default`, `logging`
+и `telemetry` удаляются вместе с ним.
+
+### Выбор профиля
+
+Ключи области «профиль» относятся к сохранённому профилю, который выбирается в порядке
+`--profile NAME` → `B24CLI_PROFILE` → `defaultProfile`. `BITRIX24_WEBHOOK` и
+`B24CLI_ENV_FILE` профилями не являются и игнорируются; `--env-file` вместе с `config:*`
+даёт usage-error. `profile` из runtime `--config` выбирает подключение рабочих команд
+и на `config:*` не влияет: общий файл параметров запуска не перенаправит запись настроек
+в другой профиль. Без выбранного профиля команда с профильным ключом завершается
+usage-error с подсказкой `auth:login` / `auth:switch` и ничего не создаёт.
+
+Ключи `logging.*` и `telemetry.*` относятся ко всему каталогу конфигурации и не принимают
+`--profile`. Первая запись такого ключа без `config.json` создаёт защищённый файл
+с `profiles: {}`, без учётных данных.
+
+### Вывод
+
+`config:list` показывает каждое действующее значение и его источник: `profile` (задано
+в профиле), `root` (задано в корне файла) или `default` (встроенное значение). Без выбранного
+профиля выводятся только ключи каталога. JSON содержит `data.profile`, `data.settings[]`
+с `key` / `value` / `source` и блок `data.logging`; в остальных режимах строка о логировании
+печатается в stderr.
+
+`config:get`, `config:set` и `config:unset` возвращают действующее значение ключа:
+`--plain` печатает только значение, JSON — `key`, `value`, `source` и `profile`.
+
+Запись выполняется под общей блокировкой каталога и публикуется атомарно: остальные
+профили, `defaultProfile`, ссылки на учётные данные, `logging` и `telemetry` сохраняются,
+параллельные `auth:*` и `doctor:problem-trajectory` не теряют изменений.
 
 ## Пример schema v1
 
@@ -179,12 +270,14 @@ b24cli --profile work task:add --fields '{"title":"Договор","allowsTimeTr
 ```
 
 ```sh
-b24cli connection:add work --observer-id 5 --manager-id 9 --auto-add-observer true
-b24cli --profile work connection:show
+b24cli config:set default.users.observerId 5 --profile work
+b24cli config:set default.users.managerId 9 --profile work
+b24cli config:set default.users.autoAddObserver true --profile work
+b24cli config:list --profile work
 b24cli --profile work users:manager --source config
 ```
 
-Для существующего профиля эти optional поля можно добавить в его `config.json`; сохраняйте защищённые права файла и проверяйте его по JSON Schema. Сохранение настроек не обращается к порталу. `observerId`/`managerId` являются локальными role selectors и не передаются как поля REST.
+Сохранение настроек не требует вебхука и не обращается к порталу. Профили разных порталов хранят свои роли независимо. `observerId`/`managerId` являются локальными role selectors и не передаются как поля REST.
 
 При включённой автодобавке `task:add` создаёт задачу, читает существующих наблюдателей и добавляет `observerId`, сохраняя остальные ID. Назначение использует REST1 `AUDITORS`; read relation REST3 `auditors` не записывается. При ошибке после создания CLI возвращает partial/exit3 с ID задачи и ledger: проверяйте уже созданную задачу перед следующим действием. `false` или отсутствие флага не добавляет запросов. Env/file/process подключения не наследуют роли сохранённых профилей.
 
@@ -195,47 +288,38 @@ Basic `task:add --dry-run` показывает будущие шаги без c
 `--help`, `--version`, `list`, completion и offline dry-run не создают конфигурацию и не читают secrets. JSON Schema также не создаёт и не изменяет файлы.
 
 ```sh
-# Webhook вводится скрыто; токен не передаётся аргументом
-b24cli connection:add work --group-id 42 --creator-id 1 --responsible-id 2 --allows-time-tracking false
-b24cli connection:list
-b24cli --profile work connection:show
-b24cli connection:use work
+# Вебхук вводится скрыто; токен не передаётся аргументом
+b24cli auth:login work
+b24cli config:set default.task.groupId 42
+b24cli config:set default.task.creatorId 1
+b24cli config:set default.task.responsibleId 2
+b24cli auth:list
+b24cli config:list
 b24cli task:list --json
-b24cli --profile work task:add --title "Договор" --dry-run --json
+b24cli task:add --title "Договор" --dry-run --json
 ```
 
 | Команда | Что создаётся или меняется |
 | --- | --- |
-| Первый `connection:add` | Каталоги, lock file, config.json, один credential file; defaultProfile остаётся null. |
-| `connection:add` с новым alias | Запись в config.json и новый credential file; defaultProfile сохраняется. |
-| `connection:add` с существующим alias | configuration-error / exit 1 до ввода webhook; параметры не применяются, config и credentials сохраняются. |
-| `connection:use NAME` | Только metadata defaultProfile, через управляемую атомарную запись. |
-| `connection:list/show`, task reads | Постоянные config/credentials не меняются. |
-| `connection:remove NAME` | Запись и credential file удаляются; default очищается при совпадении, другой профиль автоматически не выбирается. |
+| Первый `auth:login` | Каталоги, lock file, config.json, один credential file; профиль становится `defaultProfile`. После проверки вебхука — снимок прав в `state.json`. |
+| `auth:login` с новым alias | Запись в config.json и новый credential file; выбранный `defaultProfile` сохраняется. |
+| `auth:login` с существующим alias | configuration-error / exit 1 до ввода вебхука; config и credentials сохраняются. |
+| `auth:login NAME --replace` | Новый credential file, ссылка и `connection.hostname` в config.json; прежний credential file удаляется после публикации. `name`, `default.*` и `defaultProfile` сохраняются. |
+| `auth:login`, не прошедший проверку | Ничего: config, credentials и `defaultProfile` сохраняют прежние байты. |
+| `auth:switch NAME` | Только `defaultProfile`, через управляемую атомарную запись. |
+| `config:set` / `config:unset` | Один ключ config.json; credentials и state.json не открываются. |
+| `auth:list`, `config:list`, `config:get`, чтение задач | Постоянные config/credentials не меняются. |
+| `auth:logout NAME` | Запись и credential file удаляются; default очищается при совпадении, другой профиль автоматически не выбирается. |
 
-`connection:add` сохраняет минимум `default.task.allowsTimeTracking=false`, даже без ID flags. `--portal-domain DOMAIN` меняет только описательный `name`. Для CI настройка принимает `--webhook-stdin`; stdin должен подаваться из защищённого источника, без literal webhook в shell history. Для нового alias `-n`/non-TTY без этого флага возвращает ошибку. Дублирующий профиль не обновляется: ошибка возникает до запроса или чтения webhook.
+`auth:login` сохраняет только `name` (hostname вебхука) и `connection`; объект `default` появляется после первого `config:set`. Описательный `name` меняется командой `config:set name DOMAIN`. Для CI вход принимает `--webhook-stdin`; stdin должен подаваться из защищённого источника, без literal webhook в shell history. `-n`/non-TTY без этого флага возвращает ошибку. Существующий профиль не обновляется без `--replace`: ошибка возникает до запроса или чтения вебхука.
 
-Для изменения defaults существующего профиля сначала выполните `connection:show NAME`, сохраните нужные non-secret настройки и обеспечьте доступ к webhook для повторного ввода. `connection:show` не раскрывает webhook. Затем пересоздайте профиль с полным набором нужных параметров:
-
-```sh
-b24cli connection:show work
-b24cli connection:remove work
-# Защищённый secret-файл должен быть доступен до удаления профиля.
-b24cli connection:add work --group-id 187 --creator-id 3 --responsible-id 2 --allows-time-tracking true --webhook-stdin -n < /secure/webhook.txt
-# Только если work должен быть подключением по умолчанию:
-b24cli connection:use work
-b24cli --profile work task:add --title "Договор" --dry-run --json
-```
-
-Удаление стирает локальный credential file и очищает совпадающий `defaultProfile`, но не отзывает webhook на портале. Повторный add не восстанавливает выбор автоматически. Defaults удалённого профиля не переносятся: omitted ID flags оставляют соответствующие ID отсутствующими, а omitted `--allows-time-tracking` задаёт `false`. При необходимости передайте `--portal-domain` заново.
-
-Локальные `connection:*` команды не создают, не проверяют на портале и не отзывают webhook. Отзыв — отдельное действие в Битрикс24.
+`auth:logout` стирает локальный credential file и настройки профиля, но не отзывает вебхук на портале: отзыв — отдельное действие в Битрикс24. `auth:list`, `auth:switch`, `auth:logout` и `config:*` не обращаются к порталу; вебхук проверяют `auth:login` и `auth:status`.
 
 PowerShell выполняет те же команды с `b24cli.exe` в PATH или `.\b24cli.exe`:
 
 ```powershell
-.\b24cli.exe connection:add work --group-id 42 --creator-id 1 --responsible-id 2
-.\b24cli.exe connection:use work
+.\b24cli.exe auth:login work
+.\b24cli.exe config:set default.task.groupId 42
 .\b24cli.exe --profile work task:add --title "Договор" --dry-run --json
 .\b24cli.exe --env-file "C:\Private Config\bitrix24.env" task:list --json
 ```
@@ -263,7 +347,7 @@ b24cli --config-dir "/home/me/Private Config" --profile work task:list --json
 b24cli --env-file "/run/secrets/bitrix24.env" task:list --json
 ```
 
-Разовый selector не меняет defaultProfile. Для CI/контейнера process credentials либо смонтированный explicit file не требуют сохранения профиля. Docker forwarding и volumes описаны в [development.md](development.md).
+Разовый selector не меняет defaultProfile; команды `config:*` выбирают профиль [по своему правилу](#выбор-профиля). Для CI/контейнера process credentials либо смонтированный explicit file не требуют сохранения профиля. Docker forwarding и volumes описаны в [development.md](development.md).
 
 `--profile default` и runtime `config.profile=default` выбирают сохранённый профиль с alias `default`.
 
@@ -298,8 +382,10 @@ Collection — strict boolean; max — positive JSON integer literal до PHP_IN
 разбор snapshot, отдельно от отправки. Неизвестные ключи, invalid objects/types
 отклоняются. JSON Schema defaults являются annotations; runtime применяет их явно.
 
-Меняйте настройки через публичное действие
+Меняйте настройки командами `config:set telemetry.collectProblemTrajectories false`
+и `config:set telemetry.maxProblemTrajectoryFiles 50` либо публичным действием
 `doctor:problem-trajectory --action configure --settings-file PATH --json`.
+Даты `last*At` ведёт CLI: через `config:*` они только читаются.
 Read-only doctor actions работают без credentials; первая успешная запись может
 создать config с profiles={}, не добавляя портал. Profile commands сохраняют
 telemetry, а doctor updates не теряют profiles/defaultProfile/credential references.
@@ -332,8 +418,15 @@ make unit TEST_ARGS="--filter ConfigSchemaContractTest"
 Корневой optional object `logging` включает файловый лог для всего каталога
 конфигурации, независимо от профиля портала и способа подключения: профиль,
 `--env-file`, `B24CLI_ENV_FILE` или `BITRIX24_WEBHOOK`. По умолчанию логирование
-выключено. Настройки меняют вручную в `config.json`; проверить их можно по JSON Schema
-и командой `connection:show`.
+выключено. Настройки меняются командами `config:set logging.*`; действующие значения
+и состояние лога показывает `config:list`.
+
+```sh
+b24cli config:set logging.enabled true
+b24cli config:set logging.level debug
+b24cli config:unset logging.level
+b24cli config:list --json
+```
 
 ```json
 {
@@ -381,8 +474,12 @@ HTTP-статус и длительность. На уровне `debug` в ло
 Профили при этом читаются и сохраняются без изменения `logging`. CLI создаёт каталог
 логов с правами 0700, а файлы с правами 0600; права существующего каталога не меняются.
 
-`connection:show` показывает блок `logging`: статус `ok`, `disabled` или `invalid`
-с причиной, эффективные значения и абсолютный путь к файлу текущих суток.
+`config:list` показывает блок `logging`: статус `ok`, `disabled` или `invalid`
+с причиной, эффективные значения, абсолютный каталог логов и путь к файлу текущих суток.
+Вычисление блока не создаёт каталог логов. Пока `logging` задан неверно, запись ключей
+профиля и `telemetry.*` сохраняет его без изменений, а `config:set logging.*` принимается,
+только если после изменения весь блок становится корректным: неверное поле исправляется
+тем же `config:set` или `config:unset`.
 
 Версии CLI без поддержки `logging` отклоняют `config.json` с этим ключом. Перед
 переходом на такую версию удалите `logging` из `config.json`.

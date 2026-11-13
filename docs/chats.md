@@ -1,6 +1,6 @@
 # Чаты: адресаты
 
-[Обзор CLI](../README.md#cli-команды) · [Подключение](connection.md) · [JTBD: CHAT-01/CHAT-02](task-jtbd.md#общие-сценарии-чатов--план-180) · [JTBD: созвоны CHAT-03…05](task-jtbd.md#chat-calls)
+[Обзор CLI](../README.md#cli-команды) · [Вход и профили](auth.md) · [JTBD: CHAT-01/CHAT-02](task-jtbd.md#общие-сценарии-чатов--план-180) · [JTBD: созвоны CHAT-03…05](task-jtbd.md#chat-calls)
 
 Namespace `chats:*` работает с групповым чатом, общим чатом проекта и чатом задачи. Команды: `chats:resolve` (проверка адресата), `chats:find` (поиск по названию), `chats:messages:list` (история за период), `chats:send` (отправка), `chats:add` (создание группового чата), `chats:calls:list` (звонки за период) и `chats:calls:show` (один звонок). Issue — [#180](https://github.com/mesilov/bitrix24-cli/issues/180), созвоны — [#208](https://github.com/mesilov/bitrix24-cli/issues/208), создание чата — [#185](https://github.com/mesilov/bitrix24-cli/issues/185).
 

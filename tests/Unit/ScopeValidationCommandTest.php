@@ -11,6 +11,7 @@ use Bitrix24\CLI\Infrastructure\Connection\FileProtection;
 use Bitrix24\CLI\Infrastructure\Connection\ProfileRepository;
 use Bitrix24\CLI\Tests\Support\ConsoleHarness;
 use Bitrix24\CLI\Tests\Support\MutableDoctorClock;
+use Bitrix24\CLI\Tests\Support\ProfileFixtures;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -27,6 +28,7 @@ final class ScopeValidationCommandTest extends TestCase
     private mixed $scopes = ['task'];
     private ?string $businessError = null;
     private bool $scopeTransportFailure = false;
+    private mixed $owner = ['ID' => '1', 'ADMIN' => true, 'NAME' => 'Иван', 'LAST_NAME' => 'Иванов', 'PERSONAL_GENDER' => 'M', 'TIME_ZONE' => 'Europe/Moscow'];
 
     protected function setUp(): void
     {
@@ -43,6 +45,10 @@ final class ScopeValidationCommandTest extends TestCase
         $mockHttpClient = new MockHttpClient(function (string $verb, string $url, array $options): MockResponse {
             $method = basename(parse_url($url, PHP_URL_PATH));
             $this->calls[] = $method;
+            if ($method === 'profile') {
+                return $this->response(['result' => $this->owner]);
+            }
+
             if ($method === 'scope') {
                 self::assertSame([], json_decode($options['body'], true));
                 if ($this->scopeTransportFailure) {
@@ -148,10 +154,10 @@ final class ScopeValidationCommandTest extends TestCase
     {
         $report = null;
         foreach ([['--json'], ['--plain'], []] as $mode) {
-            $run = ConsoleHarness::run($this->app, ['connection:check', ...$mode]);
+            $run = ConsoleHarness::run($this->app, ['auth:status', ...$mode]);
             self::assertSame(4, $run->status, $run->stdout . $run->stderr);
             self::assertStringContainsString('im', $run->stdout . $run->stderr);
-            self::assertStringContainsString('connection:check', $run->stdout . $run->stderr);
+            self::assertStringContainsString('auth:status', $run->stdout . $run->stderr);
             self::assertStringNotContainsString('ScopeFixtureSecret', $run->stdout . $run->stderr);
             if ($mode === ['--json']) {
                 $report = $run->json()['error']['details']['scopeValidation'];
@@ -159,23 +165,27 @@ final class ScopeValidationCommandTest extends TestCase
                 self::assertSame('scope-missing', $run->json()['error']['code']);
                 self::assertSame(['task'], $report['grantedScopes']);
                 self::assertSame(['im'], $report['potentiallyAffectedCommands']['task:chat:list']);
+                self::assertSame(['ID' => '1', 'NAME' => 'Иван', 'LAST_NAME' => 'Иванов', 'ADMIN' => true], $report['owner']);
+                self::assertSame(['profile', 'scope'], array_column($run->json()['meta']['apiCalls'], 'method'));
             } else {
                 self::assertIsArray($report);
                 self::assertSame('', $run->stdout);
                 $separator = $mode === ['--plain'] ? "\t" : ': ';
-                foreach (['grantedScopes', 'lastSuccessfulCheckAt', 'scopeManifestRevision', 'potentiallyAffectedCommands', 'connection'] as $field) {
+                foreach (['owner', 'grantedScopes', 'lastSuccessfulCheckAt', 'scopeManifestRevision', 'potentiallyAffectedCommands', 'connection'] as $field) {
                     $value = is_array($report[$field]) ? json_encode($report[$field], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : $report[$field];
                     self::assertStringContainsString($field . $separator . $value, $run->stderr);
                 }
             }
         }
 
-        self::assertCount(3, $this->calls);
+        self::assertSame(['profile', 'scope', 'profile', 'scope', 'profile', 'scope'], $this->calls);
         $this->scopes = ['task', 'im', 'disk', 'department', 'user', 'sonet_group'];
-        $run = ConsoleHarness::run($this->app, ['connection:check', '--json']);
+        $run = ConsoleHarness::run($this->app, ['auth:status', '--json']);
         self::assertSame(0, $run->status, $run->stdout);
         self::assertSame([], $run->json()['data']['potentiallyAffectedCommands']);
         self::assertSame([], $run->json()['data']['missingScopes']);
+        self::assertSame(['ID' => '1', 'NAME' => 'Иван', 'LAST_NAME' => 'Иванов', 'ADMIN' => true], $run->json()['data']['owner']);
+        self::assertSame('fresh', $run->json()['data']['status']);
         $run = ConsoleHarness::run($this->app, ['task:chat:list', '1', '--json']);
         self::assertSame(0, $run->status, $run->stdout);
         self::assertSame(4, count(array_filter($this->calls, static fn (string $method): bool => $method === 'scope')));
@@ -183,8 +193,8 @@ final class ScopeValidationCommandTest extends TestCase
 
     public function testCheckUsageExamplePerformsTheDiagnosticInsteadOfDryRun(): void
     {
-        $examples = \Bitrix24\CLI\Console\TaskUsage::examples($this->app->get('connection:check'));
-        self::assertStringContainsString('b24cli connection:check', $examples[0]);
+        $examples = \Bitrix24\CLI\Console\TaskUsage::examples($this->app->get('auth:status'));
+        self::assertStringContainsString('b24cli auth:status', $examples[0]);
         self::assertStringNotContainsString('--dry-run', $examples[0]);
     }
 
@@ -236,12 +246,12 @@ final class ScopeValidationCommandTest extends TestCase
         $run = ConsoleHarness::run($this->app, ['task:list', '--json']);
         self::assertSame(0, $run->status, $run->stdout);
         self::assertSame('unknown', $run->json()['meta']['scopeValidation']['status']);
-        $run = ConsoleHarness::run($this->app, ['connection:check', '--json']);
+        $run = ConsoleHarness::run($this->app, ['auth:status', '--json']);
         self::assertSame(1, $run->status);
         self::assertSame('scope-check-unavailable', $run->json()['error']['code']);
         self::assertSame(2, $this->scopeCalls());
         $this->scopes = [];
-        ConsoleHarness::run($this->app, ['connection:check', '--json']);
+        ConsoleHarness::run($this->app, ['auth:status', '--json']);
         $run = ConsoleHarness::run($this->app, ['task:list', '--json']);
         self::assertSame(4, $run->status, $run->stdout);
         self::assertSame('scope-missing', $run->json()['error']['code']);
@@ -250,14 +260,14 @@ final class ScopeValidationCommandTest extends TestCase
 
     public function testOfflineAndPolicyRejectionDoNotAccessStateOrNetwork(): void
     {
-        foreach ([['--help'], ['--version'], ['list'], ['connection:list', '--json'], ['task:add', '--title', 'Preview', '--creator', '1', '--responsible', '1', '--dry-run', '--json'], ['connection:check', '--dry-run', '--json']] as $argv) {
+        foreach ([['--help'], ['--version'], ['list'], ['auth:list', '--json'], ['config:list', '--json'], ['config:get', 'logging.level', '--json'], ['task:add', '--title', 'Preview', '--creator', '1', '--responsible', '1', '--dry-run', '--json'], ['auth:status', '--dry-run', '--json']] as $argv) {
             $run = ConsoleHarness::run($this->app, $argv);
             self::assertSame(0, $run->status, $run->stdout . $run->stderr);
         }
 
         self::assertSame([], $this->calls);
         self::assertDirectoryDoesNotExist($this->directory);
-        $run = ConsoleHarness::run($this->app, ['connection:check', '--api-policy', 'strict-rest3', '--json']);
+        $run = ConsoleHarness::run($this->app, ['auth:status', '--api-policy', 'strict-rest3', '--json']);
         self::assertSame(4, $run->status);
         self::assertSame('policy-denied', $run->json()['error']['code']);
         self::assertSame([], $this->calls);
@@ -275,8 +285,8 @@ final class ScopeValidationCommandTest extends TestCase
         self::assertSame(2, $this->scopeCalls());
         $fileProtection = new FileProtection();
         $profileRepository = new ProfileRepository($fileProtection, new FileCredentialStore($fileProtection));
-        $profileRepository->add($this->directory, 'work', self::WEBHOOK, null, []);
-        $profileRepository->add($this->directory, 'pet', self::WEBHOOK, null, []);
+        ProfileFixtures::add($profileRepository, $this->directory, 'work', self::WEBHOOK);
+        ProfileFixtures::add($profileRepository, $this->directory, 'pet', self::WEBHOOK);
 
         $config = file_get_contents($this->directory . '/config.json');
         foreach (['work', 'pet'] as $alias) {
@@ -287,9 +297,9 @@ final class ScopeValidationCommandTest extends TestCase
         self::assertSame(4, $this->scopeCalls());
         self::assertCount(4, json_decode(file_get_contents($this->directory . '/state.json'), true)['connections']);
         self::assertSame($config, file_get_contents($this->directory . '/config.json'));
-        $run = ConsoleHarness::run($this->app, ['connection:check', 'work', '--json']);
+        $run = ConsoleHarness::run($this->app, ['auth:status', 'work', '--json']);
         self::assertSame('work', $run->json()['error']['details']['scopeValidation']['connection']['profile']);
-        $run = ConsoleHarness::run($this->app, ['connection:check', 'work', '--profile', 'pet', '--json']);
+        $run = ConsoleHarness::run($this->app, ['auth:status', 'work', '--profile', 'pet', '--json']);
         self::assertSame(2, $run->status);
     }
 
@@ -317,7 +327,7 @@ final class ScopeValidationCommandTest extends TestCase
         self::assertSame(0, $run->status, $run->stdout);
         self::assertSame('unknown', $run->json()['meta']['scopeValidation']['status']);
         self::assertSame(['tasks.task.list'], $this->calls);
-        $run = ConsoleHarness::run($this->app, ['connection:check', '--json']);
+        $run = ConsoleHarness::run($this->app, ['auth:status', '--json']);
         self::assertSame(1, $run->status);
         self::assertSame('broken', file_get_contents($this->directory . '/state.json'));
     }
@@ -351,7 +361,7 @@ final class ScopeValidationCommandTest extends TestCase
     {
         foreach (['task', (object) [], 1, true, null] as $result) {
             $this->scopes = $result;
-            $run = ConsoleHarness::run($this->app, ['connection:check', '--json']);
+            $run = ConsoleHarness::run($this->app, ['auth:status', '--json']);
             self::assertSame(1, $run->status, $run->stdout);
             self::assertSame('scope-check-unavailable', $run->json()['error']['code']);
             self::assertNull($this->entry()['lastSuccessfulCheckAt']);
@@ -379,11 +389,11 @@ final class ScopeValidationCommandTest extends TestCase
     public function testStrictRest3UsesFreshCacheToBlockWithoutSendingRest1(): void
     {
         $this->scopes = [];
-        ConsoleHarness::run($this->app, ['connection:check', '--json']);
+        ConsoleHarness::run($this->app, ['auth:status', '--json']);
         $run = ConsoleHarness::run($this->app, ['task:list', '--api-policy', 'strict-rest3', '--json']);
         self::assertSame(4, $run->status, $run->stdout);
         self::assertSame('scope-missing', $run->json()['error']['code']);
-        self::assertSame(['scope'], $this->calls);
+        self::assertSame(['profile', 'scope'], $this->calls);
         self::assertSame([], $run->json()['meta']['apiCalls']);
     }
 
@@ -416,6 +426,53 @@ final class ScopeValidationCommandTest extends TestCase
         self::assertSame(0, pcntl_wexitstatus($status));
         self::assertSame(0, $run->status, $run->stdout);
         self::assertSame("probe\n", file_get_contents($log));
+    }
+
+    public function testWebhookWithoutUserScopeStillIdentifiesItsOwner(): void
+    {
+        $this->scopes = ['task'];
+        $this->owner = ['ID' => '7', 'ADMIN' => false, 'NAME' => 'Анна', 'LAST_NAME' => 'Петрова'];
+        $run = ConsoleHarness::run($this->app, ['auth:status', '--json']);
+        self::assertSame(4, $run->status, $run->stdout);
+        $report = $run->json()['error']['details']['scopeValidation'];
+        self::assertSame(['ID' => '7', 'NAME' => 'Анна', 'LAST_NAME' => 'Петрова', 'ADMIN' => false], $report['owner']);
+        self::assertContains('user', $report['missingScopes']);
+        self::assertSame(['user'], $report['potentiallyAffectedCommands']['users:current']);
+        self::assertStringNotContainsString('ScopeFixtureSecret', $run->stdout . $run->stderr);
+    }
+
+    public function testInactiveWebhookOwnerFailsBeforeTheSnapshotIsRefreshed(): void
+    {
+        $this->owner = [];
+        foreach ([['--json'], ['--plain'], []] as $mode) {
+            $run = ConsoleHarness::run($this->app, ['auth:status', ...$mode]);
+            self::assertSame(1, $run->status, $run->stdout . $run->stderr);
+            self::assertStringContainsString('connection-unavailable', $run->stdout . $run->stderr);
+            self::assertStringContainsString('inactive', $run->stdout . $run->stderr);
+        }
+
+        self::assertSame(['profile', 'profile', 'profile'], $this->calls);
+        self::assertFileDoesNotExist($this->directory . '/state.json');
+
+        // A previously fresh snapshot is neither refreshed nor replaced by the failed diagnostic.
+        $this->owner = ['ID' => '1', 'NAME' => 'Иван', 'LAST_NAME' => 'Иванов', 'ADMIN' => true];
+        ConsoleHarness::run($this->app, ['task:list', '--json']);
+        $before = $this->entry();
+        $this->owner = [];
+        $this->clock->time = $this->clock->time->modify('+1 hour');
+        $run = ConsoleHarness::run($this->app, ['auth:status', '--json']);
+        self::assertSame('connection-unavailable', $run->json()['error']['code']);
+        self::assertSame($before, $this->entry());
+    }
+
+    public function testManifestTreatsOwnerAndScopeRoutesAsScopeFree(): void
+    {
+        $scopeManifest = new \Bitrix24\CLI\Application\Connection\ScopeManifest();
+        self::assertSame([], $scopeManifest->required([new \Bitrix24\CLI\Application\Route('profile', 1), new \Bitrix24\CLI\Application\Route('scope', 1)]));
+        self::assertSame([['profile', 1], ['scope', 1]], \Bitrix24\CLI\Bootstrap\CommandCatalog::ROUTES['auth:status']);
+        self::assertSame([['profile', 1], ['scope', 1]], \Bitrix24\CLI\Bootstrap\CommandCatalog::ROUTES['auth:login']);
+        self::assertArrayNotHasKey('auth:status', $scopeManifest->affectedCommands([]));
+        self::assertArrayNotHasKey('auth:login', $scopeManifest->affectedCommands([]));
     }
 
     private function scopeCalls(): int

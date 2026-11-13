@@ -31,19 +31,41 @@ final readonly class ScopeCheckingTransport implements ScopeAwareTransport
         return $report;
     }
 
-    public function checkConnection(): array
+    public function checkConnection(?array $owner = null): array
     {
-        $report = $this->validator->check(force: true);
-        $report['connection'] = $this->validator->connectionMetadata();
+        $report = $this->describe($this->validator->check(force: true), $owner);
         if ($report['status'] !== 'fresh') {
-            throw new Failure('scope-check-unavailable', 'Could not verify webhook permissions. The last successful snapshot is retained; retry connection:check.', 1, ['scopeValidation' => $report]);
+            throw new Failure('scope-check-unavailable', 'Could not verify webhook permissions. The last successful snapshot is retained; retry auth:status.', 1, ['scopeValidation' => $report]);
         }
 
-        $report['potentiallyAffectedCommands'] = $this->manifest->affectedCommands($report['grantedScopes']);
-        $report['missingScopes'] = array_values(array_unique(array_merge([], ...array_values($report['potentiallyAffectedCommands']))));
-        $report['conditionalRequirements'] = 'Affected commands may depend on selected options; only the actual route plan is blocked.';
         if ($report['missingScopes'] !== []) {
             throw $this->missing($report);
+        }
+
+        return $report;
+    }
+
+    public function probeScopes(): array
+    {
+        return $this->validator->probe();
+    }
+
+    public function rememberScopes(array $entry): array
+    {
+        return $this->describe($this->validator->remember($entry), null);
+    }
+
+    private function describe(array $report, ?array $owner): array
+    {
+        if ($owner !== null) {
+            $report['owner'] = $owner;
+        }
+
+        $report['connection'] = $this->validator->connectionMetadata();
+        if ($report['status'] === 'fresh') {
+            $report['potentiallyAffectedCommands'] = $this->manifest->affectedCommands($report['grantedScopes']);
+            $report['missingScopes'] = array_values(array_unique(array_merge([], ...array_values($report['potentiallyAffectedCommands']))));
+            $report['conditionalRequirements'] = 'Affected commands may depend on selected options; only the actual route plan is blocked.';
         }
 
         return $report;
@@ -66,6 +88,6 @@ final readonly class ScopeCheckingTransport implements ScopeAwareTransport
     {
         $connection = $report['connection'];
         $name = $connection['profile'] ?? $connection['source'];
-        return new Failure('scope-missing', 'Connection ' . $name . ' is missing webhook scopes: ' . implode(', ', $report['missingScopes']) . '. Checked at ' . $report['lastSuccessfulCheckAt'] . '. Add these permissions to the incoming webhook, then run connection:check with the same connection selectors.', 4, ['scopeValidation' => $report]);
+        return new Failure('scope-missing', 'Connection ' . $name . ' is missing webhook scopes: ' . implode(', ', $report['missingScopes']) . '. Checked at ' . $report['lastSuccessfulCheckAt'] . '. Add these permissions to the incoming webhook, then run auth:status with the same connection selectors.', 4, ['scopeValidation' => $report]);
     }
 }

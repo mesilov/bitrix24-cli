@@ -88,17 +88,18 @@ b24cli --version
 
 ## Подключения и конфигурация
 
-Подготовьте входящий webhook Битрикс24 с правами для нужных операций. Сохраните
-его как именованное подключение, выберите профиль и проверьте доступ к порталу.
-`connection:add` запросит webhook скрытым вводом — вставьте его в ответ на запрос.
+Подготовьте входящий webhook Битрикс24 с правами для нужных операций и войдите
+на портал. `auth:login` запросит webhook скрытым вводом — вставьте его в ответ на запрос.
+Перед сохранением CLI проверит webhook на портале и покажет его владельца; неверный
+webhook не сохраняется. Первый профиль сразу становится профилем по умолчанию.
 
 <details>
 <summary>Linux — Bash</summary>
 
 ```sh
-b24cli connection:add work
-b24cli connection:use work
-b24cli --profile work users:current --json
+b24cli auth:login work
+b24cli auth:status work
+b24cli task:list --json
 ```
 
 </details>
@@ -107,9 +108,9 @@ b24cli --profile work users:current --json
 <summary>macOS — zsh</summary>
 
 ```sh
-b24cli connection:add work
-b24cli connection:use work
-b24cli --profile work users:current --json
+b24cli auth:login work
+b24cli auth:status work
+b24cli task:list --json
 ```
 
 </details>
@@ -118,21 +119,35 @@ b24cli --profile work users:current --json
 <summary>Windows — PowerShell</summary>
 
 ```powershell
-b24cli.exe connection:add work
-b24cli.exe connection:use work
-b24cli.exe --profile work users:current --json
+b24cli.exe auth:login work
+b24cli.exe auth:status work
+b24cli.exe task:list --json
 ```
 
 </details>
 
-Для каждого портала можно сохранить отдельный профиль. Управление подключениями,
-ввод webhook в CI, переменные окружения и выбор источника credentials —
-в [руководстве по подключениям](docs/connection.md).
+`auth:status` показывает владельца вебхука, выданные права и команды, которым прав
+не хватает. Для каждого портала можно сохранить отдельный профиль: `auth:login clientA`,
+затем `auth:switch clientA` или `--profile clientA`. Замена вебхука с сохранением настроек —
+`auth:login work --replace`, выход — `auth:logout work`. Вход в CI, переменные окружения
+и выбор источника credentials — в [руководстве по входу и профилям](docs/auth.md).
+
+Значения по умолчанию и остальные несекретные настройки меняются без повторного ввода
+вебхука:
+
+```sh
+b24cli config:set default.task.groupId 187
+b24cli config:set default.users.observerId 5 --profile work
+b24cli config:set logging.enabled true
+b24cli config:list
+```
+
+Все ключи, типы значений и выбор профиля — в [руководстве по настройкам](docs/config.md#команды-config).
 
 CLI проверяет разрешения вебхука перед работой с порталом и кеширует результат на сутки
 в отдельном `state.json`. При нехватке прав блокируется только затронутая команда.
-После изменения разрешений выполните `b24cli connection:check work --json`.
-Подробности — в [руководстве по проверке разрешений](docs/connection-scopes.md).
+После изменения разрешений выполните `b24cli auth:status work --json`.
+Подробности — в [руководстве по проверке разрешений](docs/auth-scopes.md).
 
 ## CLI-команды
 
@@ -147,16 +162,24 @@ ID, имена профилей и тексты в примерах замени
 | `help` | Показать справку команды | `b24cli help task:add` |
 | `list` | Показать список команд | `b24cli list task` |
 
-### Подключения
+### Вход и профили
 
 | Команда | Назначение | Пример |
 | --- | --- | --- |
-| `connection:add` | Сохранить локальное подключение | `b24cli connection:add work --group-id 7 --creator-id 1 --responsible-id 42` |
-| `connection:check` | Проверить разрешения вебхука и требования CLI | `b24cli connection:check work --json` |
-| `connection:list` | Показать сохранённые подключения | `b24cli connection:list` |
-| `connection:remove` | Удалить локальный профиль и его учётные данные | `b24cli connection:remove work` |
-| `connection:show` | Показать безопасные параметры выбранного подключения | `b24cli connection:show work` |
-| `connection:use` | Выбрать сохранённый профиль по умолчанию | `b24cli connection:use work` |
+| `auth:list` | Показать сохранённые профили и фактическое подключение | `b24cli auth:list` |
+| `auth:login` | Сохранить вебхук портала как профиль и проверить его | `b24cli auth:login work` |
+| `auth:logout` | Удалить локальный профиль и его учётные данные | `b24cli auth:logout work` |
+| `auth:status` | Проверить вебхук: владелец, разрешения и требования CLI | `b24cli auth:status work --json` |
+| `auth:switch` | Выбрать сохранённый профиль по умолчанию | `b24cli auth:switch work` |
+
+### Настройки
+
+| Команда | Назначение | Пример |
+| --- | --- | --- |
+| `config:get` | Показать действующее значение одной настройки | `b24cli config:get default.task.groupId` |
+| `config:list` | Показать действующие настройки профиля и каталога конфигурации | `b24cli config:list` |
+| `config:set` | Изменить одну настройку без повторного ввода вебхука | `b24cli config:set default.task.groupId 187` |
+| `config:unset` | Удалить настройку и вернуть значение по умолчанию | `b24cli config:unset default.task.groupId` |
 
 ### Сотрудники
 
@@ -333,9 +356,12 @@ b24cli --about
 через `--config-dir PATH` или `B24CLI_CONFIG_DIR`. Хранение независимо от бинарника.
 Глобальный `--config PATH` выбирает отдельный runtime JSON с параметрами выполнения.
 
+Настройки меняются командами `config:set` и `config:unset`, действующие значения
+показывает `config:list`; вручную править файл не требуется.
+
 Корневой объект `logging` включает суточный файловый лог в `logs/` рядом с `config.json`
-с хранением 7 дней; по умолчанию он выключен. Поля и ограничения — в разделе
-[Файловое логирование](docs/config.md#файловое-логирование).
+с хранением 7 дней; по умолчанию он выключен: `b24cli config:set logging.enabled true`.
+Поля и ограничения — в разделе [Файловое логирование](docs/config.md#файловое-логирование).
 
 Формат, приоритеты, defaults и права доступа — в [руководстве по конфигу](docs/config.md),
 машиночитаемый контракт — [JSON Schema](docs/config.schema.json).

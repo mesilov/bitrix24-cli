@@ -93,7 +93,7 @@ final readonly class FileCredentialStore implements CredentialStore
         $path = $this->path($directory, $reference);
         $this->protection->noLinks($path);
         if (file_exists($path) && !@unlink($path)) {
-            throw new Failure('configuration-error', 'Profile removed; a protected orphan credential remains in the credentials directory.');
+            throw new Failure('configuration-error', 'The configuration was updated, but a protected orphan credential file remains in the credentials directory.');
         }
     }
 

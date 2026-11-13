@@ -2,6 +2,26 @@
 
 ## [Unreleased]
 
+### Ломающие изменения
+
+- **Команды `auth:*` и `config:*` вместо `connection:*`:** учётные данные и выбор портала отделены от несекретных настроек. `auth:login NAME` до сохранения проверяет вебхук на портале методами REST 1.0 `profile` и `scope`: неверный вебхук не сохраняется, вебхук с неполными правами сохраняется с предупреждением, первый профиль становится профилем по умолчанию. `--replace` меняет вебхук с сохранением настроек, `--skip-check` сохраняет профиль без сети. `auth:status` показывает владельца вебхука (`owner`: `ID`, `NAME`, `LAST_NAME`, `ADMIN`), права и затронутые команды, `auth:list` — профили и фактическое подключение без обращения к порталу. `config:list`, `config:get`, `config:set` и `config:unset` меняют одно значение (`name`, `default.task.*`, `default.users.*`, `logging.*`, `telemetry.*`) без повторного ввода вебхука, со строгой проверкой типов. Команды `connection:*` удалены без алиасов; форматы `config.json`, `state.json` и файлов учётных данных не изменились. [#214](https://github.com/mesilov/bitrix24-cli/issues/214)
+
+  | Было | Стало |
+  | --- | --- |
+  | `connection:add NAME` | `auth:login NAME` |
+  | `connection:add NAME --group-id N --creator-id N --responsible-id N` | `auth:login NAME`, затем `config:set default.task.groupId N`, `default.task.creatorId N`, `default.task.responsibleId N` |
+  | `connection:add NAME --allows-time-tracking true` | `config:set default.task.allowsTimeTracking true` |
+  | `connection:add NAME --observer-id N --manager-id N --auto-add-observer true` | `config:set default.users.observerId N`, `default.users.managerId N`, `default.users.autoAddObserver true` |
+  | `connection:add NAME --portal-domain DOMAIN` | `config:set name DOMAIN` |
+  | `connection:use NAME` | `auth:switch NAME`; первый профиль выбирается при `auth:login` |
+  | `connection:check [NAME]` | `auth:status [NAME]` |
+  | `connection:list` | `auth:list` |
+  | `connection:show [NAME]` | `auth:list [NAME]` и `config:list [--profile NAME]` |
+  | `connection:remove NAME` | `auth:logout NAME` |
+  | `connection:remove` + `connection:add` для смены значения или вебхука | `config:set KEY VALUE` или `auth:login NAME --replace` |
+
+  Документация: [вход и профили](docs/auth.md), [настройки](docs/config.md#команды-config), [проверка разрешений](docs/auth-scopes.md). Приёмка на тестовом портале и перевод `bitrix24-cli-skill` на новые команды выполняются отдельно.
+
 ### Добавлено
 
 - **Относительные сроки и периоды:** `task:deadline:set --day TOKEN --time HH:MM` и `task:add`/`task:update --deadline-day TOKEN --deadline-time HH:MM` с `--timezone IANA` назначают срок относительным днём (`today`, `tomorrow`, `day-after-tomorrow`, `monday…sunday` — ближайший после сегодня, `next-week-monday…sunday`, `YYYY-MM-DD`) и явным временем. Часа по умолчанию нет. CLI отклоняет срок не позже now и время, пропущенное или повторённое переходом DST; `meta.deadlineResolution` показывает вычисленный ISO8601. `--deadline`/`--at` по-прежнему принимают только ISO8601. `task:list`/`task:find` получили окна `last/next-week`, `last/next-month`, `last/next-quarter`, `next-7-days`/`last-7-days` (семь календарных дней, включая сегодня) и `--closed-window` по фактической дате завершения (`CLOSED_DATE`, REST 1.0) без подмены дедлайном или статусом. [#141](https://github.com/mesilov/bitrix24-cli/issues/141)
@@ -55,7 +75,7 @@
 
 - **Окна по дате создания и изменения:** `task:list` и `task:find` принимают `--created-window` и `--changed-window` с мнемониками `--deadline-window` (`today` … `this-quarter`). Окна идут на сервер REST 1.0 как `CREATED_DATE`/`CHANGED_DATE`, сочетаются между собой и с остальными критериями через AND и показывают границы в `meta.createdFilter`/`meta.changedFilter`. Пример: `b24cli task:list --group-id 42 --created-window this-quarter --json`. При `--api-policy strict-rest3` флаги отклоняются до запросов. [#186](https://github.com/mesilov/bitrix24-cli/issues/186)
 
-- **Файловое логирование:** корневой объект `logging` в `config.json` включает суточный лог JSON Lines (`b24cli-{YYYY}{MM}{DD}.log` в `logs/` рядом с config, хранение 7 дней) при любом способе подключения. Пишутся начало и завершение команды, ошибки и события b24phpsdk с `runId`; выше `debug` о REST-вызовах только сводка, данные на `debug` ограничены, webhook и токены маскируются. Неверный `logging` не ломает команды и профили, `connection:show` показывает статус и путь к файлу. Версии CLI без поддержки `logging` отклоняют такой `config.json`: перед их запуском удалите ключ. [#189](https://github.com/mesilov/bitrix24-cli/issues/189)
+- **Файловое логирование:** корневой объект `logging` в `config.json` включает суточный лог JSON Lines (`b24cli-{YYYY}{MM}{DD}.log` в `logs/` рядом с config, хранение 7 дней) при любом способе подключения. Пишутся начало и завершение команды, ошибки и события b24phpsdk с `runId`; выше `debug` о REST-вызовах только сводка, данные на `debug` ограничены, webhook и токены маскируются. Неверный `logging` не ломает команды и профили, `config:list` показывает статус и путь к файлу. Версии CLI без поддержки `logging` отклоняют такой `config.json`: перед их запуском удалите ключ. [#189](https://github.com/mesilov/bitrix24-cli/issues/189)
 
 - **Скилл grill-me:** в `.agents/skills/` добавлены `grill-me` и обязательный для него `grilling` из mattpocock/skills (MIT, commit `fcf0071`). В `grill-me` добавлен запасной путь для агентов без инструмента `Skill` (Codex): прочитать `../grilling/SKILL.md`; остальное совпадает с upstream. Скилл проводит интервью по плану раундами перед подготовкой OpenSpec change; происхождение и лицензия лежат рядом со скиллами, требования — в `openspec/specs/agent-skills/`. [#190](https://github.com/mesilov/bitrix24-cli/issues/190)
 
@@ -65,7 +85,7 @@
 
 - **Шаблоны задач:** `task:template:show`, `task:template:fields:list`, `task:template:add/update/delete` через REST 1.0 с нативными полями, JSON/plain и dry-run. Добавлен JTBD PM-08; неоднозначное подтверждение удаления отражается как partial (exit 3), доступность после запроса видна в JSON/human/plain. [#72](https://github.com/mesilov/bitrix24-cli/issues/72)
 
-- **Проверка прав вебхука:** требования выбранной команды сверяются с разрешениями подключения; отдельный защищённый `state.json` хранит снимок на сутки. Смена credentials/манифеста обновляет проверку, нехватка scope блокирует только затронутую команду, а `connection:check` принудительно обновляет права и показывает диагностику в human/plain/JSON. При сбое сохраняется последний успешный снимок и применяется backoff 300 секунд. [#149](https://github.com/mesilov/bitrix24-cli/issues/149)
+- **Проверка прав вебхука:** требования выбранной команды сверяются с разрешениями подключения; отдельный защищённый `state.json` хранит снимок на сутки. Смена credentials/манифеста обновляет проверку, нехватка scope блокирует только затронутую команду, а `auth:status` принудительно обновляет права и показывает диагностику в human/plain/JSON. При сбое сохраняется последний успешный снимок и применяется backoff 300 секунд. [#149](https://github.com/mesilov/bitrix24-cli/issues/149)
 
 ### Изменено
 

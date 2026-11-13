@@ -1,6 +1,6 @@
 # Сотрудники и оргструктура
 
-[Обзор CLI](../README.md#cli-команды) · [Подключение](connection.md)
+[Обзор CLI](../README.md#cli-команды) · [Вход и профили](auth.md)
 
 
 ```sh
@@ -24,4 +24,4 @@ b24cli users:presence chat37 --json
 
 `users:presence` показывает по каждому переданному ID время последней активности (`lastActivityDate`), отсутствие (`absent`) и момент наблюдения (`observedAt`). Неизвестный ID остаётся в выводе с `found=false` и перечислен в `meta.notFound`. Команда использует REST 1.0 [`im.user.list.get`](https://apidocs.bitrix24.ru/api-reference/chats/users/im-user-list-get.html) и право `im`. Статус мессенджера и признак онлайна не выводятся: на портале они остаются `online` у давно неактивных пользователей, поэтому присутствие видно только по последней активности. Plain TSV: `id`, `name`, `lastActivityDate`, `absent`. Вместо `--user-id` можно передать TARGET чата (`users:presence chat37`, ссылка портала, `sgN`, `group:N`, `task:N`): адресат проверяется как в `chats:resolve`, участники берутся из [`im.dialog.users.list`](https://apidocs.bitrix24.ru/api-reference/chats/chat-users/im-dialog-users-list.html) без ботов и системных пользователей, в `data.destination` — проверенный чат. `--max-members` (по умолчанию 1000) ограничивает число участников; при превышении результат неполный (exit 3).
 
-В профиле можно задать `default.users.observerId`, `managerId` и boolean `autoAddObserver`. Только при `autoAddObserver=true` создание задачи автоматически добавляет наблюдателя, сохраняя уже назначенных. При ошибке после создания CLI сохраняет ID задачи и сообщает partial. Настройка: `connection:add work --observer-id 5 --manager-id 9 --auto-add-observer true`; поля и ограничения описаны в [конфигурации](config.md).
+В профиле можно задать `default.users.observerId`, `managerId` и boolean `autoAddObserver`. Только при `autoAddObserver=true` создание задачи автоматически добавляет наблюдателя, сохраняя уже назначенных. При ошибке после создания CLI сохраняет ID задачи и сообщает partial. Настройка без повторного ввода вебхука: `b24cli config:set default.users.observerId 5 --profile work`, затем `config:set default.users.managerId 9 --profile work` и `config:set default.users.autoAddObserver true --profile work`; проверка — `b24cli config:list --profile work`. Поля и ограничения описаны в [конфигурации](config.md#defaultusers).
