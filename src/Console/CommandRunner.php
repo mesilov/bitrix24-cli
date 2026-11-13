@@ -84,9 +84,12 @@ final readonly class CommandRunner
                 $result = new OperationResult($result->profile, $result->data, [...$result->meta, 'reason' => 'Interrupted; confirmed steps are retained.'], 130);
             }
 
-            $result = new OperationResult($result->profile, $result->data, [...$result->meta, ...($scopeValidation === [] ? [] : ['scopeValidation' => $scopeValidation]), 'connection' => $this->connections->metadata($context->dryRun), 'fieldSources' => $this->connections->fieldSources], $result->exitStatus);
+            $result = new OperationResult($result->profile, $result->data, [...$result->meta, ...$this->state->meta, ...($scopeValidation === [] ? [] : ['scopeValidation' => $scopeValidation]), 'connection' => $this->connections->metadata($context->dryRun), 'fieldSources' => $this->connections->fieldSources], $result->exitStatus);
             $this->presenter->success($result, $context->outputMode, $output, $command, $this->state->calls);
             return $result->exitStatus;
+        } catch (Failure $failure) {
+            // Input-derived metadata (such as the resolved deadline) stays visible when the write fails or its outcome is unknown.
+            throw $this->state->meta === [] ? $failure : new Failure($failure->errorCode, $failure->getMessage(), $failure->exitStatus, [...$failure->details, ...$this->state->meta], $failure->outcomeUnknown);
         } finally {
             $this->state->notice = null;
             if ($oldHandler !== null) {

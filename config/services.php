@@ -34,6 +34,7 @@ return static function (ContainerBuilder $container, string $root, bool $package
         Bitrix24\CLI\Console\InputSourceReader::class,
         Bitrix24\CLI\Console\TaskInputMapper::class,
         Bitrix24\CLI\Application\Task\DeadlineWindowResolver::class,
+        Bitrix24\CLI\Application\Task\DeadlineAssignmentResolver::class,
         Bitrix24\CLI\Application\Task\ReportWeekResolver::class,
         Bitrix24\CLI\Application\Task\WeeklyTaskReport::class,
         Bitrix24\CLI\Console\UserInputMapper::class,

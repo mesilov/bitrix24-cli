@@ -92,7 +92,7 @@ final class TaskDateWindowFilterTest extends TestCase
             $deadlineWindowResolver->resolveAll(null, false, ['created' => null], 'UTC');
             self::fail('Expected usage error');
         } catch (Failure $failure) {
-            self::assertStringContainsString('--created-window or --changed-window', $failure->getMessage());
+            self::assertStringContainsString('--created-window, --changed-window or --closed-window', $failure->getMessage());
         }
     }
 
