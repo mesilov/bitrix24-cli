@@ -97,3 +97,9 @@ Native smoke и приёмка на портале после merge не пов�
 - Вебхук без scope `user` и `auth:status` с exit 4 на живом портале: оба вебхука окружения имеют полный набор прав. Поведение покрыто `ScopeValidationCommandTest` и `AuthLoginTest` на управляемом HTTP-fixture. Для живой проверки нужен вебхук с ограниченными правами.
 - Интерактивный скрытый ввод с проверкой на портале (в терминале пользователя); проверены скрытый ввод с `--skip-check` и вход с проверкой через `--webhook-stdin`.
 - Native-бинарники Linux/macOS/Windows и этап документированных оболочек smoke-теста: нужна сборка через `builds`.
+
+## Поставка
+
+- PR [#221](https://github.com/mesilov/bitrix24-cli/pull/221) влит в `dev` 13.11.2026 10:32 UTC, merge commit `ada4c15`, head `ed7ee1c`. Перед merge: 15/15 GitHub checks `SUCCESS` на `ed7ee1c`, нерешённых review threads нет (замечание Codex P2 о `profile` из runtime `--config` исправлено в `ed7ee1c`), `origin/dev` (`985bc01`) включена, запись #214 в `CHANGELOG.md` присутствует в diff.
+- Issue [#214](https://github.com/mesilov/bitrix24-cli/issues/214) закрыто (completed) по решению владельца репозитория при открытой задаче 5.2: пункты раздела «Не проверено» остались непроверенными.
+- Change архивирован в `openspec/changes/archive/2026-11-13-restructure-auth-config-commands/` с 16 из 17 выполненных задач. Синхронизированы `openspec/specs/connection-configuration/spec.md` (14 ADDED, 7 MODIFIED, 4 REMOVED), `openspec/specs/connection-scope-validation/spec.md` (1 ADDED, 3 MODIFIED) и `openspec/specs/user-workflows/spec.md` (1 MODIFIED); `openspec validate --specs --strict` — 26 из 26.
