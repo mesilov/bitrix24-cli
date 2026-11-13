@@ -116,7 +116,7 @@ Task creation SHALL use fields.allowsTimeTracking as a JSON boolean. The CLI MUS
 The CLI SHALL store a complete webhook as one secret in a separate credential file. New Unix directories MUST be 0700 and managed files 0600; Windows files MUST have a documented user-restricted ACL. Failure to establish protection MUST stop persistence.
 
 #### Scenario: Save credentials on each OS
-- **WHEN** connection:add persists a valid webhook on Linux, macOS or Windows
+- **WHEN** auth:login persists a valid webhook on Linux, macOS or Windows, including a replacement with --replace
 - **THEN** the credential file has the required access protection and the documented storage location
 - **AND** documentation identifies plaintext storage and administrative access limits without claiming encryption
 
@@ -175,41 +175,8 @@ An unavailable, malformed or empty selected source and an unknown selected profi
 - **THEN** configuration-error/exit1 occurs without consulting lower-priority sources
 - **AND** no configured source at all yields connection-unavailable/exit1 with setup guidance
 
-### Requirement: Local profile commands
-The CLI SHALL provide connection:add, connection:list, connection:show, connection:use and connection:remove. These commands MUST remain local, obey global output contracts and never contact a portal. Only connection:use SHALL select a new default; connection:remove MUST clear a deleted default.
-
-#### Scenario: Add and select two profiles
-- **WHEN** users add two profiles, run a task with --profile and then invoke connection:use NAME
-- **THEN** add and the task invocation preserve the default; use explicitly persists the named default
-
-#### Scenario: First profile before choosing a default
-- **WHEN** connection:add work succeeds with no existing user configuration
-- **THEN** it creates the configuration directory, credentials directory, config.json with defaultProfile null, profile name, nested connection metadata and default.task.allowsTimeTracking false, and one protected credential file
-- **AND** name defaults to the safe webhook hostname unless --portal-domain supplies a descriptive domain; optional --group-id, --creator-id and --responsible-id populate the matching default.task IDs; --allows-time-tracking true|false sets the profile boolean
-- **AND** no portal request occurs; using --profile work is available before connection:use work
-- **AND** a subsequent connection:use work changes only config.json and leaves the credential file intact
-
-#### Scenario: Reads and local removal preserve unrelated files
-- **WHEN** a configured profile is inspected, used for task:list or removed locally
-- **THEN** inspections and task reads do not persist configuration changes; removal deletes only that profile's metadata and credential file
-- **AND** removal of the current default leaves defaultProfile null without selecting another profile; config.json and directories remain
-
-#### Scenario: List inspect and remove
-- **WHEN** users list/show profiles or remove one
-- **THEN** output contains safe profile alias/name/connection.hostname/default.task/default.users/source/path metadata only
-- **AND** remove clears a matching default and removes its credential reference without exposing or revoking the remote webhook
-
-#### Scenario: Save optional working roles
-- **WHEN** connection:add work получает --observer-id 5, --manager-id 9 и --auto-add-observer true
-- **THEN** config сохраняет default.users с observerId=5, managerId=9, autoAddObserver=true без обращения к порталу
-- **AND** connection:list/show отображают эти non-secret настройки; при отсутствии ID flags они не выводятся из webhook или оргструктуры
-
-#### Scenario: Disabled automatic observer
-- **WHEN** connection:add получает --observer-id 5 без --auto-add-observer либо --auto-add-observer false
-- **THEN** эффективное autoAddObserver равно false, ID наблюдателя сохраняется как доступная настройка без автоматического назначения задачам
-
 ### Requirement: Secret input without argv
-connection:add SHALL accept a webhook through hidden interactive input or explicitly requested `--webhook-stdin`. It MUST NOT provide a literal secret argument. Noninteractive missing input and competing stdin consumers MUST fail without waiting or exposing input.
+auth:login SHALL accept a webhook through hidden interactive input or explicitly requested `--webhook-stdin`. It MUST NOT provide a literal secret argument. Noninteractive missing input and competing stdin consumers MUST fail without waiting or exposing input.
 
 #### Scenario: Hidden or piped input
 - **WHEN** webhook input comes from a terminal or a secret file redirected to stdin with --webhook-stdin
@@ -217,7 +184,7 @@ connection:add SHALL accept a webhook through hidden interactive input or explic
 - **AND** the secret does not enter subprocess argv
 
 #### Scenario: Noninteractive missing input
-- **WHEN** connection:add for a new alias runs with --no-interaction and no stdin option, or a second option also consumes stdin
+- **WHEN** auth:login for a new alias, or auth:login --replace for an existing alias, runs with --no-interaction and no stdin option, or a second option also consumes stdin
 - **THEN** usage-error/exit2 occurs without a prompt or partial profile creation
 
 ### Requirement: Packaged source independence
@@ -237,11 +204,11 @@ A packaged invocation SHALL obtain credentials only from process environment, an
 Every output mode and error path SHALL redact the full webhook and secret parts of URLs, including debug output and parsing errors. Effective connection metadata MUST identify the chosen source truthfully without claiming a profile supplied credentials when env actually did.
 
 #### Scenario: Error and verbose output
-- **WHEN** configuration parsing or transport fails with a recognizable fixture secret
+- **WHEN** configuration parsing, auth:login verification or transport fails with a recognizable fixture secret
 - **THEN** stdout, stderr, JSON, verbose diagnostics and error reports contain no fixture secret or full webhook
 
 #### Scenario: Effective source inspection
-- **WHEN** connection:show inspects a selected profile, file or process connection
+- **WHEN** auth:list inspects the effective profile, file or process connection
 - **THEN** it reports effective source, safe hostname and relevant profile/path, with no token or webhook path
 
 ### Requirement: Lazy read-only offline execution
@@ -300,40 +267,6 @@ Shared valid and invalid fixtures MUST verify schema/runtime agreement for struc
 - **WHEN** the shared valid and invalid configuration fixtures run
 - **THEN** JSON Schema and the actual configuration repository agree on structural acceptance/rejection; documented runtime/filesystem checks retain their existing scope.
 
-### Requirement: Existing profile add rejection
-`connection:add NAME` SHALL create a new profile only. An existing alias MUST produce configuration-error/exit 1 before webhook input, without applying supplied parameters, reading credentials or making API requests. The diagnostic MUST state that parameters were not applied and explain inspection and explicit replacement. The operation MUST preserve config.json, credential files and defaultProfile.
-
-#### Scenario: Existing alias without redirected input
-- **WHEN** `work` exists and `connection:add work --creator-id 3 -n` is invoked without `--webhook-stdin`
-- **THEN** the CLI reports the duplicate profile as configuration-error/exit 1 without a webhook prompt or missing-input error
-- **AND** the message states that defaults were not applied and identifies `connection:show work`, `connection:remove work`, `connection:add work` and reselection with `connection:use work` when required
-- **AND** config.json and all credential files retain their bytes and references; defaultProfile and other profiles remain unchanged
-
-#### Scenario: Existing alias with a stdin webhook
-- **WHEN** `work` exists and a repeated add supplies `--webhook-stdin`, changed IDs and `--allows-time-tracking true`
-- **THEN** stdin is not consumed for the webhook and existing credentials are not opened
-- **AND** human, plain and JSON output report failure without fixture secrets or a success result; JSON retains the normal error contract and empty API-call metadata
-- **AND** no profile metadata or credential file is created, replaced or removed
-
-#### Scenario: Concurrent attempts to add the same alias
-- **WHEN** two invocations begin adding an absent alias concurrently
-- **THEN** at most one creates that profile and the other returns the duplicate failure without overwriting the winning profile
-- **AND** the rejected operation does not leave an additional managed credential file
-
-### Requirement: Documented profile replacement
-Help for `connection:add`, README and the configuration guide SHALL explain that add does not update an existing profile. Instructions MUST show inspect, remove, add with all desired defaults and secret input, and use when restoring the selected default. They MUST explain that remove clears a matching defaultProfile and deletes its local credential without revoking the portal webhook.
-
-#### Scenario: Discover replacement from help
-- **WHEN** a user runs `b24cli help connection:add` without configured credentials
-- **THEN** help explains create-only behavior and the replacement sequence without prompting, writing configuration or making API calls
-- **AND** it explains that omitted defaults do not carry over from the deleted profile and that the webhook must be supplied again
-
-#### Scenario: Add a missing creator default explicitly
-- **WHEN** a user follows the documented replacement procedure for `work`, supplying the webhook again and `--group-id 187 --creator-id 3 --responsible-id 2 --allows-time-tracking true`
-- **THEN** `connection:show work` reports `default.task.groupId=187`, `creatorId=3`, `responsibleId=2` as JSON integers and `allowsTimeTracking=true` as a JSON boolean
-- **AND** an offline `task:add --profile work --title Test --dry-run --json` receives those defaults before required-field validation and makes no API calls
-- **AND** a previously selected `work` becomes selected again only after the explicit `connection:use work`; other profiles remain unchanged
-
 ### Requirement: Nested user working-role defaults
 Профиль schema v1 SHALL принимать optional object default.users с optional positive JSON integer observerId/managerId и boolean autoAddObserver (default false). Это локальные role selectors CLI; они SHALL не отправляться как API fields. Неизвестные ключи и неверные значения SHALL вызывать configuration-error до API без изменения файла. autoAddObserver=true SHALL требовать observerId.
 
@@ -361,7 +294,7 @@ Help for `connection:add`, README and the configuration guide SHALL explain that
 
 #### Scenario: Explicit profile and local inspection
 - **WHEN** явно выбран --profile work
-- **THEN** work роли доступны независимо от ambient webhook, connection:show показывает их источник, а read-команды не сохраняют metadata или credentials
+- **THEN** work роли доступны независимо от ambient webhook, config:list --profile work показывает их источник, а read-команды не сохраняют metadata или credentials
 
 ### Requirement: Root problem trajectory telemetry
 Пользовательский config.json schema v1 SHALL принимать optional root object telemetry. Effective defaults MUST быть collectProblemTrajectories=true, maxProblemTrajectoryFiles=100, lastProblemTrajectoryProcessingAt=null и lastProblemTrajectoryAnalysisOfferedAt=null. Настройки SHALL относиться к config directory, не profile/REST payload; read-only inspection MUST NOT записывать defaults.
@@ -388,7 +321,7 @@ Local doctor operations SHALL обновлять только разрешённ
 - **AND** status/help/version/list без config остаются read-only и ничего не создают
 
 #### Scenario: Concurrent profile and telemetry writes
-- **WHEN** connection:add/use/remove и doctor updates выполняются одновременно
+- **WHEN** auth:login/switch/logout, config:set/unset профильных ключей и doctor updates выполняются одновременно
 - **THEN** ни telemetry, ни profile/defaultProfile/credential references не теряются; existing credential protections сохраняются
 
 ### Requirement: Root logging settings
@@ -415,26 +348,15 @@ Local doctor operations SHALL обновлять только разрешённ
 Неверный root logging MUST NOT давать configuration-error при чтении и записи профилей и telemetry. При чтении CLI SHALL считать логирование выключенным; при записи MUST сохранять logging без изменений. Остальные root-ключи проверяются как раньше.
 
 #### Scenario: Profile command with invalid logging
-- **WHEN** config.json содержит logging с level="Info" и выполняется connection:use work
-- **THEN** профиль work выбирается, logging в файле остаётся `{"level":"Info"}` без изменений
+- **WHEN** config.json содержит logging с level="Info" и выполняется auth:switch work либо config:set default.task.groupId 42 --profile work
+- **THEN** команда выполняется, logging в файле остаётся `{"level":"Info"}` без изменений
 
 ### Requirement: Logging persistence preserves configuration
-Profile mutations и doctor telemetry updates MUST сохранять существующий root logging без изменений. Изменения profiles, defaultProfile, credential references и telemetry MUST NOT терять logging.
+Profile mutations, config:set/unset ключей вне logging и doctor telemetry updates MUST сохранять существующий root logging без изменений. Изменения profiles, defaultProfile, credential references и telemetry MUST NOT терять logging.
 
 #### Scenario: Profile and telemetry writes keep logging
-- **WHEN** config содержит logging и выполняются connection:add, connection:use, connection:remove или doctor configure
+- **WHEN** config содержит logging и выполняются auth:login, auth:login --replace, auth:switch, auth:logout, config:set профильного или telemetry ключа или doctor configure
 - **THEN** logging после записи совпадает с исходным
-
-### Requirement: Effective logging in connection:show
-connection:show SHALL показывать блок logging: эффективные значения пяти полей, абсолютный путь каталога и файла текущих суток и статус `ok`, `disabled` или `invalid` с причиной. Команда MUST оставаться локальной; вычисление блока MUST NOT создавать каталог логов. При enabled=true команда пишет свои записи жизненного цикла, как любая другая.
-
-#### Scenario: Enabled logging shown
-- **WHEN** logging.enabled=true и выполняется `connection:show --json`
-- **THEN** JSON содержит logging с enabled=true, level, retentionDays, абсолютным путём к `b24cli-YYYYMMDD.log` текущих суток и статусом ok
-
-#### Scenario: Invalid logging shown
-- **WHEN** logging.retentionDays=0 и выполняется connection:show
-- **THEN** вывод содержит статус invalid с причиной, а код выхода не меняется из-за logging
 
 ### Requirement: Shared logging schema and runtime cases
 Общие fixtures MUST проверять согласие JSON Schema и runtime-проверки LoggingSettings для logging: omitted, partial, полный корректный объект, каждое неверное значение и unknown key. Документация MUST описывать поля, defaults, путь `logs/`, хранение 7 дней, ограничение данных SDK и несовместимость с прежними версиями CLI.
@@ -442,3 +364,219 @@ connection:show SHALL показывать блок logging: эффективн�
 #### Scenario: Fixtures cover logging
 - **WHEN** CI запускает schema check и ConfigSchemaContractTest
 - **THEN** валидный и невалидный logging классифицируются одинаково обоими валидаторами, существующие fixtures сохраняются
+
+### Requirement: Authentication command set
+CLI SHALL предоставлять `auth:login`, `auth:status`, `auth:list`, `auth:switch` и `auth:logout` и MUST NOT регистрировать команды `connection:*`, их алиасы или скрытые варианты. `auth:list`, `auth:switch` и `auth:logout` MUST оставаться локальными и не обращаться к порталу. Все команды подчиняются общим контрактам вывода human/plain/JSON.
+
+#### Scenario: Command inventory
+- **WHEN** пользователь вызывает `b24cli list auth`
+- **THEN** выводятся ровно `auth:list`, `auth:login`, `auth:logout`, `auth:status`, `auth:switch` с русскими описаниями, код 0, без запросов к порталу
+
+#### Scenario: Removed connection commands
+- **WHEN** пользователь вызывает `b24cli connection:add work` или любую другую `connection:*`
+- **THEN** CLI отвечает как на неизвестную команду, без ввода секрета, записи конфигурации и обращения к порталу
+
+#### Scenario: Local auth commands stay offline
+- **WHEN** `auth:list`, `auth:switch work` или `auth:logout work` выполняются без сети
+- **THEN** команды завершаются по своим локальным правилам без API-запросов и без чтения или записи `state.json`
+
+### Requirement: Verified login
+`auth:login NAME` SHALL до сохранения проверять вебхук на портале вызовами REST 1.0 `profile` и `scope`. Ошибка авторизации, transport или неактивный пользователь MUST завершать команду с exit 1 без записи профиля и credentials. Нехватка прав относительно манифеста MUST NOT отменять вход. `--skip-check` SHALL сохранять профиль без запросов к порталу.
+
+#### Scenario: Valid webhook
+- **WHEN** `auth:login work` получает вебхук, для которого `profile` возвращает пользователя, а `scope` — список прав
+- **THEN** профиль и защищённый credential file сохраняются, снимок прав записывается в `state.json`, вывод показывает hostname, ID и имя владельца вебхука, код 0
+
+#### Scenario: Invalid webhook is not saved
+- **WHEN** `profile` возвращает `INVALID_CREDENTIALS`, `NO_AUTH_FOUND`, ошибку доступа к REST, ошибку transport или пустой результат неактивного пользователя
+- **THEN** команда завершается с exit 1 и безопасной диагностикой с подсказкой проверить URL или использовать `--skip-check`
+- **AND** `config.json`, credential files и `defaultProfile` остаются без изменений, секрет не выводится
+
+#### Scenario: Missing scopes do not block login
+- **WHEN** вебхук валиден, но у него нет части прав из манифеста
+- **THEN** профиль сохраняется, в stderr выводится отчёт с недостающими правами и затронутыми командами, код 0
+- **AND** точный результат с exit 4 по-прежнему даёт `auth:status`
+
+#### Scenario: Scope check unavailable after valid profile
+- **WHEN** `profile` успешен, а `scope` не ответил
+- **THEN** профиль сохраняется, снимок помечается unknown, выводится предупреждение с подсказкой `auth:status`, код 0
+
+#### Scenario: Offline login
+- **WHEN** `auth:login ci --webhook-stdin --skip-check -n` получает вебхук из перенаправленного stdin
+- **THEN** профиль сохраняется без API-запросов и без записи `state.json`
+
+### Requirement: Default profile on first login
+Если `defaultProfile` равен null, успешный `auth:login` SHALL делать новый профиль профилем по умолчанию. Если профиль по умолчанию уже выбран, `auth:login` MUST NOT его менять. Вывод MUST сообщать, выбран ли профиль по умолчанию. Только `auth:switch` SHALL переключать уже выбранный профиль по умолчанию.
+
+#### Scenario: First login selects the profile
+- **WHEN** конфигурации нет и `auth:login work` успешен
+- **THEN** создаются каталог конфигурации, каталог credentials, `config.json` с `defaultProfile: "work"`, профилем `work` (name по hostname вебхука, `connection.hostname`, `connection.credentialFile`) и защищённый credential file
+- **AND** следующая команда без `--profile` использует `work`
+
+#### Scenario: Second portal keeps the current default
+- **WHEN** `work` выбран по умолчанию и выполняется `auth:login clientA`
+- **THEN** `clientA` сохраняется, `defaultProfile` остаётся `work`, вывод сообщает, что для выбора нужен `auth:switch clientA`
+
+#### Scenario: Explicit switch
+- **WHEN** пользователь выполняет `auth:switch clientA`
+- **THEN** меняется только `defaultProfile` в `config.json`; credential files, профили, `logging` и `telemetry` сохраняются
+
+### Requirement: Existing profile requires explicit replacement
+`auth:login NAME` без `--replace` SHALL создавать только новый профиль. Существующий NAME MUST давать configuration-error/exit 1 до ввода вебхука, без чтения credentials и API-запросов, с подсказками `auth:login NAME --replace` и `config:set`. `--replace` для отсутствующего NAME MUST давать configuration-error/exit 1 до ввода вебхука.
+
+#### Scenario: Existing alias without replace
+- **WHEN** `work` существует и вызывается `auth:login work -n` без `--webhook-stdin`
+- **THEN** возвращается configuration-error/exit 1 без запроса секрета и без ошибки об отсутствующем вводе
+- **AND** stdin не читается, `config.json` и все credential files сохраняют свои байты
+
+#### Scenario: Replace for a missing alias
+- **WHEN** `ghost` не существует и вызывается `auth:login ghost --replace --webhook-stdin`
+- **THEN** возвращается configuration-error/exit 1, stdin не читается, ничего не создаётся
+
+#### Scenario: Concurrent logins for the same alias
+- **WHEN** два процесса одновременно выполняют `auth:login` для отсутствующего alias
+- **THEN** профиль создаёт не больше одного процесса, второй получает ошибку существующего профиля и не оставляет лишнего credential file
+
+### Requirement: Credential replacement preserves settings
+`auth:login NAME --replace` SHALL заменять только секрет существующего профиля: новый credential file, атомарное переключение ссылки и удаление старого файла после публикации. `name`, `default.task`, `default.users`, `defaultProfile`, `logging` и `telemetry` MUST сохраняться. `connection.hostname` SHALL обновляться по новому вебхуку, а снимок прав старого вебхука MUST NOT наследоваться.
+
+#### Scenario: Rotate a webhook
+- **WHEN** у `work` есть `default.task.groupId=42` и `default.users.observerId=5`, и выполняется `auth:login work --replace` с новым валидным вебхуком того же портала
+- **THEN** `config:list --profile work` показывает прежние значения, ссылка указывает на новый защищённый credential file, старого файла нет
+- **AND** следующий REST-вызов не использует снимок прав старого вебхука
+
+#### Scenario: Replacement fails verification
+- **WHEN** проверка нового вебхука в `auth:login work --replace` завершается ошибкой авторизации
+- **THEN** старые credentials и вся конфигурация остаются без изменений, exit 1
+
+#### Scenario: Replacement changes the portal hostname
+- **WHEN** новый вебхук указывает на другой hostname
+- **THEN** `connection.hostname` обновляется, вывод показывает прежний и новый hostname, `name` и `default.*` сохраняются без автоматической очистки
+
+### Requirement: Logout removes the whole profile
+`auth:logout NAME` SHALL удалять метаданные профиля и его credential file и очищать совпадающий `defaultProfile`, не выбирая другой профиль. Вебхук на портале MUST NOT отзываться. Другие профили, `logging`, `telemetry` и каталоги MUST сохраняться.
+
+#### Scenario: Logout the default profile
+- **WHEN** `work` выбран по умолчанию и выполняется `auth:logout work`
+- **THEN** профиль и его credential file удалены, `defaultProfile` равен null, другие профили и credential files не изменены
+- **AND** вывод сообщает, что вебхук на портале не отозван
+
+#### Scenario: Logout an unknown profile
+- **WHEN** `auth:logout ghost` вызывается для отсутствующего профиля
+- **THEN** возвращается configuration-error/exit 1 с подсказкой `auth:list` без изменения файлов
+
+### Requirement: Local connection listing
+`auth:list` SHALL показывать сохранённые профили (alias, name, `connection.hostname`, отметку профиля по умолчанию) и блок фактического подключения текущего вызова: источник (profile, `--env-file`, `B24CLI_ENV_FILE`, `BITRIX24_WEBHOOK`), безопасный hostname и путь. `auth:list NAME` SHALL показывать один профиль. Команда MUST NOT читать секрет и обращаться к порталу.
+
+#### Scenario: List profiles and the effective source
+- **WHEN** сохранены `work` (по умолчанию) и `clientA`, а процесс получил `BITRIX24_WEBHOOK`
+- **THEN** вывод содержит оба профиля с отметкой `work` и блок фактического подключения с источником `BITRIX24_WEBHOOK` и его безопасным hostname
+- **AND** вывод не содержит токена, ID пользователя вебхука или пути REST
+
+#### Scenario: No configuration
+- **WHEN** `auth:list` выполняется без `config.json`
+- **THEN** выводится пустой список с подсказкой `auth:login`, файлы не создаются, код 0
+
+### Requirement: Configuration command set
+CLI SHALL предоставлять `config:list`, `config:get KEY`, `config:set KEY VALUE` и `config:unset KEY` для документированных несекретных настроек. Команды MUST оставаться локальными: не читать credentials, не обращаться к порталу, не открывать `state.json`. Ключи `defaultProfile` и `connection.*` MUST NOT изменяться через `config:*`.
+
+#### Scenario: Command inventory
+- **WHEN** пользователь вызывает `b24cli list config`
+- **THEN** выводятся ровно `config:get`, `config:list`, `config:set`, `config:unset` с русскими описаниями, код 0
+
+#### Scenario: Change one default without re-entering the webhook
+- **WHEN** у `work` есть `default.task.creatorId=1` и выполняется `config:set default.task.groupId 187 --profile work`
+- **THEN** `config:get default.task.groupId --profile work` возвращает JSON integer 187, `creatorId` остаётся 1, credential file не открывался и не менялся
+
+#### Scenario: Protected keys
+- **WHEN** пользователь вызывает `config:set defaultProfile work` или `config:set connection.hostname x.example`
+- **THEN** возвращается usage-error/exit 2 с подсказкой `auth:switch` или `auth:login --replace`, файл не меняется
+
+### Requirement: Supported configuration keys
+`config:*` SHALL принимать закрытый список ключей — точных путей `config.json` с именами полей REST 3.0. Профильные: `name`, `default.task.groupId|creatorId|responsibleId|allowsTimeTracking`, `default.users.observerId|managerId|autoAddObserver`. Корневые: `logging.enabled|level|directory|fileMask|retentionDays`, `telemetry.collectProblemTrajectories|maxProblemTrajectoryFiles`. Даты `telemetry.last*At` только читаются.
+
+#### Scenario: Unknown or renamed key
+- **WHEN** пользователь вызывает `config:set default.task.authorId 3` или `config:set groupId 42`
+- **THEN** возвращается usage-error/exit 2 со списком поддерживаемых ключей без молчаливого переименования и без изменения файла
+
+#### Scenario: Read-only telemetry dates
+- **WHEN** пользователь вызывает `config:set telemetry.lastProblemTrajectoryProcessingAt 2026-11-12T00:00:00Z`
+- **THEN** возвращается usage-error/exit 2; `config:get` того же ключа возвращает текущее значение или null
+
+### Requirement: Strict configuration values
+`config:set` SHALL разбирать VALUE по типу ключа без угадывания. ID — integer literal 1..PHP_INT_MAX, boolean — только `true`/`false`, `logging.level` — значение из списка в нижнем регистре, `name` — bare ASCII hostname, `fileMask` и `directory` — по правилам logging. После подстановки документ MUST проходить ту же runtime-проверку, что и при чтении. Ошибка MUST давать usage-error/exit 2 без записи.
+
+#### Scenario: Invalid scalar values
+- **WHEN** VALUE для ID равен `0`, `-1`, `1.0`, `1e0`, `abc` или переполняет диапазон; для boolean — `Y`, `1`, `"false"`; для `logging.level` — `Info`
+- **THEN** каждый вызов возвращает usage-error/exit 2 с ожидаемым форматом, файл сохраняет свои байты
+
+#### Scenario: Cross-field rule
+- **WHEN** `config:set default.users.autoAddObserver true` выполняется для профиля без `observerId`, либо `config:unset default.users.observerId` при `autoAddObserver=true`
+- **THEN** возвращается usage-error/exit 2, объясняющий зависимость, файл не меняется
+
+#### Scenario: Unset restores the built-in default
+- **WHEN** выполняется `config:unset default.task.allowsTimeTracking` или `config:unset logging.level`
+- **THEN** ключ удаляется из файла, `config:get` возвращает встроенное значение `false` или `info` с источником `default`; пустые контейнеры удаляются
+- **AND** `config:unset name` возвращает usage-error/exit 2, потому что поле обязательно
+
+### Requirement: Configuration profile selection
+Для профильных ключей `config:*` SHALL выбирать профиль по `--profile`, затем `B24CLI_PROFILE`, затем `defaultProfile`. `BITRIX24_WEBHOOK`, `B24CLI_ENV_FILE` и `profile` из runtime `--config` MUST игнорироваться, `--env-file` MUST давать usage-error. Корневой ключ определяется префиксом `logging.`/`telemetry.` и MUST NOT принимать `--profile`.
+
+#### Scenario: Default profile is used
+- **WHEN** `defaultProfile` равен `work`, а процесс получил `BITRIX24_WEBHOOK` другого портала
+- **THEN** `config:set default.task.groupId 42` меняет профиль `work`, а не подключение из окружения
+
+#### Scenario: Runtime config profile does not redirect settings
+- **WHEN** `defaultProfile` равен `work` и вызывается `config:set default.task.groupId 42 --config runtime.json`, где `runtime.json` содержит `{"profile":"other"}`
+- **THEN** меняется профиль `work`; `other` меняется только при явном `--profile other`
+
+#### Scenario: No profile for a profile key
+- **WHEN** `defaultProfile` равен null, `--profile` и `B24CLI_PROFILE` не заданы, вызывается `config:set default.task.groupId 42`
+- **THEN** возвращается usage-error/exit 2 с подсказкой `auth:login` или `auth:switch`, файлы не создаются
+
+#### Scenario: Root key with a profile
+- **WHEN** вызывается `config:set logging.enabled true --profile work`
+- **THEN** возвращается usage-error/exit 2; без `--profile` настройка применяется ко всему каталогу конфигурации
+
+### Requirement: Atomic configuration updates
+`config:set` и `config:unset` SHALL выполнять запись под общей блокировкой конфигурации, перечитывая файл под lock, и атомарно публиковать результат. Все остальные профили, `defaultProfile`, ссылки на credentials, `telemetry` и `logging` MUST сохраняться, включая неверный `logging` при изменении ключа вне `logging.*`. Без `config.json` запись корневого ключа SHALL создавать защищённый файл без профилей.
+
+#### Scenario: Concurrent writers
+- **WHEN** `config:set` выполняется одновременно с `auth:login`, `auth:switch`, `auth:logout` или записью telemetry `doctor`
+- **THEN** ни одно изменение не теряется, защита файлов сохраняется
+
+#### Scenario: Invalid logging is preserved for unrelated keys
+- **WHEN** `logging` содержит `{"level":"Info"}` и выполняется `config:set default.task.groupId 42`
+- **THEN** профиль обновляется, `logging` в файле остаётся `{"level":"Info"}`
+- **WHEN** выполняется `config:set logging.enabled true` при том же неверном `level`
+- **THEN** возвращается usage-error/exit 2 с причиной неверного `logging.level`, файл не меняется
+
+#### Scenario: Root setting before any profile
+- **WHEN** `config.json` отсутствует и выполняется `config:set logging.enabled true`
+- **THEN** создаётся защищённый `config.json` с `version: 1`, `defaultProfile: null`, `profiles: {}` и `logging.enabled=true`, без credential files
+
+### Requirement: Effective settings in config:list
+`config:list` SHALL показывать эффективные значения ключей выбранного профиля и корневых настроек с источником `profile`, `root` или `default` и блок `logging`: значения пяти полей, абсолютные пути каталога и файла текущих суток, статус `ok`, `disabled` или `invalid` с причиной. Вычисление MUST NOT создавать каталог логов и записывать значения по умолчанию.
+
+#### Scenario: Enabled logging shown
+- **WHEN** `logging.enabled=true` и выполняется `config:list --json`
+- **THEN** JSON содержит блок `logging` с `enabled=true`, `level`, `retentionDays`, абсолютным путём к `b24cli-YYYYMMDD.log` текущих суток и статусом `ok`
+
+#### Scenario: Invalid logging shown
+- **WHEN** `logging.retentionDays=0` и выполняется `config:list`
+- **THEN** вывод содержит статус `invalid` с причиной, код выхода не меняется из-за logging
+
+#### Scenario: Effective defaults without a profile value
+- **WHEN** у профиля нет `default.task.allowsTimeTracking` и `default.users.autoAddObserver`
+- **THEN** `config:list` показывает для обоих значение `false` с источником `default`, файл не меняется
+
+### Requirement: Documented auth and config commands
+README, `docs/auth.md`, `docs/auth-scopes.md` и `docs/config.md` SHALL описывать первый запуск как `auth:login NAME` с последующим `auth:status`, замену вебхука через `--replace`, выход через `auth:logout`, все ключи `config:*` с типами и примерами для bash/zsh, PowerShell и CI с `--webhook-stdin --skip-check`. До 1.0 документация MUST NOT упоминать удалённые команды `connection:*`.
+
+#### Scenario: Follow the first-run instructions
+- **WHEN** пользователь выполняет команды первого запуска из README
+- **THEN** после `auth:login work` и `auth:status` он может выполнять команды задач без `auth:switch` и без ручной правки `config.json`
+
+#### Scenario: No removed commands in docs
+- **WHEN** проверка документации ищет `connection:` в README, `docs/` (кроме `docs/releases/` и CHANGELOG) и справке команд
+- **THEN** совпадений нет
