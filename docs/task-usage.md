@@ -220,7 +220,43 @@ REST 1.0 (`RESPONSIBLE_ID`/`CREATED_BY`), а при `strict-rest3` провер�
 недоступны при `--api-policy strict-rest3`. Для ограничения обхода используйте `--group-id`,
 для списка также `--id`; `--all` не снимает `--max-scan`.
 
-## Календарные окна дедлайна, создания и изменения
+## Относительный срок задачи
+
+Срок задаётся либо точным ISO8601 с часовым поясом, либо относительным днём и явным
+временем. Точные флаги — `--deadline` в `task:add`/`task:update` и `--at` в
+`task:deadline:set` — относительные выражения не принимают.
+
+```sh
+b24cli task:add --title "Отчёт" --deadline-day tomorrow --deadline-time 18:00 --timezone Asia/Bishkek
+b24cli task:update 123 --deadline-day next-week-monday --deadline-time 10:00 --timezone Asia/Bishkek
+b24cli task:deadline:set 123 --day friday --time 17:00 --timezone Europe/Moscow --dry-run
+b24cli task:deadline:set 123 --day 2026-12-01 --time 12:00 --timezone Asia/Bishkek
+```
+
+День (`--deadline-day` или `--day`):
+
+- `today`, `tomorrow`, `day-after-tomorrow`;
+- `monday` … `sunday` — ближайший такой день строго после сегодняшнего: в пятницу
+  `friday` означает пятницу через неделю;
+- `next-week-monday` … `next-week-sunday` — этот день следующей календарной недели
+  (неделя начинается в понедельник);
+- `YYYY-MM-DD` — точная календарная дата.
+
+Время (`--deadline-time` или `--time`) обязательно и задаётся как `HH:MM` от `00:00`
+до `23:59`. Часа по умолчанию нет: день без времени, время без дня и смешение
+относительного дня с точным флагом или с `--fields` дают usage-error/exit2 до API.
+`--timezone IANA` действует только вместе с относительным днём; без него
+используются `TZ`, затем часовой пояс PHP окружения.
+
+CLI фиксирует один `now`, вычисляет срок в выбранном часовом поясе и отправляет
+точное значение с offset, например `2026-11-14T18:00:00+06:00`. Отклоняются срок не
+позже `now` (прошедший срок задаётся только точным ISO8601) и время, которого нет или
+которое встречается дважды из-за перехода DST. `meta.deadlineResolution` в dry-run,
+в результате записи и в ошибке записи показывает `day`, `time`, `timezone`, `now` и
+итоговый `deadline`. Дальше срок проходит обычный путь: REST 3.0 `deadline` или REST 1.0
+`DEADLINE` при `--user-fields`, без автоматического повтора записи при неизвестном исходе.
+
+## Календарные окна дедлайна, создания, изменения и завершения
 
 Для выбора следующей работы используйте `task:my` с явным исполнителем:
 
@@ -241,10 +277,18 @@ b24cli task:my --user 42 --open --due-before 2026-10-20T00:00:00+06:00 --max-sca
 приоритет работы пользователь определяет сам; это отдельная операция EMP-01.
 
 `task:list` и `task:find` принимают `--deadline-window`, `--created-window`,
-`--changed-window` (каждый один раз), `--overdue` и `--timezone IANA`. Мнемоники
-общие: `today`, `tomorrow`, `yesterday`, `day-before-yesterday`, `this-week`,
-`this-month`, `this-quarter`. `--created-window` выбирает по дате создания задачи,
-`--changed-window` — по дате последнего изменения, `--deadline-window` — по дедлайну.
+`--changed-window`, `--closed-window` (каждый один раз), `--overdue` и `--timezone IANA`.
+Мнемоники общие:
+
+- дни: `today`, `tomorrow`, `yesterday`, `day-before-yesterday`;
+- календарные периоды: `this-week`, `last-week`, `next-week`, `this-month`, `last-month`,
+  `next-month`, `this-quarter`, `last-quarter`, `next-quarter`;
+- скользящие семь календарных дней: `next-7-days` — сегодня и ещё шесть дней,
+  `last-7-days` — шесть предыдущих дней и сегодня.
+
+`--created-window` выбирает по дате создания задачи, `--changed-window` — по дате
+последнего изменения, `--closed-window` — по фактической дате завершения,
+`--deadline-window` — по дедлайну.
 
 ```sh
 b24cli task:list --group-id 42 --deadline-window today --timezone Asia/Bishkek --json
@@ -253,10 +297,16 @@ b24cli task:list --overdue --timezone Asia/Bishkek --json
 b24cli task:find --title "отчёт" --group-id 42 --deadline-window this-month --overdue --timezone Asia/Bishkek --json
 b24cli task:list --group-id 42 --created-window this-quarter --timezone Asia/Bishkek --json  # задачи группы за квартал
 b24cli task:list --role responsible --status in_progress --changed-window this-week --json
+b24cli task:list --deadline-window next-7-days --timezone Asia/Bishkek --json  # срок в ближайшие 7 дней
+b24cli task:list --group-id 42 --created-window last-month --timezone Asia/Bishkek --json
+b24cli task:list --group-id 42 --closed-window this-week --timezone Asia/Bishkek --json  # фактически завершённые на неделе
 ```
 
 Окна календарные и полуоткрытые `[from, to)`: неделя начинается в понедельник,
-месяц и квартал охватываются целиком. `this-week` отличается от следующих семи дней.
+месяц и квартал охватываются целиком. `this-week` отличается от `next-7-days`: например,
+в пятницу 2026-11-13 `this-week` равно `[2026-11-09, 2026-11-16)`, а `next-7-days` —
+`[2026-11-13, 2026-11-20)`. Скользящие окна считаются полными календарными днями, а не
+длительностью от `now`: задача со сроком сегодня утром входит в `next-7-days`.
 Границы учитывают DST и календарь. По умолчанию timezone берётся из `TZ`, затем из
 PHP timezone окружения; CLI не угадывает пояс портала. Для запросов «сегодня» от
 skill передавайте известный IANA timezone пользователя. Один `now` фиксируется
@@ -269,15 +319,27 @@ skill передавайте известный IANA timezone пользоват
 это не выборка по фактической дате закрытия. `deadline=null` не совпадает.
 `tomorrow --overdue` возвращает полный пустой результат без сетевых запросов.
 
+`--closed-window` выбирает задачи по фактической дате завершения (`CLOSED_DATE`)
+независимо от текущего статуса. Задачи без даты завершения не совпадают и не делают
+результат неполным; непустая нераспознаваемая дата даёт `missing-predicate-field`.
+Окно не подменяется дедлайном или статусом: чтобы оставить только задачи, которые
+и сейчас завершены, добавьте `--status completed`.
+
+```sh
+b24cli task:list --closed-window last-week --status completed --timezone Asia/Bishkek --json
+```
+
 Временная выборка использует явный `tasks.task.list` REST 1.0: `>=DEADLINE`/`<DEADLINE`,
-`>=CREATED_DATE`/`<CREATED_DATE`, `>=CHANGED_DATE`/`<CHANGED_DATE` и те же серверные
+`>=CREATED_DATE`/`<CREATED_DATE`, `>=CHANGED_DATE`/`<CHANGED_DATE`,
+`>=CLOSED_DATE`/`<CLOSED_DATE` и те же серверные
 условия, что без временных флагов: `GROUP_ID`, `RESPONSIBLE_ID`, `CREATED_BY` (в том числе
 из `--role responsible|creator`) и `REAL_STATUS`. Это выбор маршрута до вызовов;
 `--api-policy strict-rest3` возвращает `policy-denied`/exit4 без fallback.
 Окна и остальные критерии — AND; один `--timezone` и один `now` действуют для всех окон.
-Дата создания или изменения каждой строки дополнительно сверяется локально по моменту
-времени; пустая или нераспознаваемая дата даёт `missing-predicate-field` и exit 3.
-Поля `created`/`changed`, нужные только для проверки, в результат не попадают, если их нет в `--select`.
+Дата создания, изменения или завершения каждой строки дополнительно сверяется локально по моменту
+времени; пустая дата создания или изменения и любая нераспознаваемая дата дают
+`missing-predicate-field` и exit 3.
+Поля `created`/`changed`/`closed`, нужные только для проверки, в результат не попадают, если их нет в `--select`.
 Не смешивайте временные флаги с `--due-before`, `--where`/`--where-file`;
 неверные/повторные окна и неизвестный timezone дают usage-error/exit2 до API.
 
@@ -290,7 +352,7 @@ CLI не отправляет придуманные имена и не дела
 
 JSON `meta.deadlineFilter` содержит window/overdue/timezone, now,
 fromInclusive/toExclusive, route, deadlineApplied/overdueStatusApplied/groupApplied.
-`meta.createdFilter` и `meta.changedFilter` содержат window, timezone, now,
+`meta.createdFilter`, `meta.changedFilter` и `meta.closedFilter` содержат window, timezone, now,
 fromInclusive/toExclusive, route и `applied: "server"`; `meta.listRoute` показывает
 все серверные условия временного маршрута.
 Форматы выдачи, `--limit`, `--all`, `--max-scan`, visible-task scope и partial/exit3

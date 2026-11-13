@@ -11,6 +11,9 @@ final class RuntimeState
     public bool $cancelled = false;
     public array $calls = [];
 
+    /** Command metadata computed from the input (for example a resolved relative deadline), added to the result and to failure details. */
+    public array $meta = [];
+
     /**
      * Progress and warning sink of the running command (stderr in the console); null keeps notices silent.
      *
@@ -24,6 +27,7 @@ final class RuntimeState
         $this->timeout = $timeout;
         $this->cancelled = false;
         $this->calls = [];
+        $this->meta = [];
     }
 
     public function notice(string $message): void
