@@ -33,7 +33,7 @@ final readonly class TaskChatAdapter implements TaskChatGateway
 
         $items = array_map(static fn (array $row): array => ResponseNormalizer::fields($row, [
             'id' => 'id', 'date' => 'createdDate', 'author_id' => 'authorId', 'authorId' => 'authorId',
-            'text' => 'text', 'chat_id' => 'chatId', 'chatId' => 'chatId', 'params' => 'params',
+            'text' => 'text', 'chat_id' => 'chatId', 'chatId' => 'chatId', 'params' => 'params', 'unread' => 'unread',
         ]), $payload['messages']);
         $ids = array_column($items, 'id');
         return new Page($items, count($items) >= $limit && $ids !== [] ? ($after === null ? min($ids) : max($ids)) : null);

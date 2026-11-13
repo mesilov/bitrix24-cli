@@ -52,7 +52,11 @@ final class TaskHumanRenderer
             $this->write($output, 'Ссылка: ' . $this->value($task['link']));
         }
 
-        $extras = array_diff_key($task, array_flip(['id', 'title', 'status', 'responsible', 'responsibleId', 'group', 'groupId', 'deadline', 'description', 'link']));
+        if (is_array($task['chatState'] ?? null)) {
+            $this->write($output, 'Чат #' . $this->value($task['chatState']['chatId'] ?? null) . ': ' . $this->unread($task['chatState']));
+        }
+
+        $extras = array_diff_key($task, array_flip(['id', 'title', 'status', 'responsible', 'responsibleId', 'group', 'groupId', 'deadline', 'description', 'link', 'chatState']));
         foreach (['responsible', 'group'] as $key) {
             if (is_array($task[$key] ?? null)) {
                 $remaining = array_diff_key($task[$key], array_flip(['id', 'name']));
@@ -85,9 +89,15 @@ final class TaskHumanRenderer
 
         $columns = $result->profile === 'title-matches' ? ['id', 'title'] : ['id', 'title', 'responsibleId', 'groupId', 'status', 'deadline'];
         $headers = $result->profile === 'title-matches' ? ['ID', 'Задача'] : ['ID', 'Задача', 'Ответственный', 'Проект', 'Статус', 'Срок'];
+        $unread = isset($result->meta['unreadState']);
+        if ($unread) {
+            $columns[] = 'chatState';
+            $headers[] = 'Непрочитано';
+        }
+
         $table = (new Table($output))->setHeaders($headers);
         $maxWidth = max(4, intdiv($width - 3 * count($columns) - 1, count($columns)));
-        $table->setRows(array_map(fn (array $item): array => array_map(fn (string $field): string => OutputFormatter::escape($this->wrap($this->value($item[$field] ?? null), $maxWidth)), $columns), $items))->render();
+        $table->setRows(array_map(fn (array $item): array => array_map(fn (string $field): string => OutputFormatter::escape($this->wrap($field === 'chatState' ? $this->unread($item['chatState'] ?? []) : $this->value($item[$field] ?? null), $maxWidth)), $columns), $items))->render();
     }
 
     public function summary(array $meta, OutputInterface $output): void
@@ -110,6 +120,11 @@ final class TaskHumanRenderer
         if ($limited) {
             $this->write($output, 'Вывод ограничен --limit; --all снимает только лимит вывода.');
         }
+
+        if (is_array($meta['unreadState'] ?? null)) {
+            $state = $meta['unreadState'];
+            $this->write($output, 'Непрочитанные: серверный счётчик ' . $state['source'] . ' на ' . $state['observedAt'] . ' для пользователя подключения, включая чаты без звука; не число упоминаний и не бейдж интерфейса. Счётчики complete=' . ($state['countersComplete'] ? 'true' : 'false') . ', ручные метки complete=' . ($state['manualMarksComplete'] ? 'true' : 'false') . ($state['reasons'] === [] ? '' : ', причины: ' . implode(', ', $state['reasons'])) . '.');
+        }
     }
 
     public function hint(string $reason, string $profile = 'title-matches'): string
@@ -120,6 +135,11 @@ final class TaskHumanRenderer
             'missing-id', 'missing-predicate-field' => 'Проверьте данные выбранных полей и права доступа.',
             'pagination-no-progress' => 'Повторите чтение и проверьте пагинацию: следующая страница не даёт новых задач.',
             'role-read-error' => 'Проверьте права чтения участников задачи и выбранное подключение.',
+            'unread-counter-schema-unsupported' => 'Портал вернул неподдерживаемую схему im.counters.get: отсутствие задачи не доказывает, что её чат прочитан.',
+            'unread-counter-conflict' => 'Счётчики одного чата в снимке противоречат друг другу; повторите чтение.',
+            'unread-counter-budget-exhausted' => 'Снимок счётчиков обработан не полностью; отсутствие задачи не доказывает, что её чат прочитан.',
+            'manual-unread-state-unavailable' => 'Ручные метки «Не прочитано» недоступны; manuallyMarkedUnread=null.',
+            'task-chat-association-unavailable' => 'Связь задачи с чатом не подтверждена; проверьте task:show и права доступа.',
             default => 'Проверьте доступные данные и повторите чтение.',
         };
     }
@@ -135,6 +155,14 @@ final class TaskHumanRenderer
     {
         $value = $this->value($value);
         return isset(self::STATUSES[$value]) ? self::STATUSES[$value] . ' (' . $value . ')' : $value;
+    }
+
+    private function unread(array $state): string
+    {
+        $marker = match ($state['manuallyMarkedUnread'] ?? null) {
+            true => 'ручная метка: да', false => 'ручная метка: нет', default => 'ручная метка: неизвестно',
+        };
+        return $this->value($state['counter'] ?? null) . ' (' . $marker . ')';
     }
 
     private function value(mixed $value): string

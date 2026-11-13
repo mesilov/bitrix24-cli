@@ -32,6 +32,8 @@ final class TaskUsage
             'task:find' => ['b24cli task:find --title "договор" --group-id 7 --responsible 42', 'b24cli task:find --title "договор" --role responsible --all --json'],
             'task:update' => ['b24cli task:update 123 --title "Договор для согласования"', 'b24cli task:update 123 --responsible 42', 'b24cli task:update 123 --description "Проверить реквизиты"'],
             'task:delete' => ['b24cli task:delete 123 --dry-run'],
+            'task:time:add' => ['b24cli task:time:add 123 --seconds 3600 --text "Подготовка договора"', 'b24cli task:time:add 123 --seconds 3600 --created-date 2026-10-22T10:00:00+03:00'],
+            'task:time:update' => ['b24cli task:time:update 123 --entry 30 --seconds 1800', 'b24cli task:time:update 123 --entry 30 --seconds 1800 --created-date 2026-10-22T10:00:00+03:00'],
             default => preg_match('/Пример(?:ы)?:\s*(b24cli[^;\n]*)/u', $command->getHelp(), $match) ? [trim(preg_split('/\.(?:\s|$)/u', $match[1])[0])] : ['b24cli ' . $command->getName() . ' --help'],
         };
         if ($command->getDefinition()->hasOption('dry-run') && $command->getName() !== 'auth:status') {

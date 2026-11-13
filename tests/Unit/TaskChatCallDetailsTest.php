@@ -40,7 +40,7 @@ final class TaskChatCallDetailsTest extends TestCase
 
         $this->messages = [
             $this->call(5001, 11, '2026-11-12T10:02:51+03:00', 'START', 1001),
-            ['id' => 5002, 'chat_id' => 456, 'author_id' => 44, 'date' => '2026-11-12T10:10:00+03:00', 'text' => 'ссылка на документ', 'params' => []],
+            ['id' => 5002, 'chat_id' => 456, 'author_id' => 44, 'date' => '2026-11-12T10:10:00+03:00', 'text' => 'ссылка на документ', 'params' => [], 'unread' => false],
             $this->call(5003, 22, '2026-11-12T10:29:42+03:00', 'FINISH', 1001),
         ];
         $this->activity = [11 => '2026-11-12T10:35:00+03:00', 22 => '2026-11-12T10:35:00+03:00', 33 => '2026-11-12T10:35:00+03:00', 44 => '2026-11-12T10:35:00+03:00', 55 => '2026-11-12T09:00:00+03:00', 66 => '2026-11-12T10:35:00+03:00', 77 => '2026-11-12T10:15:00+03:00'];
@@ -55,7 +55,7 @@ final class TaskChatCallDetailsTest extends TestCase
             $params += ['INITIATOR_ID' => $author, 'MESSAGE_TEXT' => 'Звонок завершён (26 мин 51 сек)'];
         }
 
-        return ['id' => $id, 'chat_id' => 456, 'author_id' => $author, 'date' => $date, 'text' => $type === 'START' ? 'Начат звонок' : 'Звонок завершён (26 мин 51 сек)', 'params' => ['COMPONENT_ID' => 'CallMessage', 'COMPONENT_PARAMS' => $params, 'NOTIFY' => 'N']];
+        return ['id' => $id, 'chat_id' => 456, 'author_id' => $author, 'date' => $date, 'text' => $type === 'START' ? 'Начат звонок' : 'Звонок завершён (26 мин 51 сек)', 'params' => ['COMPONENT_ID' => 'CallMessage', 'COMPONENT_PARAMS' => $params, 'NOTIFY' => 'N'], 'unread' => false];
     }
 
     private function callResponse(int $callId): array
@@ -227,7 +227,7 @@ final class TaskChatCallDetailsTest extends TestCase
         self::assertSame(['found' => 1, 'details' => 'disabled'], $run->json()['meta']['calls']);
         self::assertSame(['tasks.task.get', 'im.dialog.get', 'im.dialog.messages.get'], array_column($calls, 'method'));
 
-        $this->messages = [['id' => 7, 'chat_id' => 456, 'author_id' => 5, 'date' => '2026-11-12T10:00:00+03:00', 'text' => 'привет']];
+        $this->messages = [['id' => 7, 'chat_id' => 456, 'author_id' => 5, 'date' => '2026-11-12T10:00:00+03:00', 'text' => 'привет', 'unread' => false]];
         [$run, $calls] = $this->invoke(['task:chat:list', '123']);
         self::assertSame([[], ['found' => 0, 'enriched' => 0, 'unavailable' => 0, 'confirmed' => 0]], [$run->json()['data']['calls'], $run->json()['meta']['calls']]);
         self::assertSame(['tasks.task.get', 'im.dialog.get', 'im.dialog.messages.get'], array_column($calls, 'method'));

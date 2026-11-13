@@ -7,6 +7,7 @@ namespace Bitrix24\CLI\Console;
 use Bitrix24\CLI\Application\Chat\ChatTarget;
 use Bitrix24\CLI\Application\Chat\ChatTargetParser;
 use Bitrix24\CLI\Application\Chat\MessagePeriodResolver;
+use Bitrix24\CLI\Application\Chat\Request\CreateChatRequest;
 use Bitrix24\CLI\Application\Chat\Request\FindChatsRequest;
 use Bitrix24\CLI\Application\Chat\Request\ListChatMessagesRequest;
 use Bitrix24\CLI\Application\Chat\Request\SendChatMessageRequest;
@@ -78,6 +79,44 @@ final readonly class ChatInputMapper
 
         $text = (string) $this->numbers->text($input, 'text');
         return new SendChatMessageRequest($target, $hasTarget ? null : $name, $text, $this->numbers->id($input->getOption('max-scan') ?? 10000, '--max-scan'));
+    }
+
+    public function create(InputInterface $input): CreateChatRequest
+    {
+        $title = $input->getOption('title');
+        $title = is_string($title) ? trim($title) : '';
+        if (mb_strlen($title) < 2 || mb_strlen($title) > 255) {
+            throw Failure::usage('Pass --title with 2 to 255 characters.');
+        }
+
+        $type = $input->getOption('type') ?? 'CHAT';
+        if (!in_array($type, ['CHAT', 'OPEN'], true)) {
+            throw Failure::usage('--type accepts the im.chat.add TYPE values CHAT (closed) or OPEN; REST cannot create channels.');
+        }
+
+        $description = $input->getOption('description');
+        if ($description !== null && (!is_string($description) || trim($description) === '')) {
+            throw Failure::usage('Provide nonempty --description.');
+        }
+
+        $ids = [];
+        foreach ((array) $input->getOption('user-id') as $value) {
+            foreach (explode(',', (string) $value) as $part) {
+                $id = $this->numbers->id(trim($part), '--user-id');
+                $ids[$id] = $id;
+            }
+        }
+
+        if (count($ids) > 500) {
+            throw Failure::usage('Pass at most 500 --user-id values.');
+        }
+
+        if ($input->getOption('allow-duplicate-title') && $input->getOption('max-scan') !== null) {
+            throw Failure::usage('--max-scan applies only to the duplicate title check; drop it with --allow-duplicate-title.');
+        }
+
+        $maxScan = $input->getOption('allow-duplicate-title') ? null : $this->numbers->id($input->getOption('max-scan') ?? 10000, '--max-scan');
+        return new CreateChatRequest($title, $type, $description, array_values($ids), $maxScan);
     }
 
     /** Parses TARGET locally; credentials are not read and the URL is never opened. */

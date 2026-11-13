@@ -73,6 +73,7 @@ return static function (ContainerBuilder $container, string $root, bool $package
         Bitrix24\CLI\Application\Chat\ChatMessagesService::class,
         Bitrix24\CLI\Application\Chat\ChatFindService::class,
         Bitrix24\CLI\Application\Chat\ChatSendService::class,
+        Bitrix24\CLI\Application\Chat\ChatCreateService::class,
 
     ];
     foreach ($services as $service) {
@@ -100,6 +101,7 @@ return static function (ContainerBuilder $container, string $root, bool $package
         'TaskResultGateway' => 'Rest3TaskResultAdapter',
         'TaskUserFieldGateway' => 'Rest1TaskUserFieldAdapter',
         'TaskGateway' => 'Rest3TaskAdapter', 'TaskTagGateway' => 'Rest1TaskTagAdapter', 'TaskChatGateway' => 'TaskChatAdapter', 'ChecklistGateway' => 'Rest1ChecklistAdapter',
+        'UnreadCounterGateway' => 'Rest1ImCounterAdapter',
         'TimeEntryGateway' => 'Rest1TimeEntryAdapter', 'ParticipantGateway' => 'Rest1ParticipantAdapter', 'TaskHistoryGateway' => 'Rest1TaskHistoryAdapter', 'UserGateway' => 'Rest1UserAdapter',
     ] as $port => $adapter) {
         $class = 'Bitrix24\\CLI\\Infrastructure\\Bitrix24\\' . $adapter;
@@ -125,7 +127,7 @@ return static function (ContainerBuilder $container, string $root, bool $package
         $container->setAlias('Bitrix24\\CLI\\Application\\User\\Port\\' . $port, $class);
     }
 
-    foreach (['CallGateway' => 'ImCallAdapter', 'ChatReadGateway' => 'Rest1ChatReadAdapter', 'ChatMembersGateway' => 'Rest1ChatMembersAdapter'] as $port => $adapter) {
+    foreach (['ChatCreateGateway' => 'Rest1ChatCreateAdapter', 'CallGateway' => 'ImCallAdapter', 'ChatReadGateway' => 'Rest1ChatReadAdapter', 'ChatMembersGateway' => 'Rest1ChatMembersAdapter'] as $port => $adapter) {
         $class = 'Bitrix24\\CLI\\Infrastructure\\Bitrix24\\' . $adapter;
         $container->register($class)->setAutowired(true);
         $container->setAlias('Bitrix24\\CLI\\Application\\Chat\\Port\\' . $port, $class);

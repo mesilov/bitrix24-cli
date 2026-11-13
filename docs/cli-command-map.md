@@ -1,6 +1,6 @@
 # Карта CLI-вызовов
 
-Каталог содержит 74 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
+Каталог содержит 75 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
 
 `b24cli --help`/`-h` показывают назначение, список команд, глобальные опции и примеры задач. Вся справка — на русском; имена команд, флагов и API/JSON-полей сохраняются. Единый первый блок «Общие» содержит `completion`, `help` и `list`; далее пространства имён и команды внутри блоков упорядочены по имени. `b24cli --about` показывает назначение, версию, автора, лицензию и ссылки на [приложение](https://github.com/mesilov/bitrix24-cli) и [скилл](https://github.com/mesilov/bitrix24-cli-skill). Эти вызовы не требуют подключения и не обращаются к порталу. `list --help` описывает именно list; вызов без аргументов выводит список команд.
 
@@ -13,6 +13,7 @@
 | [`auth:logout`](../src/Console/Command/Auth/LogoutCommand.php) | Удалить локальный профиль и его учётные данные | local | `b24cli auth:logout work` |
 | [`auth:status`](../src/Console/Command/Auth/StatusCommand.php) | Проверить вебхук: владелец, разрешения и требования CLI | read | `b24cli auth:status work --json` |
 | [`auth:switch`](../src/Console/Command/Auth/SwitchCommand.php) | Выбрать сохранённый профиль по умолчанию | local | `b24cli auth:switch work` |
+| [`chats:add`](../src/Console/Command/Chats/CreateChatCommand.php) | Создать групповой чат с участниками для рассылки | write | `b24cli chats:add --title 'ИИ-новости' --user-id 12,34 --json --dry-run` |
 | [`chats:calls:list`](../src/Console/Command/Chats/ListChatCallsCommand.php) | Звонки чата за период | read | `b24cli chats:calls:list sg234 --from 2026-11-09T00:00:00+03:00 --to 2026-11-16T00:00:00+03:00 --json` |
 | [`chats:calls:show`](../src/Console/Command/Chats/ShowChatCallCommand.php) | Сведения об одном звонке чата | read | `b24cli chats:calls:show chat37 1001 --json` |
 | [`chats:find`](../src/Console/Command/Chats/FindChatCommand.php) | Найти чат по названию: групповые чаты, проекты и задачи | read | `b24cli chats:find --name 'Команда проекта' --json` |

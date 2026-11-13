@@ -103,6 +103,18 @@ final class ScopeValidationCommandTest extends TestCase
         self::assertFileDoesNotExist($this->directory . '/config.json');
     }
 
+    public function testMissingImBlocksOnlyTheUnreadTaskList(): void
+    {
+        $run = ConsoleHarness::run($this->app, ['task:list', '--unread', '--json']);
+        self::assertSame(4, $run->status, $run->stdout);
+        self::assertSame('scope-missing', $run->json()['error']['code']);
+        self::assertSame(['im'], $run->json()['error']['details']['scopeValidation']['missingScopes']);
+        self::assertSame(['scope'], $this->calls);
+        $run = ConsoleHarness::run($this->app, ['task:list', '--json']);
+        self::assertSame(0, $run->status, $run->stdout);
+        self::assertSame(['scope', 'tasks.task.list'], $this->calls);
+    }
+
     public function testHandoverUsesActualPortalProjectScopeAndNeverSubstitutesSonet(): void
     {
         $this->scopes = ['task', 'sonet'];

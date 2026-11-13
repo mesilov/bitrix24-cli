@@ -1,6 +1,6 @@
 # Verification
 
-Ветка `feature/214-auth-config-commands` от `dev` ff9481e, 13.11.2026. Изменения не закоммичены: проверки выполнены на рабочем дереве worktree.
+Ветка `feature/214-auth-config-commands` от `dev` ff9481e, 13.11.2026. Реализация — коммит efc8827; затем в ветку влита `origin/dev` aa2397c (#148, #179, #185 и их архивы). Таблица ниже — проверки на efc8827, раздел «После merge origin/dev» — повтор на объединённом дереве.
 
 ## Локальные проверки
 
@@ -22,6 +22,27 @@
 - `grep -rnE "connection\.md|connection-scopes\.md" README.md docs src` (кроме `docs/releases/`);
 - `grep -rn "connection:" README.md docs` (кроме `docs/releases/`);
 - справка всех девяти команд `auth:*` и `config:*` не содержит `connection:`.
+
+## После merge origin/dev
+
+`git merge --no-edit origin/dev` (aa2397c) дал два конфликта:
+
+- `docs/cli-command-map.md` — файл сгенерирован заново (`php scripts/cli-reference.php --write`);
+- `src/Console/ResultPresenter.php` — объединены выбор строк `config-settings` из этой ветки и профиль `chat-created` из #185.
+
+| Проверка | Результат |
+| --- | --- |
+| `vendor/bin/phpunit --testsuite unit-tests` | OK, 1306 тестов, 21 115 проверок |
+| `vendor/bin/phpstan analyse --memory-limit=2G` | No errors |
+| `vendor/bin/php-cs-fixer check` | 0 файлов к исправлению из 478 |
+| `vendor/bin/rector process --dry-run` | без изменений |
+| `vendor/bin/composer-license-checker` | все лицензии разрешены |
+| `php scripts/cli-reference.php --check` | карта соответствует 75 публичным командам |
+| `build/tests/config-schema-check.py` | 176 общих fixtures, 4 примера |
+| `openspec validate restructure-auth-config-commands --strict` | valid |
+| Проверочные поиски `connection:` и ссылок на `connection*.md` | пусто |
+
+Native smoke и приёмка на портале после merge не повторялись: `origin/dev` не менял `build/tests/`, хранилище профилей и транспорт прав.
 
 ## Покрытие сценариев тестами
 
@@ -70,4 +91,3 @@
 - Вебхук без scope `user` и `auth:status` с exit 4 на живом портале: оба вебхука окружения имеют полный набор прав. Поведение покрыто `ScopeValidationCommandTest` и `AuthLoginTest` на управляемом HTTP-fixture. Для живой проверки нужен вебхук с ограниченными правами.
 - Интерактивный скрытый ввод с проверкой на портале (в терминале пользователя); проверены скрытый ввод с `--skip-check` и вход с проверкой через `--webhook-stdin`.
 - Native-бинарники Linux/macOS/Windows и этап документированных оболочек smoke-теста: нужна сборка через `builds`.
-- Интеграция свежей `origin/dev` (016d617): после ff9481e в `dev` вошли #148, #179, #185; пересекаются `CHANGELOG.md`, `README.md`, `config/services.php`, `docs/chats.md`, `docs/cli-command-map.md`, `docs/task-jtbd.md`, `ScopeManifest.php`, `CommandCatalog.php`, `ResultPresenter.php`, `TaskUsage.php`, `ScopeValidationCommandTest.php`. Merge и повтор проверок выполняются перед открытием MR.

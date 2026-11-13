@@ -47,7 +47,8 @@ final class TaskChatUnreadWindowTest extends TestCase
             $ids = range(min($this->count, $this->unreadId + $params['LIMIT'] - 1), max(1, $this->unreadId - 2));
         }
 
-        return array_values(array_map(static fn (int $id): array => ['id' => $id, 'chat_id' => 456, 'author_id' => 2, 'text' => 'm' . $id, 'date' => '2026-11-12T09:00:00+03:00'], array_filter($ids, static fn (int $id): bool => $id >= 1)));
+        $unreadId = $this->unreadId;
+        return array_values(array_map(static fn (int $id): array => ['id' => $id, 'chat_id' => 456, 'author_id' => 2, 'text' => 'm' . $id, 'date' => '2026-11-12T09:00:00+03:00', 'unread' => $id >= $unreadId], array_filter($ids, static fn (int $id): bool => $id >= 1)));
     }
 
     private function invoke(array $argv): array

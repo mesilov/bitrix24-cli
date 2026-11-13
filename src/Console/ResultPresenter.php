@@ -27,6 +27,7 @@ final readonly class ResultPresenter
         'chat-calls' => ['callId', 'startedAt', 'durationSeconds', 'initiatorId', 'present', 'absent', 'leftEarly', 'unknown'],
         'chat-call' => ['callId', 'startedAt', 'durationSeconds', 'initiatorId', 'present', 'absent', 'leftEarly', 'unknown'],
         'chat-message-sent' => ['target', 'chatId', 'messageId', 'confirmed', 'readback'],
+        'chat-created' => ['target', 'chatId', 'title', 'type', 'confirmed', 'readback'],
         'chat-candidates' => ['source', 'target', 'name', 'exact', 'writable', 'chatId', 'reason'],
         'task-results' => ['id', 'taskId', 'authorId', 'createdAt', 'status', 'text'],
         'time-entries' => ['id', 'userId', 'seconds', 'text', 'createdDate'], 'checklist-roots' => ['id', 'title'],
@@ -74,6 +75,14 @@ final readonly class ResultPresenter
             } elseif (in_array($result->profile, ['task-list', 'title-matches'], true)) {
                 $this->tasks->listing($result, $output);
             } else {
+                if ($result->profile === 'chat-messages' && array_any($result->data['items'] ?? [], static fn (array $item): bool => array_key_exists('unread', $item))) {
+                    // Human output only: the server unread flag with an explicit unknown; --plain keeps its columns.
+                    $columns[] = 'unread';
+                    $rows = array_map(static fn (array $row, array $item): array => [...$row, match ($item['unread'] ?? null) {
+                        true => 'да', false => 'нет', default => 'неизвестно',
+                    }], $rows, $result->data['items']);
+                }
+
                 (new Table($output))->setHeaders($columns)->setRows(array_map(fn ($row): array => array_map(fn ($value): string => OutputFormatter::escape($this->string($value)), $row), $rows))->render();
             }
         }
@@ -247,6 +256,10 @@ final readonly class ResultPresenter
             'config-settings' => $result->data['settings'],
             default => $result->data['items'] ?? [$result->data['operation'] ?? []],
         };
+        if ($result->profile === 'chat-created') {
+            $items = [[...$result->data['operation'], 'title' => $result->data['chat']['title'], 'type' => $result->data['chat']['type']]];
+        }
+
         if ($result->profile === 'chat-messages') {
             $items = array_map(static fn (array $item): array => [...$item, 'callId' => $item['callRef']['callId'] ?? null], $items);
         }
