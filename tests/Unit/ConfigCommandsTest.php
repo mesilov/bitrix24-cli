@@ -281,6 +281,22 @@ final class ConfigCommandsTest extends TestCase
         self::assertSame(['groupId' => 42, 'creatorId' => 3], $this->repository->profile($this->directory, 'work')['default']['task']);
         self::assertSame(['groupId' => 7], $this->repository->profile($this->directory, 'pet')['default']['task']);
 
+        // The profile of a runtime --config selects a connection; it never redirects a settings command.
+        putenv('B24CLI_PROFILE');
+        foreach ([['{"profile":"pet"}', [], 'work'], ['{"profile":"pet","timeout":5}', ['--profile', 'pet'], 'pet'], ['{"profile":"ghost"}', [], 'work']] as [$runtime, $selector, $expected]) {
+            $run = ConsoleHarness::run($this->app, ['config:set', 'default.task.responsibleId', '8', '--config', '-', ...$selector, '--json'], $runtime);
+            self::assertSame(0, $run->status, $run->stdout);
+            self::assertSame($expected, $run->json()['data']['profile']);
+            $run = ConsoleHarness::run($this->app, ['config:get', 'default.task.responsibleId', '--config', '-', ...$selector, '--json'], $runtime);
+            self::assertSame(['key' => 'default.task.responsibleId', 'value' => 8, 'source' => 'profile', 'profile' => $expected], $run->json()['data']);
+            self::assertSame($expected, ConsoleHarness::run($this->app, ['config:list', '--config', '-', ...$selector, '--json'], $runtime)->json()['data']['profile']);
+        }
+
+        self::assertSame(['groupId' => 42, 'creatorId' => 3, 'responsibleId' => 8], $this->repository->profile($this->directory, 'work')['default']['task']);
+        self::assertSame(['groupId' => 7, 'responsibleId' => 8], $this->repository->profile($this->directory, 'pet')['default']['task']);
+        self::assertSame(0, ConsoleHarness::run($this->app, ['config:set', 'logging.retentionDays', '9', '--config', '-', '--json'], '{"profile":"pet"}')->status);
+        putenv('B24CLI_PROFILE=pet');
+
         $before = file_get_contents($this->directory . '/config.json');
         foreach ([['config:set', 'default.task.groupId', '9', '--env-file', $this->directory . '/missing.env'], ['config:list', '--env-file', '/portal.env'], ['config:set', 'logging.enabled', 'true', '--profile', 'work'], ['config:get', 'logging.level', '--profile', 'work'], ['config:unset', 'telemetry.maxProblemTrajectoryFiles', '--profile', 'work']] as $argv) {
             $run = $this->cli([...$argv, '--json']);

@@ -157,11 +157,15 @@ CLI SHALL предоставлять `config:list`, `config:get KEY`, `config:se
 - **AND** `config:unset name` возвращает usage-error/exit 2, потому что поле обязательно
 
 ### Requirement: Configuration profile selection
-Для профильных ключей `config:*` SHALL выбирать профиль по `--profile`, затем `B24CLI_PROFILE`, затем `defaultProfile`. `BITRIX24_WEBHOOK` и `B24CLI_ENV_FILE` MUST игнорироваться, `--env-file` MUST давать usage-error. Корневой ключ определяется префиксом `logging.`/`telemetry.` и MUST NOT принимать `--profile`.
+Для профильных ключей `config:*` SHALL выбирать профиль по `--profile`, затем `B24CLI_PROFILE`, затем `defaultProfile`. `BITRIX24_WEBHOOK`, `B24CLI_ENV_FILE` и `profile` из runtime `--config` MUST игнорироваться, `--env-file` MUST давать usage-error. Корневой ключ определяется префиксом `logging.`/`telemetry.` и MUST NOT принимать `--profile`.
 
 #### Scenario: Default profile is used
 - **WHEN** `defaultProfile` равен `work`, а процесс получил `BITRIX24_WEBHOOK` другого портала
 - **THEN** `config:set default.task.groupId 42` меняет профиль `work`, а не подключение из окружения
+
+#### Scenario: Runtime config profile does not redirect settings
+- **WHEN** `defaultProfile` равен `work` и вызывается `config:set default.task.groupId 42 --config runtime.json`, где `runtime.json` содержит `{"profile":"other"}`
+- **THEN** меняется профиль `work`; `other` меняется только при явном `--profile other`
 
 #### Scenario: No profile for a profile key
 - **WHEN** `defaultProfile` равен null, `--profile` и `B24CLI_PROFILE` не заданы, вызывается `config:set default.task.groupId 42`

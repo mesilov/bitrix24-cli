@@ -48,7 +48,8 @@ final readonly class ConfigCommandRunner
         }
 
         $directory = $this->connections->directory();
-        $alias = $key !== null && ConfigKeys::isRoot($key) ? null : $this->connections->profileAlias();
+        // Only the command-line --profile counts here; the profile of a runtime --config selects a connection, not a settings target.
+        $alias = $key !== null && ConfigKeys::isRoot($key) ? null : $this->connections->profileAlias($input->getOption('profile'));
         if ($key !== null && !ConfigKeys::isRoot($key) && $alias === null) {
             throw Failure::usage('No profile is selected for the profile setting ' . $key . '. Pass --profile NAME, choose a default with auth:switch NAME, or create the first profile with auth:login NAME.');
         }

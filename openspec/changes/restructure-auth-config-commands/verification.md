@@ -46,6 +46,10 @@
 
 Native smoke и приёмка на портале после merge не повторялись: `origin/dev` не менял `build/tests/`, хранилище профилей и транспорт прав.
 
+## Ревью
+
+Замечание Codex к MR #221 (P2): `config:set … --config runtime.json` с `{"profile":"other"}` менял профиль `other`, хотя цепочка выбора — `--profile` → `B24CLI_PROFILE` → `defaultProfile`. Воспроизведено на 693ac16. Исправлено: `config:*` учитывает только опцию командной строки `--profile`, `profile` из runtime `--config` игнорируется; требование, design и `docs/config.md` уточнены, добавлен сценарий «Runtime config profile does not redirect settings» и проверки в `ConfigCommandsTest::testProfileSelectionIgnoresWebhooksAndEnvironmentFiles`.
+
 ## Покрытие сценариев тестами
 
 | Требование | Тесты |

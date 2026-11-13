@@ -58,13 +58,15 @@ final class ConnectionManager implements ConnectionResolver
     }
 
     /**
-     * Saved profile addressed by --profile, B24CLI_PROFILE or defaultProfile.
-     * Webhooks from the environment and dotenv files are not profiles and are ignored.
+     * Saved profile addressed by the --profile option, B24CLI_PROFILE or defaultProfile.
+     * Connection selectors that are not this chain are ignored: environment webhooks, dotenv files
+     * and the profile of a runtime --config, so shared runtime settings cannot redirect a settings write.
      */
-    public function profileAlias(): ?string
+    public function profileAlias(?string $option): ?string
     {
-        if ($this->profile !== null) {
-            return $this->profile;
+        if ($option !== null) {
+            ProfileRepository::alias($option);
+            return $option;
         }
 
         $profile = $this->environment('B24CLI_PROFILE');
