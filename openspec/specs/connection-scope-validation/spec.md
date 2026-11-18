@@ -66,7 +66,7 @@ CLI SHALL поставлять версионируемый манифест т�
 
 #### Scenario: Missing IM permission
 - **WHEN** свежая проверка показывает task без im
-- **THEN** task:chat:list/update/delete блокируются до чтения задачи/мутации, а обычный task:list выполняется
+- **THEN** task:chat:list/send/update/delete блокируются до чтения задачи/мутации, а обычный task:list выполняется
 - **AND** диагностика предлагает добавить im вебхуку и вызвать auth:status
 
 #### Scenario: Object denial and write safety
