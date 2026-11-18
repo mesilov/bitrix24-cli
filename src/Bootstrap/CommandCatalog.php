@@ -133,7 +133,7 @@ final class CommandCatalog
         'task:deadline:set' => [['tasks.task.update', 3]],
         'task:chat:list' => [['tasks.task.get', 3], ['im.dialog.get', 1], ['im.dialog.messages.get', 1], ['im.call.get', 1], ['im.user.list.get', 1], ['call.followup.get', 3]],
         'task:legacy:comment:list' => [['task.commentitem.getlist', 1]],
-        'task:chat:send' => [['tasks.task.chat.message.send', 3]],
+        'task:chat:send' => [['tasks.task.get', 3], ['im.dialog.get', 1], ['tasks.task.chat.message.send', 3], ['im.dialog.messages.get', 1]],
         'task:chat:update' => [['tasks.task.get', 3], ['im.dialog.get', 1], ['im.message.update', 1], ['im.dialog.messages.get', 1]],
         'task:chat:delete' => [['tasks.task.get', 3], ['im.dialog.get', 1], ['im.message.delete', 1], ['im.dialog.messages.get', 1]],
         'task:file:attach' => [['tasks.task.file.attach', 3], ['disk.folder.uploadFile', 1]],

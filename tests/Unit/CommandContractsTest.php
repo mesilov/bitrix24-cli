@@ -9,6 +9,7 @@ use Bitrix24\CLI\Bootstrap\CommandCatalog;
 use Bitrix24\CLI\Infrastructure\Connection\ConnectionResolver;
 use Bitrix24\CLI\Tests\Support\FakeApiTransport;
 use Bitrix24\CLI\Tests\Support\FixturePortal;
+use Bitrix24\CLI\Tests\Support\SpyConnectionResolver;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Bitrix24\CLI\Tests\Support\ConsoleHarness;
@@ -63,7 +64,7 @@ final class CommandContractsTest extends TestCase
     {
         $fixturePortal = new FixturePortal();
         $fakeApiTransport = new FakeApiTransport($fixturePortal->respond(...));
-        $app = (new ApplicationFactory())->create(dirname(__DIR__, 2), $fakeApiTransport);
+        $app = (new ApplicationFactory())->create(dirname(__DIR__, 2), $fakeApiTransport, new SpyConnectionResolver());
         $result = ConsoleHarness::run($app, ['--json', ...$argv]);
         self::assertSame(0, $result->status, $result->stdout . $result->stderr);
         $json = $result->json();
@@ -80,7 +81,10 @@ final class CommandContractsTest extends TestCase
         }
 
         if ($argv[0] === 'task:chat:send') {
-            self::assertNull($json['data']['operation']['resourceId']);
+            self::assertSame(901, $json['data']['operation']['resourceId']);
+            self::assertSame(901, $json['data']['operation']['messageId']);
+            self::assertSame(456, $json['data']['operation']['chatId']);
+            self::assertSame('verified', $json['data']['operation']['readback']);
             self::assertTrue($json['data']['operation']['confirmed']);
         }
     }
@@ -120,7 +124,7 @@ final class CommandContractsTest extends TestCase
     public function testPlainProfileUsesDocumentedHeaderlessColumns(array $argv): void
     {
         $fixturePortal = new FixturePortal();
-        $app = (new ApplicationFactory())->create(dirname(__DIR__, 2), new FakeApiTransport($fixturePortal->respond(...)));
+        $app = (new ApplicationFactory())->create(dirname(__DIR__, 2), new FakeApiTransport($fixturePortal->respond(...)), new SpyConnectionResolver());
         $run = ConsoleHarness::run($app, ['--plain', ...$argv]);
         self::assertSame(0, $run->status, $run->stdout . $run->stderr);
         $columns = match ($argv[0]) {
