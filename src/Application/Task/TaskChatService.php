@@ -64,6 +64,9 @@ final readonly class TaskChatService
                 $meta['calls'] = ['found' => count(array_unique(array_column(array_column($data['items'], 'callRef'), 'callId'))), 'details' => 'disabled'];
             }
 
+            // The chat completeness covers the chat only; the old card feed is a separate source (#182).
+            $meta['legacyComments'] = ['status' => 'not-checked', 'command' => 'task:legacy:comment:list ' . $request->taskId];
+
             return new OperationResult($scan->profile, $data, $meta, $exitStatus);
         });
     }

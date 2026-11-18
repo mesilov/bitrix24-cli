@@ -22,6 +22,7 @@ final class ScopeManifest
         'task.elapseditem.add', 'task.elapseditem.getlist', 'task.elapseditem.update', 'task.elapseditem.delete',
         'task.checklistitem.add', 'task.checklistitem.getlist', 'task.checklistitem.update',
         'task.checklistitem.complete', 'task.checklistitem.renew', 'task.checklistitem.delete',
+        'task.commentitem.getlist',
     ];
 
     private const OTHER_METHODS = [

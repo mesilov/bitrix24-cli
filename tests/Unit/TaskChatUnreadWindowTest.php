@@ -68,6 +68,21 @@ final class TaskChatUnreadWindowTest extends TestCase
         self::assertSame(['DIALOG_ID' => 'chat456', 'LIMIT' => 3, 'LAST_ID' => 121], $calls[2]['parameters']);
     }
 
+    public function testChatListDeclaresUncheckedLegacyCommentsWithoutExtraCalls(): void
+    {
+        // #182: the chat completeness covers the chat only; the old card feed is not read here.
+        [$status, $json, $calls] = $this->invoke(['task:chat:list', '123', '--all']);
+        self::assertSame(0, $status);
+        self::assertTrue($json['meta']['complete']);
+        self::assertSame(['status' => 'not-checked', 'command' => 'task:legacy:comment:list 123'], $json['meta']['legacyComments']);
+        self::assertNotContains('task.commentitem.getlist', array_column($calls, 'method'));
+        $app = (new ApplicationFactory())->create(dirname(__DIR__, 2), new FakeApiTransport($this->portal(...)), new SpyConnectionResolver());
+        $plain = ConsoleHarness::run($app, ['--plain', 'task:chat:list', '123', '--limit', '1']);
+        self::assertSame(0, $plain->status, $plain->stderr);
+        self::assertStringNotContainsString('legacy', $plain->stdout);
+        self::assertStringContainsString('b24cli task:legacy:comment:list 123', $plain->stderr);
+    }
+
     public function testFullHistoryIncludesMessagesAfterTheUnreadWindow(): void
     {
         [$status, $json] = $this->invoke(['task:chat:list', '123', '--all']);

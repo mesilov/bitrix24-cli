@@ -439,6 +439,17 @@ final readonly class TaskInputMapper
         return new Request\ListTaskChatRequest($this->taskId($input), $before === null ? null : $this->id($before, '--before'), $after === null ? null : $this->id($after, '--after'), $this->limit($input, 20), $input->getOption('max-messages') === null ? 10000 : $this->id($input->getOption('max-messages'), '--max-messages'), !$input->getOption('no-call-details'));
     }
 
+    public function listTaskLegacyComments(InputInterface $input): Request\ListTaskLegacyCommentsRequest
+    {
+        $before = $input->getOption('before');
+        $after = $input->getOption('after');
+        if ($before !== null && $after !== null) {
+            throw Failure::usage('Choose --before or --after.');
+        }
+
+        return new Request\ListTaskLegacyCommentsRequest($this->taskId($input), $before === null ? null : $this->id($before, '--before'), $after === null ? null : $this->id($after, '--after'), $this->limit($input, 20), $input->getOption('max-comments') === null ? 10000 : $this->id($input->getOption('max-comments'), '--max-comments'));
+    }
+
     public function sendTaskChatMessage(InputInterface $input): Request\SendTaskChatMessageRequest
     {
         return new Request\SendTaskChatMessageRequest($this->taskId($input), $this->text($input, 'text'));

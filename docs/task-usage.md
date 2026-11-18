@@ -463,6 +463,26 @@ b24cli task:chat:list 123 --all --no-call-details --plain
 
 У каждого сообщения есть `unread` — серверный признак из `im.dialog.messages.get` для пользователя подключения: `true`, `false` или `null`. `null` означает, что сервер не вернул boolean; тогда `meta.complete=false`, `meta.reason=message-unread-unavailable`, `meta.unreadUnavailable` — число таких сообщений, код выхода 3. Признак не выводится из автора, текста или ответов: прочитанное без ответа сообщение имеет `unread=false`. Выбранное окно `--before`/`--after`/`--limit` ничего не говорит о прочитанности всего чата. В человекочитаемом выводе — столбец `unread` (да/нет/неизвестно); столбцы `--plain` не меняются, поле доступно через `--json`. Чтение истории не отмечает сообщения прочитанными.
 
+Полнота `task:chat:list` (`meta.complete`) относится только к чату. Если задача существовала до перехода на новый чат, прежнее обсуждение могло остаться в ленте комментариев старой карточки. `task:chat:list` её не читает и сообщает об этом в `meta.legacyComments` (`status: not-checked`, `command`). В human и plain та же подсказка выводится в stderr, дополнительных запросов нет.
+
+## Прежняя лента комментариев (legacy)
+
+```bash
+b24cli task:legacy:comment:list 123 --all --json
+b24cli task:legacy:comment:list 123 --limit 20
+b24cli task:legacy:comment:list 123 --after 400 --plain
+```
+
+`task:legacy:comment:list` читает ленту комментариев старой карточки задачи — обсуждение, которое не попало в новый чат. Это устаревший источник: метод REST 1.0 `task.commentitem.getlist` не развивается с tasks 25.700.0 и может быть отключён на портале. Текущее обсуждение — `task:chat:list`. Группа `task:legacy:` выделена отдельно и не содержит команд записи.
+
+- ID комментариев — не ID сообщений чата: их нельзя передавать в `task:chat:update` и `task:chat:delete`.
+- Без `--before`/`--after` команда выводит 20 последних комментариев (`--limit` меняет число), `--all` читает всю ленту до `--max-comments` (10000). Вывод всегда по возрастанию `id`.
+- Каждый комментарий: `id`, `authorId`, `authorName`, `createdDate`, `text` (как в ответе API, BBCode не преобразуется) и `attachments[]` с `attachmentId`, `fileId`, `name`, `size`. Ссылки на скачивание и просмотр вложений не выводятся: в ответе API они содержат токен доступа.
+- `meta.source = legacy-comments`, `meta.legacy = true`, полнота `complete`, `scanned`, `returned`, `hasMore`. Неполное чтение — `complete=false` с `reason` `comment-budget-exhausted`, `pagination-no-progress` или `page-error` и код выхода 3.
+- Пустой список означает отсутствие комментариев только при успешном ответе. Если метода нет на портале (`ERROR_METHOD_NOT_FOUND`) или задача недоступна (`ERROR_CORE`), команда возвращает ошибку `legacy-comments-unavailable` с кодом 1: прежняя лента не проверена.
+- Plain TSV: `id`, `createdDate`, `authorId`, `authorName`, `text`, `attachmentCount`. Пометка legacy в human выводится заголовком над таблицей, в plain — в stderr.
+- Маршрут REST 1.0, область доступа `task`. `strict-rest3` отклоняет команду до подключения. Чтение не меняет задачу и прочитанность чата.
+
 ## Задачи с непрочитанными сообщениями
 
 ```bash

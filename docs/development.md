@@ -305,6 +305,8 @@ skip и не считаются portal acceptance. Fixtures и переходы 
 
 `B24CLI_TEST_CALL_CHAT` (TARGET чата, например `chat37`) и `B24CLI_TEST_CALL_ID` (ID завершённого звонка в нём) включают read-only приёмку `chats:calls:list` и `chats:calls:show`; без них эти сценарии пропускаются. Звонок через API создать нельзя, поэтому используется существующий.
 
+`B24CLI_TEST_LEGACY_COMMENT_TASK_ID` (ID существующей задачи, обсуждение которой осталось в ленте комментариев старой карточки) включает read-only приёмку `task:legacy:comment:list` на непустой ленте; без неё этот сценарий пропускается. Создать такую задачу через актуальный API нельзя, поэтому используется существующая.
+
 ```sh
 make unit TEST_ARGS='--filter TaskLifecycleTest'
 B24CLI_ENV_FILE=/absolute/secure/test.env make integration TEST_ARGS='--group lifecycle'
