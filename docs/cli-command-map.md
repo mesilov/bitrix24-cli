@@ -1,6 +1,6 @@
 # Карта CLI-вызовов
 
-Каталог содержит 75 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
+Каталог содержит 76 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
 
 `b24cli --help`/`-h` показывают назначение, список команд, глобальные опции и примеры задач. Вся справка — на русском; имена команд, флагов и API/JSON-полей сохраняются. Единый первый блок «Общие» содержит `completion`, `help` и `list`; далее пространства имён и команды внутри блоков упорядочены по имени. `b24cli --about` показывает назначение, версию, автора, лицензию и ссылки на [приложение](https://github.com/mesilov/bitrix24-cli) и [скилл](https://github.com/mesilov/bitrix24-cli-skill). Эти вызовы не требуют подключения и не обращаются к порталу. `list --help` описывает именно list; вызов без аргументов выводит список команд.
 
@@ -54,6 +54,7 @@
 | [`task:find`](../src/Console/Command/Task/FindTaskCommand.php) | Найти задачи по буквальной подстроке title | read | `b24cli task:find --title "договор" --group-id 7 --responsible 42` |
 | [`task:handover`](../src/Console/Command/Task/HandoverTasksCommand.php) | Передать незавершённые задачи проекта другому участнику | write | `b24cli task:handover --group-id 234 --responsible 14 --source-status deferred --exclude-id 92888 --target-status deferred --dry-run` |
 | [`task:history:list`](../src/Console/Command/Task/ListTaskHistoryCommand.php) | Показать историю изменений задачи | read | `b24cli task:history:list 123 --json` |
+| [`task:legacy:comment:list`](../src/Console/Command/Task/ListTaskLegacyCommentsCommand.php) | [legacy] Прежняя лента комментариев задачи (до перехода на чат) | read | `b24cli task:legacy:comment:list 123 --all --json` |
 | [`task:list`](../src/Console/Command/Task/ListTaskCommand.php) | Показать доступные задачи | read | `b24cli task:list --group-id 7 --responsible 42` |
 | [`task:my`](../src/Console/Command/Task/MyTaskCommand.php) | Показать задачи выбранного исполнителя | read | `b24cli task:my --user 42 --open --json` |
 | [`task:participants:set`](../src/Console/Command/Task/SetTaskParticipantsCommand.php) | Заменить выбранные роли участников | write | `b24cli task:participants:set 123 --auditor 4 --clear-accomplices --dry-run` |

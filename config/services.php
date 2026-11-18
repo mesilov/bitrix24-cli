@@ -62,6 +62,7 @@ return static function (ContainerBuilder $container, string $root, bool $package
         Bitrix24\CLI\Application\Chat\CallEnricher::class,
         Bitrix24\CLI\Application\Chat\ChatCallsService::class,
         Bitrix24\CLI\Application\Task\TaskChatService::class,
+        Bitrix24\CLI\Application\Task\TaskLegacyCommentService::class,
         Bitrix24\CLI\Application\Task\TaskResultService::class,
         Bitrix24\CLI\Application\Task\TimeEntryService::class,
         Bitrix24\CLI\Application\Task\ChecklistItemService::class,
@@ -103,6 +104,7 @@ return static function (ContainerBuilder $container, string $root, bool $package
         'TaskUserFieldGateway' => 'Rest1TaskUserFieldAdapter',
         'TaskGateway' => 'Rest3TaskAdapter', 'TaskTagGateway' => 'Rest1TaskTagAdapter', 'TaskChatGateway' => 'TaskChatAdapter', 'ChecklistGateway' => 'Rest1ChecklistAdapter',
         'UnreadCounterGateway' => 'Rest1ImCounterAdapter',
+        'LegacyCommentGateway' => 'Rest1LegacyCommentAdapter',
         'TimeEntryGateway' => 'Rest1TimeEntryAdapter', 'ParticipantGateway' => 'Rest1ParticipantAdapter', 'TaskHistoryGateway' => 'Rest1TaskHistoryAdapter', 'UserGateway' => 'Rest1UserAdapter',
     ] as $port => $adapter) {
         $class = 'Bitrix24\\CLI\\Infrastructure\\Bitrix24\\' . $adapter;
