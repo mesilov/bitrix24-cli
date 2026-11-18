@@ -463,6 +463,19 @@ b24cli task:chat:list 123 --all --no-call-details --plain
 
 У каждого сообщения есть `unread` — серверный признак из `im.dialog.messages.get` для пользователя подключения: `true`, `false` или `null`. `null` означает, что сервер не вернул boolean; тогда `meta.complete=false`, `meta.reason=message-unread-unavailable`, `meta.unreadUnavailable` — число таких сообщений, код выхода 3. Признак не выводится из автора, текста или ответов: прочитанное без ответа сообщение имеет `unread=false`. Выбранное окно `--before`/`--after`/`--limit` ничего не говорит о прочитанности всего чата. В человекочитаемом выводе — столбец `unread` (да/нет/неизвестно); столбцы `--plain` не меняются, поле доступно через `--json`. Чтение истории не отмечает сообщения прочитанными.
 
+### Отправка и изменение сообщения
+
+```bash
+b24cli task:chat:send 123 --text "Договор готов" --json
+b24cli task:chat:update 123 --message 9876 --text "Договор согласован" --json
+```
+
+[`tasks.task.chat.message.send`](https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-chat-message-send.html) отвечает только `true`, поэтому `task:chat:send` сам находит отправленное сообщение. До записи CLI проверяет, что чат принадлежит задаче (`tasks.task.get`), и запоминает ID последнего сообщения чата (`im.dialog.get`); без подтверждённой привязки ничего не отправляется. После единственной отправки CLI читает до 200 сообщений новее запомненного ID (`im.dialog.messages.get`) и считает отправленным единственное сообщение пользователя подключения с тем же текстом (переводы строк `\r\n` и пробелы по краям не учитываются).
+
+При совпадении `data.operation` содержит `messageId` (он же `resourceId`), `chatId`, `dialogId` (`chatN`) и `readback: verified` — этого достаточно, чтобы сослаться на сообщение без повторного чтения чата. Если подходящих сообщений нет (`missing`), их несколько (`ambiguous`), чтение не удалось (`failed`) или окно не дочитано (`incomplete`), команда возвращает код 3, `meta.complete=false`, `meta.reason=readback-unverified`, `messageId: null` и ID кандидатов в `data.readback.candidates`. Сообщение при этом отправлено (`confirmed: true`): не отправляйте его повторно, а выберите нужное через `task:chat:list`. Команде нужно право вебхука `im`.
+
+`task:chat:update` возвращает `resourceId` и `messageId` изменённого сообщения и `chatId` чата задачи.
+
 ## Задачи с непрочитанными сообщениями
 
 ```bash

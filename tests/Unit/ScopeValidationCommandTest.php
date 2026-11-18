@@ -103,6 +103,15 @@ final class ScopeValidationCommandTest extends TestCase
         self::assertFileDoesNotExist($this->directory . '/config.json');
     }
 
+    public function testMissingImBlocksTaskChatSendBeforeAnyWrite(): void
+    {
+        $run = ConsoleHarness::run($this->app, ['task:chat:send', '1', '--text', 'Hello', '--json']);
+        self::assertSame(4, $run->status, $run->stdout);
+        self::assertSame('scope-missing', $run->json()['error']['code']);
+        self::assertSame(['im'], $run->json()['error']['details']['scopeValidation']['missingScopes']);
+        self::assertSame(['scope'], $this->calls);
+    }
+
     public function testMissingImBlocksOnlyTheUnreadTaskList(): void
     {
         $run = ConsoleHarness::run($this->app, ['task:list', '--unread', '--json']);

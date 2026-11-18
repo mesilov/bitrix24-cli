@@ -124,7 +124,7 @@ B24CLI_ENV_FILE=/absolute/path/to/checkout/.env.local make integration
 
 ### Вывод и автоматизация
 
-`--json` выдаёт один объект `data/meta/error` со `schemaVersion: 1`. Список всегда находится в `data.items`, карточка — `data.task`, мутация — `data.operation` или `data.items` для нескольких шагов. Отправка сообщения возвращает boolean ACK и `resourceId: null`; ID для изменения выбирайте через `task:chat:list`.
+`--json` выдаёт один объект `data/meta/error` со `schemaVersion: 1`. Список всегда находится в `data.items`, карточка — `data.task`, мутация — `data.operation` или `data.items` для нескольких шагов. `task:chat:send` находит отправленное сообщение проверочным чтением чата и возвращает `messageId` (он же `resourceId`), `chatId` и `dialogId`; если сообщение не найдено однозначно — код 3 и `reason=readback-unverified`.
 
 `--plain` выдаёт TSV без заголовков; табуляция, перевод строки, CR и обратный слеш внутри значения экранируются как `\t`, `\n`, `\r`, `\\`. Human-режим выдаёт таблицы. Диагностика идёт в stderr. `-q` скрывает результат, `--silent` скрывает и ошибки. Глобальные опции доступны до и после имени команды; `--` завершает разбор опций. Уникальные сокращения Symfony поддерживаются, опечатки не запускают команду автоматически.
 

@@ -26,12 +26,14 @@ final readonly class ChatSupport
         return $chat['id'];
     }
 
-    public function requireMessage(int $taskId, int $messageId): void
+    /** @return int the verified chat ID of the task */
+    public function requireMessage(int $taskId, int $messageId): int
     {
-        $result = $this->scan($this->chatId($taskId), null, null, null, 10000, $messageId);
+        $chatId = $this->chatId($taskId);
+        $result = $this->scan($chatId, null, null, null, 10000, $messageId);
         foreach ($result->data['items'] as $message) {
             if ($message['id'] === $messageId) {
-                return;
+                return $chatId;
             }
         }
 
