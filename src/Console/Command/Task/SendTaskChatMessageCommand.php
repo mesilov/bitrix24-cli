@@ -29,7 +29,7 @@ final class SendTaskChatMessageCommand extends Command
         $this->addOption('text', null, InputOption::VALUE_REQUIRED, 'Текст.');
         $this->addOption('text-file', null, InputOption::VALUE_REQUIRED, 'Текст из PATH или - (stdin).');
         $this->addOption('dry-run', null, InputOption::VALUE_NONE, 'Показать план без записи; проверочные чтения обозначены.');
-        $this->setHelp('JSON: структура data/meta/error; столбцы TSV при --plain: taskId, resourceId, action, changedFields. REST 3.0. Сервер подтверждает отправку без ID; выберите MESSAGE_ID через task:chat:list.  Пример: b24cli task:chat:send 123 --text "Договор готов"');
+        $this->setHelp('JSON: структура data/meta/error; столбцы TSV при --plain: taskId, resourceId, action, changedFields. REST 3.0. Сервер подтверждает отправку без ID, поэтому CLI проверяет привязку чата к задаче, отправляет сообщение один раз и находит его в чате: data.operation содержит messageId (он же resourceId), chatId и dialogId (chatN), readback=verified. Если отправленное сообщение не найдено однозначно, возвращается код 3 и reason=readback-unverified с кандидатами в data.readback; отправка не повторяется. Нужно право вебхука im.  Пример: b24cli task:chat:send 123 --text "Договор готов"');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
