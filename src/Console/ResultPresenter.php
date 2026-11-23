@@ -23,6 +23,7 @@ final readonly class ResultPresenter
         'task-list' => ['id', 'title', 'responsibleId', 'groupId', 'status', 'deadline'],
         'title-matches' => ['id', 'title'], 'task-fields' => ['name', 'type', 'editable', 'filterable', 'sortable'],
         'chat-messages' => ['id', 'createdDate', 'authorId', 'text', 'kind', 'callId'],
+        'task-legacy-comments' => ['id', 'createdDate', 'authorId', 'authorName', 'text', 'attachmentCount'],
         'user-presence' => ['id', 'name', 'lastActivityDate', 'absent'],
         'chat-calls' => ['callId', 'startedAt', 'durationSeconds', 'initiatorId', 'present', 'absent', 'leftEarly', 'unknown'],
         'chat-call' => ['callId', 'startedAt', 'durationSeconds', 'initiatorId', 'present', 'absent', 'leftEarly', 'unknown'],
@@ -60,6 +61,12 @@ final readonly class ResultPresenter
             $output->writeln(json_encode(['data' => $result->data, 'meta' => $meta, 'error' => $error], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), OutputInterface::OUTPUT_RAW);
         } else {
             [$columns, $rows] = $this->rows($result);
+            if ($result->profile === 'task-legacy-comments') {
+                // The legacy marker never enters the TSV stream: stdout for humans, stderr for --plain.
+                $notice = $this->legacyNotice($result->meta['taskId'] ?? null);
+                $mode === 'plain' ? $this->diagnostic($output, $notice) : $output->writeln(OutputFormatter::escape($notice));
+            }
+
             if ($mode === 'plain' && $result->profile === 'config-value') {
                 $output->writeln($this->escape($result->data['value']), OutputInterface::OUTPUT_RAW);
             } elseif ($mode === 'plain') {
@@ -113,6 +120,10 @@ final readonly class ResultPresenter
             foreach ($result->data['calls'] ?? ($result->profile === 'chat-call' ? [$result->data['call']] : ($result->profile === 'chat-calls' ? $result->data['items'] : [])) as $call) {
                 $this->diagnostic($output, $this->callSummary($call));
             }
+        }
+
+        if ($mode !== 'json' && $result->profile === 'chat-messages' && ($result->meta['legacyComments']['status'] ?? null) === 'not-checked') {
+            $this->diagnostic($output, 'Прежние комментарии задачи (до перехода на чат) не проверялись: b24cli ' . $result->meta['legacyComments']['command']);
         }
 
         if ($mode !== 'json' && $result->profile === 'user-presence') {
@@ -260,6 +271,10 @@ final readonly class ResultPresenter
             $items = [[...$result->data['operation'], 'title' => $result->data['chat']['title'], 'type' => $result->data['chat']['type']]];
         }
 
+        if ($result->profile === 'task-legacy-comments') {
+            $items = array_map(static fn (array $item): array => [...$item, 'attachmentCount' => count($item['attachments'] ?? [])], $items);
+        }
+
         if ($result->profile === 'chat-messages') {
             $items = array_map(static fn (array $item): array => [...$item, 'callId' => $item['callRef']['callId'] ?? null], $items);
         }
@@ -269,6 +284,12 @@ final readonly class ResultPresenter
         }
 
         return [$columns, array_map(static fn (array $item): array => array_map(static fn (string $field): mixed => $item[$field] ?? ($field === 'visibleAfter' ? 'unknown' : null), $columns), $items)];
+    }
+
+    private function legacyNotice(mixed $taskId): string
+    {
+        $task = is_int($taskId) ? ' ' . $taskId : '';
+        return 'Прежняя лента комментариев задачи' . $task . ' (legacy, только чтение). Текущее обсуждение — b24cli task:chat:list' . ($task === '' ? ' TASK_ID' : $task) . '.';
     }
 
     private function callSummary(array $call): string

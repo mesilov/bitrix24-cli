@@ -27,6 +27,8 @@
 
 Сверка [#185](https://github.com/mesilov/bitrix24-cli/issues/185) от 13.11.2026, база `dev` — `ff9481e`: добавлен [CHAT-06 — завести чат для рассылки команде](#chat-06). Отправка в произвольный доступный чат уже поставлена `chats:send`; новая команда `chats:add` создаёт закрытый (`CHAT`) или открытый (`OPEN`) групповой чат с участниками. Каналы Битрикс24 REST не создаёт. Каталог: 50 task-команд / 72 публичные. Live на тестовом портале: dry-run, создание закрытого чата с проверкой названия и участника, запись в созданный чат, блокировка повторного создания `chat-exists`. [OpenSpec change](../openspec/changes/archive/2026-11-13-add-chat-creation/proposal.md).
 
+Сверка [#182](https://github.com/mesilov/bitrix24-cli/issues/182) от 18.11.2026, база `dev` — `8a4122d`: PM-06, AM-06 и EMP-07 дополнены командой `task:legacy:comment:list` — чтением прежней ленты комментариев старой карточки задачи (устаревший REST 1.0 `task.commentitem.getlist`), а `task:chat:list` — признаком `meta.legacyComments`. Новых JTBD нет, ID сохранены. Каталог: 51 task-команда / 76 публичных. Live (только чтение) на тестовом портале; доступ пользователя без роли в задаче и страницы больше 50 комментариев не проверены. [OpenSpec change](../openspec/changes/add-task-legacy-comments/proposal.md).
+
 Сверка [#148](https://github.com/mesilov/bitrix24-cli/issues/148) от 13.11.2026, база `dev` — `ff9481e`: PM-06 и EMP-07 дополнены `task:list --unread` (серверный счётчик непрочитанных сообщений чата задачи по снимку `im.counters.get`, отдельная ручная метка), AM-06 — признаком `unread` сообщений `task:chat:list`. Новых JTBD и команд нет: каталог 50 task-команд / 71 публичная, ID сохранены. Offline unit-контракты выполнены; live-приёмка на удаляемых fixtures не выполнялась. [OpenSpec change](../openspec/changes/add-task-unread-state/proposal.md).
 
 Сверка [#170](https://github.com/mesilov/bitrix24-cli/issues/170) от 16.10.2026, база dev `0caf9db`: проверка состава EMP-09/PM-04 использует фактический scope `sonet_group`. Серверный сброс статуса в `pending` после назначения обрабатывается достижением явной цели либо восстановлением исходного статуса штатными действиями. Повторная live-матрица: 18/18 проверок PASS; 4/4 integration tests PASS, включая ожидаемые partial/отказы. [Evidence и ограничения](../openspec/changes/archive/2026-10-16-fix-task-handover-project-scope/live-acceptance.md). Существующие 24 JTBD и ID сохранены.
@@ -208,10 +210,11 @@
 | Статус | Команда | Тест |
 | --- | --- | --- |
 | ✅ Готово | [`task:chat:list`](../src/Console/Command/Task/ListTaskChatCommand.php) | [`ListTaskChatCommandTest.php`](../tests/Integration/Task/ListTaskChatCommandTest.php) |
+| ✅ Готово | [`task:legacy:comment:list`](../src/Console/Command/Task/ListTaskLegacyCommentsCommand.php) — прежняя лента комментариев (legacy) | [`ListTaskLegacyCommentsCommandTest.php`](../tests/Integration/Task/ListTaskLegacyCommentsCommandTest.php) |
 | ✅ Готово | [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) | [`SendTaskChatMessageCommandTest.php`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php) |
 | ✅ Готово | [`task:list --unread`](../src/Console/Command/Task/ListTaskCommand.php) | [`ListTaskCommandTest.php`](../tests/Integration/Task/ListTaskCommandTest.php) |
 
-**Границы:** Проверяются чтение и отправка в чате задачи; denied-role матрица остаётся в #42. Для #148 `task:list --unread` находит задачи с положительным серверным счётчиком непрочитанных сообщений подключения (включая чаты без звука), ручная метка показывается отдельно; это не число упоминаний и не бейдж «@». Offline-контракты покрыты unit-тестами; live-приёмка на удаляемых fixtures (mention/mute/ручная метка, второе подключение) не выполнялась, live-тест только читает снимок для созданной задачи.
+**Границы:** Проверяются чтение и отправка в чате задачи; denied-role матрица остаётся в #42. Для #148 `task:list --unread` находит задачи с положительным серверным счётчиком непрочитанных сообщений подключения (включая чаты без звука), ручная метка показывается отдельно; это не число упоминаний и не бейдж «@». Offline-контракты покрыты unit-тестами; live-приёмка на удаляемых fixtures (mention/mute/ручная метка, второе подключение) не выполнялась, live-тест только читает снимок для созданной задачи. Для #182 `task:chat:list` не читает прежнюю ленту комментариев старой карточки и сообщает об этом в `meta.legacyComments`; её читает `task:legacy:comment:list`. Live (только чтение) на тестовом портале: задача со старыми комментариями и новым чатом.
 
 
 <a id="pm-07"></a>
@@ -414,9 +417,10 @@
 | Статус | Команда | Тест |
 | --- | --- | --- |
 | ✅ Готово | [`task:chat:list`](../src/Console/Command/Task/ListTaskChatCommand.php) | [`ListTaskChatCommandTest.php`](../tests/Integration/Task/ListTaskChatCommandTest.php) |
+| ✅ Готово | [`task:legacy:comment:list`](../src/Console/Command/Task/ListTaskLegacyCommentsCommand.php) — прежняя лента комментариев (legacy) | [`ListTaskLegacyCommentsCommandTest.php`](../tests/Integration/Task/ListTaskLegacyCommentsCommandTest.php) |
 | ✅ Готово | [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) | [`SendTaskChatMessageCommandTest.php`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php) |
 
-**Границы:** Проверяются сообщения чата задачи; клиентское согласование и доступ внешнего клиента не проверяются, denied-role — #42. Для #148 каждое сообщение `task:chat:list` содержит серверное `unread` (`true`/`false`, `null` при отсутствии — partial); прочитанность не выводится из ответов, чтение истории не отмечает сообщения прочитанными. Live-тест проверяет только тип поля на собственном сообщении.
+**Границы:** Проверяются сообщения чата задачи; клиентское согласование и доступ внешнего клиента не проверяются, denied-role — #42. Для #148 каждое сообщение `task:chat:list` содержит серверное `unread` (`true`/`false`, `null` при отсутствии — partial); прочитанность не выводится из ответов, чтение истории не отмечает сообщения прочитанными. Live-тест проверяет только тип поля на собственном сообщении. Для #182 `task:chat:list` не читает прежнюю ленту комментариев старой карточки и сообщает об этом в `meta.legacyComments`; её читает `task:legacy:comment:list`. Live (только чтение) на тестовом портале: задача со старыми комментариями и новым чатом.
 
 
 <a id="am-07"></a>
@@ -571,10 +575,11 @@
 | Статус | Команда | Тест |
 | --- | --- | --- |
 | ✅ Готово | [`task:chat:list`](../src/Console/Command/Task/ListTaskChatCommand.php) | [`ListTaskChatCommandTest.php`](../tests/Integration/Task/ListTaskChatCommandTest.php) |
+| ✅ Готово | [`task:legacy:comment:list`](../src/Console/Command/Task/ListTaskLegacyCommentsCommand.php) — прежняя лента комментариев (legacy) | [`ListTaskLegacyCommentsCommandTest.php`](../tests/Integration/Task/ListTaskLegacyCommentsCommandTest.php) |
 | ✅ Готово | [`task:chat:send`](../src/Console/Command/Task/SendTaskChatMessageCommand.php) | [`SendTaskChatMessageCommandTest.php`](../tests/Integration/Task/SendTaskChatMessageCommandTest.php) |
 | ✅ Готово | [`task:list --unread`](../src/Console/Command/Task/ListTaskCommand.php) | [`ListTaskCommandTest.php`](../tests/Integration/Task/ListTaskCommandTest.php) |
 
-**Границы:** Проверяются чтение и отправка в чате задачи; сквозная переписка вопрос/ответ и denied-role матрица не подтверждены (#42). Для #148 `task:list --unread` относится к выбранному подключению: ручная метка «Не прочитано» сама задачу не включает и выводится в `manuallyMarkedUnread`; совпадение с бейджем «@» не обещается. Live-приёмка различения метки и счётчика не выполнялась.
+**Границы:** Проверяются чтение и отправка в чате задачи; сквозная переписка вопрос/ответ и denied-role матрица не подтверждены (#42). Для #148 `task:list --unread` относится к выбранному подключению: ручная метка «Не прочитано» сама задачу не включает и выводится в `manuallyMarkedUnread`; совпадение с бейджем «@» не обещается. Live-приёмка различения метки и счётчика не выполнялась. Для #182 `task:chat:list` не читает прежнюю ленту комментариев старой карточки и сообщает об этом в `meta.legacyComments`; её читает `task:legacy:comment:list`. Live (только чтение) на тестовом портале: задача со старыми комментариями и новым чатом.
 
 
 <a id="emp-08"></a>
