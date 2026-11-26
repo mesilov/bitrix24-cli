@@ -17,11 +17,9 @@ use Bitrix24\CLI\Infrastructure\Connection\FileCredentialStore;
 use Bitrix24\CLI\Infrastructure\Connection\ProfileRepository;
 use Bitrix24\CLI\Infrastructure\Connection\WebhookOwnerReader;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\Question;
 
 /**
  * Credentials and portal selection: auth:login, auth:list, auth:switch and auth:logout.
@@ -31,7 +29,7 @@ final readonly class AuthCommandRunner
 {
     private const MAX_WEBHOOK_BYTES = 1048576;
 
-    public function __construct(private ConnectionManager $connections, private ProfileRepository $profiles, private CommandRunner $runner, private InputSourceReader $reader, private ResultPresenter $presenter, private ApiPolicyGuard $guard, private RuntimeState $state, private ApiTransport $transport, private WebhookOwnerReader $owners)
+    public function __construct(private ConnectionManager $connections, private ProfileRepository $profiles, private CommandRunner $runner, private InputSourceReader $reader, private ResultPresenter $presenter, private ApiPolicyGuard $guard, private RuntimeState $state, private ApiTransport $transport, private WebhookOwnerReader $owners, private WebhookPrompt $prompt)
     {
     }
 
@@ -166,13 +164,7 @@ final readonly class AuthCommandRunner
         if ($input->getOption('webhook-stdin')) {
             $webhook = $this->reader->read('-', self::MAX_WEBHOOK_BYTES);
         } else {
-            if (!$input->isInteractive() || !defined('STDIN') || !stream_isatty(STDIN)) {
-                throw Failure::usage('Use --webhook-stdin with redirected input, or run auth:login in an interactive terminal.');
-            }
-
-            $question = new Question('HTTPS incoming webhook: ');
-            $question->setHidden(true)->setHiddenFallback(false);
-            $webhook = (new QuestionHelper())->ask($input, $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output, $question);
+            $webhook = $this->prompt->ask($input, $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output);
         }
 
         if (!is_string($webhook)) {

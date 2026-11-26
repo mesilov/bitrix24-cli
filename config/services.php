@@ -24,6 +24,7 @@ return static function (ContainerBuilder $container, string $root, bool $package
         Bitrix24\CLI\Application\Connection\ScopeManifest::class,
         Bitrix24\CLI\Infrastructure\Bitrix24\ScopeCheckingTransport::class,
         Bitrix24\CLI\Infrastructure\Connection\WebhookOwnerReader::class,
+        Bitrix24\CLI\Console\WebhookPrompt::class,
         Bitrix24\CLI\Console\AuthCommandRunner::class,
         Bitrix24\CLI\Console\ConfigCommandRunner::class,
         Bitrix24\CLI\Console\DoctorCommandRunner::class,

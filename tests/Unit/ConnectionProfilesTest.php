@@ -277,7 +277,7 @@ final class ConnectionProfilesTest extends TestCase
                     self::assertStringContainsString('auth:list', $combined);
                 }
 
-                self::assertStringNotContainsString('HTTPS incoming webhook:', $combined);
+                $this->assertNoWebhookPrompt($combined);
                 self::assertStringNotContainsString('--webhook-stdin with redirected input', $combined);
                 self::assertStringNotContainsString('RecognizableFixtureSecret', $combined);
                 self::assertStringNotContainsString('ReplacementFixtureSecret', $combined);
@@ -364,6 +364,14 @@ final class ConnectionProfilesTest extends TestCase
     {
         $run = ConsoleHarness::run($this->app(), ['help', 'auth:login', '--no-ansi']);
         self::assertSame(0, $run->status);
+        $direct = ConsoleHarness::run($this->app(), ['auth:login', '--help', '--no-ansi']);
+        self::assertSame(0, $direct->status);
+        self::assertSame($run->stdout, $direct->stdout);
+        foreach (['URL входящего вебхука Битрикс24', 'Разработчикам → Готовые сценарии → Другое → Входящий вебхук', '«Настройка прав»', '«Вебхук для вызова rest api»', 'Ввод скрыт', 'https://github.com/mesilov/bitrix24-cli/blob/main/docs/auth.md#incoming-webhook'] as $text) {
+            self::assertStringContainsString($text, $run->stdout);
+        }
+
+        self::assertLessThan(strpos($run->stdout, 'владелец вебхука (profile)'), strpos($run->stdout, 'Разработчикам → Готовые сценарии'));
         foreach (['владелец вебхука (profile)', 'профиль не сохраняется', '--skip-check', '--replace', 'Первый профиль становится профилем по умолчанию', 'auth:switch NAME', 'auth:status', 'config:set', '--webhook-stdin', 'ошибку до ввода вебхука'] as $text) {
             self::assertStringContainsString($text, $run->stdout);
         }
@@ -571,6 +579,34 @@ PHP;
                     proc_close($process);
                 }
             }
+        }
+    }
+
+    public function testWebhookPromptIsAbsentForPipedInputAndFailuresBeforeInput(): void
+    {
+        $app = $this->app();
+        $run = ConsoleHarness::run($app, ['auth:login', 'work', '-n', '--json']);
+        self::assertSame(2, $run->status, $run->stdout . $run->stderr);
+        self::assertSame('usage-error', $run->json()['error']['code']);
+        $this->assertNoWebhookPrompt($run->stdout . $run->stderr);
+
+        $run = ConsoleHarness::run($app, ['auth:login', 'work', '--webhook-stdin', '--skip-check', '--no-ansi'], 'https://work.invalid/rest/1/RecognizableFixtureSecret/');
+        self::assertSame(0, $run->status, $run->stdout . $run->stderr);
+        $this->assertNoWebhookPrompt($run->stdout . $run->stderr);
+        self::assertStringNotContainsString('RecognizableFixtureSecret', $run->stdout . $run->stderr);
+
+        $run = ConsoleHarness::run($app, ['auth:login', 'pet', '--api-policy', 'strict-rest3', '--no-ansi'], 'https://pet.invalid/rest/1/RecognizableFixtureSecret/');
+        self::assertNotSame(0, $run->status, $run->stdout . $run->stderr);
+        $this->assertNoWebhookPrompt($run->stdout . $run->stderr);
+        self::assertStringNotContainsString('RecognizableFixtureSecret', $run->stdout . $run->stderr);
+    }
+
+    private function assertNoWebhookPrompt(string $output): void
+    {
+        self::assertStringNotContainsString('HTTPS incoming webhook:', $output);
+        self::assertStringNotContainsString(\Bitrix24\CLI\Console\WebhookPrompt::QUESTION, $output);
+        foreach (\Bitrix24\CLI\Console\WebhookPrompt::HINT as $line) {
+            self::assertStringNotContainsString($line, $output);
         }
     }
 
