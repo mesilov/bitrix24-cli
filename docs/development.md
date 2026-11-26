@@ -65,6 +65,8 @@ make php-cli-bash
 Обновить карту после изменения команд или примеров: `make cli-reference`.
 Проверить соответствие текущему каталогу: `make cli-reference-check`.
 
+Матрица разрешений в [docs/auth-scopes.md](auth-scopes.md#матрица-разрешений) строится из `ScopeManifest` и `CommandCatalog::ROUTES`: обновить — `make scope-matrix`, проверить — `make scope-matrix-check`; расхождение также ловит `ScopeMatrixTest`. Если новая опция или TARGET добавляет scope только в своём режиме, добавьте условие в `ScopeMatrix::CONDITIONS`, иначе матрица покажет scope как обязательный.
+
 ## Проверки качества
 
 После `make docker-init` доступны четыре проверки. Они используют dev-зависимости из `composer.lock` и выполняются в Docker; локальные PHP и Composer не требуются.
