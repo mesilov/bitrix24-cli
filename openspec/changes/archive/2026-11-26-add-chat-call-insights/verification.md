@@ -85,3 +85,12 @@ MCP документации Битрикс24: `bitrix-method-details im.dialog.
 | Live `users:presence` по чату | 8 участников из `im.dialog.users.list` (`total` 8), у всех есть `lastActivityDate`, признака онлайна в выводе нет; маршруты `im.dialog.get`, `im.dialog.users.list`, `im.user.list.get` |
 
 Не запускались на рабочем портале сценарии, создающие задачи (`ListChatCallsCommandTest::testHappyPathTaskChatWithoutCallsIsCompleteAndEmpty`, `ShowChatCallCommandTest::testCallOfAnotherChatIsRejected`): запись допускается только в тестовой группе. Live-приёмка 5.4 со сверкой оценки с заранее известным составом звонка не проводилась.
+
+## Архивирование (26.11.2026)
+
+Change архивирован по явному поручению пользователя после merge реализации (MR #209). Delta specs синхронизированы в `chat-calls` (новая основная спецификация), `task-workflows` (PM-10, PM-11) и `user-directory` (присутствие по последней активности).
+
+Непроверенные границы:
+
+- 5.4: сверка `inferred` с заранее известным составом звонка, звонок с началом до границы периода и сверка `confirmed` с фактом на портале с Follow-up.
+- Сценарии, создающие задачи (`ListChatCallsCommandTest::testHappyPathTaskChatWithoutCallsIsCompleteAndEmpty`, `ShowChatCallCommandTest::testCallOfAnotherChatIsRejected`), на рабочем портале не запускались.

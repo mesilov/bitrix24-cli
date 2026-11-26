@@ -37,6 +37,7 @@
 - **`users:presence`:** последняя активность, отсутствие и момент наблюдения по списку `--user-id` или участникам чата из TARGET через `im.user.list.get`; статус мессенджера и признак онлайна не используются, неизвестные ID видны в `meta.notFound`. [#208](https://github.com/mesilov/bitrix24-cli/issues/208)
 - **Дата записи времени:** `task:time:add` и `task:time:update` принимают `--created-date` (ISO 8601 с часовым поясом) и передают его в `CREATED_DATE` записи REST 1.0 `task.elapseditem.*`. Время можно внести задним числом или наперёд и исправить ошибочную дату; без флага поведение прежнее. Неверная дата отклоняется до запросов к порталу, который иначе молча записал бы текущий момент. [#179](https://github.com/mesilov/bitrix24-cli/issues/179)
 - JTBD CHAT-03…05, PM-10, PM-11 и OpenSpec change `add-chat-call-insights` со сверкой по официальной документации и live-проверкой на портале. [#208](https://github.com/mesilov/bitrix24-cli/issues/208)
+- Архивирован OpenSpec change `add-chat-call-insights` (`openspec/changes/archive/2026-11-26-add-chat-call-insights/`); требования разметки и обогащения звонков, `chats:calls:list`, `chats:calls:show` и CHAT-03…05 синхронизированы в новую основную спецификацию `chat-calls`, PM-10 и PM-11 — в `task-workflows`, `users:presence` — в `user-directory`. На живом портале не проверены сверка оценки участников с заранее известным составом звонка, звонок с началом до границы периода и подтверждённые участники из Follow-up. [#208](https://github.com/mesilov/bitrix24-cli/issues/208)
 
 ### Исправлено
 
