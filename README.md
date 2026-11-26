@@ -150,7 +150,7 @@ b24cli config:list
 ### Права вебхука
 
 Права выбирают в блоке *Настройка прав* входящего вебхука. Чтобы работали все команды,
-отметьте `task`, `user`, `im`, `disk`, `department` и `sonet_group`; `call` — по желанию.
+отметьте `task`, `user`, `im`, `disk`, `department`, `sonet_group` и `note`; `call` — по желанию.
 
 | Код scope | Название в настройках вебхука | Что без него не работает |
 | --- | --- | --- |
@@ -160,6 +160,7 @@ b24cli config:list
 | `disk` | Диск | `task:file:attach --file` (загрузка локального файла) |
 | `department` | Структура компании | `users:manager` |
 | `sonet_group` | Рабочие группы соцсети | `task:handover`, `chats:find`, `chats:send --name` |
+| `note` | Ищите код `note` (База знаний 2.0) | Все команды `kb:*` |
 | `call` | Телефония | Ничего не блокирует; без него в сведениях о звонках нет данных AI Follow-up |
 
 Устаревший код `tasks` CLI тоже принимает вместо `task`. `user_brief` даёт только имена, для email нужен `user_basic` или `user`. Scope не даёт прав
@@ -227,6 +228,19 @@ ID, имена профилей и тексты в примерах замени
 | `chats:messages:list` | Показать сообщения чата за период | `b24cli chats:messages:list sg234 --period yesterday --timezone Europe/Moscow --json` |
 | `chats:resolve` | Проверить адресат чата по ссылке или типизированному ID | `b24cli chats:resolve 'https://portal.example/workgroups/group/234/' --json` |
 | `chats:send` | Отправить сообщение в чат по ссылке, ID или точному названию | `b24cli chats:send --name 'Команда проекта' --text 'Сегодня меня не будет' --dry-run --json` |
+
+### База знаний
+
+Команды работают с Базой знаний 2.0 через REST 3.0 и требуют у вебхука права `note`. Обновление заменяет содержимое статьи целиком: прочитайте её с `--markdown`, измените файл и запишите полный текст. Подробнее — в [руководстве по Базе знаний](docs/knowledge-base.md).
+
+| Команда | Назначение | Пример |
+| --- | --- | --- |
+| `kb:list` | Показать доступные базы знаний | `b24cli kb:list --json` |
+| `kb:article:list` | Показать дерево статей базы знаний | `b24cli kb:article:list --collection 42 --json` |
+| `kb:article:search` | Найти статьи по заголовку и тексту | `b24cli kb:article:search --query 'отпуск' --json` |
+| `kb:article:show` | Показать статью с содержимым в Markdown | `b24cli kb:article:show 77 --markdown > article.md` |
+| `kb:article:add` | Создать статью | `b24cli kb:article:add --collection 42 --title 'Регламент отпусков' --markdown-file vacation.md --dry-run --json` |
+| `kb:article:update` | Заменить заголовок и/или содержимое статьи | `b24cli kb:article:update 77 --markdown-file article.md --json` |
 
 ### Создание и редактирование задач
 
@@ -361,7 +375,7 @@ b24cli --about
 
 Рабочие сценарии: [задачи, поиск и форматы вывода](docs/task-usage.md),
 [недельный отчёт проекта](docs/task-weekly-report.md),
-[сотрудники и оргструктура](docs/users.md), [адресаты чатов](docs/chats.md), [JTBD по ролям](docs/task-jtbd.md),
+[сотрудники и оргструктура](docs/users.md), [адресаты чатов](docs/chats.md), [База знаний 2.0](docs/knowledge-base.md), [JTBD по ролям](docs/task-jtbd.md),
 [проблемные сценарии агента](docs/problem-trajectories.md).
 
 ## Конфиг

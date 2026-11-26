@@ -17,7 +17,7 @@ final readonly class ScopeMatrix
     public const string END = '<!-- scope-matrix:end -->';
 
     /** Stable column order; the first code of a group is the recommended one. */
-    private const array GROUP_ORDER = ['task', 'user', 'department', 'im', 'disk', 'sonet_group'];
+    private const array GROUP_ORDER = ['task', 'user', 'department', 'im', 'disk', 'sonet_group', 'note'];
 
     /**
      * Scopes a command needs only for some options or targets. The catalog keeps the union of all

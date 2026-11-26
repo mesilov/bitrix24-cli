@@ -19,7 +19,7 @@ Scope открывает группу методов, но не даёт пра�
 
 <!-- scope-matrix:start -->
 
-Ревизия манифеста: `7a16acc01d60a56333ff6d878c79b150333f8a2031efcef89b77daa9628566e4`. То же значение `auth:status` показывает в `scopeManifestRevision`. Блок обновляется командой `make scope-matrix`.
+Ревизия манифеста: `f5605fc63a3b213871eb9120d7323e7e7c101ecc06ea97bc72222d903724d509`. То же значение `auth:status` показывает в `scopeManifestRevision`. Блок обновляется командой `make scope-matrix`.
 
 ### `auth:*`
 
@@ -39,6 +39,17 @@ Scope открывает группу методов, но не даёт пра�
 | `chats:messages:list` | `im` | `task` / `tasks` — TARGET `task:N` | `call` — `call.followup.get` | `tasks.task.get` (3.0), `im.dialog.get` (1.0), `im.dialog.messages.get` (1.0), `im.call.get` (1.0), `im.user.list.get` (1.0), `call.followup.get` (3.0) |
 | `chats:resolve` | `im` | `task` / `tasks` — TARGET `task:N` | — | `tasks.task.get` (3.0), `im.dialog.get` (1.0) |
 | `chats:send` | `im` | `task` / `tasks` — `--name` или TARGET `task:N`; `sonet_group` — `--name` | — | `im.search.chat.list` (1.0), `sonet_group.get` (1.0), `tasks.task.list` (3.0), `tasks.task.get` (3.0), `im.dialog.get` (1.0), `im.message.add` (1.0), `im.dialog.messages.get` (1.0) |
+
+### `kb:*`
+
+| Команда | Обязательные scope | Только при опциях | Необязательные | REST-маршруты |
+| --- | --- | --- | --- | --- |
+| `kb:article:add` | `note` | — | — | `note.document.tree.list` (3.0), `note.document.add` (3.0) |
+| `kb:article:list` | `note` | — | — | `note.document.tree.list` (3.0) |
+| `kb:article:search` | `note` | — | — | `note.document.search.list` (3.0) |
+| `kb:article:show` | `note` | — | — | `note.document.get` (3.0) |
+| `kb:article:update` | `note` | — | — | `note.document.update` (3.0) |
+| `kb:list` | `note` | — | — | `note.collection.list` (3.0) |
 
 ### `task:*`
 
@@ -160,6 +171,8 @@ b24cli auth:status work
 [`Справочник scope`](https://apidocs.bitrix24.ru/api-reference/scopes/permissions.html) рекомендует `task` и называет `tasks` устаревшим, а [страница REST3 tasks.task.get](https://apidocs.bitrix24.ru/api-reference/tasks/tasks-task-get-rest-v3.html) указывает `tasks`. Поэтому task-группа блокируется только при отсутствии обоих. Это консервативное решение из-за расхождения документации; при настройке выбирайте `task`. Выданные коды не переименовываются.
 
 [`user.get`](https://apidocs.bitrix24.ru/api-reference/user/user-get.html) допускает `user`, `user_basic`, `user_brief`; доступные поля зависят от варианта. [`department.get`](https://apidocs.bitrix24.ru/api-reference/departments/department-get.html) требует `department`, [`disk.folder.uploadFile`](https://apidocs.bitrix24.ru/api-reference/disk/folder/disk-folder-upload-file.html) — `disk`, [`im.dialog.messages.get`](https://apidocs.bitrix24.ru/api-reference/chats/messages/im-dialog-messages-get.html), [`im.dialog.get`](https://apidocs.bitrix24.ru/api-reference/chats/im-dialog-get.html) (`chats:resolve`, стартовая позиция чтения чата задачи и поиска отправленного `task:chat:send` сообщения, прочтения участников для сведений о звонке), [`im.counters.get`](https://apidocs.bitrix24.ru/api-reference/chats/im-counters-get.html) (только `task:list --unread`), [`im.search.chat.list`](https://apidocs.bitrix24.ru/api-reference/chats/search/im-search-chat-list.html) (`chats:find`), [`im.message.add`](https://apidocs.bitrix24.ru/api-reference/chats/messages/im-message-add.html) (`chats:send`), [`im.chat.add`](https://apidocs.bitrix24.ru/api-reference/chats/im-chat-add.html) (`chats:add`), [`im.user.list.get`](https://apidocs.bitrix24.ru/api-reference/chats/users/im-user-list-get.html) (`users:presence`, последняя активность участников звонка), недокументированный `im.call.get` (данные звонка в чате) и изменение/удаление сообщений — `im`. `chats:find` и `chats:send --name` также требуют `sonet_group` для [`sonet_group.get`](https://apidocs.bitrix24.ru/api-reference/sonet-group/sonet-group-get.html) и `task|tasks` для поиска задач по заголовку; MCP-описание `sonet_group.get` называет scope `sonet`, CLI использует фактический код `sonet_group`, как и для `task:handover`.
+
+Команды Базы знаний 2.0 `kb:*` используют только REST 3.0 и требуют `note`: [`note.collection.list`](https://apidocs.bitrix24.ru/api-reference/rest-v3/note/collection/note-collection-list.html) (`kb:list`), [`note.document.tree.list`](https://apidocs.bitrix24.ru/api-reference/rest-v3/note/document/note-document-tree-list.html) (`kb:article:list` и проверка дубля `kb:article:add`), [`note.document.search.list`](https://apidocs.bitrix24.ru/api-reference/note/document/note-document-search-list.html) (`kb:article:search`), [`note.document.get`](https://apidocs.bitrix24.ru/api-reference/rest-v3/note/document/note-document-get.html) (`kb:article:show`), [`note.document.add`](https://apidocs.bitrix24.ru/api-reference/note/document/note-document-add.html) (`kb:article:add`), [`note.document.update`](https://apidocs.bitrix24.ru/api-reference/note/document/note-document-update.html) (`kb:article:update`). Нехватка `note` блокирует только `kb:*`. Методы доступны на коммерческих тарифах: на остальных портал отвечает `ACCESS_DENIED`, CLI возвращает `permission-denied`.
 
 [`call.followup.get`](https://apidocs.bitrix24.ru/api-reference/telephony/follow-up/call-followup-get.html) (REST 3.0, AI Follow-up звонка) требует `call`, но это необязательный источник: нехватка `call` не блокирует команды чтения истории чата и не попадает в список затронутых команд `auth:status`. Без неё подтверждённые участники звонка помечаются недоступными с причиной `followup-scope-missing`.
 

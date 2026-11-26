@@ -72,6 +72,12 @@ final class CommandCatalog
         'chats:messages:list' => ['class' => \Bitrix24\CLI\Console\Command\Chats\ListChatMessagesCommand::class, 'effect' => 'read'],
         'chats:calls:list' => ['class' => \Bitrix24\CLI\Console\Command\Chats\ListChatCallsCommand::class, 'effect' => 'read'],
         'chats:calls:show' => ['class' => \Bitrix24\CLI\Console\Command\Chats\ShowChatCallCommand::class, 'effect' => 'read'],
+        'kb:list' => ['class' => \Bitrix24\CLI\Console\Command\KnowledgeBase\ListKnowledgeBasesCommand::class, 'effect' => 'read'],
+        'kb:article:list' => ['class' => \Bitrix24\CLI\Console\Command\KnowledgeBase\ListArticlesCommand::class, 'effect' => 'read'],
+        'kb:article:search' => ['class' => \Bitrix24\CLI\Console\Command\KnowledgeBase\SearchArticlesCommand::class, 'effect' => 'read'],
+        'kb:article:show' => ['class' => \Bitrix24\CLI\Console\Command\KnowledgeBase\ShowArticleCommand::class, 'effect' => 'read'],
+        'kb:article:add' => ['class' => \Bitrix24\CLI\Console\Command\KnowledgeBase\AddArticleCommand::class, 'effect' => 'write'],
+        'kb:article:update' => ['class' => \Bitrix24\CLI\Console\Command\KnowledgeBase\UpdateArticleCommand::class, 'effect' => 'write'],
     ];
 
     public const LOCAL_COMMANDS = [
@@ -159,5 +165,11 @@ final class CommandCatalog
         'chats:messages:list' => [['tasks.task.get', 3], ['im.dialog.get', 1], ['im.dialog.messages.get', 1], ['im.call.get', 1], ['im.user.list.get', 1], ['call.followup.get', 3]],
         'chats:calls:list' => [['tasks.task.get', 3], ['im.dialog.get', 1], ['im.dialog.messages.get', 1], ['im.call.get', 1], ['im.user.list.get', 1], ['call.followup.get', 3]],
         'chats:calls:show' => [['tasks.task.get', 3], ['im.dialog.get', 1], ['im.dialog.messages.get', 1], ['im.call.get', 1], ['im.user.list.get', 1], ['call.followup.get', 3]],
+        'kb:list' => [['note.collection.list', 3]],
+        'kb:article:list' => [['note.document.tree.list', 3]],
+        'kb:article:search' => [['note.document.search.list', 3]],
+        'kb:article:show' => [['note.document.get', 3]],
+        'kb:article:add' => [['note.document.tree.list', 3], ['note.document.add', 3]],
+        'kb:article:update' => [['note.document.update', 3]],
     ];
 }

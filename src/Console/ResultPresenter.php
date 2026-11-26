@@ -29,6 +29,11 @@ final readonly class ResultPresenter
         'chat-call' => ['callId', 'startedAt', 'durationSeconds', 'initiatorId', 'present', 'absent', 'leftEarly', 'unknown'],
         'chat-message-sent' => ['target', 'chatId', 'messageId', 'confirmed', 'readback'],
         'chat-created' => ['target', 'chatId', 'title', 'type', 'confirmed', 'readback'],
+        'kb-collections' => ['id', 'name', 'policyLevel', 'accessLevel', 'isArchived'],
+        'kb-tree' => ['id', 'parentId', 'depth', 'title'],
+        'kb-search' => ['documentId', 'collectionId', 'title', 'score', 'sharedAccess'],
+        'kb-article' => ['id', 'collectionId', 'parentId', 'title', 'updatedAt'],
+        'kb-article-written' => ['id', 'collectionId', 'parentId', 'title', 'confirmed', 'readback', 'markdownNormalized'],
         'chat-candidates' => ['source', 'target', 'name', 'exact', 'writable', 'chatId', 'reason'],
         'task-results' => ['id', 'taskId', 'authorId', 'createdAt', 'status', 'text'],
         'time-entries' => ['id', 'userId', 'seconds', 'text', 'createdDate'], 'checklist-roots' => ['id', 'title'],
@@ -57,7 +62,10 @@ final readonly class ResultPresenter
 
         $error = $result->exitStatus === 0 ? null : ['code' => $result->exitStatus === 130 ? 'interrupted' : 'partial-result', 'message' => $message];
         $meta = ['schemaVersion' => 1, 'command' => $command, 'apiCalls' => $calls, 'apiVersions' => array_values(array_unique(array_column($calls, 'apiVersion'))), ...$result->meta];
-        if ($mode === 'json') {
+        if ($result->profile === 'kb-article-markdown') {
+            // The stored Markdown byte for byte: no table, header or trailing newline on stdout.
+            $output->write((string) ($result->data['article']['markdown'] ?? ''), false, OutputInterface::OUTPUT_RAW);
+        } elseif ($mode === 'json') {
             $output->writeln(json_encode(['data' => $result->data, 'meta' => $meta, 'error' => $error], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), OutputInterface::OUTPUT_RAW);
         } else {
             [$columns, $rows] = $this->rows($result);
@@ -81,7 +89,17 @@ final readonly class ResultPresenter
                 $this->tasks->card($result->data['task'] ?? [], $output);
             } elseif (in_array($result->profile, ['task-list', 'title-matches'], true)) {
                 $this->tasks->listing($result, $output);
+            } elseif ($result->profile === 'kb-article') {
+                (new Table($output))->setHeaders(['field', 'value'])->setRows(array_map(fn (string $field): array => [$field, OutputFormatter::escape($this->string($result->data['article'][$field] ?? null))], ['id', 'collectionId', 'parentId', 'title', 'createdBy', 'updatedBy', 'createdAt', 'updatedAt', 'isArchived', 'isTrashed']))->render();
+                $output->writeln('');
+                $output->writeln((string) ($result->data['article']['markdown'] ?? ''), OutputInterface::OUTPUT_RAW);
             } else {
+                if ($result->profile === 'kb-search') {
+                    // Human output only: the snippet without the portal <mark> highlighting; --plain keeps its columns.
+                    $columns[] = 'snippet';
+                    $rows = array_map(static fn (array $row, array $item): array => [...$row, html_entity_decode(strip_tags((string) ($item['snippet'] ?? '')), ENT_QUOTES | ENT_HTML5)], $rows, $result->data['items']);
+                }
+
                 if ($result->profile === 'chat-messages' && array_any($result->data['items'] ?? [], static fn (array $item): bool => array_key_exists('unread', $item))) {
                     // Human output only: the server unread flag with an explicit unknown; --plain keeps its columns.
                     $columns[] = 'unread';
@@ -124,6 +142,10 @@ final readonly class ResultPresenter
 
         if ($mode !== 'json' && $result->profile === 'chat-messages' && ($result->meta['legacyComments']['status'] ?? null) === 'not-checked') {
             $this->diagnostic($output, 'Прежние комментарии задачи (до перехода на чат) не проверялись: b24cli ' . $result->meta['legacyComments']['command']);
+        }
+
+        if ($mode !== 'json' && str_starts_with($result->profile, 'kb-') && isset($result->meta['hint'])) {
+            $this->diagnostic($output, $result->meta['hint']);
         }
 
         if ($mode !== 'json' && $result->profile === 'user-presence') {
@@ -267,6 +289,14 @@ final readonly class ResultPresenter
             'config-settings' => $result->data['settings'],
             default => $result->data['items'] ?? [$result->data['operation'] ?? []],
         };
+        if ($result->profile === 'kb-tree') {
+            $items = \Bitrix24\CLI\Application\KnowledgeBase\KnowledgeBaseReadService::flatten($result->data['items'] ?? []);
+        }
+
+        if ($result->profile === 'kb-article') {
+            $items = [$result->data['article']];
+        }
+
         if ($result->profile === 'chat-created') {
             $items = [[...$result->data['operation'], 'title' => $result->data['chat']['title'], 'type' => $result->data['chat']['type']]];
         }
