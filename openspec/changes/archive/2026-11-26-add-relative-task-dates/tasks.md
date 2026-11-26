@@ -1,5 +1,7 @@
 # Tasks
 
+Архивирование 26.11.2026: реализация влита в `dev` (MR #218). Пользователь явно поручил архивировать change с известными границами. Задачи 4.3 (native binary через `builds`), 4.4 (live-проверка `--closed-window` и новых окон) и 4.5 (MR в bitrix24-cli-skill) остаются незавершёнными. Архивирование не означает native- и портального подтверждения.
+
 ## 1. Shared calendar and extended search windows
 
 - [x] 1.1 Выделить общий календарь (now/timezone, bounds, day tokens) из DeadlineWindowResolver без изменения поведения 7 существующих окон; проверить, что DeadlineWindowTest, TaskDeadlineFilterTest и TaskDateWindowFilterTest проходят без правок ожиданий.
