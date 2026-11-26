@@ -52,4 +52,4 @@ status, createdDate, closedDate, count, observedCount, complete, reason.
 Заголовок и контекст периода/области печатаются в stderr.
 
 [JTBD PM-09](task-jtbd.md#pm-09) · [Карта команд](cli-command-map.md) ·
-[OpenSpec постановка](../openspec/changes/add-weekly-task-report/proposal.md)
+[OpenSpec постановка](../openspec/changes/archive/2026-11-26-add-weekly-task-report/proposal.md)

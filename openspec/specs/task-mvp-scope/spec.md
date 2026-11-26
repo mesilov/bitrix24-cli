@@ -220,6 +220,18 @@ CLI SHALL проверять --created-date до credentials и API calls и в�
 - **WHEN** task:time:add или task:time:update с --created-date вызваны в strict-rest3 режиме
 - **THEN** CLI до запроса возвращает policy-denied, как и без флага
 
+### Requirement: Weekly report admitted after the historical MVP
+В milestone 0.3.0 CLI SHALL допускать read-only `task:report` по capability task-weekly-report через объявленный `tasks.task.list` REST1. Исторический список исключений 0.1.0 SHALL сохраняться; этот допуск MUST не включать остальные планируемые сводки, произвольные legacy методы или записи. Strict-rest3 SHALL отклонять отчёт до credentials/API.
+
+#### Scenario: Narrow weekly report admission
+- **WHEN** после реализации task-weekly-report формируется каталог 0.3.0
+- **THEN** task:report добавляется как одна read-only команда; task:brief, task:risks и остальные недоставленные операции сохраняют свой статус планирования
+- **AND** исходные исторические количества MVP не выдаются за текущий runtime-каталог
+
+#### Scenario: Planning is distinct from runtime admission
+- **WHEN** подготовлены только proposal, specs, design, tasks и JTBD-документация
+- **THEN** task:report остаётся «План», CommandCatalog и число доступных команд не меняются, реализация и live-приёмка не считаются выполненными
+
 ## Решение о приёмке RC 0.1.0 — 12.10.2026
 
 По явному решению пользователя непроверенные части portal tasks 5.2–5.4 и связанного `define-task-jtbd` task 2.3 перенесены в milestone **0.2.0**, [#42](https://github.com/mesilov/bitrix24-cli/issues/42), change `complete-task-portal-acceptance` (`openspec/changes/complete-task-portal-acceptance/`). Они исключены из обязательной приёмки RC 0.1.0; перенос не является новым runtime proof. Уже выполненные 30 собственных happy-path и исходные records сохраняются.
