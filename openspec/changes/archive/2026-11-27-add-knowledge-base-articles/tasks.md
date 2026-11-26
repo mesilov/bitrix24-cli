@@ -34,7 +34,7 @@
 ## 6. Проверка
 
 - [x] 6.1 Integration: `tests/Integration/KnowledgeBase/*` на тестовом портале — временная база знаний с уникальным названием создаётся через SDK и переносится в корзину в `tearDown`; покрыты `kb:list`, `kb:article:list`, `kb:article:search`, `kb:article:show --markdown`, `kb:article:add` (включая `article-exists` при повторе), `kb:article:update`.
-- [ ] 6.2 Live-приёмка конфликта совместного редактора: открыть статью в редакторе портала с несохранёнными правками, вызвать `kb:article:update --markdown-file` без `--overwrite`, снять код ошибки и закрепить его как `article-conflict` (exit 4) с unit-тестом; если воспроизвести не удалось — зафиксировать это в `verification.md`.
+- [x] 6.2 Live-приёмка конфликта совместного редактора: открыть статью в редакторе портала с несохранёнными правками, вызвать `kb:article:update --markdown-file` без `--overwrite`, снять код ошибки и закрепить его как `article-conflict` (exit 4) с unit-тестом; если воспроизвести не удалось — зафиксировать это в `verification.md`. **Отложено** решением мейнтейнера 27.11.2026: через REST конфликт не воспроизводится, проверка в редакторе портала не выполнялась, код ошибки не снят; причина и граница зафиксированы в `verification.md`.
 - [x] 6.3 Unit-тесты, php-cs-fixer, phpstan, rector, `openspec validate add-knowledge-base-articles --strict` проходят в Docker-окружении.
 - [x] 6.4 `verification.md` с результатами, версией портала и границами проверки.
 
@@ -42,3 +42,7 @@
 
 - Подготовить MR в репозиторий скилла [mesilov/bitrix24-cli-skill](https://github.com/mesilov/bitrix24-cli-skill): переименовать скилл `bitrix24-tasks` в `bitrix24-cli`, добавить команды `kb:*` и сценарий «прочитать → изменить → записать» для обновления статьи.
 - После merge MR в `dev` и закрытия #234 архивировать change и обновить путь в разделе `## OpenSpec` issue.
+
+## Архивирование
+
+Change архивирован после merge [#235](https://github.com/mesilov/bitrix24-cli/pull/235) в `dev` (`1a42baa`). Delta `knowledge-base` синхронизирована с `openspec/specs/` как новая основная спецификация. Задача 6.2 закрыта как отложенная: код ошибки конфликта совместного редактора не снят, `article-conflict` не введён, CLI по-прежнему подсказывает `--overwrite` для неизвестной ошибки записи содержимого. Issue #234 остаётся открытым до выпуска в `main`. MR скилла [mesilov/bitrix24-cli-skill#17](https://github.com/mesilov/bitrix24-cli-skill/pull/17) открыт, не влит.

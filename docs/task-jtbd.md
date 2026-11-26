@@ -27,7 +27,7 @@
 
 Сверка [#185](https://github.com/mesilov/bitrix24-cli/issues/185) от 13.11.2026, база `dev` — `ff9481e`: добавлен [CHAT-06 — завести чат для рассылки команде](#chat-06). Отправка в произвольный доступный чат уже поставлена `chats:send`; новая команда `chats:add` создаёт закрытый (`CHAT`) или открытый (`OPEN`) групповой чат с участниками. Каналы Битрикс24 REST не создаёт. Каталог: 50 task-команд / 72 публичные. Live на тестовом портале: dry-run, создание закрытого чата с проверкой названия и участника, запись в созданный чат, блокировка повторного создания `chat-exists`. [OpenSpec change](../openspec/changes/archive/2026-11-13-add-chat-creation/proposal.md).
 
-Сверка [#234](https://github.com/mesilov/bitrix24-cli/issues/234) от 26.11.2026, база `dev` — `68b9cb3`: добавлены [сценарии Базы знаний 2.0 KB-01…KB-05](#knowledge-base) и namespace `kb:*` из шести команд (REST 3.0, scope `note`): список баз знаний, дерево и поиск статей, чтение, создание и обновление статьи. Каталог: 51 task-команда / 82 публичные. Live на тестовом портале: integration cases всех шести команд, включая побайтное чтение Markdown, защиту от дубля и замену содержимого. Конфликт совместного редактора при обновлении не воспроизведён. [OpenSpec change](../openspec/changes/add-knowledge-base-articles/proposal.md).
+Сверка [#234](https://github.com/mesilov/bitrix24-cli/issues/234) от 26.11.2026, база `dev` — `68b9cb3`: добавлены [сценарии Базы знаний 2.0 KB-01…KB-05](#knowledge-base) и namespace `kb:*` из шести команд (REST 3.0, scope `note`): список баз знаний, дерево и поиск статей, чтение, создание и обновление статьи. Каталог: 51 task-команда / 82 публичные. Live на тестовом портале: integration cases всех шести команд, включая побайтное чтение Markdown, защиту от дубля и замену содержимого. Конфликт совместного редактора при обновлении не воспроизведён. [OpenSpec change (архив)](../openspec/changes/archive/2026-11-27-add-knowledge-base-articles/proposal.md).
 
 Сверка [#182](https://github.com/mesilov/bitrix24-cli/issues/182) от 18.11.2026, база `dev` — `8a4122d`: PM-06, AM-06 и EMP-07 дополнены командой `task:legacy:comment:list` — чтением прежней ленты комментариев старой карточки задачи (устаревший REST 1.0 `task.commentitem.getlist`), а `task:chat:list` — признаком `meta.legacyComments`. Новых JTBD нет, ID сохранены. Каталог: 51 task-команда / 76 публичных. Live (только чтение) на тестовом портале; доступ пользователя без роли в задаче и страницы больше 50 комментариев не проверены. [OpenSpec change](../openspec/changes/archive/2026-11-23-add-task-legacy-comments/proposal.md).
 
@@ -95,7 +95,7 @@
 
 ## База знаний 2.0 — KB-01…KB-05
 
-Сценарии [#234](https://github.com/mesilov/bitrix24-cli/issues/234) применимы ко всем трём ролям и не меняют нумерацию PM/AM/EMP. Namespace **`kb:*`** работает только с Базой знаний 2.0 через REST 3.0 (`note.*`, scope `note`); старая база знаний на лендингах не поддерживается. [Руководство](knowledge-base.md), [спецификация](../openspec/changes/add-knowledge-base-articles/specs/knowledge-base/spec.md).
+Сценарии [#234](https://github.com/mesilov/bitrix24-cli/issues/234) применимы ко всем трём ролям и не меняют нумерацию PM/AM/EMP. Namespace **`kb:*`** работает только с Базой знаний 2.0 через REST 3.0 (`note.*`, scope `note`); старая база знаний на лендингах не поддерживается. [Руководство](knowledge-base.md), [спецификация](../openspec/specs/knowledge-base/spec.md).
 
 ### KB-01 — Какие базы знаний мне доступны
 
