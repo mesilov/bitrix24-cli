@@ -35,6 +35,5 @@
 
 ## Workflow follow-up
 
-- Архивировать `add-weekly-task-report` раньше этого change: обе дельты меняют `Exact MVP command registration`. При архивировании сверить число команд с `CommandCatalog`.
-- Расхождение вне объёма: каталог содержит пять users-команд (с `users:presence`), а требование `Exact MVP command registration` в основной спецификации и в дельтах — четыре. Исправить при архивировании вместе с числом task-команд.
-- PR в `dev` по maintainer workflow, затем архивирование и обновление пути в #182.
+- `add-weekly-task-report` не завершён (live-проверка 4.4), поэтому этот change архивирован раньше. Число команд в `Exact MVP command registration` сверено с `CommandCatalog`: 51 task-команда и пять users-команд (с `users:presence`); та же формулировка перенесена в дельту `add-weekly-task-report`.
+- PR [#224](https://github.com/mesilov/bitrix24-cli/pull/224) влит в `dev` (`8013028`); путь в #182 обновлён на архивный.
