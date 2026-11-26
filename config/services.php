@@ -76,6 +76,9 @@ return static function (ContainerBuilder $container, string $root, bool $package
         Bitrix24\CLI\Application\Chat\ChatFindService::class,
         Bitrix24\CLI\Application\Chat\ChatSendService::class,
         Bitrix24\CLI\Application\Chat\ChatCreateService::class,
+        Bitrix24\CLI\Console\KnowledgeBaseInputMapper::class,
+        Bitrix24\CLI\Application\KnowledgeBase\KnowledgeBaseReadService::class,
+        Bitrix24\CLI\Application\KnowledgeBase\ArticleWriteService::class,
 
     ];
     foreach ($services as $service) {
@@ -135,6 +138,9 @@ return static function (ContainerBuilder $container, string $root, bool $package
         $container->register($class)->setAutowired(true);
         $container->setAlias('Bitrix24\\CLI\\Application\\Chat\\Port\\' . $port, $class);
     }
+
+    $container->register(Bitrix24\CLI\Infrastructure\Bitrix24\Rest3KnowledgeBaseAdapter::class)->setAutowired(true);
+    $container->setAlias(Bitrix24\CLI\Application\KnowledgeBase\Port\KnowledgeBaseGateway::class, Bitrix24\CLI\Infrastructure\Bitrix24\Rest3KnowledgeBaseAdapter::class);
 
     foreach (['CurrentUser', 'FindUsers', 'ListColleagues', 'GetManager', 'UserPresence'] as $handler) {
         $container->register('Bitrix24\\CLI\\Application\\User\\Handler\\' . $handler . 'Handler')->setAutowired(true);

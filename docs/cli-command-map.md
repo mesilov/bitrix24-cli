@@ -1,6 +1,6 @@
 # Карта CLI-вызовов
 
-Каталог содержит 76 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
+Каталог содержит 82 публичных команд. Проверяйте установленную сборку через `b24cli --version` и `b24cli list`. Полная справка: `b24cli COMMAND --help` или `b24cli help COMMAND`.
 
 `b24cli --help`/`-h` показывают назначение, список команд, глобальные опции и примеры задач. Вся справка — на русском; имена команд, флагов и API/JSON-полей сохраняются. Единый первый блок «Общие» содержит `completion`, `help` и `list`; далее пространства имён и команды внутри блоков упорядочены по имени. `b24cli --about` показывает назначение, версию, автора, лицензию и ссылки на [приложение](https://github.com/mesilov/bitrix24-cli) и [скилл](https://github.com/mesilov/bitrix24-cli-skill). Эти вызовы не требуют подключения и не обращаются к порталу. `list --help` описывает именно list; вызов без аргументов выводит список команд.
 
@@ -27,6 +27,12 @@
 | [`config:unset`](../src/Console/Command/Config/UnsetCommand.php) | Удалить настройку и вернуть значение по умолчанию | local | `b24cli config:unset default.task.groupId` |
 | [`doctor:problem-trajectory`](../src/Console/Command/Doctor/ProblemTrajectoryCommand.php) | Сохранить и разобрать обезличенные карточки нехватки CLI | local | `b24cli doctor:problem-trajectory --action status --json` |
 | `help` | Показать справку команды | offline | `b24cli help task:add` |
+| [`kb:article:add`](../src/Console/Command/KnowledgeBase/AddArticleCommand.php) | Создать статью в базе знаний | write | `b24cli kb:article:add --collection 42 --title 'Регламент отпусков' --markdown-file vacation.md --json --dry-run` |
+| [`kb:article:list`](../src/Console/Command/KnowledgeBase/ListArticlesCommand.php) | Показать дерево статей базы знаний | read | `b24cli kb:article:list --collection 42 --json` |
+| [`kb:article:search`](../src/Console/Command/KnowledgeBase/SearchArticlesCommand.php) | Найти статьи базы знаний по заголовку и тексту | read | `b24cli kb:article:search --query 'отпуск' --json` |
+| [`kb:article:show`](../src/Console/Command/KnowledgeBase/ShowArticleCommand.php) | Показать статью базы знаний с содержимым в Markdown | read | `b24cli kb:article:show 77 --json` |
+| [`kb:article:update`](../src/Console/Command/KnowledgeBase/UpdateArticleCommand.php) | Заменить заголовок и/или содержимое статьи базы знаний | write | `b24cli kb:article:update 77 --markdown-file article.md --json --dry-run` |
+| [`kb:list`](../src/Console/Command/KnowledgeBase/ListKnowledgeBasesCommand.php) | Показать доступные базы знаний (База знаний 2.0) | read | `b24cli kb:list --json` |
 | `list` | Показать список команд | offline | `b24cli list task` |
 | [`task:access:show`](../src/Console/Command/Task/ShowTaskAccessCommand.php) | Показать права текущего пользователя | read | `b24cli task:access:show 123` |
 | [`task:add`](../src/Console/Command/Task/AddTaskCommand.php) | Создать задачу | write | `b24cli task:add --title "Подготовить договор" --creator 1 --responsible 42 --dry-run` |

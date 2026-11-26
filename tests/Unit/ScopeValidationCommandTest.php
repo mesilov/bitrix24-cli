@@ -188,7 +188,7 @@ final class ScopeValidationCommandTest extends TestCase
         }
 
         self::assertSame(['profile', 'scope', 'profile', 'scope', 'profile', 'scope'], $this->calls);
-        $this->scopes = ['task', 'im', 'disk', 'department', 'user', 'sonet_group'];
+        $this->scopes = ['task', 'im', 'disk', 'department', 'user', 'sonet_group', 'note'];
         $run = ConsoleHarness::run($this->app, ['auth:status', '--json']);
         self::assertSame(0, $run->status, $run->stdout);
         self::assertSame([], $run->json()['data']['potentiallyAffectedCommands']);

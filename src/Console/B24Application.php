@@ -135,7 +135,7 @@ final class B24Application extends Application
                     break;
                 }
 
-                if (in_array($tokens[$i], ['--config', '--description-file', '--fields-file', '--user-fields-file', '--text-file', '--where-file', '--params-file', '--report-file', '--settings-file', '--batch-file'], true) && ($tokens[$i + 1] ?? null) === '-') {
+                if (in_array($tokens[$i], ['--config', '--description-file', '--fields-file', '--user-fields-file', '--text-file', '--where-file', '--params-file', '--report-file', '--settings-file', '--batch-file', '--markdown-file'], true) && ($tokens[$i + 1] ?? null) === '-') {
                     $normalized[] = $tokens[$i] . '=-';
                     $i++;
                 } else {

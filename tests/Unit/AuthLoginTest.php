@@ -24,7 +24,7 @@ final class AuthLoginTest extends TestCase
 {
     private const WEBHOOK = 'https://portal.invalid/rest/1/LoginFixtureSecret/';
     private const ROTATED = 'https://portal.invalid/rest/1/RotatedLoginSecret/';
-    private const ALL_SCOPES = ['task', 'im', 'disk', 'department', 'user', 'sonet_group'];
+    private const ALL_SCOPES = ['task', 'im', 'disk', 'department', 'user', 'sonet_group', 'note'];
     private const OWNER = ['ID' => '1', 'ADMIN' => true, 'NAME' => 'Иван', 'LAST_NAME' => 'Иванов', 'PERSONAL_GENDER' => 'M', 'TIME_ZONE' => 'Europe/Moscow'];
 
     private string $directory;

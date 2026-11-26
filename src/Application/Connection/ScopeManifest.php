@@ -47,6 +47,16 @@ final class ScopeManifest
         'disk.folder.uploadFile' => [['disk']],
     ];
 
+    /** REST 3.0 methods outside the task scope; Knowledge Base 2.0 (note.*) per the official method pages. */
+    private const REST3_METHODS = [
+        'note.collection.list' => [['note']],
+        'note.document.tree.list' => [['note']],
+        'note.document.search.list' => [['note']],
+        'note.document.get' => [['note']],
+        'note.document.add' => [['note']],
+        'note.document.update' => [['note']],
+    ];
+
     /**
      * Optional sources: a missing scope only leaves the related data unavailable with a reason,
      * so they never block a command and are not reported as affected by auth:status.
@@ -57,7 +67,7 @@ final class ScopeManifest
 
     public function revision(): string
     {
-        return hash('sha256', json_encode([self::TASK_METHODS, self::OTHER_METHODS, self::OPTIONAL_METHODS, CommandCatalog::ROUTES], JSON_THROW_ON_ERROR));
+        return hash('sha256', json_encode([self::TASK_METHODS, self::OTHER_METHODS, self::REST3_METHODS, self::OPTIONAL_METHODS, CommandCatalog::ROUTES], JSON_THROW_ON_ERROR));
     }
 
     public function required(array $routes): array
@@ -76,6 +86,8 @@ final class ScopeManifest
                 $required = [['task', 'tasks']];
             } elseif ($route->version === 1 && array_key_exists($route->method, self::OTHER_METHODS)) {
                 $required = self::OTHER_METHODS[$route->method];
+            } elseif ($route->version === 3 && array_key_exists($route->method, self::REST3_METHODS)) {
+                $required = self::REST3_METHODS[$route->method];
             } else {
                 throw new Failure('configuration-error', 'The API route has no scope requirement in the installed manifest.');
             }
