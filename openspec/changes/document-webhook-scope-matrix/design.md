@@ -55,12 +55,13 @@ Unit-тест вызывает тот же класс и сравнивает р
 | Команда | Scope | Условие |
 | --- | --- | --- |
 | `task:list` | `im` | только `--unread` (`im.counters.get`) |
-| `task:show` | `user` / `user_basic` / `user_brief` | только при выборе полей участников кроме `id` (`user.get`) |
+| `task:show` | `user` / `user_basic` / `user_brief` | только `--select` с полями участников кроме `id` (`user.get`) |
 | `task:file:attach` | `disk` | только локальный файл `--file`; `--file-id` требует лишь scope задач |
-| `chats:send` | `sonet_group` | только при поиске чата по названию (`--name`) |
-| `chats:send` | `task` / `tasks` | только при `--name` или когда цель — чат задачи |
+| `chats:send` | `sonet_group` | только поиск по названию `--name` |
+| `chats:send` | `task` / `tasks` | только `--name` или TARGET `task:N` |
+| `chats:resolve`, `chats:messages:list`, `chats:calls:list`, `chats:calls:show`, `users:presence` | `task` / `tasks` | только TARGET `task:N` (`tasks.task.get` для привязки чата задачи) |
 
-При реализации карту нужно сверить со всеми `routes()`, где состав зависит от запроса: `ChatCalls`, `ChatCreate`, `ChatDestination`, `ChatMessages`, `ChatSend`, `AddTask`, `AttachTaskFiles`, `FindTasks`, `ListTasks`, `ShowTask`, `UpdateTask`, `TaskHandover`. Условия, которые меняют только маршруты внутри одной группы scope (например, REST 1.0/3.0 у `task:add` и `task:update`), в карту не попадают: на набор прав они не влияют.
+Карта сверена со всеми `routes()`, где состав зависит от запроса: `ChatCalls`, `ChatCreate`, `ChatDestination`, `ChatMessages`, `ChatSend`, `AddTask`, `AttachTaskFiles`, `FindTasks`, `ListTasks`, `ShowTask`, `UpdateTask`, `TaskHandover`. Условия, которые меняют только маршруты внутри одной группы scope, в карту не попадают: на набор прав они не влияют. Это REST 1.0/3.0 у `task:add`/`task:update`/`task:find`, `im.search.chat.list` у `chats:add`, звонки `chats:messages:list` и состав lifecycle-переходов `task:handover`.
 
 Тест проверяет, что каждая пара из карты есть среди обязательных групп этой команды по манифесту. Устаревшая пометка ломает тест.
 
