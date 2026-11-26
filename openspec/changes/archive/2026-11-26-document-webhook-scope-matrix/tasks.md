@@ -25,3 +25,7 @@
 - Добавить в issue #178 раздел `## OpenSpec` с идентификатором и путём change, после архивирования обновить путь.
 - Сообщить в #152 / change `explain-webhook-setup`, что таблицу прав нужно заменить ссылкой на README и матрицу.
 - После merge предложить в репозитории bitrix24-cli-skill ссылку на матрицу.
+
+## Архивирование
+
+Change архивирован после merge [#232](https://github.com/mesilov/bitrix24-cli/pull/232) в `dev` (`3f4c21b`). Delta `connection-scope-validation` синхронизирована с `openspec/specs/`. Issue #178 остаётся открытым до выпуска в `main`. Уведомление в #152 и ссылка в bitrix24-cli-skill ещё не сделаны.
