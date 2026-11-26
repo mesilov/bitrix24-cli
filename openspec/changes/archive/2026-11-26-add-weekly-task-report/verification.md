@@ -71,3 +71,7 @@ Compose image собран для конкретного worktree; `make docker-
 2. **WARNING / Not verified:** native binary smoke для нового runtime не запускался; изменённый harness проверен только по синтаксису и source CLI-контрактам. Installer checks Linux/macOS проверяют установщик, не доказывают native smoke нового runtime. Проверить реальные artifacts в рамках последующей поставки.
 
 Остальных spec/design расхождений в выполненных offline проверках не найдено. Не архивировать change и не закрывать issue по этим результатам; задача 4.4 остаётся незавершённой. Основной checkout и несвязанные worktrees сохранены.
+
+## Архивирование (26.11.2026)
+
+Рекомендация выше «не архивировать до 4.4» снята явным решением пользователя: change архивирован после merge реализации (MR #173) с известными границами. Delta specs синхронизированы в `task-weekly-report` (новая основная спецификация), `task-mvp-scope` и `task-workflows` (PM-09). MODIFIED-требование `Exact MVP command registration` в `task-console-runtime` уже совпадало с основной спецификацией после архивирования #182, поэтому синхронизация его не меняет. Задача 4.4 и native smoke остаются непроверенными.
